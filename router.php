@@ -49,6 +49,8 @@ $last = $segments ? (string)end($segments) : '';
 $denied = in_array($first, $internalDirs, true)
     || in_array($last, $internalFiles, true)
     || ($first !== '' && $first[0] === '.' && $first !== '.well-known')
+    // 后缀式备份残留：.bak / .bak_cl / .bak_20261024 / .old / .orig
+    || preg_match('/\.(bak|old|orig)([._]|$)/i', $last)
     || (preg_match('/\.([a-z0-9]+)$/i', $last, $m) && in_array(strtolower($m[1]), $deniedExt, true));
 
 if ($denied) {
