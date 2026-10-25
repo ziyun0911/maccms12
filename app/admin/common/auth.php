@@ -41,6 +41,90 @@ return array (
         'controller' => 'system',
         'action' => 'configseo',
       ),
+      214 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/configaiseo'),
+        'controller' => 'system',
+        'action' => 'configaiseo',
+      ),
+      2141 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/configaicover'),
+        'controller' => 'system',
+        'action' => 'configaicover',
+      ),
+      215 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configaisearch'),
+        'controller' => 'system',
+        'action' => 'configaisearch',
+      ),
+      2151 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_save'),
+        'controller' => 'meilisearch',
+        'action' => 'save',
+      ),
+      2152 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_status'),
+        'controller' => 'meilisearch',
+        'action' => 'status',
+      ),
+      2153 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_selfcheck'),
+        'controller' => 'meilisearch',
+        'action' => 'selfcheck',
+      ),
+      2154 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_sync'),
+        'controller' => 'meilisearch',
+        'action' => 'sync',
+      ),
+      2155 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_setup'),
+        'controller' => 'meilisearch',
+        'action' => 'setup',
+      ),
+      216 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/meilisearch'),
+        'controller' => 'meilisearch',
+        'action' => 'index',
+      ),
+      217 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configassistant'),
+        'controller' => 'system',
+        'action' => 'configassistant',
+      ),
+      218 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configthemeai'),
+        'controller' => 'system',
+        'action' => 'configthemeai',
+      ),
+      219 => 
+      array (
+        'show' => 1,
+        'name' => lang('admin/system/configaicontent'),
+        'controller' => 'system',
+        'action' => 'configaicontent',
+      ),
       1001 => 
       array (
         'show' => 0,
@@ -1442,90 +1526,6 @@ return array (
         'name' => lang('admin/content_quality/mark_recommend'),
         'controller' => 'content_quality',
         'action' => 'markRecommend',
-      ),
-      214 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configaiseo'),
-        'controller' => 'system',
-        'action' => 'configaiseo',
-      ),
-      2141 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configaicover'),
-        'controller' => 'system',
-        'action' => 'configaicover',
-      ),
-      215 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configaisearch'),
-        'controller' => 'system',
-        'action' => 'configaisearch',
-      ),
-      2151 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_save'),
-        'controller' => 'meilisearch',
-        'action' => 'save',
-      ),
-      2152 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_status'),
-        'controller' => 'meilisearch',
-        'action' => 'status',
-      ),
-      2153 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_selfcheck'),
-        'controller' => 'meilisearch',
-        'action' => 'selfcheck',
-      ),
-      2154 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_sync'),
-        'controller' => 'meilisearch',
-        'action' => 'sync',
-      ),
-      2155 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_setup'),
-        'controller' => 'meilisearch',
-        'action' => 'setup',
-      ),
-      216 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/meilisearch'),
-        'controller' => 'meilisearch',
-        'action' => 'index',
-      ),
-      217 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configassistant'),
-        'controller' => 'system',
-        'action' => 'configassistant',
-      ),
-      218 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configthemeai'),
-        'controller' => 'system',
-        'action' => 'configthemeai',
-      ),
-      219 => 
-      array (
-        'show' => 1,
-        'name' => lang('admin/system/configaicontent'),
-        'controller' => 'system',
-        'action' => 'configaicontent',
       ),
       220 => 
       array (

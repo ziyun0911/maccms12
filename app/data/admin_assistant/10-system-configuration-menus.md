@@ -12,6 +12,7 @@
 - **手机站 mob_status / mob_template_dir**：开关与 WAP 模板。  
 - **站点状态 site_status**：关闭站点时显示维护提示。  
 - **App 区块**（多与 `maccms.app` 对应）：缓存类型与参数、页面缓存、压缩、**搜索** 开关与时间间隔、热门搜索词、**扩展分类/地区/语言/年代** 可选列表、后台分页条数、编辑器类型、**后台语言** lang、登录验证码等。  
+- 本页现为 **11 个页签**：基本设置 / 地址发布页 / 性能优化 / 预留参数 / 后台设置 / SEO参数配置 / **AI SEO 设置 / AI 视频封面设置** / **附件参数配置 / URL地址配置 / 播放器参数配置**。后五个各自带独立 `<form>` 提交，旧地址 `system/configaiseo`、`configaicover`、`configupload`、`configurl`、`configplay` 会 302 到对应页签。
 - 保存后写入 **`application/extra/maccms.php`**；失败则检查目录写权限。
 
 ---
@@ -23,23 +24,26 @@
 
 ---
 
-## 3. AI SEO 配置 (`menu/configaiseo`)
+## 3. AI SEO 设置（`menu/configaiseo`，网站参数页签）
 
+- 位于 **系统设置 → 网站参数 → 「AI SEO 设置」页签**（不再是独立菜单页）。  
 - 列表/详情批量或单行 **AI 生成 SEO**（标题/描述等），使用独立 **API Base / Key / 模型**（与会话型 AI 搜索可不同）。  
-- 保存前建议小批量试跑，避免消耗过大。
+- 保存前建议小批量试跑，避免消耗过大。  
+- 同页签组的 **「AI 视频封面设置」**（`menu/configaicover`）配置封面生成；两张页签同属「网站参数」页面，各自有独立的保存/重置按钮与提交地址。
 
 ---
 
-## 4. AI 搜索配置 (`menu/configaisearch`)
+## 4. AI 搜索设置 (`menu/configaisearch`)
 
-- 前台 **AI 搜索/对话**、扩展词、语义向量重排、外部数据源（TMDB、豆瓣等）、速率限制。
+- 位于 系统设置 左侧面板。前台 **AI 搜索/对话**、扩展词、语义向量重排、外部数据源（TMDB、豆瓣等）、速率限制。  
+- 搜索引擎接入见同组的 **Meilisearch 设置**（`menu/meilisearch`）。
 
 ---
 
-## 5. 后台助手配置 (`menu/configassistant`)
+## 5. 后台助手设置 (`menu/configassistant`)
 
-- 浮动 **`?`** 管理端帮助；知识库为 **`application/data/admin_assistant/*.md`**，可选附带非敏感环境快照。  
-- 可与 **AI 搜索配置** 中的 LLM 凭据 **复用**（本页开关），或单独填写模型 / API Base / Key。
+- 位于 系统设置 左侧面板。浮动 **`?`** 管理端帮助；知识库为 **`application/data/admin_assistant/*.md`**，可选附带非敏感环境快照。  
+- 可与 **AI 搜索设置** 中的 LLM 凭据 **复用**（本页开关），或单独填写模型 / API Base / Key。
 
 ---
 
@@ -59,7 +63,7 @@
 
 ---
 
-## 8. 附件参数配置 (`menu/configupload`)
+## 8. 附件参数配置（`menu/configupload`，网站参数页签）
 
 - 缩略图、水印、本地上传、**远程 FTP/七牛/又拍/微博图床** 等 `mode` 与 `api` 子数组。  
 - 远程 URL 前缀、防盗链、图床 API。  
@@ -67,7 +71,7 @@
 
 ---
 
-## 9. URL 地址配置 (`menu/configurl`)
+## 9. URL 地址配置（`menu/configurl`，网站参数页签）
 
 - 各模块 **路由形式**（视频/文章/专题/演员/角色/网址/剧情/漫画等）。  
 - `pathinfo_depr`、伪静态、`suffix` 等与 **Web 服务器规则** 必须一致。  
@@ -75,7 +79,7 @@
 
 ---
 
-## 10. 播放器参数配置 (`menu/configplay`)
+## 10. 播放器参数配置（`menu/configplay`，网站参数页签）
 
 - 全局播放器相关默认、预置（与 **视频 → 播放器** 中具体代码配合）。  
 - 全站策略级选项以本页 + **播放器管理** 为准。

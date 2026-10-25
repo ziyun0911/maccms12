@@ -179,7 +179,7 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
      递增且与溢出项逐一对应；点「文档与手册」后面板切到 23、下拉条目与顶栏隐藏项同时高亮、菜单自动
      收起；611px 移动端布局下顶栏整体隐藏、不参与计算，「更多」保持 hidden。
 9. 【2026-10-25 顶栏收成 12 个主模块，其余组折进「系统设置」分节】
-   本块是后台菜单的口径（顶栏数量与 AI 能力的位置以说明 10 为准），说明 7、8 里的组名与「23 个顶级组」表述以本块为准。
+   本块是后台菜单的口径（顶栏数量与 AI 配置页的归属以说明 11 为准），说明 7、8 里的组名与「23 个顶级组」表述以本块（及说明 11 的改名）为准。
    - 顶栏 12 个主模块，顺序即 auth.php 的排列顺序：系统设置(1) / 分类管理(7) /
      主题设置(13) / 视频(2) / 文章(4) / 漫画(3) / 网址(5) / 直播(6) / 会员设置(10) /
      采集中心(15) / 数据库管理(19) / 文档与手册(23)。
@@ -215,8 +215,8 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
      侧栏收缩到 64px 时分节退化为一条分隔线；移动端抽屉与权限树（23 组 / 385 个复选框）
      正常；两个黑名单页面在浏览器里均 200 且表单可渲染。
 
-10. 【2026-10-25 网站参数收编三个资源页签，AI 能力升为顶栏组】
-    本块接续说明 9，是当前后台菜单与这几张配置页的口径。
+10. 【2026-10-25 网站参数收编三个资源页签，AI 能力升为顶栏组】（历史记录，已被说明 11 取代）
+    本块接续说明 9，记录当时的中间状态；当前口径见说明 11。
     - 顶栏改为 13 个主模块：AI 能力(8) 从「折进系统设置」升级为独立顶栏组，去掉
       auth.php 组定义里的 'nav_in' => 1 并把整块移到 采集中心(15) 之后，顺序为
       系统设置(1) / 分类管理(7) / 主题设置(13) / 视频(2) / 文章(4) / 漫画(3) /
@@ -259,6 +259,51 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
       权限树仍是 23 组，system/configupload、configurl、configplay、configaiseo、
       configaicover 五个 controller/action 均可授权；控制台无报错。
 
+11. 【2026-10-25 AI 配置退回网站参数，AI 工具组只保留工具页】
+    本块接续说明 10，是当前后台菜单与 AI 配置页的口径；说明 10 里「AI 能力为
+    独立顶栏、两张 AI 页 show=1」的表述由本块取代。
+    - 顶栏仍是 13 个主模块、顺序不变，只是第 8 组的组名由「AI 能力」改为
+      「AI 工具」（menu/ai × 6 份语言包）。该组保留独立顶栏、不恢复 'nav_in'；
+      「系统设置」面板的分节仍是 10 条（nav_in 组为 16/9/11/12/14/17/18/20/21/22）。
+    - 配置页归属照 maccms10-2026.1000.4056：AI SEO 设置、AI 视频封面设置 回到
+      系统设置 → 网站参数（system/config）做页签，节点 214 system/configaiseo、
+      2141 system/configaicover 改回 show=0（只作子管理员的权限点）。config.html
+      现 11 个页签：基本设置 / 地址发布页 / 性能优化 / 预留参数 / 后台设置 /
+      SEO参数配置 / AI SEO 设置 / AI 视频封面设置 / 附件参数配置 / URL地址配置 /
+      播放器参数配置；两张 AI 页签的字段来自 config_embed_aiseo.html、
+      config_embed_aicover.html，与原先独立页完全一致，各自带 <form> + __token__，
+      分别提交给 system/configaiseo、system/configaicover（POST 分支未动）。
+    - system/configaiseo、system/configaicover 的 GET 现在 redirect 到
+      system/config?tab=aiseo|aicover；config() 的 $config_merge_tab 白名单加了
+      aiseo / aicover，页签记忆 cookie 仍先校验 lay-id 还在页签条上。
+      configaiseo.html、configaicover.html 两个薄壳视图移入
+      _bak_legacy_20261025/ 并记入 MANIFEST（已无渲染路径）。
+    - AI 搜索设置(215 system/configaisearch)、Meilisearch 设置(216
+      meilisearch/index，含 2151~2155 五个动作权限点)、后台助手设置(217)、
+      主题 AI 设置(218)、AI 标注设置(219 system/configaicontent) 登记在
+      系统设置 组，均 show=1，随左侧面板分节折叠显示。AI 工具 组只剩工具页：
+      AI 标注队列(673 ai_annotation/index + 6731~6733)、内容质量
+      (674 content_quality/index + 6741)、翻译设置(220 translate/index +
+      2201/2202)。
+    - 显示名去重（auth.php 的 controller/action 与 admin_auth 权限值不变）：
+      menu/ai → AI 工具、menu/aiannotation → AI 标注队列（与「AI 标注设置」
+      区分）、menu/configaiseo → AI SEO 设置、menu/configaicover →
+      AI 视频封面设置、menu/configaisearch → AI 搜索设置、menu/meilisearch →
+      Meilisearch 设置、menu/configassistant → 后台助手设置、
+      menu/configthemeai → 主题 AI 设置；6 份语言包同步。
+    - 设置中心（系统设置首页）的 ai 分组小标题改用新键
+      admin/system/config/ai_section（AI 与 SEO / AI & SEO / AI 與 SEO /
+      AI と SEO / AI 및 SEO / AI и SEO），原先复用页面名 menu/configaiseo；
+      安全体检的 AI SEO 条目、hub 的 config_aiseo / config_aicover 入口都指向
+      config?tab=aiseo|aicover。
+    - 已实测（:8080 后台）：顶栏 13 项且第 11 项显示「AI 工具」；AI 工具面板 3 项
+      （AI标注队列 / 内容质量 / 翻译设置）；系统设置面板分节里出现五张 AI 配置页；
+      网站参数 11 个页签齐备，config?tab=aiseo|aicover 各自定位，旧
+      system/configaiseo|configaicover 链接 302 到对应页签；AI SEO 页签保存一次
+      落盘正确、配置文件与操作前逐字节一致（测试后已恢复）；设置中心分组标题
+      「AI 与 SEO」、链接带 tab 参数；权限树里 214/2141 与 215~219 均挂在
+      系统设置 下，标签为新名称。
+
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）
 --------------------------------------------------------------------------------
@@ -274,7 +319,7 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
 · 了解 maccms12 升级全貌 → 项目根 README.md
 · 服务器上不想放开下载规则又想看正文 → 后台「文档与手册 → 说明文档」在线阅读页
   （仅登录管理员可见，见第四节说明 6）
-· 想确认某个后台功能在哪一组 → 见第四节说明 10（接续说明 9）的 13 个顶栏主模块 + 系统设置分节清单
+· 想确认某个后台功能在哪一组 → 见第四节说明 11（接续说明 9、10）的 13 个顶栏主模块 + 系统设置分节清单
 
 ================================================================================
 *本说明文档集为 maccms12（TP8）交付物的一部分；内容已与 maccms12 代码库/

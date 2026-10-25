@@ -19,6 +19,8 @@
                 <li lay-id="config_3">{:lang('admin/system/config/parameters')}</li>
                 <li lay-id="config_4">{:lang('admin/system/config/backstage')}</li>
                 <li lay-id="config_seo">{:lang('menu/configseo')}</li>
+                <li lay-id="config_aiseo">{:lang('menu/configaiseo')}</li>
+                <li lay-id="config_aicover">{:lang('menu/configaicover')}</li>
                 <li lay-id="config_upload">{:lang('admin/system/configupload/title')}</li>
                 <li lay-id="config_url">{:lang('menu/configurl')}</li>
                 <li lay-id="config_play">{:lang('menu/configplay')}</li>
@@ -1070,6 +1072,30 @@
                         </div>
                     </form>
                 </div>
+                <div class="layui-tab-item" id="config_tab_aiseo">
+                    <form class="layui-form layui-form-pane" method="post" action="{$form_action_configaiseo|default=''}">
+                        <input type="hidden" name="__token__" value="{:token()}" />
+                        {include file="system/config_embed_aiseo" /}
+                        <div class="layui-form-item center">
+                            <div class="layui-input-block">
+                                <button type="submit" class="layui-btn" lay-submit="" lay-filter="formSubmit">{:lang('btn_save')}</button>
+                                <button class="layui-btn layui-btn-primary" type="reset">{:lang('btn_reset')}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="layui-tab-item" id="config_tab_aicover">
+                    <form class="layui-form layui-form-pane" method="post" action="{$form_action_configaicover|default=''}">
+                        <input type="hidden" name="__token__" value="{:token()}" />
+                        {include file="system/config_embed_aicover" /}
+                        <div class="layui-form-item center">
+                            <div class="layui-input-block">
+                                <button type="submit" class="layui-btn" lay-submit="" lay-filter="formSubmit">{:lang('btn_save')}</button>
+                                <button class="layui-btn layui-btn-primary" type="reset">{:lang('btn_reset')}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
                 <div class="layui-tab-item" id="config_tab_upload">
                     <form class="layui-form layui-form-pane" method="post" action="{$form_action_configupload|default=''}">
                         <input type="hidden" name="__token__" value="{:token()}" />
@@ -1193,6 +1219,10 @@
 
         if (mergeTab === 'seo') {
             element.tabChange('tb1', 'config_seo');
+        } else if (mergeTab === 'aiseo') {
+            element.tabChange('tb1', 'config_aiseo');
+        } else if (mergeTab === 'aicover') {
+            element.tabChange('tb1', 'config_aicover');
         } else if (mergeTab === 'upload') {
             element.tabChange('tb1', 'config_upload');
         } else if (mergeTab === 'url') {

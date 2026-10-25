@@ -161,7 +161,7 @@ parse_str() 解析。处理器都在 app/api/controller/Timming.php。
     批量为内容生成 AI 标注（标签/简介类）。每次运行只挑 limit 条尚未标注的，做完即走；
     ContentAnnotator 内部按 source_hash 判重，重复触发不会重复消耗额度。
     参数：mid=1|2（1=视频、2=文章，其它值回落 1）；limit=单次条数
-         （留空取「AI 能力 → AI 标注设置」页 system/configaicontent 的批量条数 ai_content.batch_size，
+         （留空取「系统设置 → AI 标注设置」页 system/configaicontent 的批量条数 ai_content.batch_size，
           取值范围 1~100、默认 20；填了 limit 也不会超过该配置值）
     示例：mid=1&limit=50
     执行文件：选择「AI内容标注」

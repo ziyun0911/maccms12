@@ -187,7 +187,7 @@ class System extends Base
             'media'   => lang('menu/configupload'),
             'connect' => lang('menu/configconnect'),
             'notify'  => lang('menu/configemail'),
-            'ai'      => lang('menu/configaiseo'),
+            'ai'      => lang('admin/system/config/ai_section'),
             'system'  => lang('menu/system'),
         ];
         $stateText = [
@@ -369,14 +369,14 @@ class System extends Base
             [
                 'key' => 'config_aiseo', 'group' => 'ai',
                 'title' => lang('menu/configaiseo'), 'icon' => 'layui-icon-senior',
-                'action' => 'configaiseo', 'query' => [],
+                'action' => 'config', 'query' => ['tab' => 'aiseo'],
                 'state' => $this->systemSettingsFeatureState($seoOn, $seoReady),
                 'tip' => $this->systemSettingsTip('admin/system/configaiseo/tip'),
             ],
             [
                 'key' => 'config_aicover', 'group' => 'ai',
                 'title' => lang('menu/configaicover'), 'icon' => 'layui-icon-tupian',
-                'action' => 'configaicover', 'query' => [],
+                'action' => 'config', 'query' => ['tab' => 'aicover'],
                 'state' => $this->systemSettingsFeatureState($coverOn, $coverReady),
                 'tip' => $this->systemSettingsTip('admin/system/configaicover/tip'),
             ],
@@ -648,7 +648,7 @@ class System extends Base
         // AI SEO
         $seoOn = (string)$this->systemSettingsGet($config, 'ai_seo.enabled', '0') === '1';
         $seoReady = trim((string)$this->systemSettingsGet($config, 'ai_seo.api_key', '')) !== '';
-        $seoUrl = (string)url('system/configaiseo');
+        $seoUrl = (string)url('system/config', ['tab' => 'aiseo']);
         if (!$seoOn) {
             $add(lang('menu/configaiseo'), 'off', lang('admin/safety/checkup_status_off'), $seoUrl);
         } elseif ($seoReady) {
@@ -961,14 +961,19 @@ class System extends Base
         $this->assign('play', $play);
 
         $this->assign('form_action_configseo', (string) url('configseo'));
+        $this->assign('form_action_configaiseo', (string) url('configaiseo'));
+        $this->assign('form_action_configaicover', (string) url('configaicover'));
         $this->assign('form_action_configupload', (string) url('configupload'));
         $this->assign('form_action_configurl', (string) url('configurl'));
         $this->assign('form_action_configplay', (string) url('configplay'));
         $tab = (string) input('tab', '');
-        $allowTab = ['', 'seo', 'upload', 'url', 'play'];
+        $allowTab = ['', 'seo', 'aiseo', 'aicover', 'upload', 'url', 'play'];
         $this->assign('config_merge_tab', in_array($tab, $allowTab, true) ? $tab : '');
         $this->assign('audit_crypto_gcm_supported', SensitiveDataCrypto::supportsAes256Gcm() ? 1 : 0);
         $this->assign('api_jwt_secret_strong', JwtService::hasStrongSecret() ? 1 : 0);
+        // 「AI SEO 设置」「AI 视频封面设置」页签：补齐展示默认值并回显已保存 Key 的尾号
+        $config['ai_seo'] = $this->aiSeoFormConfig()['ai_seo'];
+        $config['ai_cover'] = $this->aiCoverFormConfig()['ai_cover'];
         $this->assign('config', $config);
         // 「附件参数配置」页签：上传扩展插件的字段各自 View::fetch，须先有 $config 才能回填已存的密钥
         $this->assign('extends', mac_extends_list('upload'));
@@ -1795,24 +1800,19 @@ class System extends Base
     private function aiSeoFormConfig()
     {
         $config = config('maccms');
-        if (!isset($config['ai_seo']) || !is_array($config['ai_seo'])) {
-            $config['ai_seo'] = [
-                'enabled' => '0',
-                'auto_generate' => '0',
-                'template_inject' => '0',
-                'provider' => 'openai',
-                'model' => 'gpt-4o-mini',
-                'api_base' => 'https://api.openai.com/v1',
-                'api_key' => '',
-                'timeout' => '20',
-            ];
-        }
-        foreach (['template_inject', 'auto_generate', 'enabled'] as $flag) {
-            if (!isset($config['ai_seo'][$flag])) {
-                $config['ai_seo'][$flag] = '0';
-            }
-        }
-        $key = trim((string)(isset($config['ai_seo']['api_key']) ? $config['ai_seo']['api_key'] : ''));
+        $defaults = [
+            'enabled' => '0',
+            'auto_generate' => '0',
+            'template_inject' => '0',
+            'provider' => 'openai',
+            'model' => 'gpt-4o-mini',
+            'api_base' => 'https://api.openai.com/v1',
+            'api_key' => '',
+            'timeout' => '20',
+        ];
+        $stored = isset($config['ai_seo']) && is_array($config['ai_seo']) ? $config['ai_seo'] : [];
+        $config['ai_seo'] = array_merge($defaults, $stored);
+        $key = trim((string)$config['ai_seo']['api_key']);
         $this->assign('ai_seo_key_saved', $key !== '' ? 1 : 0);
         $this->assign('ai_seo_key_tail', $key !== '' ? substr($key, -6) : '');
         return $config;
@@ -1824,20 +1824,20 @@ class System extends Base
     private function aiCoverFormConfig()
     {
         $config = config('maccms');
-        if (!isset($config['ai_cover']) || !is_array($config['ai_cover'])) {
-            $config['ai_cover'] = [
-                'enabled' => '0',
-                'provider' => 'openai',
-                'model' => 'gpt-image-1',
-                'api_base' => 'https://api.openai.com/v1',
-                'api_key' => '',
-                'timeout' => '120',
-                'size' => '1024x1536',
-                'quality' => 'medium',
-                'prompt_suffix' => '',
-            ];
-        }
-        $key = trim((string)(isset($config['ai_cover']['api_key']) ? $config['ai_cover']['api_key'] : ''));
+        $defaults = [
+            'enabled' => '0',
+            'provider' => 'openai',
+            'model' => 'gpt-image-1',
+            'api_base' => 'https://api.openai.com/v1',
+            'api_key' => '',
+            'timeout' => '120',
+            'size' => '1024x1536',
+            'quality' => 'medium',
+            'prompt_suffix' => '',
+        ];
+        $stored = isset($config['ai_cover']) && is_array($config['ai_cover']) ? $config['ai_cover'] : [];
+        $config['ai_cover'] = array_merge($defaults, $stored);
+        $key = trim((string)$config['ai_cover']['api_key']);
         $this->assign('ai_cover_key_saved', $key !== '' ? 1 : 0);
         $this->assign('ai_cover_key_tail', $key !== '' ? substr($key, -6) : '');
         return $config;
@@ -1899,9 +1899,7 @@ class System extends Base
             return $this->success(lang('save_ok'));
         }
 
-        $this->assign('config', $this->aiSeoFormConfig());
-        $this->assign('title', lang('admin/system/configaiseo/title'));
-        return $this->fetch('admin@system/configaiseo');
+        return $this->redirect(url('config', ['tab' => 'aiseo']));
     }
 
     public function configaicover()
@@ -1976,9 +1974,7 @@ class System extends Base
             return $this->success(lang('save_ok'));
         }
 
-        $this->assign('config', $this->aiCoverFormConfig());
-        $this->assign('title', lang('admin/system/configaicover/title'));
-        return $this->fetch('admin@system/configaicover');
+        return $this->redirect(url('config', ['tab' => 'aicover']));
     }
 
     public function configaisearch()
