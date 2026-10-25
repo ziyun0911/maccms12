@@ -815,12 +815,12 @@ class ResourceHub extends Base
                 'status' => '1',
                 'from' => $from,
                 'show' => $from . '播放器',
-                'des' => '自动添加',
+                'des' => '在线播放',
                 'target' => '_self',
                 'ps' => '0',
                 'parse' => '',
                 'sort' => '800',
-                'tip' => '自动配置',
+                'tip' => '无需安装任何插件',
                 'id' => $from,
             ];
 
@@ -1144,12 +1144,12 @@ MacPlayer.Show();
                 'status' => '1',
                 'from' => $from,
                 'show' => $from . '播放器',
-                'des' => '自动添加',
+                'des' => '在线播放',
                 'target' => '_self',
                 'ps' => '0',
                 'parse' => '',
                 'sort' => '800',
-                'tip' => '自动配置',
+                'tip' => '无需安装任何插件',
                 'id' => $from,
             ];
             $changed = true;
