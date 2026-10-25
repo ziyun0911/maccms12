@@ -99,7 +99,9 @@ class Admin extends Base
                     $cs[] = $one;
                     $menus[$k1]['sub'][$k2]['ck'] = 'checked';
                 }
-                if($k2==11){
+                // 欢迎页是登录后必达项，权限列表里固定勾选且不可取消；按 controller/action 判定，
+                // 不按菜单键数字判定——键会随分组调整重排，数字判断迟早误伤同名键的其他节点。
+                if($v2['controller']==='index' && $v2['action']==='welcome'){
                     $menus[$k1]['sub'][$k2]['ck'] = ' checked  readonly="readonly" ';
                 }
             }

@@ -5,8 +5,8 @@ maccms12（ThinkPHP 8）说明
 （TP8 多应用）下同样适用：前台 index.php、后台 admin.php、接口 api.php、
 安装 install.php 均为独立入口文件；除前台外的入口是真实文件，重写规则
 只在「请求的不是真实文件/目录」时生效，互不冲突。
-· 后台设置：系统 → URL地址配置 →「路由伪静态设置」分页，把「伪静态状态」
-  （rewrite.status）打开；用自定义 URL 表达式时同时打开「路由状态」
+· 后台设置：站点参数 → 资源、链接与播放 →「URL地址配置」分页 →「路由伪静态设置」，
+  把「伪静态状态」（rewrite.status）打开；用自定义 URL 表达式时同时打开「路由状态」
   （rewrite.route_status）。「浏览模式设置」分页保持各页为「动态」（view.*=0）——
   伪静态与生成静态是两套机制，选了静态就不走 rewrite。
   （官方原文写作「系统 → 网站参数 → 浏览模式 → 选 rewrite伪静态」，maccms12 的
@@ -14,7 +14,8 @@ maccms12（ThinkPHP 8）说明
   出厂默认 rewrite.status / route_status 均为 0，即未启用伪静态。
 · 入口文件如需改名（如 api.php → api2.php），请同步修改本目录规则。
 · 若静态文件后缀配置的不是 html（如 .shtml），请把规则中 .html 替换为
-  对应后缀；静态路径前缀在 系统 → URL地址配置 →「静态路径设置」分页调整。
+  对应后缀；静态路径前缀在 站点参数 → 资源、链接与播放 →「URL地址配置」→
+  「静态路径设置」分页调整。
 · maccms12 在 TP8 下同时支持 ?s= 兼容模式：index.php?s=/vod/detail/id/1
   与 PATHINFO 模式：index.php/vod/detail/id/1，规则文件两种均已覆盖。
 ========================================================================
@@ -75,7 +76,7 @@ config/、app/、extend/、composer.json、composer.lock、think、.user.ini 以
 robots.txt、crossdomain.xml、LICENSE 均保持可访问。
 五套规则（根 .htaccess / maccms.conf / web.config / httpd.ini / router.php）
 的拦截名单需同步维护，新增根级内部文件时按上面的清单补全。
-需要在本目录里查文档正文时，不必放开下载规则：登录后台 →「运维与安全」→
+需要在本目录里查文档正文时，不必放开下载规则：登录后台 →「文档与手册」→
 「说明文档」即可在线阅读（后台阅读页只读，读取范围限本目录的 txt/md/conf/ini/
 config 与根 README.md，见《00-说明文档总览.txt》第四节说明 6）。
 ========================================================================

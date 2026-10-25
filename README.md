@@ -75,7 +75,8 @@
 - `static_new/` 已并入 `static/`（同名以 static_new 版本覆盖，保留目录名 `static`），代码中 17 处 `static_new` 引用统一改为 `static`（现全库 `static_new` 引用 0 处）
 - 6 份界面语言包（`app/lang/*.php`）里 5 处提示文案的旧目录名 `application/data/admin_assistant/`、`application/data/addon/local_public.pem`、`application/extra/addons.php` 改为 `app/...`；快捷菜单示例地址 `/application/xxxx.html` 改为插件路由 `/index.php/addons/plugin/controller/action`（`app/` 已被 HTTP 拦截，旧示例点了只会 403/404）
 - `middleware/Init.php` 中 memcache/memcached 动态配置改用 TP8 `Config::set([...], 'cache')` 整组写入
-- 后台「定时任务 → 执行文件」下拉补齐为 14 项（新增 `annotate` / `content_quality` / `user_profile`，与安装脚本预置的 `content_ai_annotate` / `content_quality(_art)` / `user_profile` 对应）；此前这三条预置任务在下拉里无匹配项，编辑后保存会静默落到第一项 `collect`。现在不在候选项里的自定义执行文件也会作为保底 option 原样保留（`app/admin/view/timming/info.html`）。
+- 后台「站点参数 → 调度任务」下拉补齐为 14 项（新增 `annotate` / `content_quality` / `user_profile`，与安装脚本预置的 `content_ai_annotate` / `content_quality(_art)` / `user_profile` 对应）；此前这三条预置任务在下拉里无匹配项，编辑后保存会静默落到第一项 `collect`。现在不在候选项里的自定义执行文件也会作为保底 option 原样保留（`app/admin/view/timming/info.html`）。
+- 后台左侧菜单按功能重排为 23 个顶级组（`app/admin/common/auth.php`，360 个节点）：原「系统设置」「运维与安全」「会员与营销」「界面与生成」等大杂烩组拆成 站点参数 / 通知与推送 / 扩展与权限 / 采集与接入 / 数据库与备份 / 安全与风控 / 监控与告警 / 日志与审计 / 文档与手册 / 会员账户 / 营销与交易 / 模板与界面 / 静态生成 等专组，内容模块组（视频/漫画/文章/网址/直播）保持原样。权限数据 `admin_auth` 存的是 `controller/action` 字符串，因此分组调整不影响既有子管理员授权。
 - 插件 zip 顶层目录黑名单 `AddonSecureInstaller::$blockedPrefixes` 补上 TP8 的 `app/`、`config/`、`route/`（原来只有 maccms10 的 `application/` 等），两种命名的插件包都拦得住。
 
 ---
@@ -113,7 +114,7 @@
 - 导航与差异摘要 → `00-说明文档总览.txt`
 
 > 文档内容已与 maccms12 代码库/数据库逐项核对；官方文档中 maccms12 未实现的功能（Novel 小说、Sycms）均已醒目标注；内容级多语言为 maccms12 已实现功能。
-> 这些文件不随站点公开分发（见第八节）；登录后在后台「运维与安全 → 说明文档」即可在线阅读，无需临时放开下载规则。
+> 这些文件不随站点公开分发（见第八节）；登录后在后台「文档与手册 → 说明文档」即可在线阅读，无需临时放开下载规则。
 
 ## 八、部署提示
 
@@ -124,7 +125,7 @@
   `.md .sql .log .lock .wpm .sh .ps1 .py .bak .old .orig` 等内部文件一律禁止经 HTTP 直接下载：
   Apache 用根 `.htaccess`（nginx / IIS 的规则见 `说明文档/伪静态规则/` 内同名文件），
   PHP 内置服务器用根 `router.php`。五套规则的拦截名单需同步维护，新增根级文件时按此清单补全。
-- 拦截的是公网直连，不是「文档看不到」：后台「运维与安全 → 说明文档」（`admin.php/doc/index.html`，
+- 拦截的是公网直连，不是「文档看不到」：后台「文档与手册 → 说明文档」（`admin.php/doc/index.html`，
   控制器 `app/admin/controller/Doc.php`）列出 `说明文档/` 全部文本与根 `README.md` 并渲染正文，
   仅登录管理员可见，子管理员需单独勾选 `doc/index`、`doc/info` 权限。只读白名单为
   `.txt .md .conf .ini .config`，超出站点文档目录的路径一律拒绝，单文件超过 1MB 只截断显示开头。

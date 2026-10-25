@@ -87,12 +87,12 @@
         <nav id="navBar" class="admin-side__nav" aria-label="{:lang('admin/index/index/nav_sub')}">
             {volist name="menus" id="v" key="k"}
             <ul class="side-panel" data-panel="{$k}"{neq name="k" value="1"} hidden{/neq}>
-                {volist name="v['sub']" id="vv" key="kk"}
+                {volist name="v['sub']" id="vv"}
                 {if condition="($vv['url'] !=='###')"}
                 <li class="side-panel__item">
-                    <a class="admin-nav-item" data-id="{$key}{$kk}" href="{$vv['url']}" title="{$vv['name']}">
+                    <!-- data-id = 组键-节点键，同时用作常驻标签的 lay-id，必须与 WELCOME_TAB_ID 的拼法一致 -->
+                    <a class="admin-nav-item" data-id="{$k}-{$key}" href="{$vv['url']}" title="{$vv['name']}">
                         <span class="admin-nav-item__glyph" aria-hidden="true"></span>
-                        <i class="{$vv['icon']}"></i>
                         <span class="admin-nav-item__label">{$vv['name']}</span>
                     </a>
                 </li>
@@ -115,7 +115,7 @@
                     </button>
                     <div class="admin-tabs__viewport" id="tabViewport">
                         <ul class="admin-tabs__bar" id="B_history" role="tablist">
-                            <li lay-id="111" class="is-active is-pinned" role="tab" aria-selected="true">
+                            <li lay-id="1-11" class="is-active is-pinned" role="tab" aria-selected="true">
                                 <span class="admin-tabs__label">{:lang('admin/index/index/menu_welcome')}</span>
                             </li>
                         </ul>
@@ -146,8 +146,8 @@
                 <button type="button" class="admin-tab-ctx__item" data-action="closeAll">{:lang('admin/index/index/menu_close_all')}</button>
             </div>
             <div class="admin-workspace__body admin-tabs__content">
-                <div class="admin-tabs__pane is-active" data-tab-id="111">
-                    <iframe lay-id="111" src="{:url('index/welcome')}" class="hs-iframe" scrolling="yes"></iframe>
+                <div class="admin-tabs__pane is-active" data-tab-id="1-11">
+                    <iframe lay-id="1-11" src="{:url('index/welcome')}" class="hs-iframe" scrolling="yes"></iframe>
                 </div>
             </div>
         </div>
@@ -326,7 +326,8 @@
         });
 
         /* ── 标签页管理（Ant Design 风格 · 不依赖 layui element） ── */
-        var WELCOME_TAB_ID = '111';
+        // 与首页组「欢迎页面」节点的 data-id（组键-节点键 = 1-11）保持一致，否则常驻标签会被当成普通标签
+        var WELCOME_TAB_ID = '1-11';
         var $tabViewport = $('#tabViewport');
         var $tabCtxMenu = $('#tabContextMenu');
         var ctxTabId = null;

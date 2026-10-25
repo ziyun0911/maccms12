@@ -73,7 +73,9 @@ class Index extends Base
             $quickmenu = explode(chr(13), $quickmenu);
         }
         if (!empty($quickmenu)) {
-            $menus[1]['sub'][13] = ['name' => lang('admin/index/quick_tit'), 'url' => 'javascript:void(0);return false;', 'controller' => '', 'action' => ''];
+            // 快捷菜单项用 900000+ 的键：auth.php 的菜单节点键都是 5~6 位业务编号，
+            // 沿用过去的 13 / 14+k 会在首页组增删节点时撞上真实菜单项。
+            $menus[1]['sub'][900000] = ['name' => lang('admin/index/quick_tit'), 'url' => 'javascript:void(0);return false;', 'controller' => '', 'action' => ''];
 
             foreach ($quickmenu as $k => $v) {
                 if (empty($v)) {
@@ -92,7 +94,7 @@ class Index extends Base
                     $translated = lang($qmName);
                     if ($translated !== $qmName) $qmName = $translated;
                 }
-                $menus[1]['sub'][14 + $k] = ['name' => $qmName, 'url' => $one[1], 'controller' => '', 'action' => ''];
+                $menus[1]['sub'][900001 + $k] = ['name' => $qmName, 'url' => $one[1], 'controller' => '', 'action' => ''];
             }
         }
         // 语言切换器直接吃语言包自述的注册表：增删一个 app/lang/<code>.php，下拉和 ADMIN_LANG_META 跟着变

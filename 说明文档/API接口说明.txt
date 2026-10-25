@@ -5,8 +5,9 @@ maccms12（ThinkPHP 8）说明
 ========================================================================
 本文档基于官方 maccms10「API 接口说明 V2」整理，与 maccms12 实际实现
 逐项核对（maccms12 api 模块共 40 个控制器）。要点：
-· 基础路径 /api.php 不变；入口文件可按需改名（后台 系统 → 网站参数 →
-  接口入口文件），改名后所有 /api.php/ 路径同步替换。
+· 基础路径 /api.php 不变；api.php 是网站根目录下的实体入口文件，maccms12 后台
+  没有「入口改名」开关，需要改名请直接重命名该文件（同时同步伪静态规则与
+  采集地址），改名后所有 /api.php/ 路径同步替换。
 · 接口行为、参数、返回结构与 maccms10 一致；本文档正文可直接作为
   maccms12 接口手册使用。
 · 原同目录《API接口说明.txt》（老格式简版）已并入本文：其请求示例与
@@ -29,7 +30,7 @@ maccms12（ThinkPHP 8）说明
 二、搜索接口
 说明：
 - 与 **四、模块接口** 相同，受后台 **API 公开接口（PublicApi）** 开关约束；未开启时请求可能被拒绝。
-- 视频 **联想** 另受后台 **网站参数 → 搜索** 是否开启约束：关闭时联想接口返回 code=999（与前台关闭搜索一致）。
+- 视频 **联想** 另受后台 **站点参数 → 网站参数** 的搜索开关（app.search）约束：关闭时联想接口返回 code=999（与前台关闭搜索一致）。
 
 0) 统一搜索（跨模块）— 独立搜索 API
 - 路径：GET /api.php/search/index
@@ -333,7 +334,7 @@ maccms12（ThinkPHP 8）说明
     - comment_content：string 必填，正文
     - comment_pid：number 可选，父评论 id，默认 0
     - comment_name：string 可选，未登录游客昵称（已登录从 Cookie 取用户）
-  - 说明：后台「网站参数配置 → 评论」可强制登录(comment.login)、审核(comment.audit)；有频率 Cookie 限制
+  - 说明：后台「会员账户 → 会员互动 → 评论留言配置」可强制登录(comment.login)、审核(comment.audit)；有频率 Cookie 限制
   - 返回：与 model 保存结果一致（code/msg）
 - 举报：GET /api.php/comment/report
   - 参数：id：number 必填，comment_id
@@ -579,7 +580,7 @@ maccms12（ThinkPHP 8）说明
 - 预留参数（扩展分类/地区/年份等）：GET /api.php/config/get_extra_var/
   - 参数：无
   - 返回：{"code":1,"msg":"...","data":{"vod_extend_area":[],"vod_extend_year":[],"art_extend_class":[],"vod_extend_class":[],"extra_var":{...}, ...}}
-  - 说明：与后台「网站参数配置 → 预留参数」一致；模板 default 中 vod/manga/art 的 show 筛选器通过前端 ajax 拉取本接口填充选项
+  - 说明：与后台「站点参数 → 网站参数 → 预留参数」分页一致；模板 default 中 vod/manga/art 的 show 筛选器通过前端 ajax 拉取本接口填充选项
 - 站点壳层 + config.json：GET /api.php/config/get_tpl_config/
   - 参数：无
   - 返回：{code:1, msg:'获取成功', info:{site:{site_name, site_url, site_logo, site_wap_logo, template_dir, ...}, features:{user_status, gbook_status, comment_status}, search:{search_hot}, tpl_config:{...}}}
@@ -917,7 +918,7 @@ maccms12（ThinkPHP 8）说明
 23) Sycms（SyCMS 远程采集转换）
   ~~maccms12 当前版本未包含此控制器（无 app/api/controller/Sycms.php）；
   以下为官方 master 功能描述，仅作版本演进参考。~~
-  说明：SyCMS 数据采集桥接接口，从远程 SyCMS API (apiv3.sycms.cc) 获取加密数据并转换为 MacCMS 标准格式。可在后台「采集资源站」中配置此接口地址。不继承 PublicApi 检查。
+  说明：SyCMS 数据采集桥接接口，从远程 SyCMS API (apiv3.sycms.cc) 获取加密数据并转换为 MacCMS 标准格式。可在后台「采集与接入 → 资源站中心」配置此接口地址。不继承 PublicApi 检查。
 
 - 主入口：GET /api.php/sycms/index
   - 参数：
@@ -987,7 +988,7 @@ maccms12（ThinkPHP 8）说明
 27) User — Web Push 订阅
   说明：
   - 用于 PWA「新剧提醒」。浏览器通过 Service Worker + PushManager 订阅，本组接口负责下发公钥、保存/取消订阅。
-  - 需后台「系统 → 推送设置（configpush）」开启开关并生成 VAPID 密钥后才生效；未开启时订阅接口返回 code=1003。
+  - 需后台「通知与推送 → Web推送配置（system/configpush）」开启开关并生成 VAPID 密钥后才生效；未开启时订阅接口返回 code=1003。
   - 前端引导脚本：模板 asset/js/push-subscribe.js（页面经 path_tpl 引入；暴露 window.MacPushSubscribe.subscribe/unsubscribe/isSubscribed 等）。
   - Service Worker / Manifest：动态路由 pwa/sw、pwa/manifest（由 Pwa 控制器输出；非站点根目录静态 service-worker.js / manifest.json）。
   - 运行前提：Web Push 需 HTTPS（localhost 除外）与用户授予通知权限；iOS 需先「添加到主屏幕」。
@@ -1027,8 +1028,8 @@ maccms12（ThinkPHP 8）说明
     - code=1001：endpoint 为空
 
   补充（后台侧，非前端 API）：
-  - 生成/保存密钥与开关：后台「系统 → 推送设置」= admin.php/system/configpush（op=genkey 生成 VAPID，POST 保存，需登录鉴权 + Token 校验）
-  - 发送时机：后台「通知中心」广播时勾选「同时推送」（also_push），由 app\common\util\PushDispatcher 对订阅执行 RFC 8291/8188 aes128gcm 加密 + VAPID(ES256) 后 POST 到 endpoint；对返回 404/410 的失效订阅自动清理
+  - 生成/保存密钥与开关：后台「通知与推送 → Web推送配置」= admin.php/system/configpush（op=genkey 生成 VAPID，POST 保存，需登录鉴权 + Token 校验）
+  - 发送时机：后台「通知与推送 → 消息中心」广播时勾选「同时推送」（also_push），由 app\common\util\PushDispatcher 对订阅执行 RFC 8291/8188 aes128gcm 加密 + VAPID(ES256) 后 POST 到 endpoint；对返回 404/410 的失效订阅自动清理
 
 十、maccms12 补充接口（官方 V2 文档未列出，maccms12 实际实现）
 ================================================================================
@@ -1061,7 +1062,7 @@ maccms12（ThinkPHP 8）说明
 
 6) PublicApi（公开接口总开关）
    - check_config：公开接口开关检查（多数 API 模块继承该基类，受后台
-     「系统 → 网站参数 → 接口」配置约束）
+     「采集与接入 → 内容接入 → 开放API配置」约束，配置键 api.publicapi.status）
 
 7) Recommend（推荐）
    - list：推荐位/推荐列表
