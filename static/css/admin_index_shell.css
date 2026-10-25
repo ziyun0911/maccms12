@@ -199,7 +199,9 @@
     display: flex;
     align-items: center;
     padding: 0 12px;
-    overflow: hidden;
+    /* 不能用 overflow: hidden —— 「更多」下拉要越出 32px 高的顶栏绘制；
+       横向溢出由 .admin-header__nav 自己的 overflow-x: auto 兜住 */
+    overflow: visible;
     background: var(--shell-header);
 }
 
