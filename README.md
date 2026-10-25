@@ -113,6 +113,7 @@
 - 导航与差异摘要 → `00-说明文档总览.txt`
 
 > 文档内容已与 maccms12 代码库/数据库逐项核对；官方文档中 maccms12 未实现的功能（Novel 小说、Sycms）均已醒目标注；内容级多语言为 maccms12 已实现功能。
+> 这些文件不随站点公开分发（见第八节）；登录后在后台「运维与安全 → 说明文档」即可在线阅读，无需临时放开下载规则。
 
 ## 八、部署提示
 
@@ -123,6 +124,10 @@
   `.md .sql .log .lock .wpm .sh .ps1 .py .bak .old .orig` 等内部文件一律禁止经 HTTP 直接下载：
   Apache 用根 `.htaccess`（nginx / IIS 的规则见 `说明文档/伪静态规则/` 内同名文件），
   PHP 内置服务器用根 `router.php`。五套规则的拦截名单需同步维护，新增根级文件时按此清单补全。
+- 拦截的是公网直连，不是「文档看不到」：后台「运维与安全 → 说明文档」（`admin.php/doc/index.html`，
+  控制器 `app/admin/controller/Doc.php`）列出 `说明文档/` 全部文本与根 `README.md` 并渲染正文，
+  仅登录管理员可见，子管理员需单独勾选 `doc/index`、`doc/info` 权限。只读白名单为
+  `.txt .md .conf .ini .config`，超出站点文档目录的路径一律拒绝，单文件超过 1MB 只截断显示开头。
 
 ---
 

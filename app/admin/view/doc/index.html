@@ -1,0 +1,37 @@
+{include file="../../../app/admin/view/public/head" /}
+<div class="page-container p10">
+    <div class="layui-form-item" style="padding:10px 0 0;">
+        <span class="layui-word-aux">{:lang('admin/doc/tip')}</span>
+    </div>
+
+    <table class="layui-table" lay-size="sm">
+        <thead>
+        <tr>
+            <th width="300">{:lang('admin/doc/col_file')}</th>
+            <th width="220">{:lang('admin/doc/col_dir')}</th>
+            <th width="100">{:lang('admin/doc/col_size')}</th>
+            <th width="160">{:lang('admin/doc/col_mtime')}</th>
+            <th width="90">{:lang('opt')}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {volist name="list" id="vo"}
+        <tr>
+            <td>{$vo.name|htmlspecialchars}</td>
+            <td>{$vo.dir|htmlspecialchars}</td>
+            <td>{$vo.size_text}</td>
+            <td>{$vo.mtime|mac_day}</td>
+            <td>
+                <a class="layui-badge-rim" style="height: 32px;line-height: 32px;padding: 0 15px;" href="{:url('info')}?id={$vo.rel|rawurlencode}" title="{:lang('admin/doc/read')}">{:lang('admin/doc/read')}</a>
+            </td>
+        </tr>
+        {/volist}
+        {empty name="list"}
+        <tr><td colspan="5">{:lang('admin/doc/empty')}</td></tr>
+        {/empty}
+        </tbody>
+    </table>
+</div>
+{include file="../../../app/admin/view/public/foot" /}
+</body>
+</html>

@@ -2656,6 +2656,20 @@ return array (
         'controller' => 'adminaudit',
         'action' => 'info',
       ),
+      673 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/doc'),
+        'controller' => 'doc',
+        'action' => 'index',
+      ),
+      67301 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/doc/menu_info'),
+        'controller' => 'doc',
+        'action' => 'info',
+      ),
     ),
   ),
 );
