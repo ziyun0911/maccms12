@@ -75,8 +75,10 @@
 - `static_new/` 已并入 `static/`（同名以 static_new 版本覆盖，保留目录名 `static`），代码中 17 处 `static_new` 引用统一改为 `static`（现全库 `static_new` 引用 0 处）
 - 6 份界面语言包（`app/lang/*.php`）里 5 处提示文案的旧目录名 `application/data/admin_assistant/`、`application/data/addon/local_public.pem`、`application/extra/addons.php` 改为 `app/...`；快捷菜单示例地址 `/application/xxxx.html` 改为插件路由 `/index.php/addons/plugin/controller/action`（`app/` 已被 HTTP 拦截，旧示例点了只会 403/404）
 - `middleware/Init.php` 中 memcache/memcached 动态配置改用 TP8 `Config::set([...], 'cache')` 整组写入
-- 后台「站点参数 → 调度任务」下拉补齐为 14 项（新增 `annotate` / `content_quality` / `user_profile`，与安装脚本预置的 `content_ai_annotate` / `content_quality(_art)` / `user_profile` 对应）；此前这三条预置任务在下拉里无匹配项，编辑后保存会静默落到第一项 `collect`。现在不在候选项里的自定义执行文件也会作为保底 option 原样保留（`app/admin/view/timming/info.html`）。
-- 后台左侧菜单按功能重排为 23 个顶级组（`app/admin/common/auth.php`，360 个节点）：原「系统设置」「运维与安全」「会员与营销」「界面与生成」等大杂烩组拆成 站点参数 / 通知与推送 / 扩展与权限 / 采集与接入 / 数据库与备份 / 安全与风控 / 监控与告警 / 日志与审计 / 文档与手册 / 会员账户 / 营销与交易 / 模板与界面 / 静态生成 等专组，内容模块组（视频/漫画/文章/网址/直播）保持原样。权限数据 `admin_auth` 存的是 `controller/action` 字符串，因此分组调整不影响既有子管理员授权。
+- 后台「站点设置 → 调度任务」下拉补齐为 14 项（新增 `annotate` / `content_quality` / `user_profile`，与安装脚本预置的 `content_ai_annotate` / `content_quality(_art)` / `user_profile` 对应）；此前这三条预置任务在下拉里无匹配项，编辑后保存会静默落到第一项 `collect`。现在不在候选项里的自定义执行文件也会作为保底 option 原样保留（`app/admin/view/timming/info.html`）。
+- 后台左侧菜单按功能重排为 23 个顶级组（`app/admin/common/auth.php`，360 个节点）：原「系统设置」「运维与安全」「会员与营销」「界面与生成」等大杂烩组拆成 站点设置 / 通知与推送 / 扩展与权限 / 采集中心 / 数据库与备份 / 安全与风控 / 监控与告警 / 日志与审计 / 文档与手册 / 会员账户 / 营销与交易 / 主题与模板 / 静态生成 等专组，内容模块组（视频/漫画/文章/网址/直播）保持原样。权限数据 `admin_auth` 存的是 `controller/action` 字符串，因此分组调整不影响既有子管理员授权。
+- 后台顶级组改名：模板与界面 → **主题与模板**、采集与接入 → **采集中心**、站点参数 → **站点设置**（`app/lang/*.php` 的 `menu/*` 键，6 份语言包同步）；「系统信息」「网站参数」（含隐藏节点「SEO 参数配置」）从 站点设置 组移入 **首页** 组，与欢迎页面、自定义菜单配置并列。
+- PC 顶栏放不下的顶级组自动收进右侧「更多」下拉：`app/admin/view/index/index.html` 的 `layoutMainNav()` 按容器宽度实时计算可见项，剩余项加 `is-overflow`（`display:none`）并复制成下拉条目，点击同样切换左侧面板并同步高亮；容器宽度变化由 `resize` + `ResizeObserver` 触发重算。移动端抽屉（23 项全列）不受影响，权限树分组不变。
 - 插件 zip 顶层目录黑名单 `AddonSecureInstaller::$blockedPrefixes` 补上 TP8 的 `app/`、`config/`、`route/`（原来只有 maccms10 的 `application/` 等），两种命名的插件包都拦得住。
 
 ---

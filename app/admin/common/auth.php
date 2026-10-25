@@ -20,6 +20,27 @@ return array (
         'controller' => 'index',
         'action' => 'quickmenu',
       ),
+      20 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/systeminfo'),
+        'controller' => 'system',
+        'action' => 'index',
+      ),
+      21 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/config'),
+        'controller' => 'system',
+        'action' => 'config',
+      ),
+      210 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/configseo'),
+        'controller' => 'system',
+        'action' => 'configseo',
+      ),
       1001 => 
       array (
         'show' => 0,
@@ -2009,27 +2030,6 @@ return array (
     'icon' => 'xe62e',
     'sub' => 
     array (
-      20 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/systeminfo'),
-        'controller' => 'system',
-        'action' => 'index',
-      ),
-      21 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/config'),
-        'controller' => 'system',
-        'action' => 'config',
-      ),
-      210 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/configseo'),
-        'controller' => 'system',
-        'action' => 'configseo',
-      ),
       213 => 
       array (
         'show' => 1,

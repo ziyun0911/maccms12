@@ -23,7 +23,7 @@ maccms12（ThinkPHP 8）说明
 
 ========================================================================
 
-定时任务目前的执行文件（后台「站点参数 → 调度任务」的「执行文件」下拉，共 14 项）：
+定时任务目前的执行文件（后台「站点设置 → 调度任务」的「执行文件」下拉，共 14 项）：
 collect / make / cj / cache / urlsend / extsync / vodpublish / analytics /
 notify / pushbroadcast / user_access_purge / annotate / content_quality /
 user_profile。
@@ -102,7 +102,7 @@ user_profile。
 
 
 6，maccms12 新增的执行文件
-执行文件：在后台「站点参数 → 调度任务」的「执行文件」下拉里选择，共 14 项（前 5 项见上文 1~5）。
+执行文件：在后台「站点设置 → 调度任务」的「执行文件」下拉里选择，共 14 项（前 5 项见上文 1~5）。
 下拉里的实际文案（app/lang/zh-cn.php 的 admin/timming/* 键）：
   自定义采集collect / 静态生成make / 自定义采集规则cj / 清理缓存cache / 网址推送urlsend
   外部资源同步 / 视频定时上架 / 运营统计 / 通知中心 / Web推送广播 / 用户访问日志清理/匿名化

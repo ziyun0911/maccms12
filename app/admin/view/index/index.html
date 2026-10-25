@@ -36,6 +36,14 @@
                 <a href="javascript:;" class="main-nav-item{eq name="k" value="1"} is-active{/eq}" data-i="{$k}">{$v['name']}</a>
                 {/volist}
             </nav>
+            <!-- 顶栏放不下的主模块收进这里；可见项由 layoutMainNav() 按容器宽度实时计算 -->
+            <div class="admin-dropdown admin-nav-more" id="mainNavMore" hidden data-dropdown>
+                <button type="button" class="admin-nav-more__trigger admin-dropdown__trigger" aria-haspopup="true" title="{:lang('admin/index/index/nav_more')}">
+                    <span>{:lang('admin/index/index/nav_more')}</span>
+                    <svg class="admin-tool-icon" width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 8l4.5 4.5L14.5 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="admin-dropdown__menu admin-nav-more__menu" role="menu"></div>
+            </div>
         </div>
         <div class="admin-header__tools">
             <a href="javascript:;" class="admin-chip admin-chip--update" id="update-notification" style="display: none;" onclick="showUpdateDialog()" title="{:lang('admin/index/index/new_version_tip')}">
@@ -271,22 +279,105 @@
         var TAB_CLOSE_LABEL = "{:addslashes(lang('close'))}";
 
         /* ── 顶栏 / 移动端一级菜单切换 ── */
+        var $navMore = $('#mainNavMore'),
+            $navTrigger = $navMore.find('.admin-nav-more__trigger'),
+            $navMoreMenu = $navMore.find('.admin-nav-more__menu');
+
         function switchMainModule(i, $trigger) {
+            $('.main-nav-item, .mobile-module-item, .admin-nav-more__item').removeClass('is-active');
             if ($trigger && $trigger.length) {
-                $trigger.addClass('is-active').siblings().removeClass('is-active');
+                $trigger.addClass('is-active');
             }
-            $('#mainNav .main-nav-item[data-i="' + i + '"]').addClass('is-active').siblings().removeClass('is-active');
-            $('#mobileMainNav .mobile-module-item[data-i="' + i + '"]').addClass('is-active').siblings().removeClass('is-active');
+            $('#mainNav .main-nav-item[data-i="' + i + '"]').addClass('is-active');
+            $('#mobileMainNav .mobile-module-item[data-i="' + i + '"]').addClass('is-active');
             $('.side-panel').attr('hidden', true).filter('[data-panel="' + i + '"]').removeAttr('hidden');
+            syncMoreActive();
+        }
+
+        /* ── 顶栏溢出：放不下的主模块自动收进「更多」下拉 ── */
+        function navGap() {
+            var el = document.getElementById('mainNav');
+            if (!el) return 0;
+            var cs = window.getComputedStyle(el);
+            return parseFloat(cs.columnGap || cs.gap || 0) || 0;
+        }
+
+        function syncMoreActive() {
+            var $active = $('#mainNav .main-nav-item.is-active');
+            $navTrigger.toggleClass('is-active', $active.length > 0 && $active.hasClass('is-overflow'));
+            $navMoreMenu.find('.admin-nav-more__item').removeClass('is-active');
+            if ($active.length) {
+                $navMoreMenu.find('.admin-nav-more__item[data-i="' + $active.data('i') + '"]').addClass('is-active');
+            }
+        }
+
+        function layoutMainNav() {
+            var $items = $('#mainNav .main-nav-item'),
+                avail = $('.admin-header__center').width(),
+                gap = navGap();
+            if (avail < 1) return; // 移动端布局下顶栏整体隐藏，不参与计算
+
+            $items.removeClass('is-overflow');
+            $navMore.attr('hidden', true);
+
+            function firstOverflow(reserve) {
+                var used = 0;
+                for (var i = 0; i < $items.length; i++) {
+                    used += $($items[i]).outerWidth(true);
+                    if (used > avail - reserve) return i;
+                    used += gap;
+                }
+                return $items.length;
+            }
+
+            var cut = firstOverflow(0);
+            if (cut < $items.length) {
+                $navMore.removeAttr('hidden');
+                cut = firstOverflow($navTrigger.outerWidth(true) + gap);
+            }
+            var $over = $items.slice(cut);
+            $over.addClass('is-overflow');
+
+            var html = '';
+            $over.each(function () {
+                html += '<a href="javascript:;" class="admin-nav-more__item" role="menuitem" data-i="' + $(this).data('i') + '">' + $(this).text() + '</a>';
+            });
+            $navMoreMenu.html(html);
+            syncMoreActive();
+        }
+
+        var navRaf = 0, navLastAvail = -1;
+        function requestLayout(force) {
+            if (navRaf) return;
+            navRaf = window.requestAnimationFrame(function () {
+                navRaf = 0;
+                var avail = $('.admin-header__center').width();
+                if (!force && avail === navLastAvail) return;
+                navLastAvail = avail;
+                layoutMainNav();
+            });
         }
 
         $('#mainNav .main-nav-item').on('click', function () {
             switchMainModule($(this).data('i'), $(this));
         });
 
+        $navMoreMenu.on('click', '.admin-nav-more__item', function () {
+            var i = $(this).data('i');
+            switchMainModule(i, $('#mainNav .main-nav-item[data-i="' + i + '"]'));
+            $navMore.removeClass('is-open');
+        });
+
         $('#mobileMainNav .mobile-module-item').on('click', function () {
             switchMainModule($(this).data('i'), $(this));
         });
+
+        $(window).on('resize', function () { requestLayout(); });
+        if (window.ResizeObserver) {
+            var navCenter = $('.admin-header__center')[0];
+            if (navCenter) new ResizeObserver(function () { requestLayout(); }).observe(navCenter);
+        }
+        layoutMainNav();
 
         /* ── 下拉菜单 ── */
         $(document).on('click', '[data-dropdown] .admin-dropdown__trigger', function (e) {
