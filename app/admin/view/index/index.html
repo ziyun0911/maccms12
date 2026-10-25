@@ -107,6 +107,32 @@
                 </li>
                 {/if}
                 {/volist}
+                {if condition="$v.gid eq 16 && !empty($settings_groups)"}
+                <li class="side-panel__search">
+                    <i class="layui-icon layui-icon-search" aria-hidden="true"></i>
+                    <input type="search" id="settingsNavSearch" placeholder="{:lang('keyword')}" autocomplete="off" aria-label="{:lang('keyword')}">
+                </li>
+                {volist name="settings_groups" id="group"}
+                <li class="side-panel__group" data-settings-group="{$group.key}">{$group.name}</li>
+                {volist name="group.items" id="item"}
+                <li class="side-panel__item">
+                    <a class="admin-nav-item admin-nav-item--settings" data-id="16-settings-{$item.key}" data-settings-key="{$item.key}" data-settings-group="{$item.group}" data-search="{$item.group_name|htmlentities} {$item.title|htmlentities} {$item.tip|htmlentities}" href="{$item.url}" title="{$item.title|htmlentities}">
+                        <i class="layui-icon {$item.icon}" aria-hidden="true"></i>
+                        <span class="admin-nav-item__glyph" aria-hidden="true"></span>
+                        <span class="admin-nav-item__label">{$item.title}</span>
+                        {if condition="$item.state neq ''"}
+                        <span class="side-state-dot side-state-dot--{$item.state}" title="{$item.state_text|htmlentities}"></span>
+                        {/if}
+                    </a>
+                </li>
+                {/volist}
+                {/volist}
+                <li class="side-panel__legend">
+                    <span><i class="side-state-dot side-state-dot--on"></i>{:lang('admin/safety/checkup_status_on')}</span>
+                    <span><i class="side-state-dot side-state-dot--off"></i>{:lang('admin/safety/checkup_status_off')}</span>
+                    <span><i class="side-state-dot side-state-dot--warn"></i>{:lang('admin/safety/checkup_badge_warn')}</span>
+                </li>
+                {/if}
             </ul>
             {/volist}
         </nav>
@@ -360,13 +386,16 @@
         }
 
         $('#mainNav .main-nav-item').on('click', function () {
-            switchMainModule($(this).data('i'), $(this));
+            var i = $(this).data('i');
+            switchMainModule(i, $(this));
+            if (String(i) === '16') openSettingsOverview();
         });
 
         $navMoreMenu.on('click', '.admin-nav-more__item', function () {
             var i = $(this).data('i');
             switchMainModule(i, $('#mainNav .main-nav-item[data-i="' + i + '"]'));
             $navMore.removeClass('is-open');
+            if (String(i) === '16') openSettingsOverview();
         });
 
         $('#mobileMainNav .mobile-module-item').on('click', function () {
@@ -566,6 +595,123 @@
             if (panelId) {
                 switchMainModule(panelId);
             }
+        }
+
+        function normalizeSettingsUrl(raw) {
+            if (!raw) return '';
+            try {
+                var url = new URL(raw, window.location.href);
+                return url.pathname + url.search;
+            } catch (e) {
+                return raw;
+            }
+        }
+
+        function settingsUrlHash(str) {
+            var hash = 0;
+            for (var i = 0; i < str.length; i++) {
+                hash = (hash * 31 + str.charCodeAt(i)) | 0;
+            }
+            return Math.abs(hash).toString(36);
+        }
+
+        function openSettingsTab(key, url, title) {
+            var $link = $();
+            if (key) {
+                $link = $('.admin-nav-item[data-settings-key="' + key + '"]');
+            }
+            if (!$link.length && url) {
+                var target = normalizeSettingsUrl(url);
+                $('.admin-nav-item[data-settings-key]').each(function () {
+                    if (normalizeSettingsUrl($(this).attr('href')) === target) {
+                        $link = $(this);
+                        return false;
+                    }
+                });
+            }
+
+            var id = $link.length ? $link.attr('data-id') : '';
+            if (id) {
+                url = $link.attr('href');
+                title = title || $.trim($link.find('.admin-nav-item__label').text());
+            } else {
+                if (!url) return false;
+                id = '16-ext-' + settingsUrlHash(url);
+            }
+            title = $.trim(title || '') || url;
+
+            if ($('iframe[lay-id="' + id + '"]')[0]) {
+                MacTab.change(id);
+            } else {
+                if ($('iframe').length >= 10) {
+                    layer.msg("{:lang('admin/index/index/menu_max')}");
+                    return false;
+                }
+                MacTab.add(title, url, id);
+            }
+
+            switchMainModule(16);
+            if ($link.length) {
+                setSideActive($link);
+            } else {
+                $('.side-panel__item').removeClass('is-active');
+            }
+            setMobileNavOpen(false);
+            return true;
+        }
+
+        // 系统信息页里的卡片/体检链接调用它，把设置页开成框架页标签，而不是页内嵌套 iframe
+        window.AdminShell = window.AdminShell || {};
+        window.AdminShell.openSettings = openSettingsTab;
+
+        function openSettingsOverview() {
+            var $link = $('.side-panel[data-panel="16"] .admin-nav-item[data-id="16-20"]');
+            if (!$link.length) return;
+            var activeId = $('#B_history li.is-active').attr('lay-id') || '';
+            if (activeId.indexOf('16-') === 0) return;
+
+            var id = $link.attr('data-id');
+            if ($('iframe[lay-id="' + id + '"]')[0]) {
+                MacTab.change(id);
+            } else {
+                if ($('iframe').length >= 10) {
+                    layer.msg("{:lang('admin/index/index/menu_max')}");
+                    return;
+                }
+                MacTab.add($.trim($link.find('.admin-nav-item__label').text()), $link.attr('href'), id);
+            }
+            setSideActive($link);
+        }
+
+        var $settingsSearch = $('#settingsNavSearch');
+        function applySettingsFilter() {
+            var $panel = $('.side-panel[data-panel="16"]');
+            if (!$panel.length || !$settingsSearch.length) return;
+            var q = $.trim($settingsSearch.val() || '').toLowerCase();
+            var $items = $panel.find('.admin-nav-item[data-settings-key]');
+
+            $items.each(function () {
+                var $item = $(this);
+                var hay = ($item.attr('data-search') || '').toLowerCase();
+                $item.closest('.side-panel__item').toggle(!q || hay.indexOf(q) !== -1);
+            });
+
+            $panel.find('.side-panel__group').each(function () {
+                var group = $(this).attr('data-settings-group');
+                var visible = 0;
+                $items.each(function () {
+                    var $item = $(this);
+                    if ($item.attr('data-settings-group') === group
+                        && !$item.closest('.side-panel__item').is(':hidden')) {
+                        visible++;
+                    }
+                });
+                $(this).toggle(!q || visible > 0);
+            });
+        }
+
+        if ($settingsSearch.length) {
+            $settingsSearch.on('input', applySettingsFilter);
         }
 
         /* 主内容区由 grid + flex 撑满，无需手动算高度 */

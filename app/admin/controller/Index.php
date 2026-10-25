@@ -9,6 +9,7 @@ use Exception;
 use ip_limit\IpLocationQuery;
 use app\common\util\AnalyticsAggregator;
 use app\common\util\AnalyticsServerTracker;
+use app\common\util\SystemSettingsMenu;
 class Index extends Base
 {
     public function __construct()
@@ -111,8 +112,30 @@ class Index extends Base
         // 语言切换器直接吃语言包自述的注册表：增删一个 app/lang/<code>.php，下拉和 ADMIN_LANG_META 跟着变
         $langs = array_values(mac_lang_registry());
         $config = config('maccms');
+
+        // 系统信息模块的子导航直接挂在左侧栏：设置项与 system/index 概览卡片同源，
+        // 这里按 system/* 权限过滤后交给框架页渲染。
+        $settingsGroups = [];
+        if (isset($menus[16])) {
+            $settingsItems = SystemSettingsMenu::build($config, function ($action) {
+                return $this->check_auth('system', $action);
+            });
+            foreach ($settingsItems as $item) {
+                $groupKey = $item['group'];
+                if (!isset($settingsGroups[$groupKey])) {
+                    $settingsGroups[$groupKey] = [
+                        'key'   => $groupKey,
+                        'name'  => $item['group_name'],
+                        'items' => [],
+                    ];
+                }
+                $settingsGroups[$groupKey]['items'][] = $item;
+            }
+        }
+
         $this->assign('config', $config);
         $this->assign('langs', $langs);
+        $this->assign('settings_groups', $settingsGroups);
         $this->assign('version', $version);
         $this->assign('menus', $menus);
         $this->assign('title', lang('admin/index/title'));
