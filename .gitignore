@@ -23,3 +23,12 @@ Thumbs.db
 config/database.php
 app/extra/translate.php
 app/extra/maccms.php
+
+# 定时任务的实配：app/api/controller/Timming.php 每个 tick 都回写一次 runtime（下次执行时间戳），
+# 入库只会让无关提交带上两行抖动；任务定义在 install 阶段由 app/install/controller/Index.php 幂等注入重建。
+app/extra/timming.php
+
+# 后台「静态生成」的输出物（app/admin/controller/Make.php 写到 docroot 根），随时可重生成且带站点真实内容
+/index.html
+/wap_index.html
+/map.html
