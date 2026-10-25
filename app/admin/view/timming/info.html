@@ -37,6 +37,13 @@
                                 <option value="notify" {if condition="$info['file'] eq 'notify'"}selected{/if}>{:lang('admin/timming/notify')}</option>
                                 <option value="pushbroadcast" {if condition="$info['file'] eq 'pushbroadcast'"}selected{/if}>{:lang('admin/timming/pushbroadcast')}</option>
                                 <option value="user_access_purge" {if condition="$info['file'] eq 'user_access_purge'"}selected{/if}>{:lang('admin/timming/user_access_purge')}</option>
+                                <option value="annotate" {if condition="$info['file'] eq 'annotate'"}selected{/if}>{:lang('admin/timming/annotate')}</option>
+                                <option value="content_quality" {if condition="$info['file'] eq 'content_quality'"}selected{/if}>{:lang('admin/timming/content_quality')}</option>
+                                <option value="user_profile" {if condition="$info['file'] eq 'user_profile'"}selected{/if}>{:lang('admin/timming/user_profile')}</option>
+                                {if condition="!empty($info['file']) && !in_array($info['file'], ['collect','make','cj','cache','urlsend','extsync','vodpublish','analytics','notify','pushbroadcast','user_access_purge','annotate','content_quality','user_profile'])"}
+                                <!-- 配置文件里手写的、或旧版本遗留的执行文件名不在候选项中；不补这一项的话，保存时下拉会落回第一项 collect，等于把任务改掉 -->
+                                <option value="{$info.file}" selected>{$info.file}</option>
+                                {/if}
                             </select>
                         </div>
                     </div>

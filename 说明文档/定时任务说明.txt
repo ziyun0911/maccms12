@@ -13,7 +13,8 @@ maccms12（ThinkPHP 8）说明
   足够频繁），=0 时维持周几+小时的小时级判断。
 · 官方 maccms10 的 5 种操作：collect 采集 / make 生成 / cj 采集规则 /
   cache 清理缓存 / urlsend 推送；maccms12 另有 extsync / vodpublish /
-  analytics / notify / pushbroadcast / user_access_purge（详见文末）。
+  analytics / notify / pushbroadcast / user_access_purge / annotate /
+  content_quality / user_profile（详见文末）。
 · 定时任务执行操作对应的后台模块：采集资源库=Collect、生成静态=Make、
   采集规则=Cj、清理缓存=Cache、网址推送=Urlsend（后台「定时任务」里选择执行文件）
 · 定时任务配置文件：app/extra/timming.php（后台保存后生成）
@@ -22,11 +23,14 @@ maccms12（ThinkPHP 8）说明
 
 ========================================================================
 
-定时任务目前的执行文件（后台「定时任务 → 执行文件」下拉，共 11 项）：
+定时任务目前的执行文件（后台「定时任务 → 执行文件」下拉，共 14 项）：
 collect / make / cj / cache / urlsend / extsync / vodpublish / analytics /
-notify / pushbroadcast / user_access_purge。
+notify / pushbroadcast / user_access_purge / annotate / content_quality /
+user_profile。
 （上文官方原文只写了「采集资源、生成静态 2 个」，是 maccms10 时代的说法；
-后 6 个是 maccms12 新增，见本文末尾「6，maccms12 新增的执行文件」。）
+后 9 个是 maccms12 新增，见本文末尾「6，maccms12 新增的执行文件」。
+另外，若某条任务的执行文件是手工写进 app/extra/timming.php 的自定义值、不在这 14 项里，
+编辑页会把它作为额外一项选中并原样保存，不会被下拉改写。）
 强制执行参数enforce=1
 
 1，采集资源
@@ -98,10 +102,11 @@ notify / pushbroadcast / user_access_purge。
 
 
 6，maccms12 新增的执行文件
-执行文件：在后台「定时任务 → 执行文件」下拉里选择，共 11 项（前 5 项见上文 1~5）。
+执行文件：在后台「定时任务 → 执行文件」下拉里选择，共 14 项（前 5 项见上文 1~5）。
 下拉里的实际文案（app/lang/zh-cn.php 的 admin/timming/* 键）：
   自定义采集collect / 静态生成make / 自定义采集规则cj / 清理缓存cache / 网址推送urlsend
   外部资源同步 / 视频定时上架 / 运营统计 / 通知中心 / Web推送广播 / 用户访问日志清理/匿名化
+  AI内容标注 / 内容质量分计算 / 用户画像计算
 （上文 1~5 沿用的是官方 maccms10 原文的旧叫法「采集资源库 / 生成 / 采集规则」，指的同一项，
 按上面这份文案找即可。）
 调度入口与参数格式与官方一致：附加参数是一串 query 风格字符串，由 controller 里
@@ -152,20 +157,39 @@ parse_str() 解析。处理器都在 app/api/controller/Timming.php。
     示例：max=5000
     执行文件：选择「用户访问日志清理/匿名化」
 
-6.7 三个预置任务：处理器存在，但「执行文件」下拉里没有
-    安装脚本会预置下面几条任务，app/api/controller/Timming.php 里也有对应处理器，但后台
-    「执行文件」下拉（11 项）不含它们：新建任务选不到，而且编辑这类预置任务后保存，
-    下拉里没有任何项匹配、会落到第一项 collect，等于把任务改掉了。默认 status=0（未启用），
-    要用只能在 app/extra/timming.php 里直接改并让后台不再保存该条任务：
-    · annotate          参数 mid=1|2&limit=N（mid 只认 1=视频 / 2=文章，其它值回落 1）
-                        AI 内容标注批量生成；未开启 AI 内容功能时直接返回不烧额度。
-                        预置：content_ai_annotate，param=mid=1&limit=50
-    · content_quality   参数 mid=1|2&limit=N&days=N（limit<1 回落 200，days<1 回落 30）
-                        按 analytics.quality_weights / quality_fresh_halflife_days 计算内容质量分。
-                        预置：content_quality（mid=1）、content_quality_art（mid=2）
-    · user_profile      参数 limit=N&days=N
-                        用户画像批量计算。预置：user_profile，param=limit=200&days=30
+6.7 AI内容标注 annotate
+    批量为内容生成 AI 标注（标签/简介类）。每次运行只挑 limit 条尚未标注的，做完即走；
+    ContentAnnotator 内部按 source_hash 判重，重复触发不会重复消耗额度。
+    参数：mid=1|2（1=视频、2=文章，其它值回落 1）；limit=单次条数
+         （留空取「AI 内容」配置页 system/configaicontent 的批量条数 ai_content.batch_size，
+          取值范围 1~100、默认 20；填了 limit 也不会超过该配置值）
+    示例：mid=1&limit=50
+    执行文件：选择「AI内容标注」
+    备注：未开启 AI 内容功能时处理器直接返回，不产生调用；预置任务 content_ai_annotate
+         （param=mid=1&limit=50，每天 02 点）默认 status=0，需手动打开。
     （方法名 annotate 刻意不叫 aicontent，避免与 addons/aicontent 插件同名误导。）
+
+6.8 内容质量分计算 content_quality
+    离线计算内容质量分（无 LLM 参与），结果供后台「内容质量」看板读取；按 upsert 落表，
+    可重复调度。选取顺序按打分新鲜度轮转：从未打分的内容优先，其次是打分时间最旧的，
+    多次调度即可遍历全量，而不是永远只算最新的 limit 条。
+    参数：mid=1|2（1=视频、2=文章，其它值回落 1）；limit=单次条数（<1 回落 200）；
+         days=行为统计回溯天数（<1 回落 30）
+    示例：mid=1&limit=200&days=30
+         mid=2&limit=200&days=30
+    执行文件：选择「内容质量分计算」
+    备注：权重与衰减取 analytics.quality_weights / quality_fresh_halflife_days；
+         安装时预置 content_quality（mid=1，03 点）、content_quality_art（mid=2，04 点），
+         默认 status=0。
+
+6.9 用户画像计算 user_profile
+    批量构建用户画像（供推荐/统计使用），按 user_id upsert，可重复调度；
+    候选用户按画像更新时间轮转，从未算过的优先。
+    参数：limit=单次用户数（<1 回落 200）；days=画像窗口天数（<1 回落 30；
+         若「网站参数 → 分析」里配了 profile_window_days 则以它为准）
+    示例：limit=200&days=30
+    执行文件：选择「用户画像计算」
+    备注：预置任务 user_profile（param=limit=200&days=30，每天 05 点）默认 status=0。
 
 
 

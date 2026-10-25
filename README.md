@@ -75,6 +75,8 @@
 - `static_new/` 已并入 `static/`（同名以 static_new 版本覆盖，保留目录名 `static`），代码中 17 处 `static_new` 引用统一改为 `static`（现全库 `static_new` 引用 0 处）
 - 6 份界面语言包（`app/lang/*.php`）里 5 处提示文案的旧目录名 `application/data/admin_assistant/`、`application/data/addon/local_public.pem`、`application/extra/addons.php` 改为 `app/...`；快捷菜单示例地址 `/application/xxxx.html` 改为插件路由 `/index.php/addons/plugin/controller/action`（`app/` 已被 HTTP 拦截，旧示例点了只会 403/404）
 - `middleware/Init.php` 中 memcache/memcached 动态配置改用 TP8 `Config::set([...], 'cache')` 整组写入
+- 后台「定时任务 → 执行文件」下拉补齐为 14 项（新增 `annotate` / `content_quality` / `user_profile`，与安装脚本预置的 `content_ai_annotate` / `content_quality(_art)` / `user_profile` 对应）；此前这三条预置任务在下拉里无匹配项，编辑后保存会静默落到第一项 `collect`。现在不在候选项里的自定义执行文件也会作为保底 option 原样保留（`app/admin/view/timming/info.html`）。
+- 插件 zip 顶层目录黑名单 `AddonSecureInstaller::$blockedPrefixes` 补上 TP8 的 `app/`、`config/`、`route/`（原来只有 maccms10 的 `application/` 等），两种命名的插件包都拦得住。
 
 ---
 

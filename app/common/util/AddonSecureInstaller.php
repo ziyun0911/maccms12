@@ -7,9 +7,17 @@ namespace app\common\util;
  */
 class AddonSecureInstaller
 {
-    /** 禁止写入的顶层路径前缀（相对 ZIP 条目；enable 会把 application/static  overlay 到站点根） */
+    /**
+     * 禁止写入的顶层路径前缀（相对 ZIP 条目）。
+     * 名单里 application/thinkphp/public 是 maccms10 的站点根目录名；TP8 迁移后站点根
+     * 改用 app/ + config/ + route/，两种写法都留着，免得旧插件包和新插件包各漏一半。
+     * 当前安装只写 addons/<name>/，这份名单是防「覆盖式安装」回归的兜底。
+     */
     protected static $blockedPrefixes = [
         'application/',
+        'app/',
+        'config/',
+        'route/',
         'static/',
         'thinkphp/',
         'extend/',

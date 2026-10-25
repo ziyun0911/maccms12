@@ -99,8 +99,10 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
 3. 【模板】前台模板现仅保留 default（PC 与移动端同用）；曾随包升级并验收过
    的 conch / datll_Layui_v1 已移出发布包，修复过程见《模板修复与试用说明.txt》。
 4. 【2026-10-25 全量核对记录】本轮逐篇对照代码树订正过的口径：
-   - 定时任务说明.txt：补入 maccms12 新增的 6 个执行文件参数，并标注三个
-     「预置但下拉里没有」的处理器（annotate / content_quality / user_profile）。
+   - 定时任务说明.txt：补入 maccms12 新增的 9 个执行文件参数（extsync/vodpublish/
+     analytics/notify/pushbroadcast/user_access_purge/annotate/content_quality/
+     user_profile）。核对时发现后台「执行文件」下拉只有 11 项、缺后三个，
+     已补齐为 14 项并给未知执行文件加了保底选项，见下条 5。
    - 伪静态规则/默认路由规则.txt：正文由官方 maccms10 清单改为随包 58 条规则，
      另列差异（官方多 actortype/website*/mangarss/mangaplot，随包多
      rss/artread/liveshow/liveplay/sitehome/publish-<id>）。
@@ -113,6 +115,13 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
      分页语言模块数、语言包个数改为实测值（84 张表 / 约 480 行 / 13 个模块 / 6 个语言包）。
    - 界面语言包（app/lang/*.php 共 6 份）：后台助手、插件签名、快捷菜单提示里
      5 处 application/ 旧路径改为 app/，插件示例地址改为 /index.php/addons/…。
+5. 【2026-10-25 由核对结果引出的两处代码修复】
+   - 后台「定时任务 → 执行文件」下拉由 11 项补齐为 14 项（新增 AI内容标注 /
+     内容质量分计算 / 用户画像计算，app/admin/view/timming/info.html + 6 份语言包的
+     admin/timming/{annotate,content_quality,user_profile}）；同时给不在候选项里的
+     自定义执行文件加了保底 option，避免编辑保存被静默改成第一项 collect。
+   - 插件包 zip 顶层黑名单（app/common/util/AddonSecureInstaller.php）补上 TP8 的
+     app/ / config/ / route/，与原有的 maccms10 写法 application/ 并存。
 
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）
