@@ -1,9 +1,9 @@
 /*!
  * mac-theme-runtime.js —— maccms12 前端内容级多语言切换器
  *
- * 移植自官方 maccms10-master（template/_shared/kit/shared/js/mac-theme-runtime.js）
- * 的内容语言切换段，做成自包含版本：maccms12 的默认/conch 模板未加载官方整份
- * runtime，此处只保留"内容级多语言"所需的职责：
+ * 移植自官方 maccms10-master 的 template/_shared/kit/shared/js/mac-theme-runtime.js
+ * （官方路径，本文件位于 static/js/）的内容语言切换段，做成自包含版本：
+ * maccms12 的默认模板未加载官方整份 runtime，此处只保留"内容级多语言"所需的职责：
  *
  *   1) 点击任何带 data-mac-lang 的元素（值＝内容语言代码，如 en-us / ja-jp；
  *      兼容官方 zh / en 短码，分别映射为 zh-cn / en-us）时，

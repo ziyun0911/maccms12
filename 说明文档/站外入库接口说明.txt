@@ -19,7 +19,7 @@ maccms12（ThinkPHP 8）说明
   漫画   /api.php/receive/manga
   评论   /api.php/receive/comment（预留，同 Provide 评论模块）
 · 系统同时提供数据输出接口（供采集）：/api.php/provide/{vod|art|actor|role|
-  website|manga|comment}/，详见《API接口说明.txt》与《API接口说明V2.txt》。
+  website|manga|comment}/，详见《API接口说明.txt》正文三、与文末附录A。
 
 ========================================================================
 

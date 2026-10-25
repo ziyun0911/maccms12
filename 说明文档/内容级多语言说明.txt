@@ -13,8 +13,8 @@ maccms12（TP8 升级版）已完整实现本功能（按官方 master 蓝本移
   vodplayer/voddowner/vodserver）在启用 2 种及以上语言时按语言分页签展示
   可译字段；system/config.html 已加入对应配置表单。
 · 9 个语言包（app/lang/*.php）已补齐 29 条 content_lang 键（文案取自
-  官方对应语言译文）；前台切换器脚本已建于 template\_shared\kit\shared\
-  js\mac-theme-runtime.js（自包含，data-mac-lang 用法见文件头注释）。
+  官方对应语言译文）；前台切换器脚本已建于 static\js\mac-theme-runtime.js
+  （自包含，data-mac-lang 用法见文件头注释）。
 · 前台按 ?lang=xx-xx → cookie(mac_content_lang, 30 天) → Accept-Language
   → 默认语言 顺序决定访客语言；整页缓存 key 已带语言维度。
 下文为功能机制说明，与 maccms12 实际实现一致，可直接对照使用；文末

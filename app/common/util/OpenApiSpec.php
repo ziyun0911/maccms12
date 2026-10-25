@@ -4,7 +4,7 @@ namespace app\common\util;
 /**
  * OpenAPI 3.0 规范生成器
  *
- * 依据《说明文档/API接口说明V2.txt》将 api.php 的纯文本接口说明转换为 OpenAPI 3.0 规范，
+ * 依据《说明文档/API接口说明.txt》将 api.php 的纯文本接口说明转换为 OpenAPI 3.0 规范，
  * 供后台「API 文档」页面内嵌的 Swagger UI 在线浏览与调试使用。
  *
  * 设计要点：
@@ -29,7 +29,7 @@ class OpenApiSpec
             'openapi' => '3.0.3',
             'info' => array(
                 'title' => 'MacCMS V12 API',
-                'description' => '苹果CMS V12 对外 API（基于当前实现，详见《说明文档/API接口说明V2.txt》）。'
+                'description' => '苹果CMS V12 对外 API（基于当前实现，详见《说明文档/API接口说明.txt》）。'
                     . '基础路径为 api.php，默认返回 JSON；多数模块接口受后台「API 公开接口(PublicApi)」开关约束，'
                     . '部分接口需用户登录（携带 Cookie/Session）。',
                 'version' => '2.0.0',

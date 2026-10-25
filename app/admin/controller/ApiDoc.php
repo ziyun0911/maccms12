@@ -7,7 +7,7 @@ use app\common\util\OpenApiSpec;
 /**
  * API 文档控制器（新版后台）
  *
- * 将《说明文档/API接口说明V2.txt》转换为 OpenAPI 3.0 规范，并内嵌 Swagger UI 供在线浏览与调试。
+ * 将《说明文档/API接口说明.txt》转换为 OpenAPI 3.0 规范，并内嵌 Swagger UI 供在线浏览与调试。
  * - index()   渲染内嵌 Swagger UI 的文档页面
  * - openapi() 输出 OpenAPI 3.0 JSON（servers[].url 注入当前站点 api.php 入口）
  */
