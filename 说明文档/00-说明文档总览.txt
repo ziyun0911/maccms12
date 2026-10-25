@@ -179,7 +179,7 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
      递增且与溢出项逐一对应；点「文档与手册」后面板切到 23、下拉条目与顶栏隐藏项同时高亮、菜单自动
      收起；611px 移动端布局下顶栏整体隐藏、不参与计算，「更多」保持 hidden。
 9. 【2026-10-25 顶栏收成 12 个主模块，其余组折进「系统设置」分节】
-   本块是后台菜单的当前口径，说明 7、8 里的组名与「23 个顶级组」表述以本块为准。
+   本块是后台菜单的口径（顶栏数量与 AI 能力的位置以说明 10 为准），说明 7、8 里的组名与「23 个顶级组」表述以本块为准。
    - 顶栏 12 个主模块，顺序即 auth.php 的排列顺序：系统设置(1) / 分类管理(7) /
      主题设置(13) / 视频(2) / 文章(4) / 漫画(3) / 网址(5) / 直播(6) / 会员设置(10) /
      采集中心(15) / 数据库管理(19) / 文档与手册(23)。
@@ -215,6 +215,50 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
      侧栏收缩到 64px 时分节退化为一条分隔线；移动端抽屉与权限树（23 组 / 385 个复选框）
      正常；两个黑名单页面在浏览器里均 200 且表单可渲染。
 
+10. 【2026-10-25 网站参数收编三个资源页签，AI 能力升为顶栏组】
+    本块接续说明 9，是当前后台菜单与这几张配置页的口径。
+    - 顶栏改为 13 个主模块：AI 能力(8) 从「折进系统设置」升级为独立顶栏组，去掉
+      auth.php 组定义里的 'nav_in' => 1 并把整块移到 采集中心(15) 之后，顺序为
+      系统设置(1) / 分类管理(7) / 主题设置(13) / 视频(2) / 文章(4) / 漫画(3) /
+      网址(5) / 直播(6) / 会员设置(10) / 采集中心(15) / AI 能力(8) / 数据库管理(19) /
+      文档与手册(23)；「系统设置」面板的分节从 11 条减为 10 条。
+    - 「附件参数配置 / URL地址配置 / 播放器参数配置」原来是一张独立页
+      （system/configupload，挂在 站点设置 分节）的三个页签，现整体并入
+      系统设置 → 网站参数（system/config）。config.html 现为 9 个页签：基本设置 /
+      地址发布页 / 性能优化 / 预留参数 / 后台设置 / SEO参数配置 / 附件参数配置 /
+      URL地址配置 / 播放器参数配置；后三者各是一个带独立 <form> 与 __token__ 的
+      页签，分别提交给 system/configupload、system/configurl、system/configplay。
+      附件页签的字段来自新文件 app/admin/view/system/config_embed_upload.html。
+    - 反过来，网站参数里的「AI SEO配置 / AI 视频封面」两个页签移出，成为
+      AI 能力组下的两张独立页（节点 214 system/configaiseo、2141 system/configaicover，
+      均改回 show=1；新增 app/admin/view/system/configaicover.html，configaiseo.html
+      改为只包 config_embed_aiseo 的薄壳，两张页与原先页签字段完全一致）。
+    - 下线四个视图（移到 _bak_legacy_20261025/ 并记入 MANIFEST）：configupload.html、
+      configurl.html、configplay.html（后两个早已只被 GET 用作跳转）与两个孤立的
+      config_embed_upload_tab.html、config_embed_play.html。system/configupload、
+      configurl、configplay 的 GET 现在一律 redirect 到 config?tab=…，POST 分支不变，
+      所以旧链接、旧书签与设置中心入口仍然可用；节点 213 因此改为 show=0
+      （不再出现在菜单，但仍是子管理员需要勾选的「保存附件参数」权限点）。
+    - 顺带修掉五个 bug：① config_embed_url.html 里每个「静态路径」下拉都在调用
+      sethtmldir()，而该函数只定义在已下线的 configurl.html 上，在合并页里点了就抛
+      ReferenceError（原实现还带一句 alert 调试框，一并去掉）；② extend/upload/
+      {ftp,qiniu,s3,uomg,upyun,weibo}.html 共 29 个字段带 form="form_config_upload"，
+      靠合并页顶部那张零尺寸隐藏表单才能提交，页签搬到 config.html 后这个 id 不存在，
+      云存储密钥会被静默丢弃，已去掉 form 属性改为归属各自页签的 <form>；
+      ③ config() 里 mac_extends_list('upload') 必须排在 assign('config') 之后，
+      否则扩展插件字段是独立 View::fetch，拿不到 $config，已存密钥全渲染成空值；
+      ④ 安全体检的「AI SEO配置」条目仍指向 config?tab=aiseo，改为直接链到
+      system/configaiseo；⑤ 网站参数恢复页签记忆时先校验 cookie 里的 lay-id 还在
+      页签条上，避免旧「资源、链接与播放」页留下的 up_url 之类值让页签定位失效。
+      setColor()（播放器配色）与「默认值」按钮、upload[mode] 显隐联动随页签一起
+      搬进 config.html，已实测可用。
+    - 已实测：13 个顶栏模块顺序正确、AI 能力面板 10 个可见项含两张新页；
+      config?tab=upload|url|play 各自打开对应页签且字段有值，旧 configupload/configurl/
+      configplay 链接 302 到位；附件页签保存一次（含 upload[api][ftp] 子字段）落盘正确、
+      配置文件与操作前逐字节一致；两张 AI 页各 200 且保存回写正常（测试后已恢复原配置）；
+      权限树仍是 23 组，system/configupload、configurl、configplay、configaiseo、
+      configaicover 五个 controller/action 均可授权；控制台无报错。
+
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）
 --------------------------------------------------------------------------------
@@ -230,7 +274,7 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
 · 了解 maccms12 升级全貌 → 项目根 README.md
 · 服务器上不想放开下载规则又想看正文 → 后台「文档与手册 → 说明文档」在线阅读页
   （仅登录管理员可见，见第四节说明 6）
-· 想确认某个后台功能在哪一组 → 见第四节说明 9 的 12 个顶栏主模块 + 系统设置分节清单
+· 想确认某个后台功能在哪一组 → 见第四节说明 10（接续说明 9）的 13 个顶栏主模块 + 系统设置分节清单
 
 ================================================================================
 *本说明文档集为 maccms12（TP8）交付物的一部分；内容已与 maccms12 代码库/

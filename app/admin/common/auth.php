@@ -1395,6 +1395,161 @@ return array (
       ),
     ),
   ),
+  8 => 
+  array (
+    'name' => lang('menu/ai'),
+    'icon' => 'xe674',
+    'sub' => 
+    array (
+      673 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/aiannotation'),
+        'controller' => 'ai_annotation',
+        'action' => 'index',
+      ),
+      6731 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/aiannotation/generate'),
+        'controller' => 'ai_annotation',
+        'action' => 'generate',
+      ),
+      6732 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/aiannotation/adopt'),
+        'controller' => 'ai_annotation',
+        'action' => 'adopt',
+      ),
+      6733 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/aiannotation/reject'),
+        'controller' => 'ai_annotation',
+        'action' => 'reject',
+      ),
+      674 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/content_quality'),
+        'controller' => 'content_quality',
+        'action' => 'index',
+      ),
+      6741 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/content_quality/mark_recommend'),
+        'controller' => 'content_quality',
+        'action' => 'markRecommend',
+      ),
+      214 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configaiseo'),
+        'controller' => 'system',
+        'action' => 'configaiseo',
+      ),
+      2141 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configaicover'),
+        'controller' => 'system',
+        'action' => 'configaicover',
+      ),
+      215 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configaisearch'),
+        'controller' => 'system',
+        'action' => 'configaisearch',
+      ),
+      2151 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_save'),
+        'controller' => 'meilisearch',
+        'action' => 'save',
+      ),
+      2152 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_status'),
+        'controller' => 'meilisearch',
+        'action' => 'status',
+      ),
+      2153 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_selfcheck'),
+        'controller' => 'meilisearch',
+        'action' => 'selfcheck',
+      ),
+      2154 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_sync'),
+        'controller' => 'meilisearch',
+        'action' => 'sync',
+      ),
+      2155 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/meilisearch_setup'),
+        'controller' => 'meilisearch',
+        'action' => 'setup',
+      ),
+      216 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/meilisearch'),
+        'controller' => 'meilisearch',
+        'action' => 'index',
+      ),
+      217 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configassistant'),
+        'controller' => 'system',
+        'action' => 'configassistant',
+      ),
+      218 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configthemeai'),
+        'controller' => 'system',
+        'action' => 'configthemeai',
+      ),
+      219 => 
+      array (
+        'show' => 1,
+        'name' => lang('admin/system/configaicontent'),
+        'controller' => 'system',
+        'action' => 'configaicontent',
+      ),
+      220 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configtranslate'),
+        'controller' => 'translate',
+        'action' => 'index',
+      ),
+      2201 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/translate_save'),
+        'controller' => 'translate',
+        'action' => 'save',
+      ),
+      2202 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/translate_test'),
+        'controller' => 'translate',
+        'action' => 'test',
+      ),
+    ),
+  ),
   19 => 
   array (
     'name' => lang('menu/database_ops'),
@@ -1532,7 +1687,7 @@ return array (
     array (
       213 => 
       array (
-        'show' => 1,
+        'show' => 0,
         'name' => lang('menu/configupload'),
         'controller' => 'system',
         'action' => 'configupload',
@@ -1599,162 +1754,6 @@ return array (
         'name' => lang('admin/perm/domain_import'),
         'controller' => 'domain',
         'action' => 'import',
-      ),
-    ),
-  ),
-  8 => 
-  array (
-    'name' => lang('menu/ai'),
-    'icon' => 'xe674',
-    'nav_in' => 1,
-    'sub' => 
-    array (
-      673 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/aiannotation'),
-        'controller' => 'ai_annotation',
-        'action' => 'index',
-      ),
-      6731 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/aiannotation/generate'),
-        'controller' => 'ai_annotation',
-        'action' => 'generate',
-      ),
-      6732 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/aiannotation/adopt'),
-        'controller' => 'ai_annotation',
-        'action' => 'adopt',
-      ),
-      6733 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/aiannotation/reject'),
-        'controller' => 'ai_annotation',
-        'action' => 'reject',
-      ),
-      674 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/content_quality'),
-        'controller' => 'content_quality',
-        'action' => 'index',
-      ),
-      6741 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/content_quality/mark_recommend'),
-        'controller' => 'content_quality',
-        'action' => 'markRecommend',
-      ),
-      214 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/configaiseo'),
-        'controller' => 'system',
-        'action' => 'configaiseo',
-      ),
-      2141 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/configaicover'),
-        'controller' => 'system',
-        'action' => 'configaicover',
-      ),
-      215 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configaisearch'),
-        'controller' => 'system',
-        'action' => 'configaisearch',
-      ),
-      2151 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_save'),
-        'controller' => 'meilisearch',
-        'action' => 'save',
-      ),
-      2152 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_status'),
-        'controller' => 'meilisearch',
-        'action' => 'status',
-      ),
-      2153 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_selfcheck'),
-        'controller' => 'meilisearch',
-        'action' => 'selfcheck',
-      ),
-      2154 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_sync'),
-        'controller' => 'meilisearch',
-        'action' => 'sync',
-      ),
-      2155 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/meilisearch_setup'),
-        'controller' => 'meilisearch',
-        'action' => 'setup',
-      ),
-      216 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/meilisearch'),
-        'controller' => 'meilisearch',
-        'action' => 'index',
-      ),
-      217 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configassistant'),
-        'controller' => 'system',
-        'action' => 'configassistant',
-      ),
-      218 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configthemeai'),
-        'controller' => 'system',
-        'action' => 'configthemeai',
-      ),
-      219 => 
-      array (
-        'show' => 1,
-        'name' => lang('admin/system/configaicontent'),
-        'controller' => 'system',
-        'action' => 'configaicontent',
-      ),
-      220 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configtranslate'),
-        'controller' => 'translate',
-        'action' => 'index',
-      ),
-      2201 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/translate_save'),
-        'controller' => 'translate',
-        'action' => 'save',
-      ),
-      2202 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/translate_test'),
-        'controller' => 'translate',
-        'action' => 'test',
       ),
     ),
   ),

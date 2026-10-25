@@ -303,21 +303,21 @@ class System extends Base
             [
                 'key' => 'config_upload', 'group' => 'media',
                 'title' => lang('admin/system/configupload/title'), 'icon' => 'layui-icon-uploadfile',
-                'action' => 'configupload', 'query' => [],
+                'action' => 'config', 'query' => ['tab' => 'upload'],
                 'state' => $uploadMode !== '' ? 'on' : 'off',
                 'tip' => $this->systemSettingsTip('admin/system/configupload/tip'),
             ],
             [
                 'key' => 'config_url', 'group' => 'media',
                 'title' => lang('menu/configurl'), 'icon' => 'layui-icon-lianjie',
-                'action' => 'configupload', 'query' => ['tab' => 'url'],
+                'action' => 'config', 'query' => ['tab' => 'url'],
                 'state' => $rewriteOn ? 'on' : 'off',
                 'tip' => '',
             ],
             [
                 'key' => 'config_play', 'group' => 'media',
                 'title' => lang('menu/configplay'), 'icon' => 'layui-icon-play',
-                'action' => 'configupload', 'query' => ['tab' => 'play'], 'state' => '',
+                'action' => 'config', 'query' => ['tab' => 'play'], 'state' => '',
                 'tip' => $this->systemSettingsTip('admin/system/configplay/tip'),
             ],
             [
@@ -369,14 +369,14 @@ class System extends Base
             [
                 'key' => 'config_aiseo', 'group' => 'ai',
                 'title' => lang('menu/configaiseo'), 'icon' => 'layui-icon-senior',
-                'action' => 'config', 'query' => ['tab' => 'aiseo'],
+                'action' => 'configaiseo', 'query' => [],
                 'state' => $this->systemSettingsFeatureState($seoOn, $seoReady),
                 'tip' => $this->systemSettingsTip('admin/system/configaiseo/tip'),
             ],
             [
                 'key' => 'config_aicover', 'group' => 'ai',
                 'title' => lang('menu/configaicover'), 'icon' => 'layui-icon-tupian',
-                'action' => 'config', 'query' => ['tab' => 'aicover'],
+                'action' => 'configaicover', 'query' => [],
                 'state' => $this->systemSettingsFeatureState($coverOn, $coverReady),
                 'tip' => $this->systemSettingsTip('admin/system/configaicover/tip'),
             ],
@@ -648,12 +648,13 @@ class System extends Base
         // AI SEO
         $seoOn = (string)$this->systemSettingsGet($config, 'ai_seo.enabled', '0') === '1';
         $seoReady = trim((string)$this->systemSettingsGet($config, 'ai_seo.api_key', '')) !== '';
+        $seoUrl = (string)url('system/configaiseo');
         if (!$seoOn) {
-            $add(lang('menu/configaiseo'), 'off', lang('admin/safety/checkup_status_off'), (string)url('system/config', ['tab' => 'aiseo']));
+            $add(lang('menu/configaiseo'), 'off', lang('admin/safety/checkup_status_off'), $seoUrl);
         } elseif ($seoReady) {
-            $add(lang('menu/configaiseo'), 'ok', lang('admin/safety/checkup_status_on'), (string)url('system/config', ['tab' => 'aiseo']));
+            $add(lang('menu/configaiseo'), 'ok', lang('admin/safety/checkup_status_on'), $seoUrl);
         } else {
-            $add(lang('menu/configaiseo'), 'warn', lang('admin/ueditor_ai/no_key'), (string)url('system/config', ['tab' => 'aiseo']));
+            $add(lang('menu/configaiseo'), 'warn', lang('admin/ueditor_ai/no_key'), $seoUrl);
         }
 
         // AI 搜索
@@ -942,58 +943,35 @@ class System extends Base
             $config['app']['input_type'] = 1;
         }
         $config['app']['vod_search_optimise_cache_minutes'] = (new \app\common\model\VodSearch())->getResultCacheMinutes($config);
-        if (!isset($config['ai_seo']) || !is_array($config['ai_seo'])) {
-            // 展示默认须与运行时一致：未写入配置时 mergeDetailSeoIntoMaccms 视为关闭
-            $config['ai_seo'] = [
-                'enabled' => '0',
-                'auto_generate' => '0',
-                'template_inject' => '0',
-                'provider' => 'openai',
-                'model' => 'gpt-4o-mini',
-                'api_base' => 'https://api.openai.com/v1',
-                'api_key' => '',
-                'timeout' => '20',
-            ];
-        }
-        if (!isset($config['ai_seo']['template_inject'])) {
-            $config['ai_seo']['template_inject'] = '0';
-        }
-        if (!isset($config['ai_seo']['auto_generate'])) {
-            $config['ai_seo']['auto_generate'] = '0';
-        }
-        if (!isset($config['ai_seo']['enabled'])) {
-            $config['ai_seo']['enabled'] = '0';
-        }
-        $apiKey = isset($config['ai_seo']['api_key']) ? trim((string) $config['ai_seo']['api_key']) : '';
-        $this->assign('ai_seo_key_saved', $apiKey !== '' ? 1 : 0);
-        $this->assign('ai_seo_key_tail', $apiKey !== '' ? substr($apiKey, -6) : '');
 
-        if (!isset($config['ai_cover']) || !is_array($config['ai_cover'])) {
-            $config['ai_cover'] = [
-                'enabled' => '0',
-                'provider' => 'openai',
-                'model' => 'gpt-image-1',
-                'api_base' => 'https://api.openai.com/v1',
-                'api_key' => '',
-                'timeout' => '120',
-                'size' => '1024x1536',
-                'quality' => 'medium',
-                'prompt_suffix' => '',
-            ];
+        // 「播放器参数配置」页签：可配项以 static/js/playerconfig.js 为准
+        $fp = './static/js/playerconfig.js';
+        if (!file_exists($fp)) {
+            $fp .= '.bak';
         }
-        $coverKey = isset($config['ai_cover']['api_key']) ? trim((string) $config['ai_cover']['api_key']) : '';
-        $this->assign('ai_cover_key_saved', $coverKey !== '' ? 1 : 0);
-        $this->assign('ai_cover_key_tail', $coverKey !== '' ? substr($coverKey, -6) : '');
+        $fc = file_exists($fp) ? @file_get_contents($fp) : '';
+        $play = [];
+        if ($fc) {
+            $jsb = trim(mac_get_body($fc, '//参数开始', '//参数结束'));
+            if (strlen($jsb) > 17) {
+                $jsb = substr($jsb, 16, strlen($jsb) - 17);
+                $play = (array) json_decode($jsb, true);
+            }
+        }
+        $this->assign('play', $play);
 
         $this->assign('form_action_configseo', (string) url('configseo'));
-        $this->assign('form_action_configaiseo', (string) url('configaiseo'));
-        $this->assign('form_action_configaicover', (string) url('configaicover'));
+        $this->assign('form_action_configupload', (string) url('configupload'));
+        $this->assign('form_action_configurl', (string) url('configurl'));
+        $this->assign('form_action_configplay', (string) url('configplay'));
         $tab = (string) input('tab', '');
-        $allowTab = ['', 'seo', 'aiseo', 'aicover'];
+        $allowTab = ['', 'seo', 'upload', 'url', 'play'];
         $this->assign('config_merge_tab', in_array($tab, $allowTab, true) ? $tab : '');
         $this->assign('audit_crypto_gcm_supported', SensitiveDataCrypto::supportsAes256Gcm() ? 1 : 0);
         $this->assign('api_jwt_secret_strong', JwtService::hasStrongSecret() ? 1 : 0);
         $this->assign('config', $config);
+        // 「附件参数配置」页签：上传扩展插件的字段各自 View::fetch，须先有 $config 才能回填已存的密钥
+        $this->assign('extends', mac_extends_list('upload'));
         $this->assign('title', lang('admin/system/config/title'));
         return $this->fetch('admin@system/config');
     }
@@ -1103,7 +1081,7 @@ class System extends Base
             return $this->success(lang('save_ok'));
         }
 
-        return $this->redirect( url('configupload', ['tab' => 'url']) );
+        return $this->redirect( url('config', ['tab' => 'url']) );
     }
 
     public function configuser()
@@ -1295,37 +1273,7 @@ class System extends Base
         }
 
         $this->assign('config', config('maccms'));
-        if ($phar_status) {
-            $aws_phar = 'Yes';
-        }else{
-            $aws_phar = 'No';
-        }
-        $this->assign('aws_phar',$aws_phar);
-        $extends = mac_extends_list('upload');
-        $this->assign('extends',$extends);
-
-        $fp = './static/js/playerconfig.js';
-        if (!file_exists($fp)) {
-            $fp .= '.bak';
-        }
-        $fc = file_exists($fp) ? @file_get_contents($fp) : '';
-        $play = [];
-        if ($fc) {
-            $jsb = trim(mac_get_body($fc, '//参数开始', '//参数结束'));
-            if (strlen($jsb) > 17) {
-                $jsb = substr($jsb, 16, strlen($jsb) - 17);
-                $play = (array) json_decode($jsb, true);
-            }
-        }
-        $this->assign('play', $play);
-
-        $this->assign('form_action_configurl', (string) url('configurl'));
-        $this->assign('form_action_configplay', (string) url('configplay'));
-        $tab = (string) input('tab', '');
-        $allowTab = ['', 'url', 'play'];
-        $this->assign('config_merge_tab', in_array($tab, $allowTab, true) ? $tab : '');
-        $this->assign('title', lang('admin/system/configupload/title'));
-        return $this->fetch('admin@system/configupload');
+        return $this->redirect(url('config', ['tab' => 'upload']));
     }
 
     public function configcomment()
@@ -1811,7 +1759,7 @@ class System extends Base
             return $this->success(lang('save_ok'));
         }
 
-        return $this->redirect( url('configupload', ['tab' => 'play']) );
+        return $this->redirect( url('config', ['tab' => 'play']) );
     }
 
     public function configseo()
@@ -1839,6 +1787,60 @@ class System extends Base
         }
 
         return $this->redirect( url('config', ['tab' => 'seo']) );
+    }
+
+    /**
+     * AI SEO 表单的展示默认值：未写入配置时须与运行时 mergeDetailSeoIntoMaccms 的「视为关闭」一致。
+     */
+    private function aiSeoFormConfig()
+    {
+        $config = config('maccms');
+        if (!isset($config['ai_seo']) || !is_array($config['ai_seo'])) {
+            $config['ai_seo'] = [
+                'enabled' => '0',
+                'auto_generate' => '0',
+                'template_inject' => '0',
+                'provider' => 'openai',
+                'model' => 'gpt-4o-mini',
+                'api_base' => 'https://api.openai.com/v1',
+                'api_key' => '',
+                'timeout' => '20',
+            ];
+        }
+        foreach (['template_inject', 'auto_generate', 'enabled'] as $flag) {
+            if (!isset($config['ai_seo'][$flag])) {
+                $config['ai_seo'][$flag] = '0';
+            }
+        }
+        $key = trim((string)(isset($config['ai_seo']['api_key']) ? $config['ai_seo']['api_key'] : ''));
+        $this->assign('ai_seo_key_saved', $key !== '' ? 1 : 0);
+        $this->assign('ai_seo_key_tail', $key !== '' ? substr($key, -6) : '');
+        return $config;
+    }
+
+    /**
+     * AI 视频封面表单的展示默认值。
+     */
+    private function aiCoverFormConfig()
+    {
+        $config = config('maccms');
+        if (!isset($config['ai_cover']) || !is_array($config['ai_cover'])) {
+            $config['ai_cover'] = [
+                'enabled' => '0',
+                'provider' => 'openai',
+                'model' => 'gpt-image-1',
+                'api_base' => 'https://api.openai.com/v1',
+                'api_key' => '',
+                'timeout' => '120',
+                'size' => '1024x1536',
+                'quality' => 'medium',
+                'prompt_suffix' => '',
+            ];
+        }
+        $key = trim((string)(isset($config['ai_cover']['api_key']) ? $config['ai_cover']['api_key'] : ''));
+        $this->assign('ai_cover_key_saved', $key !== '' ? 1 : 0);
+        $this->assign('ai_cover_key_tail', $key !== '' ? substr($key, -6) : '');
+        return $config;
     }
 
     public function configaiseo()
@@ -1897,7 +1899,9 @@ class System extends Base
             return $this->success(lang('save_ok'));
         }
 
-        return $this->redirect( url('config', ['tab' => 'aiseo']) );
+        $this->assign('config', $this->aiSeoFormConfig());
+        $this->assign('title', lang('admin/system/configaiseo/title'));
+        return $this->fetch('admin@system/configaiseo');
     }
 
     public function configaicover()
@@ -1972,7 +1976,9 @@ class System extends Base
             return $this->success(lang('save_ok'));
         }
 
-        return $this->redirect(url('config', ['tab' => 'aicover']));
+        $this->assign('config', $this->aiCoverFormConfig());
+        $this->assign('title', lang('admin/system/configaicover/title'));
+        return $this->fetch('admin@system/configaicover');
     }
 
     public function configaisearch()

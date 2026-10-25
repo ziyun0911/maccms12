@@ -19,8 +19,9 @@
                 <li lay-id="config_3">{:lang('admin/system/config/parameters')}</li>
                 <li lay-id="config_4">{:lang('admin/system/config/backstage')}</li>
                 <li lay-id="config_seo">{:lang('menu/configseo')}</li>
-                <li lay-id="config_aiseo">{:lang('menu/configaiseo')}</li>
-                <li lay-id="config_aicover">{:lang('menu/configaicover')}</li>
+                <li lay-id="config_upload">{:lang('admin/system/configupload/title')}</li>
+                <li lay-id="config_url">{:lang('menu/configurl')}</li>
+                <li lay-id="config_play">{:lang('menu/configplay')}</li>
             </ul>
             <div class="layui-tab-content">
                 <div class="layui-tab-item layui-show layui-form layui-form-pane" id="movementTable">
@@ -1069,10 +1070,22 @@
                         </div>
                     </form>
                 </div>
-                <div class="layui-tab-item" id="config_tab_aiseo">
-                    <form class="layui-form layui-form-pane" method="post" action="{$form_action_configaiseo|default=''}">
+                <div class="layui-tab-item" id="config_tab_upload">
+                    <form class="layui-form layui-form-pane" method="post" action="{$form_action_configupload|default=''}">
                         <input type="hidden" name="__token__" value="{:token()}" />
-                        {include file="system/config_embed_aiseo" /}
+                        {include file="system/config_embed_upload" /}
+                        <div class="layui-form-item center main-config-save">
+                            <div class="layui-input-block">
+                                <button type="submit" class="layui-btn" lay-submit="" lay-filter="formSubmit">{:lang('btn_save')}</button>
+                                <button class="layui-btn layui-btn-primary" type="reset">{:lang('btn_reset')}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="layui-tab-item" id="config_tab_url">
+                    <form class="layui-form layui-form-pane" method="post" action="{$form_action_configurl|default=''}">
+                        <input type="hidden" name="__token__" value="{:token()}" />
+                        {include file="system/config_embed_url" /}
                         <div class="layui-form-item center">
                             <div class="layui-input-block">
                                 <button type="submit" class="layui-btn" lay-submit="" lay-filter="formSubmit">{:lang('btn_save')}</button>
@@ -1081,13 +1094,14 @@
                         </div>
                     </form>
                 </div>
-                <div class="layui-tab-item" id="config_tab_aicover">
-                    <form class="layui-form layui-form-pane" method="post" action="{$form_action_configaicover|default=''}">
+                <div class="layui-tab-item" id="config_tab_play">
+                    <form class="layui-form layui-form-pane" method="post" action="{$form_action_configplay|default=''}">
                         <input type="hidden" name="__token__" value="{:token()}" />
-                        {include file="system/config_embed_aicover" /}
+                        {include file="system/config_embed_play_fields" /}
                         <div class="layui-form-item center">
                             <div class="layui-input-block">
                                 <button type="submit" class="layui-btn" lay-submit="" lay-filter="formSubmit">{:lang('btn_save')}</button>
+                                <button type="button" class="layui-btn layui-btn-normal" id="btnDef">{:lang('default_val')}</button>
                                 <button class="layui-btn layui-btn-primary" type="reset">{:lang('btn_reset')}</button>
                             </div>
                         </div>
@@ -1100,6 +1114,32 @@
 {include file="../../../app/admin/view/public/foot" /}
 <script type="text/javascript" src="__STATIC__/js/jquery.cookie.js"></script>
 <script type="text/javascript">
+    // 「播放器参数配置」页签里的配色快捷按钮
+    function setColor(v) {
+        switch (v) {
+            case 2:
+                v = "EFF4F7,000000,666666,E4E4E4,000000,FF0000,FF0000,DBEBFE,458CE4,DBEBFE,FFFFFF,458CE4,DBEBFE,DBEBFE,fcfcfc";
+                break;
+            case 3:
+                v = "D8CFDF,000000,666666,E4E4E4,000000,FF0000,FF0000,D8CFDF,926C92,BEAFC9,FFFFFF,926C92,BEAFC9,BEAFC9,fcfcfc";
+                break;
+            case 4:
+                v = "D7E7B6,000000,666666,E4E4E4,000000,FF0000,FF0000,9EC14C,A3C656,BAD480,FFFFFF,A3C656,BAD480,BAD480,fcfcfc";
+                break;
+            default:
+                v = "000000,F6F6F6,F6F6F6,333333,666666,FFFFF,FF0000,2c2c2c,ffffff,a3a3a3,2c2c2c,adadad,adadad,48486c,fcfcfc";
+                break;
+        }
+        $("#mac_colors").val(v);
+    }
+
+    // 「URL地址配置」页签里把路由后缀写回同名输入框；此前只定义在已下线的 configurl.html 上
+    function sethtmldir(id, value) {
+        if (value) {
+            $("input[name='" + id + "']").val(value);
+        }
+    }
+
     layui.use(['element', 'form', 'upload', 'layer'], function () {
         // 操作对象
         var element = layui.element
@@ -1128,6 +1168,15 @@
             }
         });
 
+        form.on('select(upload[mode])', function (data) {
+            $('.upload_mode').hide();
+            $('.mode_' + data.value).show();
+        });
+
+        form.on('select(select_path)', function (data) {
+            $(this).parent().parent().parent().parent().find('input').val(data.value);
+        });
+
         element.on('tab(tb1)', function () {
             $.cookie('config_tab', this.getAttribute('lay-id'));
             form.render();
@@ -1137,13 +1186,20 @@
             $.cookie('config_seo_inner_tab', this.getAttribute('lay-id'));
         });
 
+        element.on('tab(tb_configurl)', function () {
+            $.cookie('config_url_inner_tab', this.getAttribute('lay-id'));
+            form.render();
+        });
+
         if (mergeTab === 'seo') {
             element.tabChange('tb1', 'config_seo');
-        } else if (mergeTab === 'aiseo') {
-            element.tabChange('tb1', 'config_aiseo');
-        } else if (mergeTab === 'aicover') {
-            element.tabChange('tb1', 'config_aicover');
-        } else if ($.cookie('config_tab') != null) {
+        } else if (mergeTab === 'upload') {
+            element.tabChange('tb1', 'config_upload');
+        } else if (mergeTab === 'url') {
+            element.tabChange('tb1', 'config_url');
+        } else if (mergeTab === 'play') {
+            element.tabChange('tb1', 'config_play');
+        } else if ($.cookie('config_tab') != null && $('.layui-tab-title li[lay-id="' + $.cookie('config_tab') + '"]').length) {
             element.tabChange('tb1', $.cookie('config_tab'));
         }
 
@@ -1152,6 +1208,25 @@
                 element.tabChange('tb_seo', $.cookie('config_seo_inner_tab'));
             }, 0);
         }
+
+        if ($.cookie('config_url_inner_tab') != null) {
+            setTimeout(function () {
+                element.tabChange('tb_configurl', $.cookie('config_url_inner_tab'));
+            }, 0);
+        }
+
+        $('#btnDef').click(function () {
+            $('input[name="play[width]"]').val('100%');
+            $('input[name="play[height]"]').val('100%');
+            $('input[name="play[widthmob]"]').val('100%');
+            $('input[name="play[heightmob]"]').val('100%');
+            $('input[name="play[widthpop]"]').val('600');
+            $('input[name="play[heightpop]"]').val('500');
+            $('input[name="play[second]"]').val('5');
+            $('input[name="play[prestrain]"]').val('//union.maccms.la/html/prestrain.html');
+            $('input[name="play[buffer]"]').val('');
+            $('input[name="play[parse]"]').val('');
+        });
 
         upload.render({
             elem: '.layui-upload'

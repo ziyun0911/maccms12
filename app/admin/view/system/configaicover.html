@@ -1,0 +1,18 @@
+{include file="../../../app/admin/view/public/head" /}
+
+<div class="page-container">
+    <form class="layui-form layui-form-pane" method="post" action="">
+        <input type="hidden" name="__token__" value="{:token()}" />
+        {include file="system/config_embed_aicover" /}
+        <div class="layui-form-item center">
+            <div class="layui-input-block">
+                <button type="submit" class="layui-btn" lay-submit="" lay-filter="formSubmit">{:lang('btn_save')}</button>
+                <button class="layui-btn layui-btn-primary" type="reset">{:lang('btn_reset')}</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{include file="../../../app/admin/view/public/foot" /}
+</body>
+</html>
