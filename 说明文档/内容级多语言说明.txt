@@ -8,7 +8,7 @@ maccms12（TP8 升级版）已完整实现本功能（按官方 master 蓝本移
 · app/common.php 已实现 mac_content_lang_* / mac_lang_* / mac_tpl_text /
   mac_content_translate* 助手函数族（十余个函数，合计约 480 行，含翻译接口
   限流 40 次/分钟、600 次/小时）；app/common/model/ContentLang.php 模型就位。
-· 后台「系统 → 网站参数」已有「前台内容语言」配置段（content_lang_list
+· 后台「网站参数」已有「前台内容语言」配置段（content_lang_list
   多选 + content_lang_default 下拉，默认 zh-cn），保存走 app[...] 命名。
 · 后台 13 个模块编辑页（vod/art/manga/topic/actor/website/live/type/link/task +
   vodplayer/voddowner/vodserver）在启用 2 种及以上语言时按语言分页签展示
@@ -32,7 +32,7 @@ maccms12（TP8 升级版）已完整实现本功能（按官方 master 蓝本移
    一段 JSON）；播放器/下载器/服务器组这类不落库的配置，译文就近存在
    app/extra/vod{player,downer,server}.php 各条目里。
 2. 网站参数里新增「前台内容语言」配置：一个默认语言 + 一份已启用语言清单
-   （后台 系统 → 网站参数，即 system/config，配置键 content_lang_default / content_lang_list）。
+   （后台 网站参数，即 system/config，配置键 content_lang_default / content_lang_list）。
 3. 前台按 ?lang=xx-xx → cookie(mac_content_lang，30 天) → Accept-Language →
    默认语言 的顺序决定当前访客看到的语言。
 4. 后台各模块编辑页在启用 2 种及以上语言时，按语言分标签页：默认语言那一页还是
@@ -61,7 +61,7 @@ mac_content_lang_overlay() 也永远原样返回未翻译的原始行。
 
 三、开启方法
 --------------------------------------------------------------------------------
-1. 后台 → 系统 → 网站参数，找到「前台内容语言」区块：一组语言复选框
+1. 后台 → 网站参数，找到「前台内容语言」区块：一组语言复选框
    （content_lang_list）+ 默认内容语言单选（content_lang_default，默认 zh-cn）。
 2. 勾选希望访客能切换的语言。默认语言总是隐含包含，不必单独勾。
 3. 保存即生效，无需清缓存或重启。
@@ -133,7 +133,7 @@ mac_content_lang_overlay() 也永远原样返回未翻译的原始行。
 七、上线自检
 --------------------------------------------------------------------------------
 [ ] mac_content_lang 表存在（新装自动；老站在线升级或手动脚本）
-[ ] 系统 → 网站参数 能看到语言复选/单选并正常保存
+[ ] 网站参数 能看到语言复选/单选并正常保存
 [ ] 启用 2 种及以上语言后，打开任一 Vod/Art/… 编辑页确认出现语言分页签
 [ ] 在非默认语言页保存一条译文，重新打开编辑页应能回显
 [ ] 前台详情页带 ?lang=<已启用代码> 访问，确认译文生效（留空字段回退原文）

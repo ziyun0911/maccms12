@@ -100,7 +100,7 @@ class System extends Base
                 'version'  => is_array($version) && isset($version['code']) ? (string)$version['code'] : '',
             ],
         ]);
-        $this->assign('title', lang('menu/system') . ' · ' . lang('config'));
+        $this->assign('title', lang('menu/systeminfo'));
         return $this->fetch('admin@system/index');
     }
 

@@ -20,13 +20,6 @@ return array (
         'controller' => 'index',
         'action' => 'quickmenu',
       ),
-      20 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/systeminfo'),
-        'controller' => 'system',
-        'action' => 'index',
-      ),
       1001 => 
       array (
         'show' => 0,
@@ -64,9 +57,24 @@ return array (
       ),
     ),
   ),
+  16 => 
+  array (
+    'name' => lang('menu/systeminfo'),
+    'icon' => 'xe62e',
+    'sub' => 
+    array (
+      20 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/systeminfo'),
+        'controller' => 'system',
+        'action' => 'index',
+      ),
+    ),
+  ),
   2 => 
   array (
-    'name' => lang('menu/system'),
+    'name' => lang('menu/config'),
     'icon' => 'xe62e',
     'sub' => 
     array (

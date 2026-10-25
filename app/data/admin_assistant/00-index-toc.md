@@ -2,7 +2,7 @@
 
 This folder powers the **admin assistant** (floating `?`). Answers should cite these files mentally; **not every line of the codebase** is duplicated here—only stable **admin workflows**, **menu names**, and **configuration areas** for MacCMS10-style admin.
 
-**Suggestion:** On **系统 → 后台助手配置**, set **检索知识片段数** to **8–10** if you keep many files below.
+**Suggestion:** On **网站参数 → 后台助手设置**, set **检索知识片段数** to **8–10** if you keep many files below.
 
 | File | Topics |
 |------|--------|
@@ -15,7 +15,7 @@ This folder powers the **admin assistant** (floating `?`). Answers should cite t
 | `07-types-topic-manga.md` | 分类、专题、漫画 |
 | `08-troubleshooting.md` | 常见问题排查 |
 | `09-plugins-comments-user.md` | 插件、评论、会员概览 |
-| `10-system-configuration-menus.md` | **全书式：系统下各配置页说明** |
+| `10-system-configuration-menus.md` | **全书式：网站参数下各配置页说明** |
 | `11-menu-modules-content-users.md` | **基础/视频/文章/演员/网址/用户等侧栏** |
 | `12-url-seo.md` | URL、伪静态、SEO |
 | `13-player-server-downer.md` | 播放器、服务器组、下载器 |

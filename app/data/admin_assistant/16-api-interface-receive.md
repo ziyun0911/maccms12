@@ -1,6 +1,6 @@
 # 开放 API 配置 & 站外入库配置
 
-## 开放 API 配置 (`系统 → 开放API配置` / `menu/configapi`)
+## 开放 API 配置 (`网站参数 → 内容接入 → 开放API配置` / `menu/configapi`)
 
 - 提供给 **APP、小程序、采集端、合作方** 拉取 **视频/文章等 JSON** 的控制台。  
 - 通常包含：**总开关、`pass`/密钥**、按模块允许的 **ac（动作）**：list/detail/…  
@@ -9,7 +9,7 @@
 
 ---
 
-## 站外入库配置 (`系统 → 站外入库配置` / `menu/configinterface`)
+## 站外入库配置 (`网站参数 → 内容接入 → 站外入库配置` / `menu/configinterface`)
 
 - **允许远程 HTTP 入库**（视频/文章/演员…）时使用，对应 `maccms.interface`。  
 - **status** 开关、**pass** 通信密码、各类型 **vodtype / arttype 映射**。  

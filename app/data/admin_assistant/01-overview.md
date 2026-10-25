@@ -18,11 +18,11 @@ Main runtime configuration is stored in **`application/extra/maccms.php`** (site
 
 ## Typical workflow for new sites
 
-1. **系统 → 网站参数**：填写站点名、域名、安装目录、关闭维护模式等。  
+1. **网站参数**：填写站点名、域名、安装目录、关闭维护模式等。  
 2. **视频 / 文章 → 分类**（或 **基础 → 分类**）：建好类型与分类，前台 URL 与筛选依赖于此。  
 3. **内容入库**：手工 **添加** 或 **采集** 对接资源站。  
 4. **模板**：在 **模板** 中选择/编辑 PC 与 WAP 模板；改模板后视情况 **清理缓存** 或 **生成静态**。  
-5. **系统 → URL / 伪静态**：按服务器环境配置 rewrite。  
+5. **网站参数 → URL / 伪静态**：按服务器环境配置 rewrite。  
 
 ## Safety
 

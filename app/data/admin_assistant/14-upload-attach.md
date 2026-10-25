@@ -1,6 +1,6 @@
 # 附件参数配置 & 附件管理
 
-## 附件参数配置 (`系统 → 附件参数配置` / `menu/configupload`)
+## 附件参数配置 (`网站参数 → 附件参数配置` / `menu/configupload`)
 
 ### `maccms.upload` 主要块
 

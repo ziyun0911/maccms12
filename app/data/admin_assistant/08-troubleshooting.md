@@ -23,7 +23,7 @@ Answer in **clear numbered steps**. Do not assume server panel brand; mention **
 
 ## 播放黑屏 / 不能播
 
-1. **系统 → 播放器** 当前方案是否匹配资源 **格式**（直链 / m3u8 / 跳转）。  
+1. **视频 → 播放器** 当前方案是否匹配资源 **格式**（直链 / m3u8 / 跳转）。  
 2. 浏览器 **控制台**（F12）是否跨域或被 **广告拦截**。  
 3. **HTTPS** 页面下混入 **HTTP** 播放地址常被拦截。  
 
