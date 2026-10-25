@@ -10,6 +10,7 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
 一、目录结构（与官方 maccms10 说明文档一致）
 --------------------------------------------------------------------------------
 说明文档/
+├── .htaccess                     本目录整目录 Require all denied（随目录部署即生效）
 ├── 00-说明文档总览.txt           本文档（导航 + 版本差异摘要）
 ├── API接口说明.txt               API 完整说明（搜索/模块 REST/用户/支付/
 │                                 弹幕/聊天室/直播/PWA 推送等 + maccms12 补充接口；
@@ -20,7 +21,8 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
 │   ├── maccms.conf               Nginx（含 index/admin/api 三入口 s 参数兼容）
 │   ├── web.config                IIS 7+
 │   ├── rewrite说明.txt           伪静态部署说明（maccms12 适配）
-│   └── 默认路由规则.txt          前台默认 URL 路由规则（后台可改）
+│   └── 默认路由规则.txt          前台默认 URL 路由规则（58 条，与
+│                                 app/index/route/rewrite.php 逐条对应 + 差异说明）
 ├── 内容级多语言说明.txt          内容级多语言（maccms12 已实现：数据库表/
 │                                 助手函数/后台分页签/前台切换器全落地）
 ├── 多语言支持说明.txt            界面语言包结构（app/lang/ 公共 + 模块 lang/）
@@ -42,12 +44,13 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
 --------------------------------------------------------------------------------
 二、maccms12 版本与环境
 --------------------------------------------------------------------------------
-· 运行环境：PHP >= 8.0.2（验证用 PHP 8.2.27）、MySQL 5.7/8.0+、
-  Nginx/Apache/PHP 内置服务器均可。
+· 运行环境：PHP >= 8.0.2（composer.json 的 require.php；本机验证用 PHP 8.3.8）、
+  MySQL 5.7/8.0+（本机 5.7.38）、Nginx/Apache/PHP 内置服务器均可。
 · 入口文件：index.php（前台）、admin.php（后台）、api.php（接口/定时任务）、
-  install.php（安装，已装后访问提示已锁）。
+  install.php（安装，已装后访问提示已锁；锁文件为 app/data/install/install.lock）。
 · 数据库：maccms12（84 张表，前缀 mac_，含 mac_content_lang 内容语言表）；
-  配置见 config/database.php。
+  唯一配置来源 config/database.php（安装程序写入后会热更新进框架 Config，
+  不存在第二份镜像）。
 · 默认后台账号：admin（口令不写入文档，正式环境务必改密）；验证码开关
   app/extra/maccms.php → admin_login_verify（1 开 / 0 关）。
 · 完整交付说明见项目根目录 README.md。
@@ -57,15 +60,30 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
 --------------------------------------------------------------------------------
 1. 目录结构：application/ → app/（模块 admin/api/index/install 按 TP8 多应用布局）。
 2. 入口引导：四个入口重写为 TP8 引导并修复 PATHINFO 解析。
-3. TP5 行为（behavior/*）迁为 TP8 中间件（middleware/*）；删除 tags.php。
-4. 公共层 app/common.php 新增 mac_config_set()、model() 助手、THINK_VERSION 等兼容层。
-5. 数据库配置双镜像（TP8 标准结构 + TP5 兼容键）。
+3. TP5 行为（application/tags.php 里的 behavior/*）迁为 TP8 全局中间件，
+   声明在 app/middleware.php，实现放在 app/common/middleware/。除框架自带的
+   SessionInit 外共 12 个，按执行顺序：SessionSameSite / Init / AddonInit /
+   RequestSecurity / Begin / IpBlock / AntiScrape / MonitorRequest /
+   PreviewLinks / SecurityHeaders / CookieSameSite / AdminAudit；
+   application/tags.php 已删除。
+4. 公共层 app/common.php 提供 mac_* 助手函数族（200+ 个顶层函数），承担原 TP5
+   公共层职责：配置读写 mac_load_extra() / mac_arr2file() / mac_save_config_data()，
+   模板与 URL mac_tpl_file() / mac_url()，输出 mac_echo() / mac_jump() 等。
+   （注：本文旧版在这里列的 mac_config_set()、model()、THINK_VERSION 三个「兼容层」
+   在当前代码里并不存在，属笔误，已按实际函数改写。）
+5. 数据库配置单一来源：config/database.php（TP8 connections 结构）。安装程序
+   写完文件后会 include 进框架 Config 热更新，不再保留 TP5 时代的第二份镜像。
 6. vendor 保持 Composer 原样：三处 TP5 写法已改为 TP8 原生调用，不再有 vendor 补丁，
    因此 composer update 之后无需任何重打补丁步骤（清理记录见项目根 README.md）。
-7. 清理项：删除 behavior 惰性代码、theme-request-form/、tests/、route/、storage/；
-   static_new/ 已并入 static/（引用统一改 static）。
-8. 后台视图路径 352 处 application/ → app/；模板（template/）与前台标签语法
-   完全兼容 maccms10，可无损复用。
+7. 清理项：删除 behavior 惰性代码、theme-request-form/、tests/、storage/、
+   app/tags.php；static_new/ 已并入 static/（全库 0 处 static_new 引用）。
+   根 route/ 目录并未删除，只剩 route/addons.php（插件统一路由
+   addons/:addon/:controller/:action → app\common\addon\Dispatcher@run），
+   由 app/index/route/addons.php require 复用；前台 rewrite 规则在
+   app/index/route/rewrite.php，两者不要混为一谈。
+8. 后台视图与控制器里的 application/ 路径已全部改为 app/（迁移时一次性改过 352 处；
+   本次复查 app/admin/view/ 下已 0 处残留，剩下的 application/json 等是 MIME 类型）。
+   模板（template/）与前台标签语法完全兼容 maccms10，可无损复用。
 
 --------------------------------------------------------------------------------
 四、与官方文档的内容差异（已在本目录各文档内标注）
@@ -80,6 +98,21 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
      UserPm 十个控制器，接口说明已补入《API接口说明.txt》第十章。
 3. 【模板】前台模板现仅保留 default（PC 与移动端同用）；曾随包升级并验收过
    的 conch / datll_Layui_v1 已移出发布包，修复过程见《模板修复与试用说明.txt》。
+4. 【2026-10-25 全量核对记录】本轮逐篇对照代码树订正过的口径：
+   - 定时任务说明.txt：补入 maccms12 新增的 6 个执行文件参数，并标注三个
+     「预置但下拉里没有」的处理器（annotate / content_quality / user_profile）。
+   - 伪静态规则/默认路由规则.txt：正文由官方 maccms10 清单改为随包 58 条规则，
+     另列差异（官方多 actortype/website*/mangarss/mangaplot，随包多
+     rss/artread/liveshow/liveplay/sitehome/publish-<id>）。
+   - 伪静态规则/rewrite说明.txt：后台菜单位置改为「系统 → URL地址配置」，
+     拦截名单与根 .htaccess 对齐；示例 .htaccess 补上 .bak/.old/.orig 段。
+   - 站外入库接口说明.txt：7 个 receive 接口的必填项按 Receive.php 重列，
+     评论接口从「预留」改为已实现，补 3001/3002/3003 返回码。
+   - 标签说明.txt：模板结构块改为 template/default 实际目录树 + 页面清单差异。
+   - 内容级多语言说明.txt / 多语言支持说明.txt：表数量、助手函数规模、
+     分页语言模块数、语言包个数改为实测值（84 张表 / 约 480 行 / 13 个模块 / 6 个语言包）。
+   - 界面语言包（app/lang/*.php 共 6 份）：后台助手、插件签名、快捷菜单提示里
+     5 处 application/ 旧路径改为 app/，插件示例地址改为 /index.php/addons/…。
 
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）

@@ -956,7 +956,7 @@ https://www.baidu.com/123.jpg
   'admin/index/quickmenu/name' => '自定义快捷菜单',
   'admin/index/quickmenu/tip' => '格式要求：1.菜单名称,菜单链接地址；2.每个快捷菜单各占一行；<br>
         1，支持远程地址，例如： 更新日志,//www.baidu.com/<br>
-        2，支持插件文件，例如： 插件文件菜单,/application/xxxx.html<br>
+        2，支持插件文件，例如： 插件文件菜单,/index.php/addons/plugin/controller/action<br>
         3，支持系统模块，例如： 文章管理,art/data<br>
         4，支持行分隔符，例如： 分隔符,###',
   'admin/index/welcome/disk_detail_tips' => '移动到图表上查看磁碟详细资讯',
@@ -1839,7 +1839,7 @@ https://www.baidu.com/123.jpg
   'admin/system/configaisearch/google_books_enabled' => '启用 Google Books（图书目录）',
   'admin/system/configaisearch/google_books_api_key' => 'Google Books API Key',
   'admin/system/configaisearch/catalog_per_source' => '每数据源最大条数',
-  'admin/system/configaisearch/assistant_grp_tip' => '后台助手：浮动按钮向管理员解释本系统用法与配置思路；回答依据 application/data/admin_assistant/ 下 Markdown 知识库，并可选附带非敏感运行快照。不会自动改配置。',
+  'admin/system/configaisearch/assistant_grp_tip' => '后台助手：浮动按钮向管理员解释本系统用法与配置思路；回答依据 app/data/admin_assistant/ 下 Markdown 知识库，并可选附带非敏感运行快照。不会自动改配置。',
   'admin/system/configaisearch/assistant_enabled' => '启用后台助手',
   'admin/system/configaisearch/assistant_use_ai_key' => '复用「AI 搜索配置」的 API Key / 地址',
   'admin/system/configaisearch/assistant_use_ai_key_tip' => '开启后，若助手专用 Key / 模型 / Base 为空，则沿用「系统 → AI 搜索配置」中已保存的值；关闭后可在此处单独填写。',
@@ -1853,7 +1853,7 @@ https://www.baidu.com/123.jpg
   'admin/system/configaisearch/assistant_env' => '附带环境快照',
   'admin/system/configaisearch/assistant_env_tip' => '仅包含搜索开关、语言、缓存类型、站点名、模板目录等非敏感项，便于解释「当前站点大致配置」。',
   'admin/system/configassistant/title' => '后台助手配置',
-  'admin/system/configassistant/tip' => '后台助手：右下角浮动按钮，面向管理员的用法说明；回答依据 application/data/admin_assistant/ 下 Markdown，并可选附带非敏感站点快照；不会自动改配置。',
+  'admin/system/configassistant/tip' => '后台助手：右下角浮动按钮，面向管理员的用法说明；回答依据 app/data/admin_assistant/ 下 Markdown，并可选附带非敏感站点快照；不会自动改配置。',
   'admin/system/configassistant/provider' => '提供者（通常为 openai）',
   'admin/system/configassistant/access_scope' => '可用管理员范围',
   'admin/system/configassistant/access_scope_tip' => '可限制为仅超管（admin_id=1）可使用后台助手。',
@@ -1955,7 +1955,7 @@ https://www.baidu.com/123.jpg
   'admin/addon/sig_hash_mismatch' => '文件哈希与清单不一致：%s',
   'admin/addon/sig_file_extra' => '包内存在未列入清单的文件：%s',
   'admin/addon/sig_verify_fail' => '插件包签名校验失败',
-  'admin/addon/sig_pubkey_missing' => '未配置本地插件验签公钥（application/data/addon/local_public.pem 或 addon.local_public_key）',
+  'admin/addon/sig_pubkey_missing' => '未配置本地插件验签公钥（app/data/addon/local_public.pem 或 addon.local_public_key）',
   'admin/addon/upload_empty' => '请选择要上传的 zip 插件包',
   'admin/addon/upload_fail' => '上传失败',
   'admin/addon/lack_class_err' => '缺少插件主类文件（{Name}.php）',
@@ -1965,7 +1965,7 @@ https://www.baidu.com/123.jpg
   'admin/addon/config_title' => '插件配置',
   'admin/addon/config_save_ok' => '配置已保存，钩子表已热更新',
   'admin/addon/config_empty' => '该插件未声明配置项（无 config.php）',
-  'admin/addon/config_refresh_tip' => '保存后会调用 Service::refresh() 重写 application/extra/addons.php，并清理 hooks/addons 缓存；配置值变更一般即时生效，新增/删除钩子方法需重新启用插件。',
+  'admin/addon/config_refresh_tip' => '保存后会调用 Service::refresh() 重写 app/extra/addons.php，并清理 hooks/addons 缓存；配置值变更一般即时生效，新增/删除钩子方法需重新启用插件。',
   'admin/addon/config_schema_err' => '插件配置 schema 无效',
   'admin/addon/config_type_err' => '不支持的配置类型：%s',
   'admin/addon/config_required' => '请填写必填项：%s',

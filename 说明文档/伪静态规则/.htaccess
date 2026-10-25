@@ -22,12 +22,20 @@ RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
 <FilesMatch "\.(md|sql|log|lock|wpm|sh|ps1|py)$">
 Require all denied
 </FilesMatch>
+# 后缀式备份残留：.bak / .bak_cl / .bak_20261024 / .old / .orig 一律拦下
+<FilesMatch "\.(bak|old|orig)([._][A-Za-z0-9-]*)?$">
+Require all denied
+</FilesMatch>
 <FilesMatch "^(composer\.json|composer\.lock|think|\.user\.ini)$">
 Require all denied
 </FilesMatch>
 </IfModule>
 <IfModule !mod_authz_core.c>
 <FilesMatch "\.(md|sql|log|lock|wpm|sh|ps1|py)$">
+Order deny,allow
+Deny from all
+</FilesMatch>
+<FilesMatch "\.(bak|old|orig)([._][A-Za-z0-9-]*)?$">
 Order deny,allow
 Deny from all
 </FilesMatch>

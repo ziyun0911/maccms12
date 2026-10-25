@@ -57,11 +57,11 @@
 1. **目录结构**：`application/` → `app/`；模块 `admin` / `api` / `index` / `install` 按 TP8 多应用布局迁移。
 2. **入口引导**：`index.php` / `admin.php` / `api.php` / `install.php` 重写为 TP8 引导并修复 PATHINFO 解析。
 3. **行为迁移**：12 个 `behavior/*`（TP5 行为）迁为 `middleware/*`（TP8 中间件）。
-4. **公共层**：`app/common.php` 仅保留 `mac_load_extra()`（将 `app/extra/*.php` 注册为独立配置组，等价 TP8 的 extra 配置扩展）；已移除 `mac_config_set()`、`model()`、`THINK_VERSION`、`class_alias` 等 TP5 兼容助手。
+4. **公共层**：TP5 兼容助手里 `app/common.php` 仅保留 `mac_load_extra()`（将 `app/extra/*.php` 注册为独立配置组，等价 TP8 的 extra 配置扩展）；已移除 `mac_config_set()`、`model()`、`THINK_VERSION`、`class_alias` 等兼容助手。其余 200+ 个 `mac_*` 函数是程序自身的助手族（配置读写 `mac_arr2file()` / `mac_save_config_data()`、模板与 URL `mac_tpl_file()` / `mac_url()`、输出 `mac_echo()` / `mac_jump()` 等），不属于兼容层。
 5. **控制器基类**：`Jump` 的 `redirect()` 改为先用 `url()` 拼装参数再跳转（TP8 `redirect(string,int)` 不再收 params）。
 6. **表前缀占位符**：`__ANALYTICS_SESSION__` / `__COUPON__` / `__USER__` 等 `__TABLENAME__` 占位符（think-orm 不解析）替换为实际表名（`mac_analytics_session` 等）；读取前缀统一走 `connections.mysql.prefix`。
 7. **标签库**：`app/common/taglib/Maccms.php` 9 处 `paging=='yes'` 增加空值防御。
-8. **后台视图路径**：`view` 下 352 处 `../../../application/` → `../../../app/`；中间件按入口设置 `view.view_dir_name`。
+8. **后台视图路径**：`app/admin/view/` 下 `../../../application/` → `../../../app/`（迁移时一次改了 352 处；现存 `../../../app/` 引用 360 处，`application/` 残留 0 处，其余 `application/json` 等为 MIME 类型）；中间件按入口设置 `view.view_dir_name`。
 9. **路由完整匹配**：`config/route.php` 开启 `route_complete_match => true`，避免含可选变量的规则（如 `actor-【page】`）前缀匹配劫持 detail/type 等其他路由。
 10. **查询构造器**：`app/common/db/Query` 继承 `think\db\Query`，兼容旧代码中 `limit('offset,length')` / `page('x,y')` 的字符串写法，不改动 vendor 源码。
 11. **插件体系**：`app/common/addon`（Service / AddonManager / helpers）为 TP8 原生实现，插件命名空间 `addons\` 映射 `/addons`，支持动态挂载、启停、配置与跨模块视图布局；插件 SQL 使用 `__PREFIX__` 占位符。
@@ -72,7 +72,8 @@
 - 删除 TP5 惰性死代码：`app/common/behavior/*`（12 个，已迁为中间件）、`app/tags.php`
 - 删除无用文件/目录：`theme-request-form/`、`tests/`、`storage/`（空）
 - 删除 `tp5_buding/` 兼容补丁包：三处 vendor 补丁已回滚，`vendor/` 保持 Composer 原样（`composer update` 后无需再打补丁）
-- `static_new/` 已并入 `static/`（同名以 static_new 版本覆盖，保留目录名 `static`），代码中 17 处 `static_new` 引用统一改为 `static`
+- `static_new/` 已并入 `static/`（同名以 static_new 版本覆盖，保留目录名 `static`），代码中 17 处 `static_new` 引用统一改为 `static`（现全库 `static_new` 引用 0 处）
+- 6 份界面语言包（`app/lang/*.php`）里 5 处提示文案的旧目录名 `application/data/admin_assistant/`、`application/data/addon/local_public.pem`、`application/extra/addons.php` 改为 `app/...`；快捷菜单示例地址 `/application/xxxx.html` 改为插件路由 `/index.php/addons/plugin/controller/action`（`app/` 已被 HTTP 拦截，旧示例点了只会 403/404）
 - `middleware/Init.php` 中 memcache/memcached 动态配置改用 TP8 `Config::set([...], 'cache')` 整组写入
 
 ---

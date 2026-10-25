@@ -63,7 +63,7 @@ return array (
   'admin/addon/config_empty' => '이 플러그인은 설정 항목을 선언하지 않았습니다(config.php 없음)',
   'admin/addon/config_invalid' => '설정 항목 형식이 올바르지 않습니다: %s',
   'admin/addon/config_option_err' => '허용 범위를 벗어난 옵션입니다: %s',
-  'admin/addon/config_refresh_tip' => '저장 시 Service::refresh()가 application/extra/addons.php를 다시 쓰고 hooks/addons 캐시를 비웁니다. 값 변경은 즉시 적용되며, 훅 메서드 추가/삭제 후에는 플러그인을 다시 활성화해야 합니다.',
+  'admin/addon/config_refresh_tip' => '저장 시 Service::refresh()가 app/extra/addons.php를 다시 쓰고 hooks/addons 캐시를 비웁니다. 값 변경은 즉시 적용되며, 훅 메서드 추가/삭제 후에는 플러그인을 다시 활성화해야 합니다.',
   'admin/addon/config_required' => '필수 항목을 입력하세요: %s',
   'admin/addon/config_save_ok' => '설정을 저장했습니다. 훅 테이블을 갱신했습니다',
   'admin/addon/config_schema_err' => '플러그인 설정 스키마가 유효하지 않습니다',
@@ -86,7 +86,7 @@ return array (
   'admin/addon/sig_hash_mismatch' => '파일 해시가 매니페스트와 일치하지 않습니다: %s',
   'admin/addon/sig_incomplete' => '서명 자료가 불완전합니다(package.manifest.json과 package.sig 필요)',
   'admin/addon/sig_manifest_invalid' => 'package.manifest.json이 유효하지 않습니다',
-  'admin/addon/sig_pubkey_missing' => '로컬 검증용 공개 키가 없습니다(application/data/addon/local_public.pem)',
+  'admin/addon/sig_pubkey_missing' => '로컬 검증용 공개 키가 없습니다(app/data/addon/local_public.pem)',
   'admin/addon/sig_required' => '로컬 서명 검증이 활성화되었습니다. package.manifest.json과 package.sig를 제공하세요',
   'admin/addon/sig_verify_fail' => '플러그인 패키지 서명 검증에 실패했습니다',
   'admin/addon/title' => '플러그인 관리',
@@ -694,7 +694,7 @@ return array (
   'admin/index/quickmenu/name' => '사용자 지정 바로 가기 메뉴',
   'admin/index/quickmenu/tip' => '형식 요구 사항: 1. 메뉴 이름, 메뉴 링크 주소; 2. 각 바로 가기 메뉴는 한 줄을 차지합니다. <br>
         1. 원격 주소 지원, 예: 업데이트 로그, //www.baidu.com/ <br>
-        2. 플러그인 파일 지원, 예: 플러그인 파일 메뉴, /application/xxxx.html <br>
+        2. 플러그인 파일 지원, 예: 플러그인 파일 메뉴, /index.php/addons/plugin/controller/action <br>
         3. 시스템 모듈 지원, 예: 기사 관리, art/data <br>
         4. 줄 구분 기호 지원, 예: 구분 기호, ###',
   'admin/index/quickmenu/title' => '바로 가기 메뉴 구성',
@@ -1584,7 +1584,7 @@ return array (
   'admin/system/configaisearch/assistant_enabled' => '관리자 도우미 사용',
   'admin/system/configaisearch/assistant_env' => '환경 스냅샷 첨부',
   'admin/system/configaisearch/assistant_env_tip' => '비밀이 아닌 항목만: 검색 on/off, 언어, 캐시 유형, 사이트 이름, 템플릿 디렉터리.',
-  'admin/system/configaisearch/assistant_grp_tip' => '관리자 도우미: 이 CMS용 플로팅 도움말입니다. 답변은 application/data/admin_assistant/의 Markdown 지식과, 선택적으로 비밀이 아닌 환경 스냅샷을 사용합니다. 설정을 대신 변경하지 않습니다.',
+  'admin/system/configaisearch/assistant_grp_tip' => '관리자 도우미: 이 CMS용 플로팅 도움말입니다. 답변은 app/data/admin_assistant/의 Markdown 지식과, 선택적으로 비밀이 아닌 환경 스냅샷을 사용합니다. 설정을 대신 변경하지 않습니다.',
   'admin/system/configaisearch/assistant_max_tokens' => '도우미 최대 출력 토큰',
   'admin/system/configaisearch/assistant_model' => '도우미 전용 모델(선택)',
   'admin/system/configaisearch/assistant_rate' => '관리자당 분당 최대 요청 수',
@@ -1746,7 +1746,7 @@ return array (
   'admin/system/configassistant/access_scope_tip' => '관리자 도우미를 슈퍼 관리자(admin_id=1)만 사용하도록 제한할 수 있습니다.',
   'admin/system/configassistant/access_super_admin' => '슈퍼 관리자만',
   'admin/system/configassistant/provider' => '공급자(보통 openai)',
-  'admin/system/configassistant/tip' => '관리자 도우미: 우하단 플로팅 도움말. 답변은 application/data/admin_assistant/의 Markdown과 선택적 비밀이 아닌 환경 정보를 사용합니다. 설정을 변경하지 않습니다.',
+  'admin/system/configassistant/tip' => '관리자 도우미: 우하단 플로팅 도움말. 답변은 app/data/admin_assistant/의 Markdown과 선택적 비밀이 아닌 환경 정보를 사용합니다. 설정을 변경하지 않습니다.',
   'admin/system/configassistant/title' => '관리자 도우미 설정',
   'admin/system/configcollect/actor' => '배우 수집 설정',
   'admin/system/configcollect/actor_thesaurus' => '배우 자세히 보기 동의어 사전',

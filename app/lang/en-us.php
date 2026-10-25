@@ -63,7 +63,7 @@ return array (
   'admin/addon/config_empty' => 'This addon has no config.php fields',
   'admin/addon/config_invalid' => 'Invalid value for: %s',
   'admin/addon/config_option_err' => 'Option not allowed for: %s',
-  'admin/addon/config_refresh_tip' => 'Save runs Service::refresh() to rewrite application/extra/addons.php and clear hooks/addons cache. Value changes apply immediately; added/removed hook methods need re-enable.',
+  'admin/addon/config_refresh_tip' => 'Save runs Service::refresh() to rewrite app/extra/addons.php and clear hooks/addons cache. Value changes apply immediately; added/removed hook methods need re-enable.',
   'admin/addon/config_required' => 'Required field: %s',
   'admin/addon/config_save_ok' => 'Settings saved; hook table refreshed',
   'admin/addon/config_schema_err' => 'Invalid addon config schema',
@@ -86,7 +86,7 @@ return array (
   'admin/addon/sig_hash_mismatch' => 'File hash mismatch: %s',
   'admin/addon/sig_incomplete' => 'Incomplete signature materials (need package.manifest.json and package.sig)',
   'admin/addon/sig_manifest_invalid' => 'Invalid package.manifest.json',
-  'admin/addon/sig_pubkey_missing' => 'Local addon verify public key missing (application/data/addon/local_public.pem)',
+  'admin/addon/sig_pubkey_missing' => 'Local addon verify public key missing (app/data/addon/local_public.pem)',
   'admin/addon/sig_required' => 'Local signature is required (package.manifest.json + package.sig)',
   'admin/addon/sig_verify_fail' => 'Addon package signature verification failed',
   'admin/addon/title' => 'Plugin Management',
@@ -686,7 +686,7 @@ return array (
   'admin/index/quickmenu/name' => 'Custom Quick Menu',
   'admin/index/quickmenu/tip' => 'Format requirements: 1. Menu name, menu link address; 2. Each quick menu occupies one line; <br>
     1. Supports remote addresses, for example: Update log,//www.baidu.com/ <br>
-    2. Supports plugin files, for example: Plugin file menu,/application/xxxx.html <br>
+    2. Supports plugin files, for example: Plugin file menu,/index.php/addons/plugin/controller/action <br>
     3. Supports system modules, for example: Article management,art/data <br>
     4. Supports line separators, for example: Separator,###',
   'admin/index/quickmenu/title' => 'Quick Menu Configuration',
@@ -1576,7 +1576,7 @@ return array (
   'admin/system/configaisearch/assistant_enabled' => 'Enable admin assistant',
   'admin/system/configaisearch/assistant_env' => 'Attach environment snapshot',
   'admin/system/configaisearch/assistant_env_tip' => 'Only non-sensitive flags: search on/off, language, cache type, site name, template dir.',
-  'admin/system/configaisearch/assistant_grp_tip' => 'Admin assistant: floating help for this CMS. Answers use markdown knowledge under application/data/admin_assistant/ and an optional non-secret environment snapshot. It never changes settings for you.',
+  'admin/system/configaisearch/assistant_grp_tip' => 'Admin assistant: floating help for this CMS. Answers use markdown knowledge under app/data/admin_assistant/ and an optional non-secret environment snapshot. It never changes settings for you.',
   'admin/system/configaisearch/assistant_max_tokens' => 'Assistant max output tokens',
   'admin/system/configaisearch/assistant_model' => 'Assistant model (optional)',
   'admin/system/configaisearch/assistant_rate' => 'Max requests per admin per minute',
@@ -1738,7 +1738,7 @@ return array (
   'admin/system/configassistant/access_scope_tip' => 'Optionally restrict admin assistant to super admin only (admin_id=1).',
   'admin/system/configassistant/access_super_admin' => 'Super administrator only',
   'admin/system/configassistant/provider' => 'Provider (usually openai)',
-  'admin/system/configassistant/tip' => 'Admin assistant: floating “?” for operators. Answers use markdown under application/data/admin_assistant/ and an optional non-secret site snapshot. It never changes settings for you.',
+  'admin/system/configassistant/tip' => 'Admin assistant: floating “?” for operators. Answers use markdown under app/data/admin_assistant/ and an optional non-secret site snapshot. It never changes settings for you.',
   'admin/system/configassistant/title' => 'Admin assistant configuration',
   'admin/system/configcollect/actor' => 'Actor Collection Settings',
   'admin/system/configcollect/actor_thesaurus' => 'Actor Details Thesaurus',

@@ -1,51 +1,49 @@
 ========================================================================
-maccms12（ThinkPHP 8）说明
+maccms12（ThinkPHP 8）前台默认 URL 路由规则
 ========================================================================
-本文件为 maccms12 前台默认 URL 路由规则（后台 → 系统 → URL路由规则 →
-伪静态 可查看/修改）。<page?> 等带 ? 的参数为可选参数。maccms12 前台
-index 控制器与此规则一一对应（vod/art/actor/role/website/manga/topic/
-type/gbook/map/rss/search/label/plot/live 等）。
-========================================================================
+本文件列出 maccms12 随包提供的前台 rewrite 规则，与 app/index/route/rewrite.php
+（git 跟踪，共 58 条 Route::rule）逐条对应；<page?> 等带 ? 的参数为可选，
+结尾带 $ 的规则表示「不带参数时也命中」。
 
+· 后台查看/修改位置：系统 → URL地址配置 →「路由伪静态设置」分页 →「路由规则」文本域。
+  规则以「表达式 => 路由地址」每行一条保存，落库到 app/extra/maccms.php 的
+  rewrite.route；保存后系统会自动重新生成 app/index/route/rewrite.php。
+· 手工编辑 app/index/route/rewrite.php 会在后台下一次保存时被覆盖，要改就走后台。
+· 规则只有在「伪静态状态」rewrite.status 或「路由状态」rewrite.route_status 打开后
+  才影响前台链接；两者出厂默认均为 0（动态模式），此时链接走
+  index.php/控制器/方法/参数 的形式，本文件的规则用不上。
+· TP8 侧的配套设置见 config/route.php：route_complete_match=true（必须开，
+  否则含可选变量的规则会前缀匹配劫持 detail/type/show），
+  url_html_suffix='html|htm|shtm|shtml|xml'（伪静态后缀，xml 给 RSS 用）。
+
+========================================================================
+一、当前随包的 58 条默认规则
+========================================================================
+sitehome   => index/home
+publish-<id>   => index/publish_group
 map   => map/index
+rss   => rss/index
 rss/index   => rss/index
-rss/baidu => rss/baidu
-rss/google => rss/google
-rss/sogou => rss/sogou
-rss/so => rss/so
-rss/bing => rss/bing
-rss/sm => rss/sm
-
+rss/baidu   => rss/baidu
+rss/google   => rss/google
+rss/sogou   => rss/sogou
+rss/so   => rss/so
+rss/bing   => rss/bing
+rss/sm   => rss/sm
 index-<page?>   => index/index
-
 gbook-<page?>   => gbook/index
 gbook$   => gbook/index
-
 topic-<page?>   => topic/index
-topic$  => topic/index
+topic$   => topic/index
 topicdetail-<id>   => topic/detail
-
-actortype/<id>-<page?>   => actor/type
-actortype/<id>   => actor/type
 actor-<page?>   => actor/index
-actor$ => actor/index
+actor$   => actor/index
 actordetail-<id>   => actor/detail
-actorshow/<id>-<area?>-<blood?>-<by?>-<letter?>-<level?>-<order?>-<page?>-<sex?>-<starsign?>   => actor/show
-actorsearch/<wd?>-<area?>-<blood?>-<by?>-<letter?>-<level?>-<order?>-<page?>-<sex?>-<starsign?>   => actor/search
-
+actorshow/<area?>-<blood?>-<by?>-<letter?>-<level?>-<order?>-<page?>-<sex?>-<starsign?>   => actor/show
 role-<page?>   => role/index
-role$ => role/index
+role$   => role/index
 roledetail-<id>   => role/detail
 roleshow/<by?>-<letter?>-<level?>-<order?>-<page?>-<rid?>   => role/show
-
-websitetype/<id>-<page?>   => website/type
-websitetype/<id>   => website/type
-website-<page?>   => website/index
-website$ => website/index
-websitedetail-<id>   => website/detail
-websiteshow/<id>-<area?>-<by?>-<class?>-<lang?>-<letter?>-<level?>-<order?>-<page?>-<tag?>   => website/show
-websitesearch/<wd?>-<area?>-<by?>-<class?>-<lang?>-<letter?>-<level?>-<order?>-<page?>-<tag?>   => website/search
-
 vodtype/<id>-<page?>   => vod/type
 vodtype/<id>   => vod/type
 voddetail/<id>   => vod/detail
@@ -56,9 +54,6 @@ vodshow/<id>-<area?>-<by?>-<class?>-<lang?>-<letter?>-<level?>-<order?>-<page?>-
 vodsearch/<wd?>-<actor?>-<area?>-<by?>-<class?>-<director?>-<lang?>-<letter?>-<level?>-<order?>-<page?>-<state?>-<tag?>-<year?>   => vod/search
 vodplot/<id>-<page?>   => vod/plot
 vodplot/<id>   => vod/plot
-plotdetail/<id>-<page?>   => plot/plot
-plotdetail/<id>   => plot/detail
-
 arttype/<id>-<page?>   => art/type
 arttype/<id>   => art/type
 artshow-<id>   => art/show
@@ -67,18 +62,72 @@ artdetail-<id>   => art/detail
 artrss-<id>-<page>   => art/rss
 artshow/<id>-<by?>-<class?>-<level?>-<letter?>-<order?>-<page?>-<tag?>   => art/show
 artsearch/<wd?>-<by?>-<class?>-<level?>-<letter?>-<order?>-<page?>-<tag?>   => art/search
+artread/<id>-<page?>   => art/read
+manga-<page?>   => manga/index
+manga$   => manga/index
+mangatype/<id>-<page?>   => manga/type
+mangatype/<id>   => manga/type
+mangadetail-<id>   => manga/detail
+mangaplay/<id>-<sid>-<nid>   => manga/play
+mangadown/<id>-<sid>-<nid>   => manga/down
+mangashow/<id>-<area?>-<by?>-<class?>-<lang?>-<letter?>-<level?>-<order?>-<page?>-<state?>-<tag?>-<year?>   => manga/show
+mangasearch/<wd?>-<actor?>-<area?>-<by?>-<class?>-<director?>-<lang?>-<letter?>-<level?>-<order?>-<page?>-<state?>-<tag?>-<year?>   => manga/search
+label-<file>   => label/index
+plotdetail/<id>-<page?>   => plot/detail
+plotdetail/<id>   => plot/detail
+liveshow   => live/show
+liveplay/<id>   => live/play
 
-manga-<page?> => manga/index
-manga$ => manga/index
-mangashow/<id>-<area?>-<by?>-<class?>-<lang?>-<letter?>-<level?>-<order?>-<page?>-<state?>-<tag?>-<year?> => manga/show
-mangasearch/<wd?>-<actor?>-<area?>-<by?>-<class?>-<director?>-<lang?>-<letter?>-<level?>-<order?>-<page?>-<state?>-<tag?>-<year?> => manga/search
-mangatype/<id>-<page?> => manga/type
-mangatype/<id> => manga/type
-mangadetail-<id> => manga/detail
-mangarss-<id>   => manga/rss
-mangaplay/<id>-<sid>-<nid> => manga/play
-mangadown/<id>-<sid>-<nid> => manga/down
-mangaplot/<id>-<page?>   => manga/plot
-mangaplot/<id>   => manga/plot
+（形如 xxx-<id> 的是「短横线」风格，xxx/<id>-… 是「斜杠」风格，两种都是合法表达式；
+ 空白行不会生成规则，规则顺序即 app/index/route/rewrite.php 里的书写顺序。）
 
-label-<file> => label/index
+========================================================================
+二、与官方 maccms10「默认路由规则」清单的差异
+========================================================================
+本文旧版正文抄的是官方 maccms10 的清单，逐条比对 app/index/route/rewrite.php 后，
+差异如下（以本节为准）：
+
+· 官方清单里有、maccms12 随包规则里没有的表达式：
+    actortype/<id>-<page?>、actortype/<id>                演员分类页
+    website-<page?>、website$、websitetype/<id>[-<page?>]、
+    websitedetail-<id>、websiteshow/…、websitesearch/…    网址导航全套
+    mangarss-<id>、mangaplot/<id>[-<page?>]               漫画 RSS、漫画分集剧情
+  影响：开启伪静态后这些页面仍能访问（config/route.php 里 url_route_must=false，
+  未命中路由时按「控制器/方法/参数」默认解析），只是链接退回
+  index.php/website/detail/id/1.html 这种形态，拿不到美化路径。
+  要美化就在后台「路由规则」文本域里把这些表达式补回去，保存后会自动写进
+  app/index/route/rewrite.php。
+
+· maccms12 随包规则里有、官方清单没有的：
+    rss   => rss/index          不带子路径的 RSS 入口
+    artread/<id>-<page?>        文章分页阅读
+    liveshow、liveplay/<id>     直播列表/播放
+    sitehome、publish-<id>      首页发布页跳转、分组发布页
+    （sitehome / publish-<id> 由 PublishPage::mergePublishRoutes() 在保存时自动附加，
+     后台文本域里没有这两行，也不要手工去加。）
+
+· 表达式形态不同：
+    actorshow   官方写作 actorshow/<id>-<area?>-…（开头多一个 <id>），
+                随包为 actorshow/<area?>-<blood?>-…，演员筛选页不吃分类 ID。
+    plotdetail  官方清单目标写成 plot/plot，而 app/index/controller/Plot.php 没有
+                plot() 方法（只有 index/search/ajax_search/detail/ajax_detail/rss）；
+                随包为 plot/detail，是正确的。
+
+========================================================================
+三、维护注意
+========================================================================
+· 后台保存时，路由规则文本是按 CR（回车）切分、LF 被丢弃的——见
+  app/admin/controller/System.php 中 configurl() 保存分支里的
+  explode(chr(13), str_replace(chr(10), '', $config['rewrite']['route']))。
+  浏览器表单提交的是 CRLF，所以正常；但如果绕过后台、直接编辑
+  app/extra/maccms.php 里的 rewrite.route 并存成纯 LF，下一次在后台点保存会把
+  整段规则当成一行，生成的 rewrite.php 只剩一条畸形规则。手工编辑请保证行尾是 CRLF。
+· 变量正则在 app/index/route/rewrite.php 顶部的 Route::pattern() 里统一声明：
+  id/ids/wd/en/state/area/year/lang/letter/actor/director/tag/class/order/by/
+  name/url/type/sex/version/blood/starsign 匹配任意内容；
+  page/ajax/tid/mid/rid/pid/sid/nid/uid/level/score/limit 只允许数字。
+  新增表达式要用到清单外的变量名时，得先让该变量进入 pattern，否则不会按预期匹配。
+· 静态化（生成静态）与伪静态是两条路：浏览模式里 view.* = 2 的页面走
+  app/extra/maccms.php 的 path.* 静态路径，本文件的规则对这些页面不生效。
+· 想确认线上到底生效了哪些规则，直接读 app/index/route/rewrite.php，
+  不要只信本文或后台文本域——三者在手工改过 app/extra/maccms.php 的站点上可能不一致。

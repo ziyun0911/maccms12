@@ -63,7 +63,7 @@ return array (
   'admin/addon/config_empty' => 'このプラグインは設定項目を宣言していません（config.php なし）',
   'admin/addon/config_invalid' => '設定項目の形式が正しくありません：%s',
   'admin/addon/config_option_err' => '許可範囲外のオプションです：%s',
-  'admin/addon/config_refresh_tip' => '保存時に Service::refresh() が application/extra/addons.php を書き換え、hooks/addons キャッシュをクリアします。値の変更は即時反映され、フックメソッドの追加/削除後はプラグインの再有効化が必要です。',
+  'admin/addon/config_refresh_tip' => '保存時に Service::refresh() が app/extra/addons.php を書き換え、hooks/addons キャッシュをクリアします。値の変更は即時反映され、フックメソッドの追加/削除後はプラグインの再有効化が必要です。',
   'admin/addon/config_required' => '必須項目を入力してください：%s',
   'admin/addon/config_save_ok' => '設定を保存しました。フック表を更新しました',
   'admin/addon/config_schema_err' => 'プラグイン設定スキーマが無効です',
@@ -86,7 +86,7 @@ return array (
   'admin/addon/sig_hash_mismatch' => 'ファイルのハッシュがマニフェストと一致しません：%s',
   'admin/addon/sig_incomplete' => '署名材料が不完全です（package.manifest.json と package.sig が必要）',
   'admin/addon/sig_manifest_invalid' => 'package.manifest.json が無効です',
-  'admin/addon/sig_pubkey_missing' => 'ローカル検証用公開鍵が未設定です（application/data/addon/local_public.pem）',
+  'admin/addon/sig_pubkey_missing' => 'ローカル検証用公開鍵が未設定です（app/data/addon/local_public.pem）',
   'admin/addon/sig_required' => 'ローカル署名検証が有効です。package.manifest.json と package.sig を提供してください',
   'admin/addon/sig_verify_fail' => 'プラグインパッケージの署名検証に失敗しました',
   'admin/addon/title' => 'プラグイン管理',
@@ -694,7 +694,7 @@ return array (
   'admin/index/quickmenu/name' => 'カスタムショートカットメニュー',
   'admin/index/quickmenu/tip' => 'フォーマット要件：1.メニュー名、メニューリンクアドレス；2.各ショートカットメニューは1行を占めます；<br>
         1、リモートアドレスをサポートします。例：更新ログ、//www.baidu.com/<br>
-        2、プラグインファイルをサポートします。例：プラグインファイルメニュー、/application/xxxx.html<br>
+        2、プラグインファイルをサポートします。例：プラグインファイルメニュー、/index.php/addons/plugin/controller/action<br>
         3、システムモジュールをサポートします。例：記事管理、art/data<br>
         4、行区切り文字をサポートします。例：区切り文字、###',
   'admin/index/quickmenu/title' => 'ショートカットメニュー構成',
@@ -1584,7 +1584,7 @@ return array (
   'admin/system/configaisearch/assistant_enabled' => '管理アシスタントを有効にする',
   'admin/system/configaisearch/assistant_env' => '環境スナップショットを添付',
   'admin/system/configaisearch/assistant_env_tip' => '非機密のみ：検索のオン／オフ、言語、キャッシュ種別、サイト名、テンプレートディレクトリ。',
-  'admin/system/configaisearch/assistant_grp_tip' => '管理アシスタント：フローティングヘルプ。回答は application/data/admin_assistant/ の Markdown と、オプションで機密ではない環境スナップショットに基づきます。設定の自動変更はしません。',
+  'admin/system/configaisearch/assistant_grp_tip' => '管理アシスタント：フローティングヘルプ。回答は app/data/admin_assistant/ の Markdown と、オプションで機密ではない環境スナップショットに基づきます。設定の自動変更はしません。',
   'admin/system/configaisearch/assistant_max_tokens' => 'アシスタント 最大出力トークン',
   'admin/system/configaisearch/assistant_model' => 'アシスタント専用モデル（任意）',
   'admin/system/configaisearch/assistant_rate' => '管理者あたり 1 分あたりの最大リクエスト数',
@@ -1746,7 +1746,7 @@ return array (
   'admin/system/configassistant/access_scope_tip' => '管理アシスタントをスーパー管理者（admin_id=1）のみに制限できます。',
   'admin/system/configassistant/access_super_admin' => 'スーパー管理者のみ',
   'admin/system/configassistant/provider' => 'プロバイダー（通常 openai）',
-  'admin/system/configassistant/tip' => '管理アシスタント：右下のフローティング「?」。回答は application/data/admin_assistant/ の Markdown と、任意で非機密の環境スナップショットに基づきます。設定の自動変更はしません。',
+  'admin/system/configassistant/tip' => '管理アシスタント：右下のフローティング「?」。回答は app/data/admin_assistant/ の Markdown と、任意で非機密の環境スナップショットに基づきます。設定の自動変更はしません。',
   'admin/system/configassistant/title' => '管理アシスタント設定',
   'admin/system/configcollect/actor' => '俳優収集設定',
   'admin/system/configcollect/actor_thesaurus' => '俳優詳細の同義語ライブラリ',

@@ -70,7 +70,7 @@ class Addon extends Base
 
             try {
                 addon_save_full_config($name, $config);
-                // 热更新钩子表写回 application/extra/addons.php
+                // 热更新钩子表写回 app/extra/addons.php
                 Service::refresh();
                 Cache::delete('hooks');
                 Cache::delete('addons');

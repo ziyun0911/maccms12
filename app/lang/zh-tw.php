@@ -63,7 +63,7 @@ return array (
   'admin/addon/config_empty' => '此外掛未宣告配置項（無 config.php）',
   'admin/addon/config_invalid' => '配置項格式不正確：%s',
   'admin/addon/config_option_err' => '配置項選項不在允許範圍內：%s',
-  'admin/addon/config_refresh_tip' => '儲存後會呼叫 Service::refresh() 重寫 application/extra/addons.php，並清理 hooks/addons 快取；配置值變更一般即時生效，新增/刪除鉤子方法需重新啟用外掛。',
+  'admin/addon/config_refresh_tip' => '儲存後會呼叫 Service::refresh() 重寫 app/extra/addons.php，並清理 hooks/addons 快取；配置值變更一般即時生效，新增/刪除鉤子方法需重新啟用外掛。',
   'admin/addon/config_required' => '請填寫必填項：%s',
   'admin/addon/config_save_ok' => '配置已儲存，鉤子表已熱更新',
   'admin/addon/config_schema_err' => '外掛配置 schema 無效',
@@ -86,7 +86,7 @@ return array (
   'admin/addon/sig_hash_mismatch' => '檔案雜湊與清單不一致：%s',
   'admin/addon/sig_incomplete' => '簽名材料不完整（需要 package.manifest.json 與 package.sig）',
   'admin/addon/sig_manifest_invalid' => 'package.manifest.json 無效',
-  'admin/addon/sig_pubkey_missing' => '未設定本機外掛驗簽公鑰（application/data/addon/local_public.pem）',
+  'admin/addon/sig_pubkey_missing' => '未設定本機外掛驗簽公鑰（app/data/addon/local_public.pem）',
   'admin/addon/sig_required' => '已啟用強制簽名校驗，請提供 package.manifest.json 與 package.sig',
   'admin/addon/sig_verify_fail' => '外掛包簽名校驗失敗',
   'admin/addon/title' => '外掛管理',
@@ -694,7 +694,7 @@ return array (
   'admin/index/quickmenu/name' => '自定義快捷菜單',
   'admin/index/quickmenu/tip' => '格式要求：1.菜單名稱,菜單鏈接地址；2.每個快捷菜單各佔一行；<br>
         1，支持遠程地址，例如： 更新日誌,//www.baidu.com/<br>
-        2，支持插件文件，例如： 插件文件菜單,/application/xxxx.html<br>
+        2，支持插件文件，例如： 插件文件菜單,/index.php/addons/plugin/controller/action<br>
         3，支持系統模塊，例如： 文章管理,art/data<br>
         4，支持行分隔符，例如： 分隔符,###',
   'admin/index/quickmenu/title' => '快捷菜單配置',
@@ -1584,7 +1584,7 @@ return array (
   'admin/system/configaisearch/assistant_enabled' => '啟用後台小幫手',
   'admin/system/configaisearch/assistant_env' => '附上環境快照',
   'admin/system/configaisearch/assistant_env_tip' => '僅含搜尋開關、語言、快取類型、站名、模板目錄等非敏感項目，便於說明目前站台概要。',
-  'admin/system/configaisearch/assistant_grp_tip' => '後台小幫手：浮動按鈕向管理員說明本 CMS 用法與設定；回答依據 application/data/admin_assistant/ 內 Markdown 知識庫，並可選附非敏感環境快照。不會自動變更您的設定。',
+  'admin/system/configaisearch/assistant_grp_tip' => '後台小幫手：浮動按鈕向管理員說明本 CMS 用法與設定；回答依據 app/data/admin_assistant/ 內 Markdown 知識庫，並可選附非敏感環境快照。不會自動變更您的設定。',
   'admin/system/configaisearch/assistant_max_tokens' => '小幫手輸出 token 上限',
   'admin/system/configaisearch/assistant_model' => '小幫手專用模型（可留白）',
   'admin/system/configaisearch/assistant_rate' => '每位管理員每分鐘請求上限',
@@ -1746,7 +1746,7 @@ return array (
   'admin/system/configassistant/access_scope_tip' => '可限制僅超管（admin_id=1）可使用後台小幫手。',
   'admin/system/configassistant/access_super_admin' => '僅超級管理員',
   'admin/system/configassistant/provider' => '提供者（通常為 openai）',
-  'admin/system/configassistant/tip' => '後台小幫手：右下角浮動按鈕，協助說明本 CMS 用法；回答依 application/data/admin_assistant/ 內 Markdown，並可選附非敏感站台快照；不會自動變更設定。',
+  'admin/system/configassistant/tip' => '後台小幫手：右下角浮動按鈕，協助說明本 CMS 用法；回答依 app/data/admin_assistant/ 內 Markdown，並可選附非敏感站台快照；不會自動變更設定。',
   'admin/system/configassistant/title' => '後台小幫手配置',
   'admin/system/configcollect/actor' => '演員採集設置',
   'admin/system/configcollect/actor_thesaurus' => '演員詳情同義詞庫',

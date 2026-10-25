@@ -2,7 +2,7 @@
 
 Place your RS256 **public** key at:
 
-`application/data/addon/local_public.pem`
+`app/data/addon/local_public.pem`
 
 Or set in site config (runtime merge, do not commit secrets into repo defaults):
 
@@ -49,6 +49,6 @@ after `ksort($files)`.
 ## Notes
 
 - **Default is off** (`require_local_signature` unset/`0`): unsigned zips are still accepted after Zip Slip / path / extension checks. Installing a zip means executing PHP under `addons/` — treat uploads as trusted code. For production hardening, set `require_local_signature=1` and deploy `local_public.pem`.
-- Zip entries are path-normalized (no `./` / empty segments). Top-level `application/` and `static/` (among others) are blocked because enable overlays them onto the site root.
+- Zip entries are path-normalized (no `./` / empty segments). These top-level entries are rejected (`AddonSecureInstaller::$blockedPrefixes`): `application/`, `static/`, `thinkphp/`, `extend/`, `vendor/`, `template/`, `public/`, `runtime/`, `addons/` — the list is inherited from maccms10, where installing an addon could overlay those directories onto the site root. In maccms12 install/enable only ever writes inside `addons/<name>/`, so a top-level `app/` entry is not blocked but also cannot reach the live `app/` tree; it just sits unused under the plugin dir.
 - If a zip **includes** signature files, verification is mandatory (and a public key must be present), even when the force flag is off.
 - Full marketplace PKI remains a separate backlog item.

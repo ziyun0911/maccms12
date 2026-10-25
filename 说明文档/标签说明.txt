@@ -5,7 +5,9 @@ maccms12（ThinkPHP 8）说明
 本文档基于官方 maccms10「标签说明」整理。maccms12 模板引擎为
 think-template（TP8 内置），模板标签与 maccms10 完全兼容：
 · 模板目录：template/{当前模板}/（结构见下；前台模板切换见 后台 → 系统 →
-  网站参数 → 模板/界面）。
+  网站参数 → 模板/界面）。maccms12 当前只随包提供 template/default/ 一套，
+  PC 端与移动端配置均为 default，下文凡按官方 maccms10 列出而 default 中
+  不存在的文件，均在对应小节用「※」标出。
 · 标签库文件：app/common/taglib/Maccms.php（maccms12 实测已实现标签：
   vod、art、actor、role、website、manga、topic、type、comment、gbook、
   link、area、lang、year、class、version、state、letter、foreach、for）。
@@ -16,35 +18,54 @@ think-template（TP8 内置），模板标签与 maccms10 完全兼容：
 ========================================================================
 
 ========模板结构=======
- │─template/1/  模板1
-  │  ├─info.ini  模板信息文件
-  │  ├─ads   广告文件目录
-  │  ├─js    js文件
-  │  ├─css   css文件
-  │  ├─images   图片文件
-  │  └─html     模板文件目录
-  │      └─art     文章模块模板目录
-  │      └─comment  评论模块模板目录
-  │      └─gbook    留言本模块模板目录
-  │      └─index    首页模块模板目录
-  │      └─label    自定义页面模块模板目录
-  │      └─map      地图页模块模板目录
-  │      └─public   公共页面模板目录
-  │      └─rss      RSS和sitemap模板目录
-  │      └─topic    专题模块模板目录
-  │      └─user     用户中心模块模板目录
-  │      └─vod      视频模块模板目录
-  │      └─manga    漫画模块模板目录
-  │      └─plot     分集剧情模块模板目录
-  │      └─website  网址导航模块模板目录
-  │─tempalte/2/  模板2
-  │─...
-  │─template/n/  模板N
+官方说明里模板目录以 template/1/、template/2/ … template/n/ 代指第 N 套皮肤；
+maccms12 现在只有 default 一套，实际结构如下（template/default/）：
+
+  │─info.ini                 模板信息文件（含 adsdir 广告目录设置）
+  │─config.defaults.json.example  模板配置示例（复制为 config.defaults.json 生效）
+  │─ads/                     广告位模板目录（16 个）
+  │─asset/                   静态资源（css/ js/ img/ font/ language/ lottie/ …）
+  │─images/                  图片
+  │─html/                    模板文件目录，按模块分子目录：
+  │    actor ads art comment gbook index label live manga map module
+  │    plot public role rss search special topic user vod website widget
+  │    （共 22 个子目录、242 个 .html）
+
+  各模块实际页面清单以目录为准，随时可查：
+      ls template/default/html/<模块>/
+      find template/default/html -name "*.html" | sort
+
+  官方清单里存在、default 中没有的模块目录：无（default 是超集）；
+  default 比官方清单多出 widget/（56 个可复用片段）、module/（33 个模块
+  列表片段）、ads/、rss/、live/、search/、special/、label/ 等目录。
 
 ========模板目录下的info.ini介绍========
 里边包含了对模板文件的简单介绍，及adsdir广告文件存放目录的设置，默认广告目录为ads
 
 ========模板名称======
+※ 下面的文件名沿用官方 maccms10 清单。maccms12 的 default 皮肤里有 18 个并不
+  存在，写模板时不要去找，括号内是 default 的实际做法：
+
+  · public/digg.html、public/score.html、public/star.html、public/verify.html
+    —— 顶踩/评分/搜索验证码片段已内联在 actor/detail、art/detail、
+       topic/detail、widget/detail_button、vod/search 等模板中，无独立公共片段
+  · map/rss.html、map/baidu.html、map/google.html
+    —— RSS 与 sitemap 改由独立的 rss/ 目录承担：rss/index、rss/baidu、
+       rss/google、rss/bing、rss/sm、rss/so、rss/sogou
+       （控制器 app/index/controller/Rss.php，后台生成入口 admin.php/make）；
+       map/ 只剩 map/index.html 站点地图页
+  · actor/search.html —— 演员检索走 actor/type + actor/show
+  · art/detail_pwd.html、art/search.html —— 文章没有密码验证页和独立搜索页
+  · vod/downer_pwd.html —— vod 只有 detail_pwd / player_pwd 两个密码页
+  · manga/copyright.html、manga/detail_pwd.html、manga/down.html、
+    manga/downer_pwd.html、manga/player.html、manga/player_pwd.html、
+    manga/rss.html —— manga 实际只有 confirm / detail / index / play /
+    search / show / type
+
+  反过来，default 里有 168 个页面是官方清单没列的：widget/ 56、module/ 33、
+  ads/ 16、public/ 15、user/ 14、actor/ 7、rss/ 7、vod/ 3，以及 website/
+  special/ live/ art/ 各 2，topic/ search/ role/ plot/ map/ manga/ label/
+  index/ gbook/ 各 1。仍以目录为准（见上一节 ls/find 命令）。
 public/include.html    全站公共引入文件 引入js、css样式，还有系统JS变量
 public/head.html       全站头部
 public/foot.html       全站尾部
@@ -306,6 +327,64 @@ rss3
 {include file="public/head"}
 
 
+=======列表标签属性口径（maccms12 实测，先读这一段）=======
+下面各个「××列表标签」小节里的属性说明沿用官方 maccms10 原文，个别地方与
+maccms12 的实现有出入。口径以两处代码为准：
+  · app/common/taglib/Maccms.php 的 $tags['xxx']['attr'] —— 声明的属性（用于必填校验）；
+  · app/common/model/{Vod,Art,Manga,Topic,Type,Actor,Role,Website,Link,Comment,Gbook}.php
+    的 listCacheData($lp) 里实际读取的键 —— 真正生效的属性。
+think-template 的 TagLib::parseAttr() 会把标签上写的所有属性原样透传（不按声明过滤），
+所以「没写进 attr 但模型读取」的属性照样有效，反之「写了但模型不读取」的属性点了没反应。
+
+各标签实测结论（※ 为官方原文与 maccms12 的差异）：
+
+  vod      生效键：order by start num id ids not paging pageurl type typenot class tag
+           area lang year level letter half rel version state tv weekday timeadd timehits
+           time hitsmonth hitsweek hitsday hits isend cachetime actor director wd name
+           ※ plot 不在 attr 声明里，但 Vod::listCacheData() 读取它（默认模板
+             plot/index.html 就在用 {maccms:vod ... plot="1"}），是生效属性。
+           ※ 官方原文漏写：id、typenot、letter、half、tv、actor、director、wd、name。
+
+  manga    生效键：order by start num ids not paging pageurl type typenot class tag level
+           letter half rel timeadd timehits time hitsmonth hitsweek hitsday hits cachetime
+           name wd
+           ※ serial（连载状态）官方原文有、maccms12 的 Manga 模型完全不读取，写了不生效；
+             库里确实有 manga_serial 字段，要按连载状态筛请用 expression/自定义代码。
+           ※ area lang year state version tv weekday isend 在 attr 里声明了，但 Manga
+             模型不读取（和 Vod 不同），这些写在标签上不会起过滤作用。
+
+  art      生效键：与 manga 同一套（Art 模型读取的键完全一致），官方原文缺
+           id、typenot、letter、half、rel、name、wd 的说明。
+
+  topic    生效键：order by start num ids not paging pageurl class tag level letter half
+           timeadd timehits time hitsmonth hitsweek hitsday hits cachetime wd
+           ※ topic 没有 type/typenot/area/lang/year/state 等属性，官方原文那段
+             「专题列表标签」只列了实际可用的几项，是对的。
+
+  type     生效键：order by start num ids names parent flag mid format not cachetime
+           ※ format 为 maccms12 追加的输出格式控制，官方原文未提；
+             id 在 attr 里声明但 Type 模型不读取。
+
+  actor    生效键：order by start num ids not paging pageurl area sex name level letter
+           type typenot starsign blood half timeadd timehits time cachetime wd
+           ※ 官方原文缺 typenot、wd。
+
+  role     生效键：order by start num ids not paging pageurl rid actor name level letter
+           half timeadd timehits time cachetime wd
+
+  website  生效键：order by start num ids not paging pageurl area lang name level letter
+           type typenot half timeadd timehits time cachetime wd class tag refer
+           referday refermonth referweek
+           ※ class/tag/refer* 系列 maccms12 新增，官方原文未提。
+
+  link     生效键：order by start num type not cachetime（无分页、无半行）。
+  comment  生效键：order by start num paging pageurl pid rid mid uid half。
+  gbook    生效键：order by start num paging pageurl rid uid half。
+
+列表标签的 by（排序依据）在 maccms12 侧仍按官方口径取值；paging="yes" 时才需要
+pageurl/half，half 是「显示多少个页码」而不是「取一半数据」。
+
+
 =======分类列表标签=======
 order排列顺序desc倒序，asc正序
 by排序依据  id,sort
@@ -424,7 +503,8 @@ level指定推荐值 支持多个  1,2
 area指定地区 支持多个  大陆,香港
 lang指定语言 支持多个  国语,粤语
 year指定年代 支持多个 2002,2003
-serial连载状态
+serial连载状态（※ maccms12 里不生效：Manga::listCacheData() 不读取该键，
+  标签库的 attr 声明里也没有 serial；库里虽有 manga_serial 字段，但不能用这个属性筛）
 timeadd添加时间 一天前 -1 day，一周前-1 week，一月前-1 month，一小时前-1 hour
 timehits点击时间 一天前 -1 day，一周前-1 week，一月前-1 month，一小时前-1 hour
 time更新时间 一天前 -1 day，一周前-1 week，一月前-1 month，一小时前-1 hour
@@ -435,6 +515,10 @@ hits总点击量 大于一千 gt 1000, 小于一千 lt 1000，区间一千二千
 paging是否分页yes
 pageurl分页地址
 cachetime自定义缓存时间单位秒
+
+※ area / lang / year / state / version / tv / weekday / isend 这些在标签库里给 manga
+  声明了，但 Manga 模型不读取（与 vod 不同），写了不起过滤作用；
+  其余漏写的生效属性（id、typenot、letter、half、rel、wd、name）见前文口径段。
 
 {maccms:manga num="10" paging="no" type="all" order="asc" by="sort"}
    内部同下方，{$obj.改为{$vo.开头即可
@@ -530,6 +614,10 @@ pageurl分页地址
 cachetime自定义缓存时间单位秒
 isend是否连载完毕   0,1
 plot是否包含分集剧情 0,1
+
+※ 本节官方原文还漏了几个 maccms12 里真实生效的属性：id、typenot、letter、half、
+  tv、actor、director、wd、name（完整清单见前文「列表标签属性口径」）。
+  plot 不在标签库的 attr 声明里，但 Vod 模型读取它，默认模板就在用。
 
 {maccms:vod num="10" paging="no" type="all" order="asc" by="sort"}
    内部同下方，{$obj.改为{$vo.开头即可

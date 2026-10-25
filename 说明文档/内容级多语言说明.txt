@@ -3,18 +3,19 @@
 【maccms12 特别提示】
 --------------------------------------------------------------------------------
 maccms12（TP8 升级版）已完整实现本功能（按官方 master 蓝本移植）：
-· 数据库已含 mac_content_lang 表（80 张表，uniq_item_lang 唯一键），
-  install.sql 已包含建表语句。
-· app/common.php 已实现 mac_content_lang_* 助手函数族（约 300 行，
-  含翻译接口限流 40 次/分钟）；app/common/model/ContentLang.php 模型就位。
+· 数据库已含 mac_content_lang 表（uniq_item_lang 唯一键）；install.sql 里共
+  80 张表，本地现网库 84 张（多出的 4 张是运行期产生的 tmp/repeat 类表）。
+· app/common.php 已实现 mac_content_lang_* / mac_lang_* / mac_tpl_text /
+  mac_content_translate* 助手函数族（十余个函数，合计约 480 行，含翻译接口
+  限流 40 次/分钟、600 次/小时）；app/common/model/ContentLang.php 模型就位。
 · 后台「系统 → 网站参数」已有「前台内容语言」配置段（content_lang_list
   多选 + content_lang_default 下拉，默认 zh-cn），保存走 app[...] 命名。
-· 后台 11 个模块编辑页（vod/art/manga/topic/actor/website/live/type +
+· 后台 13 个模块编辑页（vod/art/manga/topic/actor/website/live/type/link/task +
   vodplayer/voddowner/vodserver）在启用 2 种及以上语言时按语言分页签展示
   可译字段；system/config.html 已加入对应配置表单。
-· 9 个语言包（app/lang/*.php）已补齐 29 条 content_lang 键（文案取自
-  官方对应语言译文）；前台切换器脚本已建于 static\js\mac-theme-runtime.js
-  （自包含，data-mac-lang 用法见文件头注释）。
+· 6 个语言包（app/lang/*.php：zh-cn zh-tw en-us ja-jp ko-kr ru-ru）已各补齐
+  28 条 content_lang 键（文案取自官方对应语言译文）；前台切换器脚本已建于
+  static\js\mac-theme-runtime.js（自包含，data-mac-lang 用法见文件头注释）。
 · 前台按 ?lang=xx-xx → cookie(mac_content_lang, 30 天) → Accept-Language
   → 默认语言 顺序决定访客语言；整页缓存 key 已带语言维度。
 下文为功能机制说明，与 maccms12 实际实现一致，可直接对照使用；文末
@@ -47,9 +48,13 @@ mac_content_lang_overlay() 也永远原样返回未翻译的原始行。
 二、数据库
 --------------------------------------------------------------------------------
 · 全新安装：无需操作，install.sql 已包含 mac_content_lang。
-· 存量站点升级：后台「在线升级」会自动建表（data/update/database.php 里
-  if (empty($col_list[$pre.'content_lang'])) { CREATE TABLE ... } 增量判断），
-  无需手动执行 SQL。
+· 存量站点升级：走后台「在线升级」（app/admin/controller/Update.php::step2），
+  载荷是 app/data/update/database.php，里面有
+  if (empty($col_list[$pre.'content_lang'])) { CREATE TABLE ... } 增量判断，
+  表已存在就不产出语句，无需手动执行 SQL。
+  ※ 该文件是一次性、自删除的升级载荷，只随升级包发布，**干净源码树里看不到它**
+    （执行完 Update::step2() 自行 unlink；欢迎页 app/admin/controller/Index.php
+    用 file_exists() 判断是否提示「数据库更新」）。本地当前就没有这个文件，属正常。
 · 不改动任何现有表；默认语言的内容仍然存在 mac_vod / mac_art / … 原处，只有
   其它语言的译文进新表。
 
