@@ -33,7 +33,8 @@
         <div class="admin-header__center">
             <nav class="admin-header__nav" id="mainNav" aria-label="{:lang('admin/index/index/nav_main')}">
                 {volist name="menus" id="v" key="k"}
-                <a href="javascript:;" class="main-nav-item{eq name="k" value="1"} is-active{/eq}" data-i="{$k}">{$v['name']}</a>
+                <!-- data-i 用 auth.php 的组号而非 volist 序号：分组可带 nav_in 折叠、可被权限过滤，序号会错位 -->
+                <a href="javascript:;" class="main-nav-item{eq name="k" value="1"} is-active{/eq}" data-i="{$v.gid}">{$v.name}</a>
                 {/volist}
             </nav>
             <!-- 顶栏放不下的主模块收进这里；可见项由 layoutMainNav() 按容器宽度实时计算 -->
@@ -89,22 +90,36 @@
         </div>
         <nav class="admin-side__mobile-modules" id="mobileMainNav" aria-label="{:lang('admin/index/index/nav_main')}">
             {volist name="menus" id="v" key="k"}
-            <a href="javascript:;" class="mobile-module-item{eq name="k" value="1"} is-active{/eq}" data-i="{$k}">{$v['name']}</a>
+            <a href="javascript:;" class="mobile-module-item{eq name="k" value="1"} is-active{/eq}" data-i="{$v.gid}">{$v['name']}</a>
             {/volist}
         </nav>
         <nav id="navBar" class="admin-side__nav" aria-label="{:lang('admin/index/index/nav_sub')}">
             {volist name="menus" id="v" key="k"}
-            <ul class="side-panel" data-panel="{$k}"{neq name="k" value="1"} hidden{/neq}>
+            <ul class="side-panel" data-panel="{$v.gid}"{neq name="k" value="1"} hidden{/neq}>
                 {volist name="v['sub']" id="vv"}
                 {if condition="($vv['url'] !=='###')"}
                 <li class="side-panel__item">
                     <!-- data-id = 组键-节点键，同时用作常驻标签的 lay-id，必须与 WELCOME_TAB_ID 的拼法一致 -->
-                    <a class="admin-nav-item" data-id="{$k}-{$key}" href="{$vv['url']}" title="{$vv['name']}">
+                    <a class="admin-nav-item" data-id="{$v.gid}-{$key}" href="{$vv['url']}" title="{$vv['name']}">
                         <span class="admin-nav-item__glyph" aria-hidden="true"></span>
                         <span class="admin-nav-item__label">{$vv['name']}</span>
                     </a>
                 </li>
                 {/if}
+                {/volist}
+                <!-- nav_in 分组折进本面板，带小标题分节；分节项的 data-id 前缀用自己的组键，避免与父组节点键撞号 -->
+                {volist name="v['sections']" id="sec"}
+                <li class="side-panel__section">{$sec.name}</li>
+                {volist name="sec['sub']" id="vvv"}
+                {if condition="($vvv['url'] !=='###')"}
+                <li class="side-panel__item">
+                    <a class="admin-nav-item" data-id="{$sec.gid}-{$key}" href="{$vvv['url']}" title="{$vvv['name']}">
+                        <span class="admin-nav-item__glyph" aria-hidden="true"></span>
+                        <span class="admin-nav-item__label">{$vvv['name']}</span>
+                    </a>
+                </li>
+                {/if}
+                {/volist}
                 {/volist}
             </ul>
             {/volist}

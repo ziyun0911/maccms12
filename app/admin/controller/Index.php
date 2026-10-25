@@ -40,6 +40,9 @@ class Index extends Base
     {
         $menus = @include MAC_ADMIN_COMM . 'auth.php';
         $version = config('version');
+        // 组 1 的名称/图标要在它被剔除前留一份：快捷菜单固定挂在组 1，子管理员没有任何
+        // 组 1 可见节点时要把这个组补回来，否则视图会渲染出一个没有名字和 gid 的顶栏项。
+        $rootGroup = isset($menus[1]) ? ['name' => $menus[1]['name'], 'icon' => $menus[1]['icon']] : null;
 
         foreach ($menus as $k1 => $v1) {
             foreach ($v1['sub'] as $k2 => $v2) {
@@ -62,7 +65,29 @@ class Index extends Base
                 }
             }
 
-            if (empty($menus[$k1]['sub'])) {
+            $menus[$k1]['gid'] = $k1;
+            $menus[$k1]['sections'] = [];
+        }
+
+        // auth.php 里带 nav_in 的组不进顶栏，折成父组左侧面板里的一个分节。
+        // 先折叠再剔空组：父组自身没有可见入口、只剩分节时也要留在顶栏，否则整节功能会消失；
+        // 父组不存在（配置写错）时保留成普通顶栏组，宁可多一项也不丢入口。
+        foreach ($menus as $k1 => $v1) {
+            if (empty($v1['nav_in'])) {
+                continue;
+            }
+            $pid = (int)$v1['nav_in'];
+            if ($pid !== $k1 && isset($menus[$pid]) && !empty($v1['sub'])) {
+                $menus[$pid]['sections'][$k1] = [
+                    'gid'  => $k1,
+                    'name' => $v1['name'],
+                    'sub'  => $v1['sub'],
+                ];
+                unset($menus[$k1]);
+            }
+        }
+        foreach ($menus as $k1 => $v1) {
+            if (empty($v1['sub']) && empty($v1['sections'])) {
                 unset($menus[$k1]);
             }
         }
@@ -73,6 +98,10 @@ class Index extends Base
             $quickmenu = explode(chr(13), $quickmenu);
         }
         if (!empty($quickmenu)) {
+            if (!isset($menus[1]) && $rootGroup) {
+                // 补出来的组 1 要排在顶栏第一位，直接赋值会掉到数组末尾
+                $menus = [1 => ['name' => $rootGroup['name'], 'icon' => $rootGroup['icon'], 'sub' => [], 'gid' => 1, 'sections' => []]] + $menus;
+            }
             // 快捷菜单项用 900000+ 的键：auth.php 的菜单节点键都是 5~6 位业务编号，
             // 沿用过去的 13 / 14+k 会在首页组增删节点时撞上真实菜单项。
             $menus[1]['sub'][900000] = ['name' => lang('admin/index/quick_tit'), 'url' => 'javascript:void(0);return false;', 'controller' => '', 'action' => ''];

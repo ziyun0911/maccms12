@@ -1,0 +1,3739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8" />
+<link rel="canonical" href="http://127.0.0.1:8080/admin.php/make/map.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE10" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<link rel="preload" as="fetch" href="/template/default/asset/lottie/logo/logo.json" crossorigin="anonymous" fetchpriority="high">
+
+
+<link rel="stylesheet" href="/template/default/asset/css/iconfont-alicdn.css">
+<link rel="stylesheet" type="text/css" href="/template/default/asset/css/public-head-early.css?v=202604161">
+
+<style id="mac-poster-ratio-vars">:root{--tpl-poster-h-ratio:69/40;--tpl-poster-h-pad:calc(100%*40/69);--tpl-poster-v-ratio:20/29;--tpl-poster-v-pad:calc(100%*29/20);}</style><link rel="stylesheet" type="text/css" href="/template/default/asset/css/black.css" id="macThemeDarkSheet">
+<link rel="stylesheet" href="/template/default/asset/css/notify-bell.css?v=202607149">
+<link rel="stylesheet" href="/template/default/asset/css/user-profile-card.css?v=202607281">
+
+<script type="text/javascript" src="/template/default/asset/js/jquery.js"></script>
+<script type="text/javascript" src="/template/default/asset/js/head-sync.js?v=202604161"></script>
+
+<link href="/template/default/asset/css/public-head-main.css?v=202604161" rel="stylesheet" type="text/css" />
+<script defer src="/template/default/asset/js/head-defer-public.js?v=202610231700"></script>
+<!-- 前台内容语言切换：head 里的 data-mac-lang 条目靠它写 cookie 后整页刷新 -->
+<script defer src="/static/js/mac-theme-runtime.js?v=202610231500"></script>
+<style>
+html.license-locked body {
+	visibility: hidden !important;
+}
+
+html.license-locked body::after {
+	content: '';
+	visibility: visible;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: var(--tpl-bg-base);
+	z-index: 999999;
+}
+#mac_site_card_layer {
+	display: none !important;
+}
+#mac_site_card_layer.is-open {
+	display: flex !important;
+}
+</style>
+<script defer type="text/javascript" src="/template/default/asset/js/public-home-stack.js?v=2026102303"></script>
+<link href="/template/default/asset/css/mac-pop-sheets.css" rel="stylesheet" type="text/css" />
+<script defer type="text/javascript" src="/template/default/asset/js/user-upgrade-submit.js?v=2026102304"></script>
+<script defer type="text/javascript" src="/template/default/asset/js/auth-reg-success.js"></script>
+<script defer type="text/javascript" src="/template/default/asset/js/auth-invite-collapsible.js"></script>
+
+
+<script>
+var maccms = {
+    "path": (function(){var p="/".replace(/\/+$/,''); return (p==='/'||p==='') ? '' : p;})(),
+    "path_assets": "/",
+    "base_url": "http://127.0.0.1:8080",
+    "path_tpl": "/template/default",
+    "mid": "0",
+    "aid": "2",
+    "url": "127.0.0.1:8080",
+    "wapurl": "127.0.0.1:8080",
+    "mob_status": "0",
+    "content_lang": "zh-cn",
+    "content_lang_ui": "",
+    "lazyImg": "/template/default/asset/img/load.gif",
+    "site_name": "免费短剧电影电视剧、小说漫画 - 最新全集在线观看",
+    "vodPlaylink": false,
+    "coverSerialBadge": true,
+    "coverSubTitle": true,
+    "themeDefaultColor": "white",
+    "logoLottieUrls": {"head_w":"/template/default/asset/lottie/logo/logo.json","head_b":"/template/default/asset/lottie/logo/logo-black.json","foot_b":"/template/default/asset/lottie/logo/foot-logo.json","foot_w":"/template/default/asset/lottie/logo/foot-logo.json"},
+    "ai_search_enabled": false,
+    "ai_search_hub_url": "/index.php/vod/search_hub.html",
+    "ai_chat_url": "/index.php/index/ai_chat.html",
+    "pwa_manifest_url": "/index.php/pwa/manifest.html",
+    "pwa_sw_url": "/index.php/pwa/sw.html"};
+var MAC_PATH = maccms.path;
+maccms.csrfToken = "";
+window.__macNormalizeMaccmsBaseUrl = function () {
+    if (typeof maccms === 'undefined') {
+        return '';
+    }
+    // site_url 可能被填成另一个域名（甚至未解析的示例域名），AJAX 必须留在当前 origin 内，否则整站交互全挂
+    var sub = String(maccms.path || '').replace(/\/+$/, '');
+    var resolved = window.location.protocol + '//' + window.location.host + sub;
+    maccms.base_url = resolved;
+    return resolved;
+};
+window.__macNormalizeMaccmsBaseUrl();
+</script>
+
+<script>
+(function(){
+  document.addEventListener('DOMContentLoaded',function(){
+    if (typeof window.macApplyLazyPlaceholderBg === 'function') {
+      window.macApplyLazyPlaceholderBg(document);
+    }
+  });
+})();
+</script>
+
+<link rel="manifest" href="/index.php/pwa/manifest.html">
+<meta name="theme-color" content="#40cc92">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon-precomposed" sizes="180x180" href="/template/default/asset/img/ios_fav.png">
+<link rel="shortcut icon" href="/template/default/asset/img/favicon.ico" type="image/x-icon" />
+<script defer type="text/javascript" src="/template/default/asset/js/pwa-register.js?v=202604162"></script>
+<script defer type="text/javascript" src="/template/default/asset/js/push-subscribe.js?v=202607141"></script>
+<script defer type="text/javascript" src="/template/default/asset/js/notify-bell.js?v=202607141"></script>
+<script defer type="text/javascript" src="/template/default/asset/js/user-profile-card.js?v=202607281"></script>
+
+<script type="text/javascript" src="/template/default/asset/js/jquery.cookie.js"></script>
+<script defer type="text/javascript" src="/template/default/asset/js/vendor-lottie.js"></script>
+<script defer type="text/javascript" src="/template/default/asset/js/mac-logo-lottie.js"></script>
+<script type="text/javascript">
+(function ($) {
+    var defaultColorMode = 'white';
+
+    function macThemeIsDark(cookie_style) {
+        if (cookie_style === 'black') {
+            return true;
+        }
+        if (cookie_style === 'white') {
+            return false;
+        }
+        return defaultColorMode === 'black';
+    }
+
+    window.macSyncThemeUi = function () {
+        if (typeof jQuery === 'undefined') {
+            return;
+        }
+        var cookie_style = $.cookie('mystyle');
+        var dark = macThemeIsDark(cookie_style);
+
+        $('body').toggleClass('bstem', dark);
+
+        var $dark = $('#macThemeDarkSheet');
+        if ($dark.length) {
+            $dark.prop('disabled', !dark);
+        }
+
+        var $b = $('#black.mycolor'), $w = $('#white.mycolor');
+        if (!$b.length && !$w.length) {
+            return;
+        }
+        if (cookie_style == null) {
+            if (defaultColorMode === 'black') {
+                $b.addClass('hide');
+                $w.removeClass('hide');
+            } else {
+                $w.addClass('hide');
+                $b.removeClass('hide');
+            }
+        } else if (cookie_style === 'black') {
+            $b.addClass('hide');
+            $w.removeClass('hide');
+        } else if (cookie_style === 'white') {
+            $w.addClass('hide');
+            $b.removeClass('hide');
+        } else {
+            $("[id='" + cookie_style + "'].mycolor").addClass('hide');
+            $("[id!='" + cookie_style + "'].mycolor").removeClass('hide');
+        }
+    };
+
+    window.macSyncThemeUi();
+    $(function () {
+        window.macSyncThemeUi();
+    });
+})(jQuery);
+</script>
+
+<link href="/template/default/asset/css/auth-ui.css" rel="stylesheet" type="text/css" />
+
+	<link rel="stylesheet" type="text/css" href="/template/default/asset/css/map-index.css" />
+</head>
+
+<body>
+  <link rel="stylesheet" type="text/css" href="/template/default/asset/css/head.css?v=202610231">
+<div id="topnav" class="site-head-wrap" data-mac-url-plays="/index.php/user/plays.html">
+<div class="head_box show-pc">
+    <div class="header">
+        <div class="head_a">
+            <div class="head_logo"><div class="mac-logo  mac-logo--head-pending">
+			<a title="免费短剧电影电视剧、小说漫画 - 最新全集在线观看" class="logo logo_b white_logo" href="/">
+			<img src="/template/default/asset/lottie/logo/logo.json" alt="免费短剧电影电视剧、小说漫画 - 最新全集在线观看">
+		</a>
+		<a title="免费短剧电影电视剧、小说漫画 - 最新全集在线观看" class="logo logo_b black_logo" style="display:none;" href="/">
+			<img src="/template/default/asset/lottie/logo/logo-black.json" alt="免费短剧电影电视剧、小说漫画 - 最新全集在线观看">
+		</a>
+	</div>
+</div>
+            <div class="head_menu_a hidden_xs hidden_mi">
+                <div class="top_nav_wrap">
+                    <ul class="top_nav clearfix">
+                        <li data-sid="0"  >
+                            <a href="/" data-title="string_home" title="首页"><span data-lang="string_home">首页</span></a>
+                        </li>
+                                                <li data-sid="1" >
+                                                        <a href="/index.php/vod/type.html?id=1">电影</a>
+                                                    </li>
+                                                                        <li data-sid="2" >
+                                                        <a href="/index.php/vod/type.html?id=2">电视剧</a>
+                                                    </li>
+                                                                        <li data-sid="3" >
+                                                        <a href="/index.php/vod/type.html?id=3">综艺</a>
+                                                    </li>
+                                                                        <li data-sid="4" >
+                                                        <a href="/index.php/vod/type.html?id=4">动漫</a>
+                                                    </li>
+                                                                        <li data-sid="5" >
+                                                        <a href="/index.php/vod/type.html?id=5">体育</a>
+                                                    </li>
+                                                                                                                        <li data-sid="8" >
+                                                        <a href="/index.php/actor/type.html?id=8">艺人</a>
+                                                    </li>
+                                                                        <li data-sid="9" >
+                                                        <a href="/index.php/art/index.html">资讯</a>
+                                                    </li>
+                                                                                                <li data-sid="live" >
+                            <a href="/index.php/live/show.html" data-title="live/show_title" title="直播" data-lang="live/show_title">直播</a>
+                        </li>
+                                                <li data-sid="6" >
+                            <a href="/index.php/topic/index.html" data-title="string_topic" title="专题" data-lang="string_topic">专题</a>
+                        </li>
+                                                <li data-sid="7" >
+                            <a href="/index.php/vod/last_vod.html" data-title="content_detail_recent_update" title="最近更新" data-lang="string_foot_gx1" data-title="string_foot_gx1">最近更新</a>
+                        </li>
+                                            </ul>
+                    <a href="javascript:;" class="top_nav_more_btn" id="topNavMoreBtn" data-title="string_more" title="更多" data-aria-label="string_more" aria-label="更多">
+                        <i class="iconfont">&#xe640;</i>
+                    </a>
+                    <div class="top_nav_overlay" id="topNavOverlay">
+                        <div class="top_nav_overlay_inner">
+                            <a href="/" class="top_nav_overlay_item" data-title="string_home" title="首页"><span data-lang="string_home">首页</span></a>
+                                                        <a href="/index.php/vod/type.html?id=1" class="top_nav_overlay_item" title="电影">电影</a>
+                                                                                                                <a href="/index.php/vod/type.html?id=2" class="top_nav_overlay_item" title="电视剧">电视剧</a>
+                                                                                                                <a href="/index.php/vod/type.html?id=3" class="top_nav_overlay_item" title="综艺">综艺</a>
+                                                                                                                <a href="/index.php/vod/type.html?id=4" class="top_nav_overlay_item" title="动漫">动漫</a>
+                                                                                                                <a href="/index.php/vod/type.html?id=5" class="top_nav_overlay_item" title="体育">体育</a>
+                                                                                                                                                                        <a href="/index.php/actor/type.html?id=8" class="top_nav_overlay_item" title="艺人">艺人</a>
+                                                                                                                <a href="/index.php/art/index.html" class="top_nav_overlay_item" title="资讯">资讯</a>
+                                                                                                                                            <a href="/index.php/live/show.html" class="top_nav_overlay_item" data-title="live/show_title" title="直播"><span data-lang="live/show_title">直播</span></a>
+                                                        <a href="/index.php/topic/index.html" class="top_nav_overlay_item" data-title="string_topic" title="专题"><span data-lang="string_topic">专题</span></a>
+                                                        <a href="/index.php/vod/last_vod.html" class="top_nav_overlay_item" data-title="string_zuijingx" title="最近更新"><span data-lang="string_foot_gx1">最近更新</span></a>
+                                                        <a href="/index.php/vod/last_vod.html" class="top_nav_overlay_btn_all"><span data-lang="string_all_films">全部影片</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="head_a_tools">
+            <div class="head_search head_search_capsule_host">
+                <div class="head_search_inner">
+                                            <div class="head_search_row head_search_row_capsule">
+                            <form id="search" name="search" method="get" onsubmit="return qrsearch(this);">
+                                <div class="head_search_capsule">
+                                    <span class="head_search_capsule_hot" aria-hidden="true"><img src="/template/default/images/svg/hot.svg" alt=""></span>
+                                    <div class="head_search_capsule_field">
+                                        <input id="txt" autocomplete="off" type="text" name="wd" class="mac_wd form_control js-pc-search-input" value="" placeholder="">
+                                        <div class="head_hot_overlay head_hot_overlay_home" data-fallback-hot-lang="string_home_search_placeholder" data-hot-words="变形金刚,火影忍者,复仇者联盟,战狼,红海行动" data-permanent-hot="127.0.0.1:8080" data-permanent-hot-lang="string_site_domain_prefix" id="headHotOverlayPc">
+                                            <div class="head_hot_overlay_viewport"><div class="head_hot_overlay_track"></div></div>
+                                        </div>
+                                    </div>
+                                    <button class="submit head_search_capsule_submit" id="searchbutton" type="submit" name="submit" data-title="string_search" title="搜索" data-title="string_search">
+                                        <img class="head_search_capsule_ai_ico" src="/template/default/images/home/search_ai.gif" alt="" width="20" height="20">
+                                        <span data-lang="string_search">搜索</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                                            <div class="mac_results mac_results_hot mac_search_drop_inner js-pc-search-drop-root" style="display:none;">
+                            <div class="mac_search_drop_scroll">
+                                <main class="search-hub__main">
+                                <section class="search-hub__section search-hub__history js-pc-search-drop-history" hidden aria-labelledby="pcSearchDropHistoryTitle">
+                                    <div class="search-hub__section-head">
+                                        <h2 class="search-hub__section-title" id="pcSearchDropHistoryTitle" data-lang="string_search_history">搜索历史</h2>
+                                        <button type="button" class="search-hub__history-clear js-pc-search-drop-history-clear" data-lang="string_qk" data-title="string_qk" data-aria-label="string_clear_search_history" title="清空" aria-label="清空搜索历史">清空</button>
+                                    </div>
+                                    <div class="search-hub__history-body">
+                                        <div class="search-hub__tags js-pc-search-drop-history-tags"></div>
+                                        <div class="search-hub__history-toggle-wrap">
+                                            <button type="button" class="search-hub__history-toggle js-pc-search-drop-history-toggle" aria-expanded="false" data-aria-label="string_toggle_history" aria-label="展开或收起历史">
+                                                <i class="iconfont search-hub__history-toggle-ico">&#xe623;</i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section class="search-hub__section js-pc-search-drop-hot-section" aria-labelledby="pcSearchDropHotTitle">
+                                    <div class="search-hub__section-head search-hub__section-head--hot">
+                                        <h2 class="search-hub__section-title" id="pcSearchDropHotTitle" data-lang="hot_search">热门搜索</h2>
+                                    </div>
+                                    <ul class="search-hub__hot-list js-pc-search-drop-hot-list"></ul>
+                                    <p class="search-hub__hot-msg search-hub__hot-msg--loading js-pc-search-drop-hot-loading" data-lang="string_topic_feed_loading">加载中…</p>
+                                    <p class="search-hub__hot-msg search-hub__hot-msg--empty js-pc-search-drop-hot-empty" hidden data-lang="string_search_hot_empty">暂无热门推荐</p>
+                                    <p class="search-hub__hot-msg search-hub__hot-msg--error js-pc-search-drop-hot-error" hidden data-lang="string_search_hot_err">热门加载失败，请稍后重试</p>
+                                </section>
+                                </main>
+                            </div>
+                        </div>
+
+                </div>
+            </div>
+            <div class="head_user">
+                <ul>
+                                        <li class="top_ico">
+                        <a class="top_link" href="/index.php/label/rank.html" data-title="string_rank" title="排行榜">
+                            <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
+                                <img class="head-nav-icon" src="/template/default/images/head-nav/排行榜.png" width="52" height="52" alt="" decoding="async">
+                            </span>
+                            <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
+                                <img class="head-nav-icon" src="/template/default/images/head-nav/排行榜-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                            </span>
+                        </a>
+                    </li>
+                                        <li class="top_ico">
+                        <a class="top_link js-save-site-url" href="javascript:;" data-title="string_save_site" title="">
+                            <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
+                                <span class="head-latest-url-flip">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="/template/default/images/head-nav/最新网址.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="/template/default/images/head-nav/最新网址2.png" width="52" height="52" alt="" decoding="async">
+                                </span>
+                            </span>
+                            <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
+                                <span class="head-latest-url-flip">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="/template/default/images/head-nav/最新网址1-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="/template/default/images/head-nav/最新网址2-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                </span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="top_ico">
+                        <a class="user_login top_link mac_head_plays" href="javascript:;" data-title="user_view_record" title="播放记录">
+                            <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
+                                <img class="head-nav-icon" src="/template/default/images/head-nav/观看历史.png" width="52" height="52" alt="" decoding="async">
+                            </span>
+                            <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
+                                <img class="head-nav-icon" src="/template/default/images/head-nav/观看历史-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                            </span>
+                        </a>
+                    </li>
+                                        <li class="top_ico mac-notify-bell"
+	data-mac-notify-bell
+	hidden
+	data-url-notify="/index.php/user/notify.html"
+	data-url-login="/index.php/user/login.html">
+	<a href="javascript:;"
+		class="mac-notify-bell__btn top_link"
+		role="button"
+		aria-expanded="false"
+		aria-haspopup="true"
+		data-title="notify_title"
+		title="消息中心">
+		<span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
+			<img class="head-nav-icon" src="/template/default/images/head-nav/消息通知.png?v=2026071411" width="52" height="52" alt="" decoding="async">
+		</span>
+		<span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
+			<img class="head-nav-icon" src="/template/default/images/head-nav/消息通知-黑色使用.png?v=2026071411" width="52" height="52" alt="" decoding="async">
+		</span>
+		<span class="mac-notify-bell__badge" hidden></span>
+	</a>
+	<div class="mac-notify-bell__dropdown" hidden>
+		<div class="mac-notify-bell__head">
+			<span data-lang="notify_title">消息中心</span>
+			<a class="mac-notify-bell__all" href="/index.php/user/notify.html" data-lang="notify_view_all">查看全部</a>
+		</div>
+		<div class="mac-notify-bell__list"></div>
+		<div class="mac-notify-bell__empty" hidden data-lang="notify_empty">暂无消息</div>
+	</div>
+</li>
+
+                    <li class="top_ico">
+                        <a class="mac_user top_link"
+                            href="javascript:;"
+                            data-title="string_hy"
+                            title="会员">
+                            <img class="head-nav-icon" src="/template/default/images/head-nav/用户默认.png" width="52" height="52" alt="" decoding="async">
+                        </a>
+                    </li>
+                                    </ul>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="head_box show-mobile mobile-head ">
+        <div class="header">
+            <div class="head_a ">
+                <div class="head_logo"><div class="mac-logo  mac-logo--head-pending">
+			<a title="免费短剧电影电视剧、小说漫画 - 最新全集在线观看" class="logo logo_b white_logo" href="/">
+			<img src="/template/default/asset/lottie/logo/logo.json" alt="免费短剧电影电视剧、小说漫画 - 最新全集在线观看">
+		</a>
+		<a title="免费短剧电影电视剧、小说漫画 - 最新全集在线观看" class="logo logo_b black_logo" style="display:none;" href="/">
+			<img src="/template/default/asset/lottie/logo/logo-black.json" alt="免费短剧电影电视剧、小说漫画 - 最新全集在线观看">
+		</a>
+	</div>
+</div>
+                <div class="head_user">
+                    <ul>
+                                                <li class="top_ico">
+                            <a class="top_link" href="/index.php/label/rank.html" data-title="string_rank" title="排行榜">
+                                <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
+                                    <img class="head-nav-icon" src="/template/default/images/head-nav/排行榜.png" width="52" height="52" alt="" decoding="async">
+                                </span>
+                                <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
+                                    <img class="head-nav-icon" src="/template/default/images/head-nav/排行榜-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                </span>
+                            </a>
+                        </li>
+                                                <li class="top_ico">
+                            <a class="top_link js-save-site-url" href="javascript:;" data-title="string_save_site" title="">
+                                <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
+                                    <span class="head-latest-url-flip">
+                                        <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="/template/default/images/head-nav/最新网址.png" width="52" height="52" alt="" decoding="async">
+                                        <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="/template/default/images/head-nav/最新网址2.png" width="52" height="52" alt="" decoding="async">
+                                    </span>
+                                </span>
+                                <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
+                                    <span class="head-latest-url-flip">
+                                        <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="/template/default/images/head-nav/最新网址1-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                        <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="/template/default/images/head-nav/最新网址2-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                    </span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="top_ico">
+                            <a class="user_login top_link mac_head_plays" href="javascript:;" data-title="user_view_record" title="播放记录">
+                                <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
+                                    <img class="head-nav-icon" src="/template/default/images/head-nav/观看历史.png" width="52" height="52" alt="" decoding="async">
+                                </span>
+                                <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
+                                    <img class="head-nav-icon" src="/template/default/images/head-nav/观看历史-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                </span>
+                            </a>
+                        </li>
+                                                <li class="top_ico mac-notify-bell"
+	data-mac-notify-bell
+	hidden
+	data-url-notify="/index.php/user/notify.html"
+	data-url-login="/index.php/user/login.html">
+	<a href="javascript:;"
+		class="mac-notify-bell__btn top_link"
+		role="button"
+		aria-expanded="false"
+		aria-haspopup="true"
+		data-title="notify_title"
+		title="消息中心">
+		<span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
+			<img class="head-nav-icon" src="/template/default/images/head-nav/消息通知.png?v=2026071411" width="52" height="52" alt="" decoding="async">
+		</span>
+		<span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
+			<img class="head-nav-icon" src="/template/default/images/head-nav/消息通知-黑色使用.png?v=2026071411" width="52" height="52" alt="" decoding="async">
+		</span>
+		<span class="mac-notify-bell__badge" hidden></span>
+	</a>
+	<div class="mac-notify-bell__dropdown" hidden>
+		<div class="mac-notify-bell__head">
+			<span data-lang="notify_title">消息中心</span>
+			<a class="mac-notify-bell__all" href="/index.php/user/notify.html" data-lang="notify_view_all">查看全部</a>
+		</div>
+		<div class="mac-notify-bell__list"></div>
+		<div class="mac-notify-bell__empty" hidden data-lang="notify_empty">暂无消息</div>
+	</div>
+</li>
+
+                        <li class="top_ico">
+                            <a class="mac_user top_link"
+                                href="javascript:;"
+                                data-title="string_hy"
+                                title="会员">
+                                <img class="head-nav-icon" src="/template/default/images/head-nav/用户默认.png" width="52" height="52" alt="" decoding="async">
+                            </a>
+                        </li>
+                                            </ul>
+                </div>
+            </div>
+    </div>
+    <div class="header box">
+        <div class="head_b ">
+            <link rel="stylesheet" href="/template/default/asset/css/share.css">
+<div class="share-drop-wrap"
+     data-invite-link="http://127.0.0.1:8080/admin.php/make/map.html"
+     data-invite-code=""
+     data-invite-code-display="—"
+     data-share-force-home="0"
+     data-share-mid="0"
+     data-share-rid="0"
+     data-share-record-url="/api.php/share/record"
+     data-share-login-url="/admin.php/user/login.html"
+     data-is-guest="1"
+     data-invite-count="0">
+  <div class="invite-share-panel">
+    <div class="invite-topbar">
+      <div class="invite-close" role="button" tabindex="0" data-aria-label="string_fh" aria-label="返回">
+        <i class="iconfont ico-right" aria-hidden="true">&#xe625;</i>
+      </div>
+      <div class="invite-topbar-title" data-lang="share_panel_title">分享邀请</div>
+          </div>
+
+    <div class="invite-scroll">
+      <div class="invite-card">
+        <span class="invite-notch invite-notch-left"></span>
+        <span class="invite-notch invite-notch-right"></span>
+        <div class="invite-site">免费短剧电影电视剧、小说漫画 - 最新全集在线观看</div>
+                <div class="invite-qr-wrap">
+          <div class="share-qrcode invite-qr"></div>
+        </div>
+        <div class="invite-code">
+          <span class="invite-code-label" data-lang="share_share_url">分享网址</span>
+          <span class="invite-code-val">http://127.0.0.1:8080/admin.php/make/map.html</span>
+        </div>
+      </div>
+
+      <div class="invite-actions">
+        <button type="button" class="invite-btn invite-btn-primary js-invite-save" data-lang="share_save_qr">保存二维码</button>
+        <button type="button" class="invite-btn invite-btn-ghost copy_btn js-invite-copy" data-lang="share_copy_url">复制网址</button>
+      </div>
+
+      <div class="invite-steps">
+        <div class="invite-steps-hd" data-lang="share_invite_steps">邀请步骤</div>
+        <div class="invite-vip-note" data-lang="share_vip_note">VIP限时特惠，畅看全场</div>
+        <div class="invite-step">
+          <div class="invite-step-title" data-lang="share_step_1">第一步</div>
+          <div class="invite-step-desc" data-lang="share_step_save_url">点击保存推广图片，或复制网址</div>
+        </div>
+        <div class="invite-step invite-step--channels">
+          <div class="invite-step-title" data-lang="share_step_2">第二步</div>
+          <div class="invite-step-desc" data-lang="share_step_save_url">点击保存推广图片，或复制网址</div>
+          <div class="invite-steps-section-label" data-lang="share_common_apps">常用社交软件：</div>
+          <div class="invite-app-icons" data-aria-label="string_share_apps_group" aria-label="常用社交软件">
+            <button type="button" class="invite-app-icon" data-share-platform="weixin"><img src="/template/default//images/share/weixin.png" width="48" height="48" loading="lazy" data-alt="string_weixin" alt="微信"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="qq"><img src="/template/default//images/share/qq.png" width="48" height="48" loading="lazy" alt="QQ"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="weibo"><img src="/template/default//images/share/weibo.png" width="48" height="48" loading="lazy" data-alt="string_weibo" alt="微博"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="douyin"><img src="/template/default//images/share/douyin.png" width="48" height="48" loading="lazy" data-alt="string_app_douyin" alt="抖音"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="xiaohongshu"><img src="/template/default//images/share/xiaohongshu.png" width="48" height="48" loading="lazy" data-alt="string_app_xiaohongshu" alt="小红书"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="kuaishou"><img src="/template/default//images/share/kuaishou.png" width="48" height="48" loading="lazy" data-alt="string_app_kuaishou" alt="快手"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="momo"><img src="/template/default//images/share/mm.png" width="48" height="48" loading="lazy" data-alt="string_app_momo" alt="陌陌"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="tantan"><img src="/template/default//images/share/tt.png" width="48" height="48" loading="lazy" data-alt="string_app_tantan" alt="探探"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="tieba"><img src="/template/default//images/share/tieba.png" width="48" height="48" loading="lazy" data-alt="string_app_tieba" alt="百度贴吧"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="bilibili"><img src="/template/default//images/share/bzhan.png" width="48" height="48" loading="lazy" data-alt="string_app_bilibili" alt="哔哩哔哩"></button>
+            <button type="button" class="invite-app-icon" data-share-platform="zhihu"><img src="/template/default//images/share/zhihu.png" width="48" height="48" loading="lazy" data-alt="string_app_zhihu" alt="知乎"></button>
+          </div>
+          <div class="invite-steps-section-label" data-lang="share_game_channels">各类游戏公共频道：</div>
+          <div class="invite-app-icons invite-app-icons--games" data-aria-label="string_share_games_group" aria-label="游戏社区">
+            <span class="invite-app-icon"><img src="/template/default//images/share/wangzhe.png" width="48" height="48" loading="lazy" data-alt="string_app_honor" alt="王者荣耀"></span>
+            <span class="invite-app-icon"><img src="/template/default//images/share/heping.png" width="48" height="48" loading="lazy" data-alt="string_app_heping" alt="和平精英"></span>
+            <span class="invite-app-icon"><img src="/template/default//images/share/dandan.png" width="48" height="48" loading="lazy" data-alt="string_app_dandan" alt="蛋仔派对"></span>
+          </div>
+        </div>
+        <div class="invite-step">
+          <div class="invite-step-title" data-lang="share_step_3">第三步</div>
+          <div class="invite-step-desc" data-lang="share_step3_desc">被邀请用户下载并打开 APP，即可绑定推荐关系，您即可获得相应推荐奖励。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/template/default/asset/js/stem-jquery.qrcode.js?v=202604161"></script>
+<script src="/template/default/asset/js/share.js?v=20261023"></script>
+
+            <div class="head_search head_search_mobile head_search_mobile_capsule head_search_capsule_host">
+                <div class="head_menu_b">
+                    <a class="menu " href="javascript:void(0)" data-title="all_types" title="全部分类">
+                        <i class="iconfont menu_ico ">&#xe640;</i>
+                        <span class="hidden_xs">&nbsp;<span data-lang="all_types">全部分类</span></span>
+                    </a>
+                    
+<div class="all_menu">
+  <div class="all_menu_inner g_wrap_p">
+    <div class="all_menu_header">
+      <span class="all_menu_title">免费短剧电影电视剧、小说漫画 - 最新全集在线观看</span>
+      <a class="close_menu" href="javascript:void(0)" data-title="string_close" title="关闭">
+        <i class="iconfont all_menu_close_icon">&#xe616;</i>
+      </a>
+    </div>
+    <ul class="menuNavList all-menu-nav">
+      <li class="all-menu-item">
+        <a class="all-menu-row" href="/" data-title="string_home" title="首页">
+          <span class="all-menu-ico">
+            <img class="size-46" src="/template/default/images/nav/home@2x.png" alt="">
+          </span>
+          <span class="all-menu-label" data-lang="string_home">首页</span>
+        </a>
+      </li>
+
+            <li class="all-menu-item all-menu-item--branch">
+        <a class="all-menu-row" href="/index.php/vod/type.html?id=1" title="电影">
+          <span class="all-menu-ico">
+                        <img class="size-46" src="/template/default/images/nav/nav1.png" alt="电影">
+                      </span>
+          <span class="all-menu-label">电影</span>
+        </a>
+        <div class="all-menu-sub" role="group" data-aria-label="string_child_categories" aria-label="子分类">
+                    <a class="all-menu-tag" href="/index.php/vod/type.html?id=101">动作片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=102">喜剧片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=103">爱情片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=104">科幻片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=105">恐怖片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=106">剧情片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=107">战争片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=108">纪录片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=109">动画片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=110">犯罪片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=111">悬疑片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=112">奇幻片</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=113">灾难片</a>
+                            </div>
+      </li>
+                        <li class="all-menu-item all-menu-item--branch">
+        <a class="all-menu-row" href="/index.php/vod/type.html?id=2" title="电视剧">
+          <span class="all-menu-ico">
+                        <img class="size-46" src="/template/default/images/nav/nav2.png" alt="电视剧">
+                      </span>
+          <span class="all-menu-label">电视剧</span>
+        </a>
+        <div class="all-menu-sub" role="group" data-aria-label="string_child_categories" aria-label="子分类">
+                    <a class="all-menu-tag" href="/index.php/vod/type.html?id=201">国产剧</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=202">港澳剧</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=203">台湾剧</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=204">日本剧</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=205">韩国剧</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=206">欧美剧</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=207">泰国剧</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=208">海外剧</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=209">AI漫剧</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=210">短剧</a>
+                            </div>
+      </li>
+                        <li class="all-menu-item all-menu-item--branch">
+        <a class="all-menu-row" href="/index.php/vod/type.html?id=4" title="动漫">
+          <span class="all-menu-ico">
+                        <img class="size-46" src="/template/default/images/nav/nav3.png" alt="动漫">
+                      </span>
+          <span class="all-menu-label">动漫</span>
+        </a>
+        <div class="all-menu-sub" role="group" data-aria-label="string_child_categories" aria-label="子分类">
+                    <a class="all-menu-tag" href="/index.php/vod/type.html?id=401">国产动漫</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=402">日韩动漫</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=403">港台动漫</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=404">欧美动漫</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=405">海外动漫</a>
+                            </div>
+      </li>
+                        <li class="all-menu-item all-menu-item--branch">
+        <a class="all-menu-row" href="/index.php/vod/type.html?id=3" title="综艺">
+          <span class="all-menu-ico">
+                        <img class="size-46" src="/template/default/images/nav/nav4.png" alt="综艺">
+                      </span>
+          <span class="all-menu-label">综艺</span>
+        </a>
+        <div class="all-menu-sub" role="group" data-aria-label="string_child_categories" aria-label="子分类">
+                    <a class="all-menu-tag" href="/index.php/vod/type.html?id=301">大陆综艺</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=302">港台综艺</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=303">欧美综艺</a>
+                              <a class="all-menu-tag" href="/index.php/vod/type.html?id=304">日韩综艺</a>
+                            </div>
+      </li>
+                        <li class="all-menu-item">
+        <a class="all-menu-row" href="/index.php/label/rank.html" data-title="string_rank" title="排行榜">
+          <span class="all-menu-ico">
+            <img class="size-46" src="/template/default/images/nav/nav8.png" alt="">
+          </span>
+          <span class="all-menu-label" data-lang="string_rank">排行榜</span>
+        </a>
+      </li>
+            <li class="all-menu-item">
+        <a class="all-menu-row" href="/index.php/live/show.html" data-title="live/show_title" title="直播">
+          <span class="all-menu-ico">
+            <img class="size-46" src="/template/default/images/nav/live_ic@2x.png" alt="">
+          </span>
+          <span class="all-menu-label" data-lang="live/show_title">直播</span>
+        </a>
+      </li>
+            <li class="all-menu-item">
+        <a class="all-menu-row" href="/index.php/topic/index.html" data-title="string_topic" title="专题">
+          <span class="all-menu-ico">
+            <img class="size-46" src="/template/default/images/nav/nav9.png" alt="">
+          </span>
+          <span class="all-menu-label" data-lang="string_topic">专题</span>
+        </a>
+      </li>
+            <li class="all-menu-item">
+        <a class="all-menu-row" href="/index.php/gbook/index.html" data-title="string_gbook" title="留言">
+          <span class="all-menu-ico">
+            <img class="size-46" src="/template/default/images/nav/nav10.png" alt="">
+          </span>
+          <span class="all-menu-label" data-lang="string_gbook">留言</span>
+        </a>
+      </li>
+      <li class="all-menu-item">
+        <a class="all-menu-row" href="/index.php/vod/last_vod.html" data-title="string_zuixin" title="最新">
+          <span class="all-menu-ico">
+            <img class="size-46" src="/template/default/images/nav/nav7.png" alt="">
+          </span>
+          <span class="all-menu-label" data-lang="string_zuixin">最新</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="all_menu_overlay" aria-hidden="true"></div>
+</div>
+
+                </div>
+                <div class="head_search_inner">
+                                            <div class="head_search_row head_search_row_capsule">
+                            <form name="searchMobile" method="get" onsubmit="return qrsearch(this);">
+                                <div class="head_search_capsule">
+                                    <span class="head_search_capsule_hot" aria-hidden="true"><img src="/template/default/images/svg/hot.svg" alt=""></span>
+                                    <div class="head_search_capsule_field">
+                                        <input id="txtMobile" autocomplete="off" type="text" name="wd" class="mac_wd form_control" value="" placeholder="">
+                                        <div class="head_hot_overlay head_hot_overlay_home" data-fallback-hot-lang="string_home_search_placeholder" data-hot-words="变形金刚,火影忍者,复仇者联盟,战狼,红海行动" data-permanent-hot="127.0.0.1:8080" data-permanent-hot-lang="string_site_domain_prefix" id="headHotOverlayMobile">
+                                            <div class="head_hot_overlay_viewport"><div class="head_hot_overlay_track"></div></div>
+                                        </div>
+                                    </div>
+                                    <button class="submit head_search_capsule_submit" id="searchbuttonMobile" type="submit" name="submit" data-title="string_search" title="搜索" data-title="string_search">
+                                        <img class="head_search_capsule_ai_ico" src="/template/default/images/home/search_ai.gif" alt="" width="20" height="20">
+                                        <span data-lang="string_search">搜索</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="mac_results mac_results_hot" style="display:none;">
+                            <div class="hot mac_item">
+                                <p class="mac_title" data-lang="hot_search">热门搜索</p>
+                                <ul class="hot_keys"></ul>
+                            </div>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+</div>
+<div id="mac_site_card_layer" class="mac-site-card-layer" aria-hidden="true" role="presentation"
+     data-site-url="http://127.0.0.1:8080/"
+     data-site-name="免费短剧电影电视剧、小说漫画 - 最新全集在线观看"
+     data-contact-email="123456@test.cn"
+     data-apk-url=""
+     data-apk-android-url=""
+     data-apk-ios-url=""
+     data-vpn-url="">
+    <div class="mac-site-card-backdrop" data-site-card-act="close"></div>
+    <div class="mac-site-card-dialog" role="dialog" aria-modal="true" aria-labelledby="mac_site_card_title">
+        <div class="mac-site-card-head-ico mac-site-card-close" data-site-card-act="close" data-aria-label="string_close" aria-label="关闭">
+            <img class="mac-site-card-head-img" src="/template/default//images/modal/close@2x.png" width="40" height="40" decoding="async" alt="">
+        </div>
+        <header class="mac-site-card-header">
+            <div class="mac-site-card-header-row">
+                <span class="mac-site-card-head-ico mac-site-card-head-ico--notice" aria-hidden="true">
+                    <img class="mac-site-card-head-img" src="/template/default//images/modal/Notice_ic@2x.png" width="40" height="40" decoding="async" alt="">
+                </span>
+                <h2 id="mac_site_card_title" class="mac-site-card-title">
+                    <span class="mac-site-card-name">免费短剧电影电视剧、小说漫画 - 最新全集在线观看</span><span class="mac-site-card-title-gap"> </span><span class="mac-site-card-title-suffix" data-lang="string_site_card_title_suffix">最新公告</span>
+                </h2>
+            </div>
+        </header>
+        <div class="mac-site-card-rule" aria-hidden="true"></div>
+        <div class="mac-site-card-body">
+            <div class="mac-site-card-top-split">
+                <div class="mac-site-card-copycol">
+                    <div class="mac-site-card-domain-stack">
+                        <p class="mac-site-card-domain-heading">
+                            <span class="mac-site-card-dh-name">免费短剧电影电视剧、小说漫画 - 最新全集在线观看</span><span data-lang="string_site_card_domain_suffix">最新域名</span>
+                        </p>
+                        <div class="mac-site-card-domain" title=""></div>
+                    </div>
+                    <div class="mac-site-card-email-block">
+                        <p class="mac-site-card-email-lines">
+                            <span data-lang="string_site_card_email_intro">发送任意邮件至</span><br>
+                            <span data-lang="string_site_card_email_sub">秒得最新地址</span>
+                        </p>
+                        <a class="mac-site-card-email-link" href="mailto:"></a>
+                    </div>
+                </div>
+                <div class="mac-site-card-qr">
+                    <div class="mac-site-card-qrcode"></div>
+                    <button type="button" class="mac-site-card-qr-cap" data-site-card-act="save-qr" data-lang="string_site_card_qr_save_hint">点击保存二维码</button>
+                </div>
+            </div>
+            <div class="mac-site-card-apk-wrap">
+                <a class="mac-site-card-primary-btn js-site-card-apk" href="#" target="_blank" rel="noopener noreferrer" data-lang="string_site_card_apk_btn">点击下载APP</a>
+            </div>
+            <div class="mac-site-card-pwa-hint" hidden aria-live="polite">
+                <div class="mac-site-card-pwa-hint__inner">
+                    <span class="mac-site-card-pwa-hint__ico-wrap" aria-hidden="true">
+                        <img class="mac-site-card-pwa-hint__ico" src="/template/default/asset/img/pwa/icon-192.png" width="36" height="36" alt="" decoding="async">
+                    </span>
+                    <div class="mac-site-card-pwa-hint__copy">
+                        <strong class="mac-site-card-pwa-hint__title" data-lang="string_site_card_pwa_title">添加到主屏幕</strong>
+                        <span class="mac-site-card-pwa-hint__desc"></span>
+                    </div>
+                    <button type="button" class="mac-site-card-pwa-hint__btn" data-site-card-act="pwa-install" hidden data-lang="string_site_card_pwa_install">安装</button>
+                </div>
+            </div>
+            <div class="mac-site-card-vpn-wrap">
+                <div class="mac-site-card-extra-tip">
+                    <span data-lang="string_site_card_vpn_tip">推荐使用旋风加速器翻墙访问</span>
+                    <p class="mac-site-card-extra-link-wrap" data-lang="string_site_card_vpn_link">
+                        旋风下载地址
+                    </p>
+                </div>
+            </div>
+            <div class="mac-site-card-screen-cta" data-lang="string_site_card_screen_tip">请截屏保存，以防走失！</div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" type="text/css" href="/template/default/asset/css/site-card-modal.css?v=202604161">
+<script type="text/javascript" src="/template/default/asset/js/stem-jquery.qrcode.js?v=202604161"></script>
+<script type="text/javascript" src="/template/default/asset/js/site-card-modal.js?v=202604161"></script>
+
+<script type="text/javascript" src="/template/default/asset/js/module-head.js?v=20261023"></script>
+
+
+  <div class="member-wrap last-bg">
+  <div class="container ">
+                <div class="row">
+	        <div class="pannel clearfix" >
+                <div class="pannel_head clearfix show-mobile">
+                    <a class="text_muted pull_right" href="/index.php/vod/show.html?id=1"><i class="iconfont shaixuan_i">&#xe61d;</i>&nbsp;<span data-lang="str_shaixuan">筛选</span></a>
+					<h2 class="title"><span data-lang="string_zuixin">最新</span></h2>
+	            </div>
+                
+                <div class="pannel_head clearfix show-pc">
+                    <h2 class="title" >
+                        <span data-lang="string_zuijingx">最近更新</span> 
+                        <span class="pan_right">
+                            <span data-lang="string_zuijin">最近</span>
+                            <em class="mac_total"></em> <span data-lang="string_gengxinshu">个更新</span>
+                        </span>
+                    </h2>
+                    
+                </div>
+							
+                <div class="vodlist_smt clearfix">
+					<ul>
+						                           <li class="ranklist_item">
+    <a title="英雄烈2019" href="/index.php/vod/detail.html?id=48497">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/5b3bf4389318384e5ab760ab91faaec9.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">内地&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">英雄烈2019</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>[cp]#电视剧英雄烈# 由凤凰传奇影业精磨打造的年代传奇巨制《英雄烈》，9月26日正式开机。继《山海经之赤影传说》后又一霸屏大作横空出世。该剧由@于晓光 、@马雅舒_yaya 、@王千源  、@斯琴高娃 、@唐菀Zoey 、@姜瑞佳的微博 、@田宇鹏的微博 、吕凉等国内顶级实力派演员鼎立出演。http://t.cn/Rcup6zF[/cp]</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,战争,内地剧,内地</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="海绵宝宝：拯救比奇堡" href="/index.php/vod/detail.html?id=48496">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/c715b7f9c127a03df75863d57da84c6c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">喜剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">欧美动漫&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">海绵宝宝：拯救比奇堡</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>When Bikini Bottom is suddenly scooped out of the ocean, Sandy Cheeks and SpongeBob journey to Sandy's home state of Texas, where they meet Sandy's family and must save Bikini Bottom from the hands of an evil CEO</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>喜剧,动画,冒险,欧美动漫</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="乖乖女慢慢宠" href="/index.php/vod/detail.html?id=48495">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/240dd8ff673662ec6cc3ae1224b7c408.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">乖乖女慢慢宠</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="海风拂心湖" href="/index.php/vod/detail.html?id=48494">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/369c7ba557bdd9bd5a50ea5059a6c012.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">海风拂心湖</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="我的跑腿男友" href="/index.php/vod/detail.html?id=48493">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/ffafba921b7b509985a9ab639d63ffd4.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">我的跑腿男友</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="紫龙觉醒" href="/index.php/vod/detail.html?id=48492">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/49aafa6ff8520cbf8deea949315f5b86.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">反转爽剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">紫龙觉醒</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>反转爽剧,反转爽</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="打造景区，我的NPC来自古代" href="/index.php/vod/detail.html?id=48491">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/4540a8a138aee1658c18d9abea75fed8.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">脑洞悬疑</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">打造景区，我的NPC来自古代</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>脑洞悬疑</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="心脏染色" href="/index.php/vod/detail.html?id=48490">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/8672c815a01071aac731cfcdda472107.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_ongoing"><span data-lang="string_lianzai">连载中</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">韩国剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">心脏染色</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>改编自同名漫画。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,同性,韩剧</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="小祖宗变乖了" href="/index.php/vod/detail.html?id=48489">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/9057e55163c2fd23e54ed4454186423c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">小祖宗变乖了</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="无言寸草心" href="/index.php/vod/detail.html?id=48488">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/4f3657345249a942f890a66b5278ea90.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">无言寸草心</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="海岛小辣媳" href="/index.php/vod/detail.html?id=48487">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/d6dbb6bb7989fff8690dc0cff4d5faab.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">重生民国</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">海岛小辣媳</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>重生民国</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="昭华乱" href="/index.php/vod/detail.html?id=48486">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/77bb0eb0504d85a512cd065e1204ece9.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">昭华乱</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="错嫁时光里的救赎" href="/index.php/vod/detail.html?id=48485">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/df1ef855a982afac7d428363a936c83f.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">重生民国</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">错嫁时光里的救赎</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>重生民国</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="长夜尽思" href="/index.php/vod/detail.html?id=48484">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/fb46cc3d5c4ddc9aa17344eb575b728c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">长夜尽思</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="星落凡尘" href="/index.php/vod/detail.html?id=48483">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/e28844bf634149c0e838b8bafd487591.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">星落凡尘</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="长生十万年" href="/index.php/vod/detail.html?id=48482">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/0530e5ebfd83b4c0c3336d34bd7640e4.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">穿越年代</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">长生十万年</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>穿越年代</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="假若爱有天意" href="/index.php/vod/detail.html?id=48481">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/f059f8390725bc85e6b42a05280874a0.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">假若爱有天意</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="彼岸花园" href="/index.php/vod/detail.html?id=48480">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/1daa6187371dc6806e40ae257382133a.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">彼岸花园</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="从亲爹送我进网瘾医院开始" href="/index.php/vod/detail.html?id=48479">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/12520ddc4c43fa189532fbd89c24affd.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">从亲爹送我进网瘾医院开始</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="也曾想拥你入怀" href="/index.php/vod/detail.html?id=48478">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/6771fbc3d669ab5153f819660b48bad4.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">重生民国</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">也曾想拥你入怀</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>重生民国</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="火海余生" href="/index.php/vod/detail.html?id=48477">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/8a2a20908c809715df0b87b2b5b7cc6a.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">火海余生</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="白发相依胜春风（心动对象是离婚老伴）" href="/index.php/vod/detail.html?id=48476">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/a0b0e729a384dd9b325d11512e49e8aa.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">白发相依胜春风（心动对象是离婚老伴）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="过年默示录" href="/index.php/vod/detail.html?id=48475">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/5b03d4988535b553906c528ee6daf717.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">过年默示录</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="你的颜色" href="/index.php/vod/detail.html?id=48474">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/10c8b0e04cb9de6494a84f2af9e59d55.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">动画</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">动画片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">你的颜色</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>高中生日暮窦子（铃川纱由 配音）拥有看见其他人内心颜色的能力，她憧憬着同学作永君（高石明里 配音）身上亮丽的色彩。作永退学后，窦子在小镇的旧书店找到了她，并结识了同样拥有明亮色彩的少年影平路易（木户大圣 配音）。在窦子的提议下三人组成了乐队，开始创作起属于自己的歌曲。因音乐结缘的三人关系逐渐拉进，却也各怀心事：窦子一直隐瞒着自己“能够看见他人颜色”的秘密；作永向家人隐瞒了自己退学的事实，路易则瞒着母亲搞起了乐队……</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>动画,音乐,动画片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="哪吒之替天行道" href="/index.php/vod/detail.html?id=48473">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/f0969d23242b68ac214b27f3258f1845.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">脑洞悬疑</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">哪吒之替天行道</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>脑洞悬疑</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="觉醒亿万修为后我只想保命" href="/index.php/vod/detail.html?id=48472">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/f701e828d19a044141575d21a17ad2b8.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">觉醒亿万修为后我只想保命</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="不老梦想家" href="/index.php/vod/detail.html?id=48471">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/66628f1e4867b1a22523af58248350ec.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">不老梦想家</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="爱在黄昏后" href="/index.php/vod/detail.html?id=48470">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/6cf17241c7cca89dc081878500e9df31.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">爱在黄昏后</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="恋爱KO" href="/index.php/vod/detail.html?id=48469">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/4f92d47786834f3af8e4ed4cd98643eb.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">恋爱KO</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="满城尽带无人机" href="/index.php/vod/detail.html?id=48468">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/62834c05f0f49e63a12115db688560ee.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">穿越年代</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">满城尽带无人机</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>穿越年代</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="来聊聊须绪美吧" href="/index.php/vod/detail.html?id=48467">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/4cfe33e2fcffb085216defa6daf9a004.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">喜剧片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">来聊聊须绪美吧</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>三谷幸喜自编自导。大富豪的妻子须绪美突然失踪，在得知她失踪后，在丈夫居住的豪宅集结的是爱过她的5个男人。但是他们所说的须绪美，无论是外表还是性格，都像是换了一个人。那么，到底须绪美的真面目是什么呢？</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,喜剧,悬疑,喜剧片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="消失的光" href="/index.php/vod/detail.html?id=48466">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/49b483035eca9a38f59812a8f957310c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">消失的光</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="神级人生（神级小厂工 ）" href="/index.php/vod/detail.html?id=48465">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/cca92d2ab5f65957b7e7fcfb5bdb7176.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">反转爽剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">神级人生（神级小厂工 ）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>反转爽剧,反转爽</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="万凰之王" href="/index.php/vod/detail.html?id=48464">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/32b80a936d47727aa92aab7cc2cf6ce6.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">万凰之王</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="乡间幸福往事" href="/index.php/vod/detail.html?id=48463">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/1a78f327716079b7001ef9a56d6f7d1b.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">乡间幸福往事</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="龙行天下" href="/index.php/vod/detail.html?id=48462">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/e7021b9297cc125c038d74cc5b38063e.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">内地&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">龙行天下</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,喜剧,历史,内地剧,内地</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="神秘助理" href="/index.php/vod/detail.html?id=48461">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/6b55d47b62d298832b5c60cc3c78cb02.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">神秘助理</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="王牌飞行员" href="/index.php/vod/detail.html?id=48460">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/7b524e4b54bd6ef14e5aa264ce0e7b3b.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">反转爽剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">王牌飞行员</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>反转爽剧,反转爽</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="我有一个垂钓系统" href="/index.php/vod/detail.html?id=48459">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/c3973c2bd6ebc1bbf85a1f54d99fbe88.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">脑洞悬疑</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">我有一个垂钓系统</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>脑洞悬疑</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="爱的双生缘" href="/index.php/vod/detail.html?id=48458">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/2f165dc3bf83040513ee594704271bbc.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">爱的双生缘</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="龙之吻" href="/index.php/vod/detail.html?id=48457">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/c7cb04b91db76f4a7fc344696704b03e.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">龙之吻</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="真心何所付" href="/index.php/vod/detail.html?id=48456">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/abbb1bd2e7a845085e964f4b386c7157.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">真心何所付</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="法理证我无罪，爱意判我死刑" href="/index.php/vod/detail.html?id=48455">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/a5a8cd6b5daceee703832115ea4e73e6.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">法理证我无罪，爱意判我死刑</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="善意之殇" href="/index.php/vod/detail.html?id=48454">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/38dbcc9d16431f8ec7bf1d0a455aa71a.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">善意之殇</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="结婚易结不易解" href="/index.php/vod/detail.html?id=48453">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/ba4eb2077a7c3feeafda768fd01d599a.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">结婚易结不易解</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="三秋笺未归人" href="/index.php/vod/detail.html?id=48452">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/0fee19ec99aab1df1b06430842e23d5a.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">三秋笺未归人</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="萌宝驾到爹地逆天改命（萌宝无敌爹地逆天改命)" href="/index.php/vod/detail.html?id=48451">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/36ed4e98b15c2e6c3657630ce612685c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">脑洞悬疑</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">萌宝驾到爹地逆天改命（萌宝无敌爹地逆天改命)</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>脑洞悬疑</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="爱与自省交错的命运轨迹（爱与无悔）" href="/index.php/vod/detail.html?id=48450">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/07eb14f735000a19bcd2f4db35946a7e.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">爱与自省交错的命运轨迹（爱与无悔）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="龙游天下" href="/index.php/vod/detail.html?id=48449">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/0c1d51f3465bda51aac7f3016f84a20e.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">内地&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">龙游天下</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>玉龙（王灿 饰）继承了父亲的王位，决心传承父亲仁民爱物的精神，做一个好君王。玉龙于偶然之中得知了失散已久的母亲的下落，于是微服出行，踏上了寻母的旅途。一行人来到清河县，目睹了刺史何正杰之子何耀祖趁父亲不在假权谋私胡作非为，只因为背后有一过于溺爱他的母亲，而唯一能够制裁他的，只有何正杰。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,古装,内地剧,内地</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="此生更如意" href="/index.php/vod/detail.html?id=48448">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/c84f10b89aa2d76b07fd4c4dc2cfe0ae.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">此生更如意</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="后悔了吗可惜你高攀不起了" href="/index.php/vod/detail.html?id=48447">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/31128406e43c4606c19a02b5614e4571.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">后悔了吗可惜你高攀不起了</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="这届爹地不好带" href="/index.php/vod/detail.html?id=48446">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/0cc7249c8a95bd7a2a05d3673c5a2b38.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">脑洞悬疑</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">这届爹地不好带</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>脑洞悬疑</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="高温末世天降锦鲤守护我" href="/index.php/vod/detail.html?id=48445">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/16583616b2cb7d6cd3393bb2e3694c26.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">重生民国</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">高温末世天降锦鲤守护我</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>重生民国</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="博尼法斯修女探案集 第三季" href="/index.php/vod/detail.html?id=48444">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/a18c683dc35acbddc52d82d74d01672c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_ongoing"><span data-lang="string_lianzai">连载中</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">欧美剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">博尼法斯修女探案集 第三季</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>BBC&amp;Britbox探案剧。本剧为《布朗神父（Father Brown）》的衍生剧，主角博尼法斯修女曾出现于《布朗神父》第一季中。擅长骑摩托车、酿酒与法医学的可爱修女用自己的智慧破解城镇中的命案真相。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,喜剧,欧美剧,欧美</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="马科斯·特里默的沉默" href="/index.php/vod/detail.html?id=48443">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/7df702427fce0282e9253a4a0a7d5bd4.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">剧情片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">马科斯·特里默的沉默</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>Marcos Tremmer is a successful advertising executive living in Madrid, deeply in love with his wife, Lucía. One day, Marcos discovers that a deadly illness will end his life within a few months.</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,爱情,剧情片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="我们将他们全部杀死" href="/index.php/vod/detail.html?id=48442">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/af5038fd250de9b03cabe6c6c041466d.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">惊悚</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">恐怖片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">我们将他们全部杀死</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>一名年轻女子驱车前往一个偏僻的度假胜地，她疏远且犯罪的父亲希望在那里重拾他们的关系。当她到达时，她和她带来的女友遇到了她父亲过去认识的危险男人，他们必须拼命逃脱。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>惊悚,恐怖片,恐怖</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="爱不可挡" href="/index.php/vod/detail.html?id=48441">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/3b0fe5925876bc505ee9d4903569918d.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">爱不可挡</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="见君心" href="/index.php/vod/detail.html?id=48440">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/94a6cfcd986195c6d7dedc65b53dd94e.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_ongoing"><span data-lang="string_lianzai">连载中</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">内地&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">见君心</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>该剧讲述了多年战乱不休的年代，天晟国将门嫡女苏凤止（方瑾 饰）家世显赫，怎知一夜之间，父亲被诬通敌叛国，嫁入九皇子府并怀有身孕的姐姐离奇死去，苏家满门抄斩。苏凤止侥幸逃脱，后改头换面成为“盲女”琴师苏锦，被朝玉公主（余逸蕾 饰）引荐来到九皇子府，接近曾经的姐夫简世琉（李岱昆 饰），想要查清姐姐之死和父亲通敌叛国的真相，而自己温润如玉的“兄长”苏凛风（王子禾 饰）好像也隐藏着巨大秘密……</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,悬疑,短片,历史,内地剧,内地</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="爱与死" href="/index.php/vod/detail.html?id=48439">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/9da2ac9e3a2b49e0917ba99efe61623e.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">喜剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">喜剧片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">爱与死</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>鲍里斯（伍迪·艾伦 Woody Allen 饰）成长于一个人丁兴旺的俄罗斯大家庭里，在诸多的兄弟之中，要数他的身板和胆识最为渺小。在鲍里斯的眼中，表姐索嘉（黛安·基顿 Diane Keaton 饰）一直都是缪斯般的存在。可是，索嘉宁愿嫁一个渔夫，也不愿选择鲍里斯。令鲍里斯深受打击的事情远远不止这一件，战争开始了，为了效忠国家，鲍里斯被迫拿起长枪走上了战场。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>喜剧,战争,喜剧片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="鬼城杀" href="/index.php/vod/detail.html?id=48438">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/9f816450093014dcd5cb012d167f37a3.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">动作</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">动作片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">鬼城杀</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>当地狱来临时，单凭杀戮已无法偿还。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>动作,惊悚,犯罪,奇幻,冒险,动作片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="哥本哈根爱的故事" href="/index.php/vod/detail.html?id=48437">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/7f64719bb719aa7b886984f28141251c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">剧情片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">哥本哈根爱的故事</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>作家米娅与单身父亲埃米尔相爱后，两人为了要孩子接受了生育治疗，他们的幸福生活也因此受到了考验。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,爱情,剧情片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="选美告急：救救意大利小姐" href="/index.php/vod/detail.html?id=48436">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/89705e19e84e31cabb3ce4d8a5de5470.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">纪录片</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">纪录片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">选美告急：救救意大利小姐</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>如今的意大利小姐比赛因为丑闻和不断变化的审美标准而变得风雨飘摇。在这一经典选美大赛的光环背后，总导演帕特里奇娅·米里利亚尼力挽狂澜</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>纪录片,记录</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="闪耀吧大小姐（曦光尽染星辰）" href="/index.php/vod/detail.html?id=48435">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/b5670a5b2969e71eb6f365d429ccdf20.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">闪耀吧大小姐（曦光尽染星辰）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="毒妃进阶录（我的最爱）" href="/index.php/vod/detail.html?id=48434">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/d075953d1c7ca5a155effe8e4f387895.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">毒妃进阶录（我的最爱）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="但行好事(勋章)" href="/index.php/vod/detail.html?id=48433">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/1c236add9196c19ea7775c34e9956be6.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">但行好事(勋章)</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="悄悄藏不住" href="/index.php/vod/detail.html?id=48432">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/66cb42dd78b33bbc0eaad0b7712a888a.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">悄悄藏不住</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="长姐回京后太子沦陷了" href="/index.php/vod/detail.html?id=48431">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/301133574369fddf226e7473087a0485.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">长姐回京后太子沦陷了</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="甜蜜约会" href="/index.php/vod/detail.html?id=48430">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/1c10d70c543b856ad3b4bfbe867e7df7.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">甜蜜约会</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="谁也别想抢我的房子" href="/index.php/vod/detail.html?id=48429">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/56bc6abebad063b0191771f7c0b2501b.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">反转爽剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">谁也别想抢我的房子</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>反转爽剧,反转爽</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="清如初见梦思年" href="/index.php/vod/detail.html?id=48428">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/8f50b7fdf58e5665147f9dd736502359.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">重生民国</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">清如初见梦思年</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>重生民国</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="萌妻攻略100天" href="/index.php/vod/detail.html?id=48427">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/a5a4fd638ea093d7b3898ea244d90245.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">萌妻攻略100天</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="诱捕局中局（夜色暗涌）" href="/index.php/vod/detail.html?id=48426">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/3b907c633a9affcd95e7385121b11fa9.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">诱捕局中局（夜色暗涌）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="揽月拂南洲" href="/index.php/vod/detail.html?id=48425">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/52ac2275b12c07dd1952b899bf6b6703.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">揽月拂南洲</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="流云散尽不逢君" href="/index.php/vod/detail.html?id=48424">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/1d197b849f05aa02838b2424c49dee4b.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">流云散尽不逢君</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="情深蚀骨转头空（在荆棘中绚烂）" href="/index.php/vod/detail.html?id=48423">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/1950cbe5084b0ad0f5c7c4baf9473e0d.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">重生民国</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">情深蚀骨转头空（在荆棘中绚烂）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>重生民国</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="三日之约太子以江山为聘" href="/index.php/vod/detail.html?id=48422">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/6f247cc18223f2f1c20b0f8580d86172.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">三日之约太子以江山为聘</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="逆转狂篮" href="/index.php/vod/detail.html?id=48421">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/a92b3b1a445b95b98c019157d05714c6.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">喜剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">欧美剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">逆转狂篮</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>当一桩丑闻迫使艾拉·戈登（凯特·哈德森饰）的哥哥辞职后，她被任命为 Los Angeles Waves 的总裁。这是最具传奇意义的职业篮球球队之一，也是她的家族企业。伊丝拉雄心勃勃，却经常被忽视。她必须向持怀疑态度的兄弟们、董事会和更广泛的体育界证明自己是这份工作的正确人选。《男篮女主》由热门制作团队敏迪·卡灵、伊克·巴里霍尔兹和大卫·斯塔森打造，为逆袭喜剧注入了大胆的新元素。这部 10 集剧集的主演阵容还包括布兰达·宋、德鲁·塔弗、斯科特·麦克阿瑟、法布里齐奥·吉多、托比·桑德曼、切特·汉克斯、杰·埃利斯和马克思·格林菲尔德。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>喜剧,运动,欧美剧,欧美</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="花中寻凶：死亡与鲜花" href="/index.php/vod/detail.html?id=48420">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/5078e3d5e251312e1fae158933aa3f34.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_ongoing"><span data-lang="string_lianzai">连载中</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">泰国剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">花中寻凶：死亡与鲜花</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>客户在婚礼前夕横死，这名花艺师决定找出凶手，揭开上流社会的黑暗秘密——同时保守自己的秘密</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,悬疑,惊悚,犯罪,马泰剧,马泰</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="请以无名呼唤我" href="/index.php/vod/detail.html?id=48419">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/14407ebebef881f1a536ffa36a9b8f6b.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">爱情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_ongoing"><span data-lang="string_lianzai">连载中</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">韩国剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">请以无名呼唤我</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>就读于英知大学的世次爱（工藤美樱 饰），遇到了被丢弃在垃圾场的美丽女子古桥琴叶（尾碕真花 饰）。爱把捉摸不清的琴叶邀请到自己家里，以此为契机想和她成为朋友，但是这个提议被无情地拒绝了，并且爱知道了琴叶是改名后的名字。那样的琴叶代替提议的是，在猜中她真正的名字之前做“恋人”。然后， 在临时开始的交往中，如果猜中了她的本名，就会按照约定成为“朋友”，这是一个奇妙的赌注。爱没有后退，决定赌上这个赌注，和琴叶以“恋人”的身份笨拙地加深关系，但隐藏在她名字里的过去对现在露出獠牙...</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>爱情,同性,日剧</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="普京" href="/index.php/vod/detail.html?id=48418">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/6bd6fefd83b8f587d04c5e9be48648fa.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">传记</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">纪录片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">普京</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>关于普京的故事</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>传记,纪录片,记录</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="苏小姐，我只想爱你（不可触摸的幸福）" href="/index.php/vod/detail.html?id=48417">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/c9ee2cb539ad0b4dfe79ccbc8d3f7fbe.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">苏小姐，我只想爱你（不可触摸的幸福）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="撩帝心（毓色权谋）（我在古代席卷天下）" href="/index.php/vod/detail.html?id=48416">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/6c50b5a0b8a801de5aba67d3843b796a.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">穿越年代</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">撩帝心（毓色权谋）（我在古代席卷天下）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>穿越年代</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="陌上又花开" href="/index.php/vod/detail.html?id=48415">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/a4bb4d60efd5991b47550535cbd2854c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_ongoing"><span data-lang="string_lianzai">连载中</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">内地&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">陌上又花开</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>挂月台是一个位于群山里的山村，挂月路崎岖难行，既影响了挂月台的发展，也为村民的生活带来了重重困难。为了解决这一困境，在村党支部的支持和领导下，挂月台铁姑娘突击队队长马春秀和民兵队长于大河组织全体村民抢修挂月路。但因为马春秀决策失误，擅自爆破造成滑坡，山路施工被迫停工。为了给继续修路筹集资金，村党支部决定，由马春秀和于大河带领村民进城打工。进城的马春秀和于大河带领村民拼搏创业，正当资金筹措马上完成的时候，马春秀和于大河的情感却悄然发生了变化。一起进城的姐妹王水灵和苏丽荣也在成长中做出了各自的人生选择。最终，在当地政府的全力支持下，党员干部带头奋战，挂月台终于拥有了一条连接外界的天路。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,内地剧,内地</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="死命必达" href="/index.php/vod/detail.html?id=48414">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/24fbb461686af2baddd769bd3e28620f.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">喜剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">恐怖片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">死命必达</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>纳特（马里奥·毛瑞尔 饰）是个拥有灵异体质的外送员，他的工作因此变得与众不同，他和两位外送员好友经常接到奇怪的订单，在深夜将诡异的物品送到毛骨悚然的地方。这种赚钱方式虽然不寻常，但大多数时候他和外送伙伴们通常能对这些恐怖经历一笑置之。</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>喜剧,恐怖,恐怖片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="寒门出贵子" href="/index.php/vod/detail.html?id=48413">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/eeea7bea360fcf47f95fd89438478e6c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">反转爽剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">寒门出贵子</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>反转爽剧,反转爽</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="一误东风辞崔羽" href="/index.php/vod/detail.html?id=48412">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/3e398cfb8af24e50abd427efc9bf987f.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">一误东风辞崔羽</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="新不可不认娘" href="/index.php/vod/detail.html?id=48411">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/5d97e76b724ff2f5006e9fde3c969f1c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">新不可不认娘</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="叶落寻星途" href="/index.php/vod/detail.html?id=48410">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/b0d7680382dd2876ca850605c8c8e37d.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">叶落寻星途</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="情迷顾小姐恋恋时光长" href="/index.php/vod/detail.html?id=48409">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/f8d8f05f2763cc65dfbbe5d449d32091.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">情迷顾小姐恋恋时光长</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="施主你别咬了（施主你别啃了）" href="/index.php/vod/detail.html?id=48408">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/6a9923180d026664453952ecc27c4e68.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">脑洞悬疑</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">施主你别咬了（施主你别啃了）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>脑洞悬疑</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="彻底忘记你的那一年" href="/index.php/vod/detail.html?id=48407">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/ab3b04527d2c6df3576ce1816961926d.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">彻底忘记你的那一年</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="拥吻御史大人后我拥有读心术" href="/index.php/vod/detail.html?id=48406">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/e602bdcc02a19099706bb170add244c6.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">穿越年代</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">拥吻御史大人后我拥有读心术</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>穿越年代</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="狐狸老公会哄又会宠" href="/index.php/vod/detail.html?id=48405">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/b2cc32ade5e95536d6507854b043a776.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">狐狸老公会哄又会宠</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="蜡笔小新：我们的恐龙日记" href="/index.php/vod/detail.html?id=48404">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/8e23c74a0b2781b7d47744d0ca013913.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">喜剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">喜剧片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">蜡笔小新：我们的恐龙日记</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>影片讲述在野原新之助的五岁暑假，东京新开了一个现代复活恐龙的主题公园，迎来了前所未有的恐龙热潮。而在春日部河滩旁，小白也偶遇到了一个新朋友——纳纳，随着春日部防卫队和纳纳的相处，恐龙公园背后的真相也随之揭露，巨大恐龙突然暴走街头，这次他们能否成功化解危机呢？</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>喜剧,动画,喜剧片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="摧花谜墓 第二季" href="/index.php/vod/detail.html?id=48403">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/83e49686c19d602e12bf6aed21cf03b9.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">欧美剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_ongoing"><span data-lang="string_lianzai">连载中</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">欧美剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">摧花谜墓 第二季</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>欧美剧,欧美</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="人生滑下坡" href="/index.php/vod/detail.html?id=48402">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/8f0f26049794f5f9e6d3387c8a280dff.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">喜剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">喜剧片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">人生滑下坡</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>生活一团糟的单亲妈妈艾米莉陷入低谷，于是向哥哥寻求帮助。后者有一个非常棒的计划：参加越野滑雪马拉松</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>喜剧,喜剧片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="冒牌上流" href="/index.php/vod/detail.html?id=48401">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/e6bccde83a2e702773dd884a0a5de8e0.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">喜剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">爱情片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">冒牌上流</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>因遭遇诈骗而欠下巨额债务后，两个想要成为社交名流的人精心设计伪造身份，骗取富人的钱财</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>喜剧,爱情,爱情片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="我的新朋友" href="/index.php/vod/detail.html?id=48400">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/182cf2468367a75fac8517fd9279b37b.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">剧情片&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">我的新朋友</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>该剧本由André Téchiné和Régis de Martrin-Donos撰写，以即将退休的技术和科学警察的特工Lucie为中心。一对年轻夫妇（一个小女孩的父母）来到他的小区，这让他孤独的日常生活感到不安。当她爱上她的新邻居时，她发现父亲Yann是一名反警察活动家，有着沉重的犯罪记录。Lucie的职业良知与她帮助这个家庭的愿望之间的道德冲突将动摇她的确定性......</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情,剧情片</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="衣线生机" href="/index.php/vod/detail.html?id=48399">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/decf8e5b85343b10434665e90c6f36db.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">衣线生机</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="后悔无效" href="/index.php/vod/detail.html?id=48398">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/c1f3a10ee02e6e9972ecd4a23bf92c21.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">后悔无效</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="我家夫人是老大（救命！夫人竟然是大佬）" href="/index.php/vod/detail.html?id=48397">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/7518bb49f8802e18cbf3e09d9cc6c1ac.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">我家夫人是老大（救命！夫人竟然是大佬）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="水晶之恋" href="/index.php/vod/detail.html?id=48396">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/4830e4b857e91acf3e377ee85d3a9c4c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">脑洞悬疑</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">水晶之恋</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>脑洞悬疑</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="爱意消逝（谨言空许负温柔）" href="/index.php/vod/detail.html?id=48395">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/042a8bf1fe64a41a6f1c4c29e013726f.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">爱意消逝（谨言空许负温柔）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="星河予你温柔" href="/index.php/vod/detail.html?id=48394">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/91d679f89760d1dfbcc11e8cb421177c.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">星河予你温柔</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="祸福无门唯自招" href="/index.php/vod/detail.html?id=48393">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/c638560007237f3ef20f6759c3e2dc95.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">重生民国</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">祸福无门唯自招</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>重生民国</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="步步为赢" href="/index.php/vod/detail.html?id=48392">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/475713a873f9cc1ff145035d2f11708f.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">步步为赢</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="天师归来在都市" href="/index.php/vod/detail.html?id=48391">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/527fc65f435eee2583317919c22388c6.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">反转爽剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">天师归来在都市</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>反转爽剧,反转爽</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="天师的新娘" href="/index.php/vod/detail.html?id=48390">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/30a4b413c498af1136d7cfd906adc48b.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">天师的新娘</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="妖捕在线我的宿敌是夫君（岁岁有余年）" href="/index.php/vod/detail.html?id=48389">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/a1b6d49c7f48a133a02d558f4cf36abc.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">妖捕在线我的宿敌是夫君（岁岁有余年）</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="如意福胎随我心意" href="/index.php/vod/detail.html?id=48388">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/8b60bce8493210e45c740d2ccda0055f.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">如意福胎随我心意</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="倔强女孩" href="/index.php/vod/detail.html?id=48387">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/d6d0f7ed8efcb052d8dd8939103764e3.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">剧情片</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_ongoing"><span data-lang="string_lianzai">连载中</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">欧美剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">倔强女孩</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>大一新生瓦利卡、德维卡、塔巴苏姆、特丽莎和范达娜在混乱的大学生活和保守校长的压迫下，一边面对个人挑战，一边努力寻找自己的声音和身份。在这一过程中，她们探索并收获了友谊、爱情、抱负和团结。在互相扶持和学姐们的引领下，这群女孩在玛蒂尔达学院中茁壮成长，注定会成为改变世界的人。
+</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>剧情片,欧美剧,欧美</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="爱意燃尽情深成空" href="/index.php/vod/detail.html?id=48386">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/7cb7550aeced4811d5807ecc6b12da74.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">爱意燃尽情深成空</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="偏要吻你" href="/index.php/vod/detail.html?id=48385">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/657ac3d8c338ebc94982e59f7e588ef5.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">偏要吻你</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="假面玫瑰的邂逅" href="/index.php/vod/detail.html?id=48384">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/82db6323219dd5fd5060c5f27fc844b5.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">言情总裁</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">假面玫瑰的邂逅</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>言情总裁</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="一纸婚约冲喜缘" href="/index.php/vod/detail.html?id=48383">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/0232cdfa210de162450744b3faf455c1.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">一纸婚约冲喜缘</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="凝霜泪凤归" href="/index.php/vod/detail.html?id=48382">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/d23e26005a967cbfba0f6738b596cfd0.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">古装仙侠</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">凝霜泪凤归</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>古装仙侠</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="复沦陷" href="/index.php/vod/detail.html?id=48381">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/7f032a5350dbf259069e21540f854f88.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">复沦陷</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="规则怪谈之怪谈客栈" href="/index.php/vod/detail.html?id=48380">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/ef19f6f4615a775738656dc56a4011d9.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">脑洞悬疑</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">规则怪谈之怪谈客栈</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>脑洞悬疑</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="沉默的妈妈" href="/index.php/vod/detail.html?id=48379">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/de7b267c6c9cd2cc7ce9d71d2b59cfa0.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">反转爽剧</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">沉默的妈妈</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>反转爽剧,反转爽</span></p>
+    </div>
+    </a>  		
+</li>
+						                           <li class="ranklist_item">
+    <a title="五十度的昼夜" href="/index.php/vod/detail.html?id=48378">
+	<div class="ranklist_img">
+		 <div class="ranklist_thumb zbpic lazyload" data-original="https://hhmage.com/cover/afee04ded2f8c7b4f1e42d063e61d106.jpg">
+                        <span class="mac_badge_top_right">
+<span class="mac_class_badge">现代都市</span></span>
+
+            <span class="mac_badge_bottom_right">
+<span class="mac_badge_serial mac_badge_end"><span data-lang="string_vod_close">已完结</span></span>
+</span>
+
+         </div>
+	</div>	
+    <div class="ranklist_txt">
+	     <div class="pannel_head clearfix">
+              <span class="vod_tname text_muted pull_right">AI漫剧&nbsp;/&nbsp;<em>10-25</em></span>
+              <h4 class="title">五十度的昼夜</h4>	
+         </div>
+	     <p class="vodlist_sub"><span data-lang="string_vod_jj">简介：</span>暂无简介</p>
+        <p><span class="vodlist_sub" data-lang="string_vod_type"><span data-lang="string_vod_type">类型：</span>现代都市</span></p>
+    </div>
+    </a>  		
+</li>
+											</ul>
+                </div>				
+					
+			</div>
+        </div>
+        
+        <link rel="stylesheet" type="text/css" href="/template/default/asset/css/friendLink.css">
+<div id="link" class="block show-pc">
+    <div id="title">友情链接</div>
+    <ul class="js-home-lazy-section"
+        id="js-home-link-list"
+        data-section="friend-links"
+        data-api-action="link/get_list"
+        data-limit="30"
+        data-start="0">
+        <li class="home-skeleton-link-item"></li>
+        <li class="home-skeleton-link-item"></li>
+        <li class="home-skeleton-link-item"></li>
+        <li class="home-skeleton-link-item"></li>
+        <li class="home-skeleton-link-item"></li>
+        <div class="clear"></div>
+    </ul>
+</div>
+<script type="text/javascript" src="/template/default/asset/js/friend-links-lazy.js"></script>
+
+    </div>
+    
+</div>
+	<link rel="stylesheet" type="text/css" href="/template/default/asset/css/foot.css">
+<div class="foot foot_nav clearfix">
+    <div class="container foot-wrap ">
+        <ul class="extra clearfix extra-fab">
+    <li class="extra-fab-main">
+        <a href="javascript:void(0)" class="extra-toggle" data-title="string_quick_menu" title="快捷菜单">
+            <span class="m_ico"><i class="iconfont" >&#xe640;</i></span>
+        </a>
+        <ul class="extra-fab-menu">
+            <li id="backtop-ico">
+                <a class="backtop" href="javascript:scroll(0,0)" data-title="string_foot_toTop" title="返回顶部"><span class="top_ico"><i class="iconfont" >&#xe628;</i></span></a>
+            </li>
+                        <li>
+                <a id="black" data-title="string_foot_black" class="mycolor" href="javascript:void(0)" title="暗夜模式">
+                    <span class="m_ico theme_ico"><i class="iconfont" >&#xe656;</i></span>
+                </a>
+                <a id="white" data-title="string_foot_white" class="mycolor hide" href="javascript:void(0)" title="白昼模式">
+                    <span class="m_ico theme_ico"><i class="iconfont">&#xe657;</i></span>
+                </a>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+        <div class="foot-logo-region">
+        <div class="mac-logo foot-logo show-pc mac-logo--foot mac-logo--foot-pending">
+			<a title="免费短剧电影电视剧、小说漫画 - 最新全集在线观看" class="logo logo_b white_logo" href="/">
+			<img src="/template/default/asset/lottie/logo/foot-logo.json" alt="免费短剧电影电视剧、小说漫画 - 最新全集在线观看">
+		</a>
+		<a title="免费短剧电影电视剧、小说漫画 - 最新全集在线观看" class="logo logo_b black_logo" style="display:none;" href="/">
+			<img src="/template/default/asset/lottie/logo/foot-logo.json" alt="免费短剧电影电视剧、小说漫画 - 最新全集在线观看">
+		</a>
+	</div>
+
+        </div>
+        <div class="fo_t show-pc">
+            <p >
+                <a class="color" href="/index.php/vod/type.html?id=1" title="电影">电影</a>                 - <a class="color" href="/index.php/vod/type.html?id=2" title="电视剧">电视剧</a>                 - <a class="color" href="/index.php/vod/type.html?id=3" title="综艺">综艺</a>                 - <a class="color" href="/index.php/vod/type.html?id=4" title="动漫">动漫</a>                 - <a class="color" href="/index.php/vod/type.html?id=5" title="体育">体育</a>                                                 - <a class="color" href="/index.php/actor/type.html?id=8" title="艺人">艺人</a>                 - <a class="color" href="/index.php/art/type.html?id=9" title="资讯">资讯</a>                                 - <a class="color" data-lang="string_zuijingx" data-title="string_zuijingx" href="/index.php/map/index.html" title="最近更新">
+                    最近更新
+                </a> -
+                <a class="color" data-lang="string_foot_fk1" data-title="string_foot_fk1" href="/index.php/gbook/index.html" title="反馈留言">反馈留言</a>
+            </p>
+            
+            <p>&copy;&nbsp;2026&nbsp;127.0.0.1:8080&nbsp;&nbsp;邮箱：&nbsp;123456@test.cn</p>
+            
+        </div> 
+    </div>
+    <div class="hidden_mb" id="bottomNav"></div>
+<script type="application/json" id="bottomNavConfig">{"bnav":[{"id":"1","name":"电影","link":"","icon_light_nor":"template/default/images/nav/nav1_nor.png","icon_light_sel":"template/default/images/new/home_ic_home_nor_ative.png","icon_dark_nor":"template/default/images/new/home_ic_home_nor.png","icon_dark_sel":"template/default/images/new/home_ic_home_nor_ative.png"},{"id":"2","name":"电视剧","link":"","icon_light_nor":"template/default/images/nav/nav2_nor.png","icon_light_sel":"template/default/images/new/home_ic_teleplay_nor_ative.png","icon_dark_nor":"template/default/images/new/home_ic_teleplay_nor.png","icon_dark_sel":"template/default/images/new/home_ic_teleplay_nor_ative.png"},{"id":"4","name":"动漫","link":"","icon_light_nor":"template/default/images/la/home-icon8.png","icon_light_sel":"template/default/images/new/home_ic_message_nor_ative.png","icon_dark_nor":"template/default/images/new/home_ic_message_nor.png","icon_dark_sel":"template/default/images/new/home_ic_message_nor_ative.png"},{"id":"3","name":"综艺","link":"","icon_light_nor":"template/default/images/nav/nav4_nor.png","icon_light_sel":"template/default/images/new/home_ic_animation_nor_ative.png","icon_dark_nor":"template/default/images/new/home_ic_animation_nor.png","icon_dark_sel":"template/default/images/new/home_ic_animation_nor_ative.png"}],"curTypeId":0,"userHref":"/index.php/user/index.html","homeHref":"/","vipMemberIconRel":"images/user/bot_vip_ic@2x.png"}</script>
+<script type="text/javascript" src="/template/default/asset/js/bottom-nav.js"></script>
+
+    <div class="infobox" style="display: none!important;">
+<input type="hidden" id="wx_title" value="">
+<input type="hidden" id="wx_text" value="">
+<input type="hidden" id="wx_qrcode" value="">
+<input type="hidden" id="version" value="">
+</div>
+<div id="show" style="display: none;">
+    <div class="copy-tip">
+       <p data-lang="copy_success">耶～～复制成功</p>
+    </div>
+</div>
+<div class="am-share">
+	<div class="am-share-url">
+	<span class="title_span"><span data-lang="string_share_tit">复制下方链接，去粘贴给好友吧：</span></span>
+	<span id="short" class="url_span shorturl"></span>
+	</div>
+	<div class="am-share-footer">
+	<span class="share_btn"><span data-lang="string_cancel">取消</span></span>
+	<span id="btn" class="copy_btn" data-clipboard-action="copy" data-clipboard-target="#short"><span data-lang="one_clickcopy">一键复制</span></span>
+	</div>
+</div>
+
+
+</div>
+
+<div style="display: none;" class="mac_timming" data-file="" ></div>
+<script type="text/javascript" src="/template/default/asset/js/foot-hlstem.js?v=202605031"></script>
+<script type="text/javascript">
+jQuery(function () {
+    if (typeof window.macSyncThemeUi === 'function') {
+        window.macSyncThemeUi();
+    }
+});
+</script>
+<script type="text/javascript" src="/template/default/asset/js/foot-expand.js?v=202604161"></script>
+<script>
+if(typeof window.waitForMAC === 'undefined'){
+    window.waitForMAC = function(callback) {
+        if (typeof window.MAC !== 'undefined') {
+            callback();
+        } else {
+            setTimeout(function() { window.waitForMAC(callback); }, 50);
+        }
+    };
+}
+</script>
+</body>
+<script type="text/javascript">
+    $('.mac_total').html('48496');
+</script>
+</html>

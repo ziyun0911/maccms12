@@ -663,6 +663,31 @@
     transform: scale(1.05);
 }
 
+/* nav_in 分节小标题：只作视觉分组，不可点击，尾随一条发丝线 */
+.side-panel__section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 12px 4px;
+    color: var(--shell-faint);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    user-select: none;
+}
+
+.side-panel__section::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--shell-line);
+}
+
+.side-panel > .side-panel__section:first-child {
+    margin-top: 2px;
+}
+
 /* ── 侧栏收缩（桌面端）────────────────────────────────── */
 
 @media (min-width: 768px) {
@@ -786,6 +811,21 @@
     .admin-shell--rail-collapsed .side-panel__item.is-active a {
         background: transparent;
         box-shadow: none;
+    }
+
+    /* 折叠态 64px 轨道放不下小标题，退化成一条分隔线（文字仍在 DOM 里，仅视觉隐藏）*/
+    .admin-shell--rail-collapsed .side-panel__section {
+        display: block;
+        height: 1px;
+        margin: 10px 8px 2px;
+        font-size: 0;
+        line-height: 0;
+        background: var(--shell-line);
+        overflow: hidden;
+    }
+
+    .admin-shell--rail-collapsed .side-panel__section::after {
+        display: none;
     }
 }
 
@@ -1383,6 +1423,11 @@
         min-height: 44px;
         padding: 0 12px;
         font-size: 14px;
+    }
+
+    .side-panel__section {
+        margin: 16px 12px 6px;
+        font-size: 13px;
     }
 
     body.site-mobile {

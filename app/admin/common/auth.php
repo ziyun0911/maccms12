@@ -2,7 +2,7 @@
 return array (
   1 => 
   array (
-    'name' => lang('menu/index'),
+    'name' => lang('menu/system_settings'),
     'icon' => 'xe625',
     'sub' => 
     array (
@@ -75,6 +75,400 @@ return array (
         'name' => lang('admin/perm/upload_upload'),
         'controller' => 'upload',
         'action' => 'upload',
+      ),
+    ),
+  ),
+  7 => 
+  array (
+    'name' => lang('menu/base'),
+    'icon' => 'xe64b',
+    'sub' => 
+    array (
+      31 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/type'),
+        'controller' => 'type',
+        'action' => 'index',
+      ),
+      3101 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/type_info'),
+        'controller' => 'type',
+        'action' => 'info',
+      ),
+      3102 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/type_batch'),
+        'controller' => 'type',
+        'action' => 'batch',
+      ),
+      3103 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/type_del'),
+        'controller' => 'type',
+        'action' => 'del',
+      ),
+      3104 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/type_field'),
+        'controller' => 'type',
+        'action' => 'field',
+      ),
+      3105 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/type_extend'),
+        'controller' => 'type',
+        'action' => 'extend',
+      ),
+      32 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/topic'),
+        'controller' => 'topic',
+        'action' => 'data',
+      ),
+      3201 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/topic_info'),
+        'controller' => 'topic',
+        'action' => 'info',
+      ),
+      3203 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/topic_del'),
+        'controller' => 'topic',
+        'action' => 'del',
+      ),
+      3204 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/topic_field'),
+        'controller' => 'topic',
+        'action' => 'field',
+      ),
+      33 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/link'),
+        'controller' => 'link',
+        'action' => 'index',
+      ),
+      3301 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/link_info'),
+        'controller' => 'link',
+        'action' => 'info',
+      ),
+      3302 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/link_batch'),
+        'controller' => 'link',
+        'action' => 'batch',
+      ),
+      3303 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/link_del'),
+        'controller' => 'link',
+        'action' => 'del',
+      ),
+      495 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/actor'),
+        'controller' => 'actor',
+        'action' => 'data',
+      ),
+      4951 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/actor_info'),
+        'controller' => 'actor',
+        'action' => 'info',
+      ),
+      4952 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/actor_del'),
+        'controller' => 'actor',
+        'action' => 'del',
+      ),
+      4953 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/actor_field'),
+        'controller' => 'actor',
+        'action' => 'field',
+      ),
+      4954 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/actor_info_add'),
+        'controller' => 'actor',
+        'action' => 'info',
+      ),
+      496 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/role'),
+        'controller' => 'role',
+        'action' => 'data',
+      ),
+      4961 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/role_info'),
+        'controller' => 'role',
+        'action' => 'info',
+      ),
+      4962 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/role_del'),
+        'controller' => 'role',
+        'action' => 'del',
+      ),
+      4963 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/role_field'),
+        'controller' => 'role',
+        'action' => 'field',
+      ),
+      4964 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/role_info_add'),
+        'controller' => 'role',
+        'action' => 'info',
+      ),
+      38 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/images'),
+        'controller' => 'annex',
+        'action' => 'data',
+      ),
+      3601 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/annex_del'),
+        'controller' => 'annex',
+        'action' => 'del',
+      ),
+      3602 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/images_opt'),
+        'controller' => 'images',
+        'action' => 'opt',
+      ),
+      3603 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/images_sync'),
+        'controller' => 'images',
+        'action' => 'sync',
+      ),
+      3604 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/annex_file'),
+        'controller' => 'annex',
+        'action' => 'file',
+      ),
+      3605 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/annex_check'),
+        'controller' => 'annex',
+        'action' => 'check',
+      ),
+      3606 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/annex_init'),
+        'controller' => 'annex',
+        'action' => 'init',
+      ),
+    ),
+  ),
+  13 => 
+  array (
+    'name' => lang('menu/template_ui'),
+    'icon' => 'xe72d',
+    'sub' => 
+    array (
+      71 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/template'),
+        'controller' => 'template',
+        'action' => 'index',
+      ),
+      7101 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/template_info'),
+        'controller' => 'template',
+        'action' => 'info',
+      ),
+      7102 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/template_del'),
+        'controller' => 'template',
+        'action' => 'del',
+      ),
+      74 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/theme/config'),
+        'controller' => 'tpl_config',
+        'action' => 'theme',
+      ),
+      75 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/theme_design'),
+        'controller' => 'theme_design',
+        'action' => 'design',
+      ),
+      7501 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_index'),
+        'controller' => 'theme_design',
+        'action' => 'index',
+      ),
+      7502 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_load'),
+        'controller' => 'theme_design',
+        'action' => 'load',
+      ),
+      7503 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_save_step'),
+        'controller' => 'theme_design',
+        'action' => 'save_step',
+      ),
+      7504 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_preview'),
+        'controller' => 'theme_design',
+        'action' => 'preview',
+      ),
+      7505 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_publish'),
+        'controller' => 'theme_design',
+        'action' => 'publish',
+      ),
+      7506 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_history'),
+        'controller' => 'theme_design',
+        'action' => 'history',
+      ),
+      7507 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_rollback'),
+        'controller' => 'theme_design',
+        'action' => 'rollback',
+      ),
+      7508 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_upload'),
+        'controller' => 'theme_design',
+        'action' => 'upload',
+      ),
+      7509 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_generate'),
+        'controller' => 'theme_design',
+        'action' => 'generate',
+      ),
+      7510 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_detect'),
+        'controller' => 'theme_design',
+        'action' => 'detect',
+      ),
+      7511 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_generate_apply'),
+        'controller' => 'theme_design',
+        'action' => 'generate_apply',
+      ),
+      7512 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/theme_design_gen_image'),
+        'controller' => 'theme_design',
+        'action' => 'gen_image',
+      ),
+      72 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/ads'),
+        'controller' => 'template',
+        'action' => 'ads',
+      ),
+      73 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/wizard'),
+        'controller' => 'template',
+        'action' => 'wizard',
+      ),
+      76 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/template_market'),
+        'controller' => 'template_market',
+        'action' => 'index',
+      ),
+      7601 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/template_market/refresh_menu'),
+        'controller' => 'template_market',
+        'action' => 'refresh',
+      ),
+      7602 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/template_market/install_menu'),
+        'controller' => 'template_market',
+        'action' => 'install',
+      ),
+      7603 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/template_market/activate_menu'),
+        'controller' => 'template_market',
+        'action' => 'activate',
       ),
     ),
   ),
@@ -361,6 +755,80 @@ return array (
       ),
     ),
   ),
+  4 => 
+  array (
+    'name' => lang('menu/art'),
+    'icon' => 'xe640',
+    'sub' => 
+    array (
+      51 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/art_data'),
+        'controller' => 'art',
+        'action' => 'data',
+      ),
+      52 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/art_add'),
+        'controller' => 'art',
+        'action' => 'info',
+      ),
+      53 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/art_data_lock'),
+        'controller' => 'art',
+        'action' => 'data',
+        'param' => 'lock=1',
+      ),
+      54 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/art_data_audit'),
+        'controller' => 'art',
+        'action' => 'data',
+        'param' => 'status=0',
+      ),
+      591 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/art_repeat'),
+        'controller' => 'art',
+        'action' => 'data',
+        'param' => 'repeat=1',
+      ),
+      59 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/art_batch'),
+        'controller' => 'art',
+        'action' => 'batch',
+      ),
+      5101 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/art_info'),
+        'controller' => 'art',
+        'action' => 'info',
+      ),
+      5102 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/art_del'),
+        'controller' => 'art',
+        'action' => 'del',
+      ),
+      5103 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/art_field'),
+        'controller' => 'art',
+        'action' => 'field',
+      ),
+    ),
+  ),
   3 => 
   array (
     'name' => lang('menu/manga'),
@@ -447,80 +915,6 @@ return array (
         'show' => 0,
         'name' => lang('admin/perm/manga_field'),
         'controller' => 'manga',
-        'action' => 'field',
-      ),
-    ),
-  ),
-  4 => 
-  array (
-    'name' => lang('menu/art'),
-    'icon' => 'xe640',
-    'sub' => 
-    array (
-      51 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/art_data'),
-        'controller' => 'art',
-        'action' => 'data',
-      ),
-      52 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/art_add'),
-        'controller' => 'art',
-        'action' => 'info',
-      ),
-      53 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/art_data_lock'),
-        'controller' => 'art',
-        'action' => 'data',
-        'param' => 'lock=1',
-      ),
-      54 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/art_data_audit'),
-        'controller' => 'art',
-        'action' => 'data',
-        'param' => 'status=0',
-      ),
-      591 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/art_repeat'),
-        'controller' => 'art',
-        'action' => 'data',
-        'param' => 'repeat=1',
-      ),
-      59 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/art_batch'),
-        'controller' => 'art',
-        'action' => 'batch',
-      ),
-      5101 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/art_info'),
-        'controller' => 'art',
-        'action' => 'info',
-      ),
-      5102 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/art_del'),
-        'controller' => 'art',
-        'action' => 'del',
-      ),
-      5103 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/art_field'),
-        'controller' => 'art',
         'action' => 'field',
       ),
     ),
@@ -656,228 +1050,555 @@ return array (
       ),
     ),
   ),
-  7 => 
+  10 => 
   array (
-    'name' => lang('menu/base'),
-    'icon' => 'xe64b',
+    'name' => lang('menu/member_account'),
+    'icon' => 'xe628',
     'sub' => 
     array (
-      31 => 
+      63 => 
       array (
         'show' => 1,
-        'name' => lang('menu/type'),
-        'controller' => 'type',
+        'name' => lang('menu/user'),
+        'controller' => 'user',
+        'action' => 'data',
+      ),
+      6301 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/user_info'),
+        'controller' => 'user',
+        'action' => 'info',
+      ),
+      6302 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/user_del'),
+        'controller' => 'user',
+        'action' => 'del',
+      ),
+      6303 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/user_field'),
+        'controller' => 'user',
+        'action' => 'field',
+      ),
+      62 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/group'),
+        'controller' => 'group',
         'action' => 'index',
       ),
-      3101 => 
+      6201 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/type_info'),
-        'controller' => 'type',
+        'name' => lang('admin/perm/group_info'),
+        'controller' => 'group',
         'action' => 'info',
       ),
-      3102 => 
+      6202 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/type_batch'),
-        'controller' => 'type',
-        'action' => 'batch',
-      ),
-      3103 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/type_del'),
-        'controller' => 'type',
+        'name' => lang('admin/perm/group_del'),
+        'controller' => 'group',
         'action' => 'del',
       ),
-      3104 => 
+      6203 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/type_field'),
-        'controller' => 'type',
+        'name' => lang('admin/perm/group_field'),
+        'controller' => 'group',
         'action' => 'field',
       ),
-      3105 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/type_extend'),
-        'controller' => 'type',
-        'action' => 'extend',
-      ),
-      32 => 
+      64 => 
       array (
         'show' => 1,
-        'name' => lang('menu/topic'),
-        'controller' => 'topic',
-        'action' => 'data',
-      ),
-      3201 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/topic_info'),
-        'controller' => 'topic',
-        'action' => 'info',
-      ),
-      3203 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/topic_del'),
-        'controller' => 'topic',
-        'action' => 'del',
-      ),
-      3204 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/topic_field'),
-        'controller' => 'topic',
-        'action' => 'field',
-      ),
-      33 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/link'),
-        'controller' => 'link',
+        'name' => lang('menu/card'),
+        'controller' => 'card',
         'action' => 'index',
       ),
-      3301 => 
+      6401 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/link_info'),
-        'controller' => 'link',
+        'name' => lang('admin/perm/card_info'),
+        'controller' => 'card',
         'action' => 'info',
       ),
-      3302 => 
+      6402 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/link_batch'),
-        'controller' => 'link',
-        'action' => 'batch',
-      ),
-      3303 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/link_del'),
-        'controller' => 'link',
+        'name' => lang('admin/perm/card_del'),
+        'controller' => 'card',
         'action' => 'del',
       ),
-      495 => 
+      68 => 
       array (
         'show' => 1,
-        'name' => lang('menu/actor'),
-        'controller' => 'actor',
-        'action' => 'data',
+        'name' => lang('menu/cash'),
+        'controller' => 'cash',
+        'action' => 'index',
       ),
-      4951 => 
+      6801 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/actor_info'),
-        'controller' => 'actor',
-        'action' => 'info',
-      ),
-      4952 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/actor_del'),
-        'controller' => 'actor',
+        'name' => lang('admin/perm/cash_del'),
+        'controller' => 'cash',
         'action' => 'del',
       ),
-      4953 => 
+      6802 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/actor_field'),
-        'controller' => 'actor',
+        'name' => lang('admin/perm/cash_audit'),
+        'controller' => 'cash',
+        'action' => 'audit',
+      ),
+      211 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configuser'),
+        'controller' => 'system',
+        'action' => 'configuser',
+      ),
+      61 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/admin'),
+        'controller' => 'admin',
+        'action' => 'index',
+      ),
+      6101 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/admin_info'),
+        'controller' => 'admin',
+        'action' => 'info',
+      ),
+      6102 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/admin_del'),
+        'controller' => 'admin',
+        'action' => 'del',
+      ),
+      6103 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/admin_field'),
+        'controller' => 'admin',
         'action' => 'field',
       ),
-      4954 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/actor_info_add'),
-        'controller' => 'actor',
-        'action' => 'info',
-      ),
-      496 => 
+    ),
+  ),
+  15 => 
+  array (
+    'name' => lang('menu/collect_access'),
+    'icon' => 'xe727',
+    'sub' => 
+    array (
+      93 => 
       array (
         'show' => 1,
-        'name' => lang('menu/role'),
-        'controller' => 'role',
-        'action' => 'data',
+        'name' => lang('menu/collect'),
+        'controller' => 'collect',
+        'action' => 'index',
       ),
-      4961 => 
+      9301 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/role_info'),
-        'controller' => 'role',
+        'name' => lang('admin/perm/collect_info'),
+        'controller' => 'collect',
         'action' => 'info',
       ),
-      4962 => 
+      9302 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/role_del'),
-        'controller' => 'role',
+        'name' => lang('admin/perm/collect_del'),
+        'controller' => 'collect',
         'action' => 'del',
       ),
-      4963 => 
+      94 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/cj'),
+        'controller' => 'cj',
+        'action' => 'index',
+      ),
+      9401 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/role_field'),
-        'controller' => 'role',
+        'name' => lang('admin/perm/cj_info'),
+        'controller' => 'cj',
+        'action' => 'info',
+      ),
+      9402 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/cj_del'),
+        'controller' => 'cj',
+        'action' => 'del',
+      ),
+      9403 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/cj_program'),
+        'controller' => 'cj',
+        'action' => 'program',
+      ),
+      9404 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/cj_col_url'),
+        'controller' => 'cj',
+        'action' => 'col_url',
+      ),
+      9405 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/cj_col_content'),
+        'controller' => 'cj',
+        'action' => 'col_content',
+      ),
+      9406 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/cj_publish'),
+        'controller' => 'cj',
+        'action' => 'publish',
+      ),
+      9407 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/cj_export'),
+        'controller' => 'cj',
+        'action' => 'export',
+      ),
+      9408 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/cj_import'),
+        'controller' => 'cj',
+        'action' => 'import',
+      ),
+      95 => 
+      array (
+        'show' => 1,
+        'name' => lang('admin/resourcehub/title'),
+        'controller' => 'resource_hub',
+        'action' => 'index',
+      ),
+      9501 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/resourcehub/multi_collect_menu'),
+        'controller' => 'resource_hub',
+        'action' => 'multi_collect',
+      ),
+      9502 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/resourcehub/poster_menu'),
+        'controller' => 'resource_hub',
+        'action' => 'poster',
+      ),
+      91 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/union'),
+        'controller' => 'collect',
+        'action' => 'union',
+      ),
+      9101 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/collect_api'),
+        'controller' => 'collect',
+        'action' => 'api',
+      ),
+      9102 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/collect_load'),
+        'controller' => 'collect',
+        'action' => 'load',
+      ),
+      9103 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/collect_bind'),
+        'controller' => 'collect',
+        'action' => 'bind',
+      ),
+      9104 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/collect_vod'),
+        'controller' => 'collect',
+        'action' => 'vod',
+      ),
+      9105 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/collect_art'),
+        'controller' => 'collect',
+        'action' => 'art',
+      ),
+      92 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/collect_timming'),
+        'controller' => 'collect',
+        'action' => 'timing',
+      ),
+      24 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configcollect'),
+        'controller' => 'system',
+        'action' => 'configcollect',
+      ),
+      25 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/configinterface'),
+        'controller' => 'system',
+        'action' => 'configinterface',
+      ),
+      2910 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/timming'),
+        'controller' => 'timming',
+        'action' => 'index',
+      ),
+      2911 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/timming_info'),
+        'controller' => 'timming',
+        'action' => 'info',
+      ),
+      2912 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/timming_del'),
+        'controller' => 'timming',
+        'action' => 'del',
+      ),
+      2913 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/timming_field'),
+        'controller' => 'timming',
         'action' => 'field',
       ),
-      4964 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/role_info_add'),
-        'controller' => 'role',
-        'action' => 'info',
-      ),
-      38 => 
+    ),
+  ),
+  19 => 
+  array (
+    'name' => lang('menu/database_ops'),
+    'icon' => 'xe614',
+    'sub' => 
+    array (
+      101 => 
       array (
         'show' => 1,
-        'name' => lang('menu/images'),
-        'controller' => 'annex',
-        'action' => 'data',
+        'name' => lang('menu/database'),
+        'controller' => 'database',
+        'action' => 'index',
       ),
-      3601 => 
+      10001 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/annex_del'),
-        'controller' => 'annex',
+        'name' => lang('admin/perm/database_export'),
+        'controller' => 'database',
+        'action' => 'export',
+      ),
+      10002 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/database_import'),
+        'controller' => 'database',
+        'action' => 'import',
+      ),
+      10003 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/database_optimize'),
+        'controller' => 'database',
+        'action' => 'optimize',
+      ),
+      10004 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/database_repair'),
+        'controller' => 'database',
+        'action' => 'repair',
+      ),
+      10005 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/database_del'),
+        'controller' => 'database',
         'action' => 'del',
       ),
-      3602 => 
+      10006 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/images_opt'),
-        'controller' => 'images',
-        'action' => 'opt',
+        'name' => lang('admin/perm/database_columns'),
+        'controller' => 'database',
+        'action' => 'columns',
       ),
-      3603 => 
+      10007 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/images_sync'),
-        'controller' => 'images',
-        'action' => 'sync',
+        'name' => lang('admin/perm/database_uploadstorage'),
+        'controller' => 'database',
+        'action' => 'uploadstorage',
       ),
-      3604 => 
+      102 => 
       array (
-        'show' => 0,
-        'name' => lang('admin/perm/annex_file'),
-        'controller' => 'annex',
-        'action' => 'file',
+        'show' => 1,
+        'name' => lang('menu/database_sql'),
+        'controller' => 'database',
+        'action' => 'sql',
       ),
-      3605 => 
+      103 => 
       array (
-        'show' => 0,
-        'name' => lang('admin/perm/annex_check'),
-        'controller' => 'annex',
-        'action' => 'check',
+        'show' => 1,
+        'name' => lang('menu/database_rep'),
+        'controller' => 'database',
+        'action' => 'rep',
       ),
-      3606 => 
+      97 => 
+      array (
+        'show' => 1,
+        'name' => lang('admin/datareplace/title'),
+        'controller' => 'data_replace',
+        'action' => 'index',
+      ),
+      9701 => 
       array (
         'show' => 0,
-        'name' => lang('admin/perm/annex_init'),
-        'controller' => 'annex',
-        'action' => 'init',
+        'name' => lang('admin/datareplace/do_replace_menu'),
+        'controller' => 'data_replace',
+        'action' => 'doReplace',
+      ),
+    ),
+  ),
+  23 => 
+  array (
+    'name' => lang('menu/doc_center'),
+    'icon' => 'xe661',
+    'sub' => 
+    array (
+      295 => 
+      array (
+        'show' => 1,
+        'name' => lang('admin/apidoc/title'),
+        'controller' => 'api_doc',
+        'action' => 'index',
+      ),
+      2951 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/apidoc/openapi_menu'),
+        'controller' => 'api_doc',
+        'action' => 'openapi',
+      ),
+      673 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/doc'),
+        'controller' => 'doc',
+        'action' => 'index',
+      ),
+      67301 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/doc/menu_info'),
+        'controller' => 'doc',
+        'action' => 'info',
+      ),
+    ),
+  ),
+  16 => 
+  array (
+    'name' => lang('menu/site_params'),
+    'icon' => 'xe62e',
+    'nav_in' => 1,
+    'sub' => 
+    array (
+      213 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configupload'),
+        'controller' => 'system',
+        'action' => 'configupload',
+      ),
+      22 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/configurl'),
+        'controller' => 'system',
+        'action' => 'configurl',
+      ),
+      23 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/configplay'),
+        'controller' => 'system',
+        'action' => 'configplay',
+      ),
+      26 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/configapi'),
+        'controller' => 'system',
+        'action' => 'configapi',
+      ),
+      27 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/configconnect'),
+        'controller' => 'system',
+        'action' => 'configconnect',
+      ),
+      29 => 
+      array (
+        'show' => 0,
+        'name' => lang('menu/configweixin'),
+        'controller' => 'system',
+        'action' => 'configweixin',
+      ),
+      2920 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/domain'),
+        'controller' => 'domain',
+        'action' => 'index',
+      ),
+      2922 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/domain_del'),
+        'controller' => 'domain',
+        'action' => 'del',
+      ),
+      2923 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/domain_export'),
+        'controller' => 'domain',
+        'action' => 'export',
+      ),
+      2924 => 
+      array (
+        'show' => 0,
+        'name' => lang('admin/perm/domain_import'),
+        'controller' => 'domain',
+        'action' => 'import',
       ),
     ),
   ),
@@ -885,6 +1606,7 @@ return array (
   array (
     'name' => lang('menu/ai'),
     'icon' => 'xe674',
+    'nav_in' => 1,
     'sub' => 
     array (
       673 => 
@@ -1040,6 +1762,7 @@ return array (
   array (
     'name' => lang('menu/interact'),
     'icon' => 'xe62c',
+    'nav_in' => 1,
     'sub' => 
     array (
       34 => 
@@ -1097,6 +1820,13 @@ return array (
         'name' => lang('admin/perm/comment_field'),
         'controller' => 'comment',
         'action' => 'field',
+      ),
+      3505 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/comment_blacklist'),
+        'controller' => 'comment',
+        'action' => 'blacklist',
       ),
       37 => 
       array (
@@ -1219,123 +1949,11 @@ return array (
       ),
     ),
   ),
-  10 => 
-  array (
-    'name' => lang('menu/member_account'),
-    'icon' => 'xe628',
-    'sub' => 
-    array (
-      63 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/user'),
-        'controller' => 'user',
-        'action' => 'data',
-      ),
-      6301 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/user_info'),
-        'controller' => 'user',
-        'action' => 'info',
-      ),
-      6302 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/user_del'),
-        'controller' => 'user',
-        'action' => 'del',
-      ),
-      6303 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/user_field'),
-        'controller' => 'user',
-        'action' => 'field',
-      ),
-      62 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/group'),
-        'controller' => 'group',
-        'action' => 'index',
-      ),
-      6201 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/group_info'),
-        'controller' => 'group',
-        'action' => 'info',
-      ),
-      6202 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/group_del'),
-        'controller' => 'group',
-        'action' => 'del',
-      ),
-      6203 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/group_field'),
-        'controller' => 'group',
-        'action' => 'field',
-      ),
-      64 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/card'),
-        'controller' => 'card',
-        'action' => 'index',
-      ),
-      6401 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/card_info'),
-        'controller' => 'card',
-        'action' => 'info',
-      ),
-      6402 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/card_del'),
-        'controller' => 'card',
-        'action' => 'del',
-      ),
-      68 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/cash'),
-        'controller' => 'cash',
-        'action' => 'index',
-      ),
-      6801 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cash_del'),
-        'controller' => 'cash',
-        'action' => 'del',
-      ),
-      6802 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cash_audit'),
-        'controller' => 'cash',
-        'action' => 'audit',
-      ),
-      211 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configuser'),
-        'controller' => 'system',
-        'action' => 'configuser',
-      ),
-    ),
-  ),
   11 => 
   array (
     'name' => lang('menu/marketing'),
     'icon' => 'xe651',
+    'nav_in' => 1,
     'sub' => 
     array (
       901 => 
@@ -1561,6 +2179,7 @@ return array (
   array (
     'name' => lang('menu/statistics'),
     'icon' => 'xe622',
+    'nav_in' => 1,
     'sub' => 
     array (
       671 => 
@@ -1593,179 +2212,11 @@ return array (
       ),
     ),
   ),
-  13 => 
-  array (
-    'name' => lang('menu/template_ui'),
-    'icon' => 'xe72d',
-    'sub' => 
-    array (
-      71 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/template'),
-        'controller' => 'template',
-        'action' => 'index',
-      ),
-      7101 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/template_info'),
-        'controller' => 'template',
-        'action' => 'info',
-      ),
-      7102 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/template_del'),
-        'controller' => 'template',
-        'action' => 'del',
-      ),
-      74 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/theme/config'),
-        'controller' => 'tpl_config',
-        'action' => 'theme',
-      ),
-      75 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/theme_design'),
-        'controller' => 'theme_design',
-        'action' => 'design',
-      ),
-      7501 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_index'),
-        'controller' => 'theme_design',
-        'action' => 'index',
-      ),
-      7502 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_load'),
-        'controller' => 'theme_design',
-        'action' => 'load',
-      ),
-      7503 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_save_step'),
-        'controller' => 'theme_design',
-        'action' => 'save_step',
-      ),
-      7504 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_preview'),
-        'controller' => 'theme_design',
-        'action' => 'preview',
-      ),
-      7505 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_publish'),
-        'controller' => 'theme_design',
-        'action' => 'publish',
-      ),
-      7506 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_history'),
-        'controller' => 'theme_design',
-        'action' => 'history',
-      ),
-      7507 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_rollback'),
-        'controller' => 'theme_design',
-        'action' => 'rollback',
-      ),
-      7508 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_upload'),
-        'controller' => 'theme_design',
-        'action' => 'upload',
-      ),
-      7509 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_generate'),
-        'controller' => 'theme_design',
-        'action' => 'generate',
-      ),
-      7510 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_detect'),
-        'controller' => 'theme_design',
-        'action' => 'detect',
-      ),
-      7511 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_generate_apply'),
-        'controller' => 'theme_design',
-        'action' => 'generate_apply',
-      ),
-      7512 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/theme_design_gen_image'),
-        'controller' => 'theme_design',
-        'action' => 'gen_image',
-      ),
-      72 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/ads'),
-        'controller' => 'template',
-        'action' => 'ads',
-      ),
-      73 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/wizard'),
-        'controller' => 'template',
-        'action' => 'wizard',
-      ),
-      76 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/template_market'),
-        'controller' => 'template_market',
-        'action' => 'index',
-      ),
-      7601 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/template_market/refresh_menu'),
-        'controller' => 'template_market',
-        'action' => 'refresh',
-      ),
-      7602 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/template_market/install_menu'),
-        'controller' => 'template_market',
-        'action' => 'install',
-      ),
-      7603 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/template_market/activate_menu'),
-        'controller' => 'template_market',
-        'action' => 'activate',
-      ),
-    ),
-  ),
   14 => 
   array (
     'name' => lang('menu/make_static'),
     'icon' => 'xe667',
+    'nav_in' => 1,
     'sub' => 
     array (
       81 => 
@@ -1848,292 +2299,11 @@ return array (
       ),
     ),
   ),
-  15 => 
-  array (
-    'name' => lang('menu/collect_access'),
-    'icon' => 'xe727',
-    'sub' => 
-    array (
-      93 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/collect'),
-        'controller' => 'collect',
-        'action' => 'index',
-      ),
-      9301 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/collect_info'),
-        'controller' => 'collect',
-        'action' => 'info',
-      ),
-      9302 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/collect_del'),
-        'controller' => 'collect',
-        'action' => 'del',
-      ),
-      94 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/cj'),
-        'controller' => 'cj',
-        'action' => 'index',
-      ),
-      9401 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cj_info'),
-        'controller' => 'cj',
-        'action' => 'info',
-      ),
-      9402 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cj_del'),
-        'controller' => 'cj',
-        'action' => 'del',
-      ),
-      9403 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cj_program'),
-        'controller' => 'cj',
-        'action' => 'program',
-      ),
-      9404 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cj_col_url'),
-        'controller' => 'cj',
-        'action' => 'col_url',
-      ),
-      9405 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cj_col_content'),
-        'controller' => 'cj',
-        'action' => 'col_content',
-      ),
-      9406 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cj_publish'),
-        'controller' => 'cj',
-        'action' => 'publish',
-      ),
-      9407 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cj_export'),
-        'controller' => 'cj',
-        'action' => 'export',
-      ),
-      9408 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/cj_import'),
-        'controller' => 'cj',
-        'action' => 'import',
-      ),
-      95 => 
-      array (
-        'show' => 1,
-        'name' => lang('admin/resourcehub/title'),
-        'controller' => 'resource_hub',
-        'action' => 'index',
-      ),
-      9501 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/resourcehub/multi_collect_menu'),
-        'controller' => 'resource_hub',
-        'action' => 'multi_collect',
-      ),
-      9502 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/resourcehub/poster_menu'),
-        'controller' => 'resource_hub',
-        'action' => 'poster',
-      ),
-      91 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/union'),
-        'controller' => 'collect',
-        'action' => 'union',
-      ),
-      9101 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/collect_api'),
-        'controller' => 'collect',
-        'action' => 'api',
-      ),
-      9102 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/collect_load'),
-        'controller' => 'collect',
-        'action' => 'load',
-      ),
-      9103 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/collect_bind'),
-        'controller' => 'collect',
-        'action' => 'bind',
-      ),
-      9104 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/collect_vod'),
-        'controller' => 'collect',
-        'action' => 'vod',
-      ),
-      9105 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/collect_art'),
-        'controller' => 'collect',
-        'action' => 'art',
-      ),
-      92 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/collect_timming'),
-        'controller' => 'collect',
-        'action' => 'timing',
-      ),
-      24 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configcollect'),
-        'controller' => 'system',
-        'action' => 'configcollect',
-      ),
-      25 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/configinterface'),
-        'controller' => 'system',
-        'action' => 'configinterface',
-      ),
-    ),
-  ),
-  16 => 
-  array (
-    'name' => lang('menu/site_params'),
-    'icon' => 'xe62e',
-    'sub' => 
-    array (
-      213 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configupload'),
-        'controller' => 'system',
-        'action' => 'configupload',
-      ),
-      22 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/configurl'),
-        'controller' => 'system',
-        'action' => 'configurl',
-      ),
-      23 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/configplay'),
-        'controller' => 'system',
-        'action' => 'configplay',
-      ),
-      26 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/configapi'),
-        'controller' => 'system',
-        'action' => 'configapi',
-      ),
-      27 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/configconnect'),
-        'controller' => 'system',
-        'action' => 'configconnect',
-      ),
-      29 => 
-      array (
-        'show' => 0,
-        'name' => lang('menu/configweixin'),
-        'controller' => 'system',
-        'action' => 'configweixin',
-      ),
-      2920 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/domain'),
-        'controller' => 'domain',
-        'action' => 'index',
-      ),
-      2922 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/domain_del'),
-        'controller' => 'domain',
-        'action' => 'del',
-      ),
-      2923 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/domain_export'),
-        'controller' => 'domain',
-        'action' => 'export',
-      ),
-      2924 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/domain_import'),
-        'controller' => 'domain',
-        'action' => 'import',
-      ),
-      2910 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/timming'),
-        'controller' => 'timming',
-        'action' => 'index',
-      ),
-      2911 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/timming_info'),
-        'controller' => 'timming',
-        'action' => 'info',
-      ),
-      2912 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/timming_del'),
-        'controller' => 'timming',
-        'action' => 'del',
-      ),
-      2913 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/timming_field'),
-        'controller' => 'timming',
-        'action' => 'field',
-      ),
-    ),
-  ),
   17 => 
   array (
     'name' => lang('menu/notify_push'),
     'icon' => 'xe692',
+    'nav_in' => 1,
     'sub' => 
     array (
       69 => 
@@ -2212,6 +2382,7 @@ return array (
   array (
     'name' => lang('menu/extend_perm'),
     'icon' => 'xe638',
+    'nav_in' => 1,
     'sub' => 
     array (
       111 => 
@@ -2298,132 +2469,13 @@ return array (
         'controller' => 'addon',
         'action' => 'cloudcatalog',
       ),
-      61 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/admin'),
-        'controller' => 'admin',
-        'action' => 'index',
-      ),
-      6101 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/admin_info'),
-        'controller' => 'admin',
-        'action' => 'info',
-      ),
-      6102 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/admin_del'),
-        'controller' => 'admin',
-        'action' => 'del',
-      ),
-      6103 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/admin_field'),
-        'controller' => 'admin',
-        'action' => 'field',
-      ),
-    ),
-  ),
-  19 => 
-  array (
-    'name' => lang('menu/database_ops'),
-    'icon' => 'xe614',
-    'sub' => 
-    array (
-      101 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/database'),
-        'controller' => 'database',
-        'action' => 'index',
-      ),
-      10001 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/database_export'),
-        'controller' => 'database',
-        'action' => 'export',
-      ),
-      10002 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/database_import'),
-        'controller' => 'database',
-        'action' => 'import',
-      ),
-      10003 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/database_optimize'),
-        'controller' => 'database',
-        'action' => 'optimize',
-      ),
-      10004 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/database_repair'),
-        'controller' => 'database',
-        'action' => 'repair',
-      ),
-      10005 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/database_del'),
-        'controller' => 'database',
-        'action' => 'del',
-      ),
-      10006 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/database_columns'),
-        'controller' => 'database',
-        'action' => 'columns',
-      ),
-      10007 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/perm/database_uploadstorage'),
-        'controller' => 'database',
-        'action' => 'uploadstorage',
-      ),
-      102 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/database_sql'),
-        'controller' => 'database',
-        'action' => 'sql',
-      ),
-      103 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/database_rep'),
-        'controller' => 'database',
-        'action' => 'rep',
-      ),
-      97 => 
-      array (
-        'show' => 1,
-        'name' => lang('admin/datareplace/title'),
-        'controller' => 'data_replace',
-        'action' => 'index',
-      ),
-      9701 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/datareplace/do_replace_menu'),
-        'controller' => 'data_replace',
-        'action' => 'doReplace',
-      ),
     ),
   ),
   20 => 
   array (
     'name' => lang('menu/security'),
     'icon' => 'xe621',
+    'nav_in' => 1,
     'sub' => 
     array (
       2111 => 
@@ -2432,6 +2484,13 @@ return array (
         'name' => lang('menu/configuseraccess'),
         'controller' => 'system',
         'action' => 'configuseraccess',
+      ),
+      2112 => 
+      array (
+        'show' => 1,
+        'name' => lang('menu/black_ip'),
+        'controller' => 'comment',
+        'action' => 'blacklist_ip',
       ),
       113 => 
       array (
@@ -2502,6 +2561,7 @@ return array (
   array (
     'name' => lang('menu/monitor_group'),
     'icon' => 'xe629',
+    'nav_in' => 1,
     'sub' => 
     array (
       151 => 
@@ -2643,6 +2703,7 @@ return array (
   array (
     'name' => lang('menu/log_audit'),
     'icon' => 'xe63e',
+    'nav_in' => 1,
     'sub' => 
     array (
       805 => 
@@ -2685,42 +2746,6 @@ return array (
         'show' => 0,
         'name' => lang('admin/adminaudit/menu_info'),
         'controller' => 'adminaudit',
-        'action' => 'info',
-      ),
-    ),
-  ),
-  23 => 
-  array (
-    'name' => lang('menu/doc_center'),
-    'icon' => 'xe661',
-    'sub' => 
-    array (
-      295 => 
-      array (
-        'show' => 1,
-        'name' => lang('admin/apidoc/title'),
-        'controller' => 'api_doc',
-        'action' => 'index',
-      ),
-      2951 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/apidoc/openapi_menu'),
-        'controller' => 'api_doc',
-        'action' => 'openapi',
-      ),
-      673 => 
-      array (
-        'show' => 1,
-        'name' => lang('menu/doc'),
-        'controller' => 'doc',
-        'action' => 'index',
-      ),
-      67301 => 
-      array (
-        'show' => 0,
-        'name' => lang('admin/doc/menu_info'),
-        'controller' => 'doc',
         'action' => 'info',
       ),
     ),
