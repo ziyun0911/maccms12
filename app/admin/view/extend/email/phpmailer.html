@@ -1,0 +1,47 @@
+<div class="layui-tab-item" id="movementTable">
+
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        {:lang('admin/system/configemail/phpmailer_tip')}
+    </blockquote>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('admin/system/configemail/pm_host')}：</label>
+        <div class="layui-input-inline">
+            <input type="text" id="host" name="email[phpmailer][host]" placeholder="" value="{$config['email']['phpmailer']['host']}" class="layui-input w200"  >
+        </div>
+        <div class="layui-form-mid layui-word-aux ml-2">{:lang('admin/system/configemail/pm_host_tip')}</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('admin/system/configemail/pm_port')}：</label>
+        <div class="layui-input-inline">
+            <input type="text" id="port" name="email[phpmailer][port]" placeholder="" value="{$config['email']['phpmailer']['port']}" class="layui-input w200"  >
+        </div>
+        <div class="layui-form-mid layui-word-aux ml-2">{:lang('admin/system/configemail/pm_port_tip')}</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('admin/system/configemail/pm_secure')}：</label>
+        <div class="layui-input-inline w200">
+            <select name="email[phpmailer][secure]" >
+                <option value="" {if condition="$config['email']['phpmailer']['secure'] eq ''"}selected{/if}>{:lang('admin/system/configemail/pm_default')}</option>
+                <option value="tsl" {if condition="$config['email']['phpmailer']['secure'] eq 'tsl'"}selected{/if}>TSL</option>
+                <option value="ssl" {if condition="$config['email']['phpmailer']['secure'] eq 'ssl'"}selected{/if}>SSL</option>
+            </select>
+        </div>
+        <div class="layui-form-mid layui-word-aux">{:lang('admin/system/configemail/pm_secure_tip')}</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('admin/system/configemail/pm_account')}：</label>
+        <div class="layui-input-inline">
+            <input type="text" id="username" name="email[phpmailer][username]" placeholder="" value="{$config['email']['phpmailer']['username']}" class="layui-input w200"  >
+        </div>
+        <div class="layui-form-mid layui-word-aux ml-2">{:lang('admin/system/configemail/pm_account_tip')}</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('admin/system/configemail/pm_pass')}：</label>
+        <div class="layui-input-inline">
+            <input type="password" id="password" name="email[phpmailer][password]" placeholder="" value="{$config['email']['phpmailer']['password']}" class="layui-input w200"  >
+        </div>
+        <div class="layui-form-mid layui-word-aux ml-2">{:lang('admin/system/configemail/pm_pass_tip')}</div>
+    </div>
+
+</div>

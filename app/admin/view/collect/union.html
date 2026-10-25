@@ -1,0 +1,43 @@
+{include file="../../../app/admin/view/public/head" /}
+
+<div class="page-container p10">
+
+    <div class="my-toolbar-box">
+        <div class="layui-btn-group">
+            {if condition="$collect_break_vod neq ''"}
+            <a href="{:url('load')}?flag=vod" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_vod_break')}】</a>
+            {/if}
+            {if condition="$collect_break_art neq ''"}
+            <a href="{:url('load')}?flag=art" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_art_break')}】</a>
+            {/if}
+            {if condition="$collect_break_actor neq ''"}
+            <a href="{:url('load')}?flag=actor" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_actor_break')}】</a>
+            {/if}
+            {if condition="$collect_break_role neq ''"}
+            <a href="{:url('load')}?flag=role" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_role_break')}】</a>
+            {/if}
+            {if condition="$collect_break_website neq ''"}
+            <a href="{:url('load')}?flag=website" class="lay-btn layui-btn-danger ">【{:lang('admin/collect/enter_website_break')}】</a>
+            {/if}
+            {if condition="$collect_break_manga neq ''"}
+            <a href="{:url('load')}?flag=manga" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_manga_break')}】</a>
+            {/if}
+        </div>
+    </div>
+    <hr>
+
+    <script src="" charset="utf-8"></script>
+
+</div>
+
+{include file="../../../app/admin/view/public/foot" /}
+<script type="text/javascript">
+    layui.use(['laypage', 'layer'], function() {
+        var laypage = layui.laypage
+                , layer = layui.layer;
+
+
+    });
+</script>
+</body>
+</html>

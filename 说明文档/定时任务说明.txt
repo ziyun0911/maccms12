@@ -1,0 +1,94 @@
+﻿========================================================================
+maccms12（ThinkPHP 8）说明
+========================================================================
+本文档基于官方 maccms10「定时任务说明」整理。maccms12 定时任务机制不变：
+后台「定时任务」配置任务，服务器 cron 周期请求 api.php/timming/index 触发。
+· 任务调度入口：http://域名/api.php/timming/index（GET）
+· 参数：name=任务名称（指定执行某条）；enforce=1（强制执行，忽略时间窗口）
+· 判断逻辑：任务配置的 weeks（周几）/ hours（小时）命中后才执行对应操作
+  （collect 采集 / make 生成 / cj 采集规则 / cache 清理缓存 / urlsend 推送）
+· 定时任务执行操作对应的后台模块：采集资源库=Collect、生成静态=Make、
+  采集规则=Cj、清理缓存=Cache、网址推送=Urlsend（后台「定时任务」里选择执行文件）
+· 定时任务配置文件：app/extra/timming.php（后台保存后生成）
+· 常用 cron 示例（每 10 分钟执行一次）：
+  */10 * * * * curl -s "http://域名/api.php/timming/index" >/dev/null 2>&1
+
+========================================================================
+
+定时任务目前内置了 采集资源、生成静态 2个执行操作
+强制执行参数enforce=1
+
+1，采集资源
+执行文件：选择 采集资源库collect
+附加参数：从自定义资源列表中获取（在采集今日，采集本周，采集全部 右键复制链接）截取参数部分即可。
+
+例如：
+任务名称：cj_day
+任务描述：采集当天数据
+附加参数：ac=cjall&h=24&xt=1&ct=&cjflag=b9c546ba925d22ed654927b44638df34&cjurl=http://cj.tv6.com/mox/inc/youku.php
+
+
+2，生成静态
+执行文件：选择生成make
+附加参数：
+
+例如：
+生成首页 ac=index
+生成地图页 ac=map
+生成rss   ac=rss
+生成百度sitemap  ac=rss&ac2=baidu
+生成谷歌sitemap  ac=rss&ac2=google
+
+生成专题首页  ac=topic_index
+生成专题详情页  ac=topic_info&topic=1,2,3,4
+
+生成视频分类页  ac=type&tab=vod&vodtype=1,2
+生成当日有更新数据的视频分类   ac=type&tab=vod&ac2=day
+生成文章分类页  ac=type&tab=art&arttype=3,4
+生成当日有更新数据的文章分类   ac=type&tab=art&ac2=day
+
+生成自定义页面  ac=label&label=rand.html
+
+生成视频详情页  ac=info&tab=vod&ids=1,2,3
+生成未生成视频详情页 ac=info&tab=vod&ac2=nomake
+
+生成文章详情页  ac=info&tab=art&ids=1,2,3
+生成未生成文章详情页 ac=info&tab=art&ac2=nomake
+
+
+3，采集规则
+执行文件：选择 采集规则cj
+
+参数id=1，参数就是当前采集自定义采集规则的编号。
+
+为了不影响服务器性能，目前仅采集第一页。
+
+
+4，清理缓存
+执行文件：选择 清理缓存cache
+无需参数
+
+
+5，网址推送
+执行文件：选择 网址推送urlsend
+
+附加参数：
+百度主动推送当天视频 ac=Baidu&limit=50&page=1&ac2=today&mid=1
+百度主动推送当天文章 ac=Baidu&limit=50&page=1&ac2=today&mid=2
+百度主动推送当天专题 ac=Baidu&limit=50&page=1&ac2=today&mid=3
+百度主动推送当天演员 ac=Baidu&limit=50&page=1&ac2=today&mid=8
+百度主动推送当天角色 ac=Baidu&limit=50&page=1&ac2=today&mid=9
+
+百度快速推送当天视频 ac=Baidufast&limit=10&page=1&ac2=today&mid=1
+百度快速推送当天文章 ac=Baidufast&limit=10&page=1&ac2=today&mid=2
+百度快速推送当天专题 ac=Baidufast&limit=10&page=1&ac2=today&mid=3
+百度快速推送当天演员 ac=Baidufast&limit=10&page=1&ac2=today&mid=8
+百度快速推送当天角色 ac=Baidufast&limit=10&page=1&ac2=today&mid=9
+
+
+
+
+
+
+
+

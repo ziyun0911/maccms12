@@ -1,0 +1,38 @@
+# ========================================================================
+# maccms12 (ThinkPHP 8) - Apache rewrite rules
+# 适配 maccms12：前台 index.php 为伪静态入口；admin.php/api.php/install.php
+# 为真实文件，自动被 RewriteCond !-f 排除，无需额外规则。
+# 站点安装在子目录时，把 RewriteBase 改为对应目录（如 /maccms12）。
+# ========================================================================
+<IfModule mod_rewrite.c>
+Options +FollowSymlinks -Multiviews
+RewriteEngine on
+
+# ---- 访问控制：内部目录/隐藏文件禁止直接访问（与根目录 .htaccess 一致）----
+RewriteRule ^(说明文档|runtime|vendor|config|app|extend)(/|$) - [F,L]
+RewriteRule (^|/)\.(?!well-known) - [F,L]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
+</IfModule>
+
+# ---- 访问控制：内部后缀与根级清单文件 ----
+<IfModule mod_authz_core.c>
+<FilesMatch "\.(md|sql|log|lock|wpm|sh|ps1|py)$">
+Require all denied
+</FilesMatch>
+<FilesMatch "^(composer\.json|composer\.lock|think|\.user\.ini)$">
+Require all denied
+</FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+<FilesMatch "\.(md|sql|log|lock|wpm|sh|ps1|py)$">
+Order deny,allow
+Deny from all
+</FilesMatch>
+<FilesMatch "^(composer\.json|composer\.lock|think|\.user\.ini)$">
+Order deny,allow
+Deny from all
+</FilesMatch>
+</IfModule>

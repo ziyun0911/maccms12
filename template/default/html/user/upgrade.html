@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{:mac_html_lang()}"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>{:mac_front_string('user_upgrade','升级会员')} - {:mac_front_string('string_user_center','个人中心')} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$maccms.site_keywords}"/>
+<meta name="description" content="{$maccms.site_description}"/>
+{include file="user/include" /}
+<link rel="stylesheet" href="{$maccms.path_tpl}asset/css/user-buy.css">
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/user-upgrade.css">
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/user-buy-upgrade-tabs.css">
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/user-coupon.css">
+</head>
+<body id="upgrade" class="body-recharge-buy body-buy-upgrade-combo body-buy-upgrade-tab-upgrade">
+{include file="public/head" /}
+{include file="user/buy_upgrade_merge" /}
+{include file="public/foot" /}
+<script src="{$maccms.path_tpl}asset/js/mac-member-list-utils.js"></script>
+<script src="{$maccms.path_tpl}asset/js/pay-qrcode-render.js?v=202604161"></script>
+<script src="{$maccms.path_tpl}asset/js/user-buy.js?v=2026102307"></script>
+<script src="{$maccms.path_tpl}asset/js/user-buy-upgrade-ajax.js?v=2026102309"></script>
+<script src="{$maccms.path_tpl}asset/js/user-seckill.js?v=2026102309"></script>
+{include file="widget/recharge_modal" /}
+<script src="{$maccms.path_tpl}asset/js/user-upgrade-submit.js?v=2026102304"></script>
+</body>
+</html>

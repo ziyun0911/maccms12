@@ -1,0 +1,33 @@
+<div class="layui-tab-item" id="movementTable">
+
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+        <legend>{:lang('admin/pay/zhapay_settings')} <a target="_blank" href="https://www.zhapay.com/ad_8rRGj4nN.html" class="layui-btn layui-btn-primary">{:lang('admin/system/configconnect/go_reg')}</a></legend>
+    </fieldset>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('admin/pay/mch_no')}：</label>
+        <div class="layui-input-inline w400">
+            <input type="text" name="pay[zhapay][appid]" placeholder="" value="{$config['pay']['zhapay']['appid']}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('admin/pay/mch_key')}：</label>
+        <div class="layui-input-inline w400">
+            <input type="text" name="pay[zhapay][appkey]" placeholder="" value="{$config['pay']['zhapay']['appkey']}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('admin/pay/mch_platform')}：</label>
+        <div class="layui-input-inline w400">
+            <input type="text" name="pay[zhapay][type]" placeholder="" value="{$config['pay']['zhapay']['type']}" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">{:lang('admin/pay/platform_tip_zhapay')}</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('admin/pay/notify_type')}：</label>
+        <div class="layui-input-inline w400">
+            <input type="text" name="pay[zhapay][act]" placeholder="" value="{$config['pay']['zhapay']['act']}" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">{:lang('admin/pay/notify_tip_2')}</div>
+    </div>
+</div>

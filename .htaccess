@@ -1,0 +1,44 @@
+# ========================================================================
+# maccms12 - 站点根目录访问控制
+#
+# 只负责「禁止内部文件被 HTTP 直接下载」，不含伪静态规则；
+# 重写规则见 说明文档/伪静态规则/ 下对应服务器的示例文件。
+# 若你把示例 .htaccess 复制成根目录本文件来启用伪静态，请保留下面
+# 的访问控制段落（示例文件里已包含同样内容）。
+#
+# 说明：PHP 侧 require/include 读文件不走 HTTP，拦截不影响程序运行；
+#       入口 index.php / admin.php / api.php / install.php / img.php、
+#       robots.txt、crossdomain.xml、static、template、upload、addons
+#       均保持可访问。LICENSE 按开源协议继续公开。
+# ========================================================================
+
+# ---- 内部目录与隐藏文件（mod_rewrite）----
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # 服务端专用目录：任何直接访问一律 403
+    RewriteRule ^(说明文档|runtime|vendor|config|app|extend)(/|$) - [F,L]
+    # 隐藏文件/目录，保留 .well-known（HTTPS 证书 HTTP-01 校验要用）
+    RewriteRule (^|/)\.(?!well-known) - [F,L]
+</IfModule>
+
+# ---- 内部后缀与根级清单文件（Apache 2.4）----
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.(md|sql|log|lock|wpm|sh|ps1|py)$">
+        Require all denied
+    </FilesMatch>
+    <FilesMatch "^(composer\.json|composer\.lock|think|\.user\.ini)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+# ---- 同上（Apache 2.2 回退写法）----
+<IfModule !mod_authz_core.c>
+    <FilesMatch "\.(md|sql|log|lock|wpm|sh|ps1|py)$">
+        Order deny,allow
+        Deny from all
+    </FilesMatch>
+    <FilesMatch "^(composer\.json|composer\.lock|think|\.user\.ini)$">
+        Order deny,allow
+        Deny from all
+    </FilesMatch>
+</IfModule>

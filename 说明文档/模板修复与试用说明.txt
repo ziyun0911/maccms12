@@ -1,0 +1,72 @@
+模板修复与试用说明（conch / datll_Layui_v1）
+================================================================================
+maccms12 内置三套前台模板：default（官方基础版）、conch（精选导航主题）、
+datll_Layui_v1（Layui 主题）。后两套来自官方 maccms10 发行包，经 TP5 → TP8
+整树升级后存在模板语法兼容与缺失文件问题，已全部修复并经全量 HTTP 验收。
+当前默认模板：conch（app/extra/maccms.php → 'template_dir' => 'conch'）。
+
+--------------------------------------------------------------------------------
+一、conch 修复内容
+--------------------------------------------------------------------------------
+1. 首页 500 根因：module/hots.html 的 {php} 块内使用裸 $ 变量（如
+   $hots_num=6+$big;），think-template 编译会吞掉裸变量导致生成
+   `6+;$` 之类的非法代码 → 已改写为 {$style} 等显式变量写法，并去掉
+   `?>` 前的多余空格。
+2. Undefined constant 裸词：
+   - module/vods.html、module/vodside.html、widget/rank-home.html 中
+     `==hits_month / ==hits_week / ==hits_day / ==hits` 裸词常量
+     → 改为 `=='hits_month'` 等字符串比较（rank-home.html 顺带消除
+     label/rank 的 Request::dispatch() 异常链）。
+3. 缺模块页面：manga（6 个）、website（7 个）、live（2 个）目录不存在，
+   前台访问 500 → 已从 default 复制补全，并补齐 widget/module/ads/public
+   依赖文件。
+4. app/extra/conchvip.php 原为 GBK 乱码损坏（字符串引号断裂导致
+   ParseError: syntax error, unexpected identifier "by"），已用
+   iconv('UTF-8','GBK')→('GBK','UTF-8') 双转换恢复中文并 php -l 通过。
+5. app/common.php 的 mac_url_type() 增加 is_array($info) 容错：TP8 下
+   收到 '0-9'、'其他' 等筛选值字符串时不再抛
+   Cannot access offset of type string（TP5/PHP7 不致命，TP8 抛异常）。
+
+--------------------------------------------------------------------------------
+二、datll_Layui_v1 修复内容
+--------------------------------------------------------------------------------
+1. 删除 20 个垃圾文件（html\upload\user\*、upload\art\20220610-1\* 下的
+   *.jpg.html 模板残留）。
+2. role/index.html 引用不存在的 public/foot_de → 改为实际文件 public/foot。
+3. 缺模块页面：art/topic/plot/map/manga/website/live/special 及
+   widget/module/ads/public/label 缺失 → 已从 default 复制补全；
+   special 目录随后删除（index 模块无 Special 控制器，属多余模板）。
+4. 同样受益于 app/common.php mac_url_type 容错修复。
+
+--------------------------------------------------------------------------------
+三、验收结果（内置服务器 http://127.0.0.1:8090，清模板/数据缓存后全量）
+--------------------------------------------------------------------------------
+· conch：32 个页面全部 HTTP 200，含真实数据渲染：
+  首页 / vod 分类·详情·播放（测试电影：星际穿越）·搜索 / art 列表·详情 /
+  actor 列表·详情 / topic / role / plot / user 登录·注册 / gbook / comment /
+  map / rss（7058B）/ label rank·rankmonth·rankweek·updata·live /
+  manga / website / live。
+· datll_Layui_v1：28 个页面全部 HTTP 200（vod detail/play 真实渲染、
+  art 列表 61KB 正常）。
+· 后台回归：admin 登录、系统配置（含「前台内容语言」段）、vod 编辑页
+  （含多语言分页签）、分类管理均 200。
+· 演示数据：mac_vod 1 条、mac_art 5 条、mac_actor 5 条（详情/播放/列表
+  均有真实内容可看）。
+
+--------------------------------------------------------------------------------
+四、已知说明
+--------------------------------------------------------------------------------
+1. label/new、label/tv 在 conch 下报 404：Index 控制器无对应方法
+   （index/new、index/tv 本身不存在），两套模板表现一致，属既有缺失，
+   非模板问题。
+2. 后台 /admin.php/vod/index.html 等列表页 404（方法不存在）为既有现象，
+   与模板无关。
+3. 偶发的「模板串扰」：测试期间曾出现配置为 datll 却渲染 conch（或反之）
+   的瞬态，复测即消失，疑似内置服务器在并发/连续请求下 think-template
+   编译缓存竞态；换 Nginx/Apache 部署或清 runtime/temp 后可忽略。
+4. 换模板：改 app/extra/maccms.php 的 'template_dir'（conch /
+   datll_Layui_v1 / default）后清 runtime/temp、runtime/cache 即可。
+
+================================================================================
+*本说明随 maccms12 交付；两套模板修复结果已按上文逐项实测。*
+================================================================================

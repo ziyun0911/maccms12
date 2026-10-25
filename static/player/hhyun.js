@@ -1,0 +1,1 @@
+MacPlayer.Html = '<iframe border="0" src="'+MacPlayer.PlayUrl+'" height="'+MacPlayer.Height+'" width="100%" marginWidth="0" \ frameSpacing="0"\ marginHeight="0"\ frameBorder="0"\ scrolling="no"\ vspale="0"\ id="Player" allowfullscreen="true" ><\/iframe>';MacPlayer.Show();

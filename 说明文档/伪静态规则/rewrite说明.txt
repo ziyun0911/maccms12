@@ -1,0 +1,58 @@
+========================================================================
+maccms12（ThinkPHP 8）说明
+========================================================================
+本目录规则文件基于官方 maccms10「伪静态规则」整理，规则本身在 maccms12
+（TP8 多应用）下同样适用：前台 index.php、后台 admin.php、接口 api.php、
+安装 install.php 均为独立入口文件；除前台外的入口是真实文件，重写规则
+只在「请求的不是真实文件/目录」时生效，互不冲突。
+· 后台设置：系统 → 网站参数 → 浏览模式 → 选择「rewrite 伪静态」。
+· 入口文件如需改名（如 api.php → api2.php），请同步修改本目录规则。
+· 若静态文件后缀配置的不是 html（如 .shtml），请把规则中 .html 替换为
+  对应后缀（maccms12 前后台 URL 路由规则在 后台 → 系统 → URL路由规则 配置）。
+· maccms12 在 TP8 下同时支持 ?s= 兼容模式：index.php?s=/vod/detail/id/1
+  与 PATHINFO 模式：index.php/vod/detail/id/1，规则文件两种均已覆盖。
+========================================================================
+
+1，确认空间支持rewrite组件。
+2，按照 伪静态rewrite 目录下的说明文档操作。
+3，后台设置浏览模式为 rewrite伪静态 。
+
+
+如果使用rewrite伪静态模式，请注意把配置文件复制到网站根目录。
+如果静态文件后缀配置的不是html，则请把rewrite配置文件中的.html替换为对应的后缀如.html
+
+iis6.x   下使用 httpd.ini
+
+iis7.x   下使用web.config
+
+apache下使用 .htaccess  
+(编辑.htaccess文件，把 RewriteBase /maccms12 修改为你苹果CMS所在目录)
+
+nginx 下使用 maccms.conf
+(使用vps或者服务器的可以在你的主机的conf里 用 include xxxxx.conf   也就是包含下伪静态规则文件
+如果用的是虚拟主机版的nginx 就找你的主机商给你添加规则就行，你把规则发给他。)
+
+========================================================================
+附：内部文件访问控制（与伪静态规则配套）
+========================================================================
+本项目的网站根目录同时就是程序根目录，因此 说明文档/、runtime/、vendor/、
+config/、app/、extend/、composer.json、composer.lock 以及 *.md / *.sql /
+*.log / *.wpm 等默认可以被浏览器直接下载。上述规则文件里已内置拦截段落，
+按服务器对应关系操作：
+
+  apache     根目录 .htaccess 已随包提供（另有 说明文档/.htaccess 随目录生效）。
+             如把本目录示例 .htaccess 复制为根目录文件来启用伪静态，请连同
+             其中的访问控制段落一起保留。
+  nginx      用本目录 maccms.conf 的 location 拦截块。其中
+             「location ^~ /.well-known/」必须排在正则规则之前，
+             否则 HTTPS 证书的 HTTP-01 校验会被一起挡掉。
+  iis7 及以上 用本目录 web.config 的 requestFiltering（hiddenSegments +
+             fileExtensions），IIS 内置功能，无需额外模块。
+  iis6       ISAPI_Rewrite 2.x 无法拦截，请把 说明文档/ 移出网站根目录。
+  本地 php -S 根目录 router.php 复刻同样的规则，
+             D:/wwwroot/maccms/_tmp/start_8080.ps1 已带该参数。
+
+拦截只作用于 HTTP 直接请求：PHP 侧 require/include 读文件不走 HTTP，
+程序运行不受影响。前台业务路由与 static/、template/、upload/、addons/、
+robots.txt、crossdomain.xml、LICENSE 均保持可访问。
+========================================================================

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+	{include file="public/include"}
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/fallback-pages.css?v=202610211" />
+</head>
+<body>
+	{include file="public/th" /}
+	{include file="public/head"}
+	<div class="container fb-page">
+		{include file="ads/ads_all"}
+		<header class="fb-hero">
+			<h1 class="fb-title">专题搜索</h1>
+			<p class="fb-sub">{if condition="$param.wd neq ''"}与“<em>{$param.wd|mac_filter_html}</em>”相关的{else}全部{/if}共 <em class="fb-count" id="fbTopicTotal">0</em> 个专题</p>
+		</header>
+		<form class="fb-search" method="get" action="{:mac_url('topic/search')}" autocomplete="off">
+			<input type="text" name="wd" value="{$param.wd|mac_filter_html}" data-placeholder="string_search_topic_name" placeholder="搜索专题名称" />
+			<button type="submit">搜索</button>
+		</form>
+		{if condition="$maccms.search_hot neq ''"}
+		<div class="fb-tags">
+			<span class="fb-tags__label">热门：</span>
+			{maccms:foreach name=":explode(',',$maccms.search_hot)"}
+			<a class="fb-tag" href="{:mac_url('topic/search',['wd'=>$vo])}">{$vo}</a>
+			{/maccms:foreach}
+		</div>
+		{/if}
+		<div class="fb-tags">
+			<span class="fb-tags__label">搜索分类：</span>
+			<a class="fb-tag" href="{:mac_url('vod/search',['wd'=>$param.wd])}">视频</a>
+			<a class="fb-tag" href="{:mac_url('actor/search',['wd'=>$param.wd])}">明星</a>
+			<a class="fb-tag is-active" href="javascript:;">专题</a>
+			<a class="fb-tag" href="{:mac_url('role/search',['wd'=>$param.wd])}">角色</a>
+			<a class="fb-tag" href="{:mac_url('plot/search',['wd'=>$param.wd])}">剧情</a>
+		</div>
+		<ul class="fb-grid fb-grid--wide">
+			{maccms:topic num="12" paging="yes" half="3" pageurl="topic/search" order="desc" by="time"}
+			<li class="fb-card fb-card--row">
+				<a class="fb-card__poster" href="{:mac_url_topic_detail($vo)}" title="{$vo.topic_name}">
+					<img src="{:mac_url_img($vo.topic_pic)}" alt="{$vo.topic_name}" loading="lazy">
+				</a>
+				<div class="fb-card__body">
+					<p class="fb-card__title"><a href="{:mac_url_topic_detail($vo)}" title="{$vo.topic_name}">{$vo.topic_name}</a></p>
+					<p class="fb-card__sub">{$vo.topic_sub|mac_filter_html|mac_default='专题推荐'}</p>
+					<p class="fb-card__text">{$vo.topic_blurb|mac_filter_html|mac_default='暂无简介'}</p>
+				</div>
+			</li>
+			{/maccms:topic}
+		</ul>
+		{include file="widget/page"}
+		{empty name="$__PAGING__.record_total"}
+		<div class="fb-empty"><i class="iconfont">&#xe630;</i><p>没有找到匹配的专题</p></div>
+		{/empty}
+	</div>
+	<script type="text/javascript">
+	(function () {
+		var el = document.getElementById('fbTopicTotal');
+		if (el) { el.innerHTML = '{$__PAGING__.record_total}'; }
+	})();
+	</script>
+	{include file="public/foot"}
+</body>
+</html>

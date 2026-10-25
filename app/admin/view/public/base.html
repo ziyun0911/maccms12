@@ -1,0 +1,61 @@
+{include file="../../../app/admin/view/public/head" /}
+<style>
+.addon-base { padding: 16px 20px 40px; }
+.addon-base .row { display: flex; flex-wrap: wrap; margin: 0 -8px; }
+.addon-base [class^="col-"], .addon-base [class*=" col-"] { padding: 0 8px; box-sizing: border-box; }
+.addon-base .col-xs-12 { width: 100%; }
+.addon-base .col-xs-3 { width: 25%; }
+.addon-base .col-sm-2 { width: 16.6667%; }
+.addon-base .col-sm-3 { width: 25%; }
+.addon-base .col-sm-4 { width: 33.3333%; }
+.addon-base .col-sm-5 { width: 41.6667%; }
+.addon-base .col-sm-6 { width: 50%; }
+.addon-base .col-sm-7 { width: 58.3333%; }
+.addon-base .col-sm-9 { width: 75%; }
+.addon-base .col-md-8 { width: 66.6667%; }
+.addon-base .col-sm-offset-3 { margin-left: 25%; }
+.addon-base .col-md-offset-2 { margin-left: 16.6667%; }
+.addon-base .panel { background: #fff; border: 1px solid #e6e6e6; border-radius: 4px; margin-bottom: 16px; }
+.addon-base .panel-heading { padding: 10px 15px; border-bottom: 1px solid #e6e6e6; background: #f8f8f8; }
+.addon-base .panel-title { margin: 0; font-size: 15px; font-weight: 600; }
+.addon-base .panel-body { padding: 15px; }
+.addon-base .form-group { margin-bottom: 14px; }
+.addon-base .control-label { display: block; margin-bottom: 6px; font-weight: 600; }
+.addon-base .form-control { width: 100%; box-sizing: border-box; height: 34px; padding: 4px 8px; border: 1px solid #dcdfe6; border-radius: 3px; background: #fff; }
+.addon-base textarea.form-control { height: auto; }
+.addon-base .help-block { color: #8a8a8a; font-size: 12px; margin-top: 4px; }
+.addon-base .btn { display: inline-block; padding: 6px 12px; border: 1px solid #dcdfe6; border-radius: 3px; background: #fff; cursor: pointer; }
+.addon-base .btn-primary { background: #16baaa; border-color: #16baaa; color: #fff; }
+.addon-base .btn-success { background: #5fb878; border-color: #5fb878; color: #fff; }
+.addon-base .btn-info { background: #1e9fff; border-color: #1e9fff; color: #fff; }
+.addon-base .btn-danger { background: #ff5722; border-color: #ff5722; color: #fff; }
+.addon-base .btn-default { background: #fff; color: #333; }
+.addon-base .btn-sm { padding: 3px 8px; font-size: 12px; }
+.addon-base .btn-xs { padding: 1px 5px; font-size: 12px; }
+.addon-base .btn-lg { padding: 9px 16px; font-size: 15px; }
+.addon-base .table { width: 100%; border-collapse: collapse; }
+.addon-base .table th, .addon-base .table td { padding: 8px; border-bottom: 1px solid #eee; text-align: left; }
+.addon-base .table-striped tbody tr:nth-child(odd) { background: #fafafa; }
+.addon-base .text-center { text-align: center; }
+.addon-base .pull-right { float: right; }
+.addon-base .text-muted { color: #999; }
+.addon-base .text-danger { color: #ff5722; }
+.addon-base .text-success { color: #5fb878; }
+.addon-base .text-warning { color: #ffb800; }
+.addon-base .label { display: inline-block; padding: 2px 6px; border-radius: 3px; color: #fff; font-size: 12px; }
+.addon-base .label-default { background: #999; }
+.addon-base .label-primary { background: #1e9fff; }
+.addon-base .label-success { background: #5fb878; }
+.addon-base .label-info { background: #01aaed; }
+.addon-base .label-warning { background: #ffb800; }
+.addon-base .label-danger { background: #ff5722; }
+.addon-base .fa { margin-right: 4px; }
+.addon-base .addon-page-title { margin: 0 0 16px; font-size: 18px; font-weight: 600; }
+</style>
+<div class="addon-base">
+    <h2 class="addon-page-title">{block name="title"}{/block}</h2>
+    {block name="content"}{/block}
+</div>
+{include file="../../../app/admin/view/public/foot" /}
+</body>
+</html>

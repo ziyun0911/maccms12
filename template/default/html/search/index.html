@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+	{include file="public/include"}
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/fallback-pages.css?v=202610211" />
+</head>
+<body>
+	{include file="public/th" /}
+	{include file="public/head"}
+	<div class="container fb-page">
+		{include file="ads/ads_all"}
+		<header class="fb-hero">
+			<h1 class="fb-title">搜索</h1>
+			<p class="fb-sub">输入关键字，查找影片、明星、专题、角色和剧情。</p>
+		</header>
+		<form class="fb-search" method="get" action="{:mac_url('vod/search')}" autocomplete="off">
+			<input type="text" name="wd" value="" data-placeholder="string_input_keyword" placeholder="请输入关键字" />
+			<button type="submit">搜索</button>
+		</form>
+		{if condition="$maccms.search_hot neq ''"}
+		<div class="fb-tags">
+			<span class="fb-tags__label">热门：</span>
+			{maccms:foreach name=":explode(',',$maccms.search_hot)"}
+			<a class="fb-tag" href="{:mac_url('vod/search',['wd'=>$vo])}">{$vo}</a>
+			{/maccms:foreach}
+		</div>
+		{/if}
+		<div class="fb-tags">
+			<span class="fb-tags__label">搜索分类：</span>
+			<a class="fb-tag" href="{:mac_url('vod/search')}">视频</a>
+			<a class="fb-tag" href="{:mac_url('actor/search')}">明星</a>
+			<a class="fb-tag" href="{:mac_url('topic/search')}">专题</a>
+			<a class="fb-tag" href="{:mac_url('role/search')}">角色</a>
+			<a class="fb-tag" href="{:mac_url('plot/search')}">剧情</a>
+		</div>
+		<section class="fb-section">
+			<div class="fb-section__head">
+				<h2 class="fb-section__title">最新影片</h2>
+				<a class="fb-section__more" href="{:mac_url('vod/index')}">更多</a>
+			</div>
+			<ul class="fb-grid">
+				{maccms:vod num="12" type="all" order="desc" by="time"}
+				<li class="fb-card">
+					<a class="fb-card__poster" href="{:mac_url_vod_detail($vo)}" title="{$vo.vod_name}">
+						<img src="{:mac_url_img($vo.vod_pic)}" alt="{$vo.vod_name}" loading="lazy">
+					</a>
+					<p class="fb-card__title"><a href="{:mac_url_vod_detail($vo)}" title="{$vo.vod_name}">{$vo.vod_name}</a></p>
+					<p class="fb-card__sub">{$vo.vod_remarks|mac_default='更新中'}</p>
+				</li>
+				{/maccms:vod}
+			</ul>
+		</section>
+	</div>
+	{include file="public/foot"}
+</body>
+</html>

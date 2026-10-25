@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+
+<head>
+    {include file="public/include"}
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/manga-type.css" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/module-typeqt_manga.css" />
+</head>
+
+<body>
+    {include file="public/th" /}
+    <div class="member-wrap">
+        {include file="public/head"}
+        <div class="container">
+            {include file="ads/ads_all"}
+            <div class="vod_row tit_up">
+                <div class="pannel clearfix">
+                    <div class="pannel_head clearfix">
+                        <span class="pull_right">
+                            <span data-lang="string_zg">共有</span>
+                            <em class="mac_total"></em><span data-lang="string_manga_unit">部漫画</span>
+                        </span>
+                        <h2 class="title">漫画搜索：{$param.wd|mac_filter_html}</h2>
+                    </div>
+                    {php}$type_poster_class = (mac_tpl_manga_cover() === 'h') ? 'mac-poster--h' : 'mac-poster--v';{/php}
+                    <ul class="vodlist vodlist_wi {$type_poster_class}" style="width: auto;">
+                        {maccms:manga num="24" paging="yes" half="3" pageurl="manga/search" order="desc" by="time" id="vo"}
+                        <li class="vodlist_item num_{$key}">
+                            <a class="vodlist_thumb lazyload" href="{:mac_url_manga_detail($vo)}" title="{$vo.manga_name}" data-original="{:mac_url_img($vo.manga_pic)}">
+                                {assign name="mac_points_value" value="$vo.manga_points" /}
+                                {include file="widget/mac_badge_top_right" /}
+                                {include file="widget/mac_badge_bottom_right" /}
+                            </a>
+                            <div class="vodlist_titbox">
+                                <p class="vodlist_title">
+                                    <a href="{:mac_url_manga_detail($vo)}" title="{$vo.manga_name}">{$vo.manga_name}</a>
+                                </p>
+                                <p class="vodlist_sub">{if condition="$vo.manga_remarks eq ''"}<span data-lang="string_lianzai">连载中</span>{else/}{$vo.manga_remarks}{/if}</p>
+                            </div>
+                        </li>
+                        {/maccms:manga}
+                    </ul>
+                    {empty name="$__PAGING__.record_total"}
+                    <div class="show_no">抱歉！没有找到匹配的漫画</div>
+                    {/empty}
+                    {include file="widget/page"}
+                </div>
+            </div>
+        </div>
+        {include file="public/foot"}
+    </div>
+    <script type="text/javascript">
+        $('.mac_total').html('{$__PAGING__.record_total}');
+    </script>
+</body>
+
+</html>

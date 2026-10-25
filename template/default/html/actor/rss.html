@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+	<title>{$obj.actor_name|mac_filter_html}的作品 - {$maccms.site_name|mac_filter_html}</title>
+	<link>{$maccms.http_type}{$maccms.site_url}{:mac_url_actor_detail($obj)}</link>
+	<description><![CDATA[{$obj.actor_name}个人资料及参演作品。{$obj.actor_blurb|mac_filter_html}]]></description>
+	<language>zh-cn</language>
+	<pubDate>{:date('Y-m-d H:i:s')}</pubDate>
+	<generator>{$maccms.http_type}{$maccms.site_url}</generator>
+	<webmaster>{$maccms.site_email}</webmaster>
+	{maccms:vod num="50" actor="'.$obj['actor_name'].'" order="desc" by="time"}
+	<item>
+		<title><![CDATA[{$vo.vod_name} {$vo.vod_remarks}]]></title>
+		<link>{$maccms.http_type}{$maccms.site_url}{:mac_url_vod_detail($vo)}</link>
+		<guid>{$maccms.http_type}{$maccms.site_url}{:mac_url_vod_detail($vo)}</guid>
+		<description><![CDATA[{$vo.vod_blurb|mac_filter_html}]]></description>
+		<pubDate>{$vo.vod_time|date='Y-m-d H:i:s'}</pubDate>
+		<category>{$vo.type.type_name|mac_filter_html}</category>
+		<author>{$vo.vod_actor|mac_filter_html}</author>
+	</item>
+	{/maccms:vod}
+</channel>
+</rss>

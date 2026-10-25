@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+	{include file="public/include"}
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/fallback-pages.css?v=202610211" />
+</head>
+<body>
+	{include file="public/th" /}
+	{include file="public/head"}
+	<div class="container fb-page">
+		{include file="ads/ads_all"}
+		<header class="fb-hero">
+			<h1 class="fb-title" data-lang="title_vod_library">影视库</h1>
+			<p class="fb-sub"><span data-lang="string_vod_lib_sub_pre">共收录</span> <em class="fb-count" id="fbVodTotal">0</em> <span data-lang="string_vod_lib_sub_post">部影片，持续更新。</span></p>
+		</header>
+		<div class="fb-tags">
+			<a class="fb-tag is-active" href="{:mac_url('vod/index')}" data-lang="string_all">全部</a>
+			{maccms:type ids="parent" mid="1" order="asc" by="sort" id="vo1" key="key1"}
+			<a class="fb-tag" href="{:mac_url_type($vo1)}">{$vo1.type_name}</a>
+			{/maccms:type}
+		</div>
+		<ul class="fb-grid">
+			{maccms:vod num="36" paging="yes" half="3" pageurl="vod/index" type="all" order="desc" by="time"}
+			<li class="fb-card">
+				<a class="fb-card__poster" href="{:mac_url_vod_detail($vo)}" title="{$vo.vod_name}">
+					<img src="{:mac_url_img($vo.vod_pic)}" alt="{$vo.vod_name}" loading="lazy">
+				</a>
+				<p class="fb-card__title"><a href="{:mac_url_vod_detail($vo)}" title="{$vo.vod_name}">{$vo.vod_name}</a></p>
+				<p class="fb-card__sub">{$vo.vod_remarks|mac_default='更新中'}</p>
+			</li>
+			{/maccms:vod}
+		</ul>
+		{include file="widget/page"}
+		{empty name="$__PAGING__.record_total"}
+		<div class="fb-empty"><i class="iconfont">&#xe630;</i><p data-lang="string_vod_nodata">抱歉！暂无影片数据</p></div>
+		{/empty}
+	</div>
+	<script type="text/javascript">
+	(function () {
+		var el = document.getElementById('fbVodTotal');
+		if (el) { el.innerHTML = '{$__PAGING__.record_total}'; }
+	})();
+	</script>
+	{include file="public/foot"}
+</body>
+</html>

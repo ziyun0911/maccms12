@@ -1,0 +1,619 @@
+{php}
+$__seo_lang = isset($content_lang) && $content_lang !== '' ? (string) $content_lang : 'zh-cn';
+$__seo_words = [
+    'zh-cn' => ['latest' => '最新', 'page' => '第%d页', 'search' => '搜索', 'search_plain' => '搜索', 'resource' => '影视资源', 'online' => '在线观看', 'search_desc' => '关于「%s」的搜索结果。', 'request' => '求片留言', 'recent' => '最近更新', 'live' => '直播', 'live_play' => '直播播放', 'article' => '资讯', 'manga' => '漫画', 'topic' => '专题', 'star' => '明星', 'role' => '角色', 'plot' => '剧情', 'star_lib' => '明星库-明星档案-高级搜索', 'notfound' => '页面不存在', 'ep_fmt' => '第%d章', 'ep_fmt2' => '第%d话', 'reading' => '正在阅读《%s》%s', 'download' => '下载', 'person_desc' => '%s的资料与作品收录于%s。', 'search_rel' => '与“%s”相关的%s搜索结果，%s。'],
+    'zh-tw' => ['latest' => '最新', 'page' => '第%d頁', 'search' => '搜尋', 'search_plain' => '搜尋', 'resource' => '影視資源', 'online' => '線上觀看', 'search_desc' => '關於「%s」的搜尋結果。', 'request' => '求片留言', 'recent' => '最近更新', 'live' => '直播', 'live_play' => '直播播放', 'article' => '資訊', 'manga' => '漫畫', 'topic' => '專題', 'star' => '明星', 'role' => '角色', 'plot' => '劇情', 'star_lib' => '明星庫-明星檔案-高級搜尋', 'notfound' => '頁面不存在', 'ep_fmt' => '第%d章', 'ep_fmt2' => '第%d話', 'reading' => '正在閱讀《%s》%s', 'download' => '下載', 'person_desc' => '%s的資料與作品收錄於%s。', 'search_rel' => '與「%s」相關的%s搜尋結果，%s。'],
+    'en-us' => ['latest' => 'Latest ', 'page' => 'Page %d', 'search' => 'Search ', 'search_plain' => 'Search', 'resource' => 'Movies & TV', 'online' => 'Watch Online', 'search_desc' => 'Search results for "%s". ', 'request' => 'Request a Title', 'recent' => 'Recently Updated', 'live' => 'Live TV', 'live_play' => 'Live Playback', 'article' => 'News', 'manga' => 'Manga', 'topic' => 'Topics', 'star' => 'Celebrities', 'role' => 'Characters', 'plot' => 'Plot', 'star_lib' => 'Celebrity Database - Profiles - Advanced Search', 'notfound' => 'Page Not Found', 'ep_fmt' => 'Chapter %d', 'ep_fmt2' => 'Episode %d', 'reading' => 'Now reading "%s" %s', 'download' => 'Download', 'person_desc' => '%s - profile, filmography and latest news on %s.', 'search_rel' => 'Results for "%s" in %s on %s.'],
+    'ja-jp' => ['latest' => '最新', 'page' => '%dページ', 'search' => '検索：', 'search_plain' => '検索', 'resource' => '映像作品', 'online' => 'オンライン視聴', 'search_desc' => '「%s」の検索結果。', 'request' => 'リクエスト', 'recent' => '最新更新', 'live' => 'ライブ', 'live_play' => 'ライブ再生', 'article' => 'ニュース', 'manga' => '漫画', 'topic' => '特集', 'star' => 'スター', 'role' => 'キャラクター', 'plot' => 'あらすじ', 'star_lib' => 'スター名鑑-プロフィール-詳細検索', 'notfound' => 'ページが見つかりません', 'ep_fmt' => '第%d章', 'ep_fmt2' => '第%d話', 'reading' => '『%s』%sを読んでいます', 'download' => 'ダウンロード', 'person_desc' => '%sのプロフィール・出演作品は%sでご覧ください。', 'search_rel' => '「%s」に関連する%sの検索結果（%s）。'],
+    'ko-kr' => ['latest' => '최신 ', 'page' => '%d페이지', 'search' => '검색 ', 'search_plain' => '검색', 'resource' => '영상 콘텐츠', 'online' => '온라인 시청', 'search_desc' => '"%s" 검색 결과입니다. ', 'request' => '작품 요청', 'recent' => '최근 업데이트', 'live' => '라이브', 'live_play' => '라이브 재생', 'article' => '뉴스', 'manga' => '만화', 'topic' => '특집', 'star' => '스타', 'role' => '캐릭터', 'plot' => '줄거리', 'star_lib' => '스타 DB-프로필-고급 검색', 'notfound' => '페이지를 찾을 수 없음', 'ep_fmt' => '제%d장', 'ep_fmt2' => '제%d화', 'reading' => '%s %s 읽는 중', 'download' => '다운로드', 'person_desc' => '%s의 프로필과 작품 정보는 %s에서.', 'search_rel' => '"%s"와 관련된 %s 검색 결과입니다 (%s).'],
+    'ru-ru' => ['latest' => 'Последние ', 'page' => 'Стр. %d', 'search' => 'Поиск: ', 'search_plain' => 'Поиск', 'resource' => 'Видео', 'online' => 'Смотреть онлайн', 'search_desc' => 'Результаты поиска «%s». ', 'request' => 'Заявка на фильм', 'recent' => 'Недавно обновлено', 'live' => 'Прямой эфир', 'live_play' => 'Прямая трансляция', 'article' => 'Новости', 'manga' => 'Манга', 'topic' => 'Подборки', 'star' => 'Звёзды', 'role' => 'Персонажи', 'plot' => 'Сюжет', 'star_lib' => 'База звёзд - Профили - Расширенный поиск', 'notfound' => 'Страница не найдена', 'ep_fmt' => 'Глава %d', 'ep_fmt2' => 'Серия %d', 'reading' => 'Вы читаете «%s» %s', 'download' => 'Скачать', 'person_desc' => '%s — профиль и фильмография на %s.', 'search_rel' => 'Результаты «%s» в разделе «%s» на %s.'],
+];
+$__seo = isset($__seo_words[$__seo_lang]) ? $__seo_words[$__seo_lang] : $__seo_words['zh-cn'];
+$__seo_extra_all = [
+    'zh-cn' => ['detail' => '详细', 'play' => '视频播放', 'down' => '视频下载', 'artd' => '文章详情', 'arti' => '资讯', 'topicd' => '专题详情', 'website' => '网址首页', 'actor_index' => '演员首页', 'role_index' => '角色首页', 'plot_index' => '剧情首页', 'synopsis' => '剧情:'],
+    'zh-tw' => ['detail' => '詳細', 'play' => '影片播放', 'down' => '影片下載', 'artd' => '文章詳情', 'arti' => '資訊', 'topicd' => '專題詳情', 'website' => '網址首頁', 'actor_index' => '演員首頁', 'role_index' => '角色首頁', 'plot_index' => '劇情首頁', 'synopsis' => '劇情:'],
+    'en-us' => ['detail' => 'Details', 'play' => 'Watch', 'down' => 'Download', 'artd' => 'Article', 'arti' => 'News', 'topicd' => 'Topic Details', 'website' => 'Website Directory', 'actor_index' => 'Celebrities', 'role_index' => 'Characters', 'plot_index' => 'Episode Plots', 'synopsis' => 'Plot: '],
+    'ja-jp' => ['detail' => '詳細', 'play' => '動画再生', 'down' => '動画ダウンロード', 'artd' => '記事詳細', 'arti' => 'ニュース', 'topicd' => '特集詳細', 'website' => 'サイト集', 'actor_index' => 'スター一覧', 'role_index' => 'キャラクター', 'plot_index' => 'あらすじ', 'synopsis' => 'あらすじ：'],
+    'ko-kr' => ['detail' => '상세', 'play' => '영상 재생', 'down' => '영상 다운로드', 'artd' => '문서 상세', 'arti' => '뉴스', 'topicd' => '특집 상세', 'website' => '사이트 모음', 'actor_index' => '스타', 'role_index' => '캐릭터', 'plot_index' => '줄거리', 'synopsis' => '줄거리: '],
+    'ru-ru' => ['detail' => 'Подробности', 'play' => 'Смотреть', 'down' => 'Скачать', 'artd' => 'Статья', 'arti' => 'Новости', 'topicd' => 'Подробнее о подборке', 'website' => 'Каталог сайтов', 'actor_index' => 'Звёзды', 'role_index' => 'Персонажи', 'plot_index' => 'Сюжеты', 'synopsis' => 'Сюжет: '],
+];
+$__seo = array_merge($__seo, isset($__seo_extra_all[$__seo_lang]) ? $__seo_extra_all[$__seo_lang] : $__seo_extra_all['zh-cn']);
+$__seo_join = in_array($__seo_lang, ['en-us', 'ru-ru', 'ko-kr'], true) ? ' ' : '';
+$__seo_attr = function ($s) {
+    return htmlspecialchars(mac_filter_html((string) $s), ENT_QUOTES, 'UTF-8');
+};
+$__seo_join_title = function () use ($__seo_join) {
+    $__parts = [];
+    foreach (func_get_args() as $__p) {
+        if ((string) $__p !== '') {
+            $__parts[] = (string) $__p;
+        }
+    }
+    return implode($__seo_join, $__parts);
+};
+$__seo_default_lang = isset($content_lang_default) ? (string) $content_lang_default : 'zh-cn';
+$__seo_is_default = ($__seo_lang === $__seo_default_lang);
+$__seo_theme_cfg = (isset($tplconfig['theme']['seos']) && is_array($tplconfig['theme']['seos'])) ? $tplconfig['theme']['seos'] : [];
+$__seo_pick = function ($key, $wordKey, $fallback) use ($__seo_is_default, $__seo_theme_cfg, $__seo) {
+    if ($__seo_is_default && !empty($__seo_theme_cfg[$key])) {
+        return $__seo_theme_cfg[$key];
+    }
+    return !empty($__seo[$wordKey]) ? $__seo[$wordKey] : $fallback;
+};
+$__seo_detail_name = $__seo_pick('detail_name', 'detail', '详细');
+$__seo_detail_other_name = $__seo_pick('detail_name', 'detail', '视频详情-其他');
+$__seo_play_name = $__seo_pick('play_name', 'play', '视频播放');
+$__seo_play_ep_name = $__seo_pick('play_name', 'play', '视频播放剧集');
+$__seo_down_name = $__seo_pick('down_name', 'down', '视频下载');
+$__seo_artd_name = $__seo_pick('artd_name', 'artd', '文章详情');
+$__seo_topic_name = $__seo_pick('topic_name', 'topic', '专题');
+$__seo_topicd_name = $__seo_pick('topicd_name', 'topicd', '专题详情');
+$__seo_website_name = $__seo_pick('website_name', 'website', '网址首页');
+$__seo_actor_name = $__seo_is_default ? (!empty($maccms['seo']['actor']['name']) ? $maccms['seo']['actor']['name'] : '演员首页') : $__seo['actor_index'];
+$__seo_role_name = $__seo_is_default ? (!empty($maccms['seo']['role']['name']) ? $maccms['seo']['role']['name'] : '角色首页') : $__seo['role_index'];
+$__seo_plot_name = $__seo_is_default ? (!empty($maccms['seo']['plot']['name']) ? $maccms['seo']['plot']['name'] : '剧情首页') : $__seo['plot_index'];
+$__seo_tpl_all = [
+    'zh-cn' => ['actor' => '%s个人资料_%s演过的电视剧_%s电影全集', 'role' => '%s的角色%s扮演者%s', 'plot' => '%s分集剧情 - %s'],
+    'zh-tw' => ['actor' => '%s個人資料_%s演過的電視劇_%s電影全集', 'role' => '%s的角色%s扮演者%s', 'plot' => '%s分集劇情 - %s'],
+    'en-us' => ['actor' => '%s Profile - TV Series & Movies', 'role' => '%s - %s played by %s', 'plot' => '%s - Episode Plot: %s'],
+    'ja-jp' => ['actor' => '%sのプロフィール_出演ドラマ・映画', 'role' => '%sの%s役：%s', 'plot' => '%s 各話あらすじ - %s'],
+    'ko-kr' => ['actor' => '%s 프로필 - 출연 드라마·영화', 'role' => '%s의 %s 역 - %s', 'plot' => '%s 에피소드 줄거리 - %s'],
+    'ru-ru' => ['actor' => '%s — профиль, сериалы и фильмы', 'role' => '%s — роль %s, актёр %s', 'plot' => '%s — сюжет серии: %s'],
+];
+$__seo_t = isset($__seo_tpl_all[$__seo_lang]) ? $__seo_tpl_all[$__seo_lang] : $__seo_tpl_all['zh-cn'];
+$__seo_p = isset($param['page']) ? (int) $param['page'] : 0;
+$__seo_page = $__seo_p > 1 ? ' - ' . sprintf($__seo['page'], $__seo_p) : '';
+{/php}
+{if $maccms.aid==1}
+<title>{$tplconfig['theme']['seos']['index_name']|mac_default=$maccms.site_name}</title>
+<meta name="keywords" content="{$tplconfig['theme']['seos']['index_key']|mac_default=$maccms.site_keywords}" />
+<meta name="description" content="{$tplconfig['theme']['seos']['index_des']|mac_default=$maccms.site_description}" />
+{elseif $maccms.aid==4}
+<title>{$__seo.request} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$maccms.site_keywords}" />
+<meta name="description" content="{$maccms.site_description}" />
+{elseif $maccms.aid==10}
+<title>{$__seo.recent} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$tplconfig['theme']['seos']['index_key']|mac_default=$maccms.site_keywords}" />
+<meta name="description" content="{$tplconfig['theme']['seos']['index_des']|mac_default=$maccms.site_description}" />
+{elseif $maccms.aid==131}
+<title>{$__seo.live} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$__seo.live},{$maccms.site_keywords}" />
+<meta name="description" content="{$maccms.site_description}" />
+{elseif $maccms.aid==132}
+<title>{$__seo.live_play} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$__seo.live},{$maccms.site_keywords}" />
+<meta name="description" content="{$maccms.site_description}" />
+{elseif $maccms.aid==11}
+<title>{if $__seo_is_default}{$obj.type_title|mac_default=$obj.type_name|mac_filter_html}{else}{$obj.type_name|mac_filter_html}{/if}{$__seo_page} - {$maccms.site_name}</title>
+<meta name="keywords" content="{if $__seo_is_default}{$obj.type_key|mac_default=$obj.type_name|mac_filter_html}{else}{$obj.type_name|mac_filter_html}{/if},{$maccms.site_name}" />
+<meta name="description" content="{$obj.type_des|mac_default=$maccms.site_description}" />
+{elseif $maccms.aid==12}
+<title>{$__seo.latest}{$obj.type_name}{$__seo_page} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.type_key}" />
+<meta name="description" content="{$obj.type_des}" />
+{elseif $maccms.aid==13}
+{php}
+$seo_search_parts = [];
+foreach (['wd', 'actor', 'director', 'area', 'lang', 'year', 'class'] as $__k) {
+    if (!empty($param[$__k])) {
+        $__v = trim(strip_tags(html_entity_decode((string) $param[$__k], ENT_QUOTES, 'UTF-8')));
+        if ($__v !== '') {
+            $seo_search_parts[] = $__v;
+        }
+    }
+}
+$seo_search_q = implode(' · ', $seo_search_parts);
+if ($seo_search_q === '') {
+    $seo_search_q = $__seo['resource'];
+}
+$seo_search_kw = $__seo_attr(mac_substring(mac_filter_html($seo_search_q . ',' . (isset($maccms['site_name']) ? $maccms['site_name'] : '') . ',' . $__seo['online']), 100));
+$seo_search_desc = $__seo_attr(mac_substring(mac_filter_html(sprintf($__seo['search_desc'], $seo_search_q) . (isset($maccms['site_name']) ? $maccms['site_name'] : '')), 150));
+{/php}
+<title>{$__seo.search}{$seo_search_q|mac_filter_html}{$__seo_page} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$seo_search_kw}" />
+<meta name="description" content="{$seo_search_desc}" />
+{elseif $maccms.aid==14}
+{notempty name="maccms.page_detail_title"}
+<title>{$maccms.page_detail_title}</title>
+<meta name="keywords" content="{$maccms.page_detail_keywords}" />
+<meta name="description" content="{$maccms.page_detail_description}" />
+{else/}
+    {php}
+    $__n14 = !empty($obj['vod_name']) ? mac_filter_html((string) $obj['vod_name']) : '';
+    if ($__n14 === '') {
+        $__detail_title = $__detail_other_title = '404' . $__seo_join . $__seo['notfound'];
+    } else {
+        $__t14 = !empty($obj['type']['type_name']) ? mac_filter_html((string) $obj['type']['type_name']) : '';
+        $__t114 = !empty($obj['type_1']['type_name']) ? mac_filter_html((string) $obj['type_1']['type_name']) : '';
+        $__base14 = implode('_', array_filter([$__n14, $__t14, $__t114], function ($v) { return $v !== ''; }));
+        $__detail_title = $__base14 . '_' . $__seo_detail_name;
+        $__detail_other_title = $__base14 . '_' . $__seo_detail_other_name;
+    }
+    $__dk = !empty($tplconfig['theme']['seos']['detail_key']) ? (string) $tplconfig['theme']['seos']['detail_key'] : '';
+    $__detail_kw = $__seo_is_default ? ($__dk !== '' ? $__dk : '详细') : $__seo_detail_name;
+    $__detail_other_kw = $__seo_is_default ? ($__dk !== '' ? $__dk : '视频详情-其他') : $__seo_detail_other_name;
+    $__detail_txt = $__seo_is_default ? (!empty($tplconfig['theme']['seos']['detail_des']) ? (string) $tplconfig['theme']['seos']['detail_des'] : '') : '';
+    {/php}
+    {if condition="($obj['type_id']==2) OR ($obj['type_id_1']==2) OR ($obj['type_id']==3) OR ($obj['type_id_1']==3) OR ($obj['type_id']==4) OR ($obj['type_id_1']==4)"}
+    <title>{$__detail_title} - {$maccms.site_name}</title>
+    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__detail_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+    <meta name="description" content="{:$__seo_attr(mac_substring((string) ($__detail_txt . (isset($obj['vod_name']) ? $obj['vod_name'] : '') . $__seo['synopsis'] . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
+    {else}
+    
+    <title>{$__detail_other_title} - {$maccms.site_name}</title>
+    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__detail_other_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+    <meta name="description" content="{:$__seo_attr(mac_substring((string) ($__detail_txt . (isset($obj['vod_name']) ? $obj['vod_name'] : '') . $__seo['synopsis'] . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
+    {/if}
+{/notempty}
+{elseif $maccms.aid==15}
+    {php}
+    $__psid = isset($param['sid']) ? (int) $param['sid'] : 1;
+    $__pnid = isset($param['nid']) ? (int) $param['nid'] : 1;
+    $__pname = !empty($obj['vod_name']) ? mac_filter_html((string) $obj['vod_name']) : '';
+    $__pep = !empty($obj['vod_play_list'][$__psid]['urls'][$__pnid]['name']) ? mac_filter_html((string) $obj['vod_play_list'][$__psid]['urls'][$__pnid]['name']) : '';
+    $__ptype = !empty($obj['type']['type_name']) ? mac_filter_html((string) $obj['type']['type_name']) : '';
+    if ($__pname === '') {
+        $__play_head = '404' . $__seo_join . $__seo['notfound'];
+    } else {
+        $__play_head = rtrim($__seo_join_title($__pname, $__pep), ' ') . $__seo_join . $__seo_play_ep_name . ($__ptype !== '' ? '_' . $__ptype : '');
+    }
+    $__play_ep_title = $__play_head;
+    $__play_title = $__pname === '' ? $__play_head : (rtrim($__seo_join_title($__pname, $__pep), ' ') . $__seo_join . $__seo_play_name . ($__ptype !== '' ? '_' . $__ptype : ''));
+    $__play_ep_des = $__seo_is_default ? (!empty($tplconfig['theme']['seos']['play_des']) ? (string) $tplconfig['theme']['seos']['play_des'] : '视频播放剧集') : $__seo_play_ep_name;
+    $__play_des = $__seo_is_default ? (!empty($tplconfig['theme']['seos']['play_des']) ? (string) $tplconfig['theme']['seos']['play_des'] : '视频播放其他') : $__seo_play_name;
+    $__pk = !empty($tplconfig['theme']['seos']['play_key']) ? (string) $tplconfig['theme']['seos']['play_key'] : '';
+    $__play_ep_kw = $__seo_is_default ? ($__pk !== '' ? $__pk : '视频播放剧集') : $__seo_play_ep_name;
+    $__play_kw = $__seo_is_default ? ($__pk !== '' ? $__pk : '视频播放其他') : $__seo_play_name;
+    {/php}
+    {if condition="($obj['type_id']==2) OR ($obj['type_id_1']==2) OR ($obj['type_id']==3) OR ($obj['type_id_1']==3) OR ($obj['type_id']==4) OR ($obj['type_id_1']==4)"}
+    <title>{$__play_ep_title} - {$maccms.site_name}</title>
+    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__play_ep_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+    <meta name="description" content="{:$__seo_attr(mac_substring((string) ($__play_ep_des . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
+    {else}
+    
+    <title>{$__play_title} - {$maccms.site_name}</title>
+    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__play_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+    <meta name="description" content="{:$__seo_attr(mac_substring((string) ($__play_des . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
+    {/if}
+{elseif $maccms.aid==16}
+{php}
+$__dsid = isset($param['sid']) ? (int) $param['sid'] : 1;
+$__dnid = isset($param['nid']) ? (int) $param['nid'] : 1;
+$__dname = !empty($obj['vod_name']) ? mac_filter_html((string) $obj['vod_name']) : '';
+$__dep = !empty($obj['vod_play_list'][$__dsid]['urls'][$__dnid]['name']) ? mac_filter_html((string) $obj['vod_play_list'][$__dsid]['urls'][$__dnid]['name']) : '';
+$__dtype = !empty($obj['type']['type_name']) ? mac_filter_html((string) $obj['type']['type_name']) : '';
+$__down_title = $__dname === '' ? ('404' . $__seo_join . $__seo['notfound']) : (rtrim($__seo_join_title($__dname, $__dep), ' ') . $__seo_join . $__seo_down_name . ($__dtype !== '' ? '_' . $__dtype : ''));
+$__down_des = $__seo_is_default ? (!empty($tplconfig['theme']['seos']['down_des']) ? (string) $tplconfig['theme']['seos']['down_des'] : '视频下载') : $__seo_down_name;
+$__down_kw = $__seo_is_default ? (!empty($tplconfig['theme']['seos']['down_key']) ? (string) $tplconfig['theme']['seos']['down_key'] : '视频下载') : $__seo_down_name;
+{/php}
+<title>{$__down_title} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__down_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+<meta name="description" content="{:$__seo_attr(mac_substring((string) ($__down_des . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
+{elseif $maccms.aid==20}
+<title>{$__seo.article} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$__seo.article},{$maccms.site_name}" />
+<meta name="description" content="{$maccms.site_description}" />
+{elseif $maccms.aid==21}
+{php}
+$arti_name = !empty($tplconfig['theme']['seos']['arti_name']) ? $tplconfig['theme']['seos']['arti_name'] : $maccms['seo']['art']['name'];
+$arti_key = !empty($tplconfig['theme']['seos']['arti_key']) ? $tplconfig['theme']['seos']['arti_key'] : $maccms['seo']['art']['key'];
+$arti_des = !empty($tplconfig['theme']['seos']['arti_des']) ? $tplconfig['theme']['seos']['arti_des'] : $maccms['seo']['art']['des'];
+if (!$__seo_is_default) {
+    $arti_name = $__seo['arti'];
+}
+{/php}
+<title>{$arti_name|mac_default=$obj.type_title|mac_filter_html}{$__seo_page} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$arti_key|mac_default=$obj.type_key|mac_filter_html},{$maccms.site_name}" />
+<meta name="description" content="{$arti_des|mac_default=$obj.type_des|mac_filter_html},{$maccms.site_name}" />
+{elseif $maccms.aid==22}
+<title>{$__seo.latest}{$obj.type_name|mac_filter_html}{$__seo_page} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.type_key|mac_filter_html|mac_default=$obj.type_name},{$maccms.site_name}" />
+<meta name="description" content="{$obj.type_des|mac_filter_html|mac_default=$maccms.site_description}" />
+{elseif $maccms.aid==23}
+<title>{$__seo.search}{$param.wd|mac_filter_html} - {$__seo.article} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$param.wd|mac_filter_html},资讯搜索,{$maccms.site_name}" />
+<meta name="description" content="{:$__seo_attr(sprintf($__seo['search_rel'], (string) $param['wd'], $__seo['article'], (string) $maccms['site_name']))}" />
+{elseif $maccms.aid==24}
+{notempty name="maccms.page_detail_title"}
+<title>{$maccms.page_detail_title}</title>
+<meta name="keywords" content="{$maccms.page_detail_keywords}" />
+<meta name="description" content="{$maccms.page_detail_description}" />
+{else/}
+<title>{if condition="!empty($obj['art_name'])"}{$obj.art_name|mac_filter_html}_{if condition="$__seo_is_default"}{$tplconfig['theme']['seos']['artd_name']|mac_default=$obj.type.type_name|mac_filter_html}{else/}{$__seo_artd_name|mac_filter_html}{/if}{else/}404{$__seo_join}{$__seo.notfound}{/if} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.art_tag|mac_default=$obj.type.type_name|mac_filter_html},{$tplconfig['theme']['seos']['artd_key']|mac_default='文章详情'},{$maccms.site_name}" />
+<meta name="description" content="{:mac_substring(mac_filter_html((isset($tplconfig['theme']['seos']['artd_des']) ? $tplconfig['theme']['seos']['artd_des'] : '文章详情') . ',' . (isset($obj['art_blurb']) ? $obj['art_blurb'] : '') . ',' . (isset($maccms['site_name']) ? $maccms['site_name'] : '')), 150)}" />
+{/notempty}
+{elseif $maccms.aid==25}
+{php}
+$__rpage = !empty($param['page']) ? (int) $param['page'] : 1;
+if ($__rpage < 1) {
+    $__rpage = 1;
+}
+$__rlist = (isset($obj['art_page_list']) && is_array($obj['art_page_list'])) ? $obj['art_page_list'] : [];
+$__rtotal = count($__rlist);
+if ($__rtotal < 1) {
+    $__rtotal = 1;
+}
+if ($__rpage > $__rtotal) {
+    $__rpage = $__rtotal;
+}
+$__rinfo = isset($__rlist[$__rpage]) ? $__rlist[$__rpage] : [];
+$__rname = !empty($obj['art_name']) ? mac_filter_html((string) $obj['art_name']) : '';
+$__rchapter = !empty($__rinfo['title']) ? (string) $__rinfo['title'] : sprintf($__seo['ep_fmt'], $__rpage);
+$art_read_title = ($__rname === '' ? ('404' . $__seo_join . $__seo['notfound']) : ($__rname . ' - ' . mac_filter_html($__rchapter)));
+$art_read_kw = mac_substring(
+    mac_filter_html(
+        (isset($obj['art_tag']) ? $obj['art_tag'] : '') . ',' . (isset($obj['type']['type_name']) ? $obj['type']['type_name'] : '') . ',' . (isset($maccms['site_name']) ? $maccms['site_name'] : '')
+    ),
+    200
+);
+$art_read_desc = (isset($obj['art_blurb']) && (string) $obj['art_blurb'] !== '')
+    ? mac_substring(mac_filter_html((string) $obj['art_blurb']), 150)
+    : mac_substring(mac_filter_html(sprintf($__seo['reading'], (string) (isset($obj['art_name']) ? $obj['art_name'] : ''), $__rchapter)), 150);
+{/php}
+<title>{$art_read_title} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$art_read_kw}" />
+<meta name="description" content="{$art_read_desc}" />
+{elseif $maccms.aid==120}
+<title>{$__seo.manga} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$__seo.manga},{$maccms.site_name}" />
+<meta name="description" content="{$maccms.site_description}" />
+{elseif $maccms.aid==124}
+{notempty name="maccms.page_detail_title"}
+<title>{$maccms.page_detail_title}</title>
+<meta name="keywords" content="{$maccms.page_detail_keywords}" />
+<meta name="description" content="{$maccms.page_detail_description}" />
+{else/}
+<title>{if condition="!empty($obj['manga_name'])"}{$obj.manga_name|mac_filter_html}_{$obj.type.type_name|mac_filter_html}{else/}404{$__seo_join}{$__seo.notfound}{/if} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.manga_tag|mac_default=$obj.manga_class|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$maccms.site_name}" />
+<meta name="description" content="{:mac_substring(mac_filter_html((isset($obj['manga_blurb']) && $obj['manga_blurb'] !== '' ? $obj['manga_blurb'] : (isset($obj['manga_name']) ? $obj['manga_name'] : ''))), 150)}" />
+{/notempty}
+{elseif $maccms.aid==125}
+{php}
+$__msid = !empty($param['sid']) ? (int) $param['sid'] : 1;
+$__mnid = !empty($param['nid']) ? (int) $param['nid'] : 1;
+if ($__msid < 1) {
+    $__msid = 1;
+}
+if ($__mnid < 1) {
+    $__mnid = 1;
+}
+$__mfrom = (isset($obj['manga_page_list'][$__msid]) && is_array($obj['manga_page_list'][$__msid])) ? $obj['manga_page_list'][$__msid] : [];
+$__mep = (isset($__mfrom['urls'][$__mnid]) && is_array($__mfrom['urls'][$__mnid])) ? $__mfrom['urls'][$__mnid] : [];
+$__mn2 = !empty($obj['manga_name']) ? mac_filter_html((string) $obj['manga_name']) : '';
+$__mname = !empty($__mep['name']) ? (string) $__mep['name'] : sprintf($__seo['ep_fmt2'], $__mnid);
+$manga_play_title = ($__mn2 === '' ? ('404' . $__seo_join . $__seo['notfound']) : ($__mn2 . ' - ' . mac_filter_html($__mname)));
+$manga_play_kw = mac_substring(
+    mac_filter_html(
+        (isset($obj['manga_name']) ? $obj['manga_name'] : '') . ',' . (isset($obj['manga_class']) ? $obj['manga_class'] : '') . ',' . (isset($maccms['site_name']) ? $maccms['site_name'] : '')
+    ),
+    200
+);
+$manga_play_desc = (isset($obj['manga_blurb']) && (string) $obj['manga_blurb'] !== '')
+    ? mac_substring(mac_filter_html((string) $obj['manga_blurb']), 150)
+    : mac_substring(mac_filter_html(sprintf($__seo['reading'], (string) (isset($obj['manga_name']) ? $obj['manga_name'] : ''), $__mname)), 150);
+{/php}
+<title>{$manga_play_title} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$manga_play_kw}" />
+<meta name="description" content="{$manga_play_desc}" />
+{elseif $maccms.aid==30}
+<title>{$__seo_topic_name|mac_filter_html} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$tplconfig['theme']['seos']['topic_key']|mac_default='专题首页'}" />
+<meta name="description" content="{$tplconfig['theme']['seos']['topic_des']|mac_default='专题首页'}" />
+{elseif $maccms.aid==34}
+<title>{$obj.topic_title|mac_default=$obj.topic_name}_{$__seo_topicd_name|mac_filter_html} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.topic_key|mac_default=$obj.topic_name},{$tplconfig['theme']['seos']['topicd_key']|mac_default='专题详情'},{$maccms.site_name}" />
+<meta name="description" content="{:mac_substring(mac_filter_html((isset($tplconfig['theme']['seos']['topicd_des']) ? $tplconfig['theme']['seos']['topicd_des'] : '专题详情') . ',' . (isset($obj['topic_des']) && $obj['topic_des'] !== '' ? $obj['topic_des'] : (isset($obj['topic_blurb']) ? $obj['topic_blurb'] : ''))), 150)}" />
+{elseif $maccms.aid==80}
+<title>{$__seo_actor_name|mac_filter_html} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$maccms.seo.actor.key}" />
+<meta name="description" content="{$maccms.seo.actor.des}" />
+{elseif $maccms.aid==81}
+<title>{$__seo_actor_name|mac_filter_html} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$maccms.seo.actor.key}" />
+<meta name="description" content="{$maccms.seo.actor.des}" />
+{elseif $maccms.aid==82}
+<title>{$__seo.star_lib}{$__seo_page} - {$maccms.site_name}</title>
+<meta name="keywords" content="明星,娱乐明星,电影明星,电视剧明星,明星大全" />
+<meta name="description" content="为您提供各国男女明星的详细资料、近况以及最新电影，电视剧在线观看。,{$maccms.site_name}" />
+{elseif $maccms.aid==84}
+<title>{:sprintf($__seo_t['actor'], $obj['actor_name'], $obj['actor_name'], $obj['actor_name'])} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.actor_name}个人资料,{$obj.actor_name}演过的电视剧,{$obj.actor_name}电影全集,{$obj.actor_name}最新电影,{$obj.actor_name}最新电视剧">
+<meta name="description" content="{$maccms.site_name}为你收集了{$obj.actor_name}个人资料包括了{$obj.actor_name}最新演过的电视剧,{$obj.actor_name}电影全集,以及{$obj.actor_name}图片剧照最近动态等信息希望你能喜欢。">
+{elseif $maccms.aid==90}
+<title>{$__seo_role_name|mac_filter_html}{$__seo_page} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$maccms.seo.role.key}" />
+<meta name="description" content="{$maccms.seo.role.des}" />
+{elseif $maccms.aid==94}
+<title>{:sprintf($__seo_t['role'], $obj['data']['vod_name'], $obj['role_name'], $obj['role_actor'])} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.data.vod_name},{$obj.role_actor}饰{$obj.role_name}" />
+<meta name="description" content="{$maccms.site_name}为你收集了{$obj.data.vod_name},参演角色,{$obj.data.vod_name}的角色{$obj.role_name}扮演者{$obj.role_actor}近期的电影作品，电视剧作品，综艺作品等动态信息。" />
+{elseif $maccms.aid==100}
+<title>{$__seo_plot_name|mac_filter_html}{$__seo_page} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$maccms.seo.plot.key}" />
+<meta name="description" content="{$maccms.seo.plot.des}" />
+{elseif $maccms.aid==104}
+<title>{:sprintf($__seo_t['plot'], $obj['vod_name'], $obj['vod_plot_list'][$param['page']]['name'])} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.vod_name},分集剧情" />
+<meta name="description" content="{$obj.vod_name}分集剧情,{$obj['vod_plot_list'][$param['page']]['name']},{$obj['vod_plot_list'][$param['page']]['detail']|mac_substring=55|mac_filter_html}" />
+{elseif $maccms.aid==33}
+<title>{$__seo.search}{$param.wd|mac_filter_html} - {$__seo.topic} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$param.wd|mac_filter_html},影视专题,专题搜索,{$maccms.site_name}" />
+<meta name="description" content="{:$__seo_attr(sprintf($__seo['search_rel'], (string) $param['wd'], $__seo['topic'], (string) $maccms['site_name']))}" />
+{elseif $maccms.aid==83}
+<title>{$__seo.search}{$param.wd|mac_filter_html} - {$__seo.star} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$param.wd|mac_filter_html},明星,演员,明星搜索,{$maccms.site_name}" />
+<meta name="description" content="{:$__seo_attr(sprintf($__seo['search_rel'], (string) $param['wd'], $__seo['star'], (string) $maccms['site_name']))}" />
+{elseif $maccms.aid==93}
+<title>{$__seo.search}{$param.wd|mac_filter_html} - {$__seo.role} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$param.wd|mac_filter_html},角色,演员角色,角色搜索,{$maccms.site_name}" />
+<meta name="description" content="{:$__seo_attr(sprintf($__seo['search_rel'], (string) $param['wd'], $__seo['role'], (string) $maccms['site_name']))}" />
+{elseif $maccms.aid==103}
+<title>{$__seo.search}{$param.wd|mac_filter_html} - {$__seo.plot} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$param.wd|mac_filter_html},分集剧情,剧情搜索,{$maccms.site_name}" />
+<meta name="description" content="{:$__seo_attr(sprintf($__seo['search_rel'], (string) $param['wd'], $__seo['plot'], (string) $maccms['site_name']))}" />
+{elseif $maccms.aid==0}
+<title>{$__seo.search_plain} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$maccms.site_keywords}" />
+<meta name="description" content="{$maccms.site_description}" />
+{elseif $maccms.aid==110}
+{php}
+$website_name = isset($tplconfig['theme']['seos']['website_name']) ? $tplconfig['theme']['seos']['website_name'] : $maccms['seo']['website']['name'];
+$website_key = isset($tplconfig['theme']['seos']['website_key']) ? $tplconfig['theme']['seos']['website_key'] : $maccms['seo']['website']['key'];
+$website_des = isset($tplconfig['theme']['seos']['website_des']) ? $tplconfig['theme']['seos']['website_des'] : $maccms['seo']['website']['des'];
+{/php}
+<title>{$__seo_website_name|mac_filter_html}</title>
+<meta name="keywords" content="{$website_key|mac_default='网址首页'}" />
+<meta name="description" content="{$website_des|mac_default='网址首页'}" />
+{/if}
+{php}
+$__aid = (int) $maccms['aid'];
+$__h = function ($s) {
+    return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
+};
+$__dom = '';
+$__can = '';
+try {
+    if (function_exists('request')) {
+        $req = request();
+        if (is_object($req)) {
+            if (method_exists($req, 'domain')) {
+                $__dom = (string) $req->domain();
+            }
+            if (method_exists($req, 'url')) {
+                $__can = (string) $req->url(true);
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    $__dom = '';
+    $__can = '';
+}
+$__abs = function ($u) use ($__dom) {
+    $u = (string) $u;
+    if ($u === '') {
+        return '';
+    }
+    if (preg_match('#^https?://#i', $u)) {
+        return $u;
+    }
+    if (substr($u, 0, 2) === '//') {
+        return (stripos($__dom, 'https://') === 0 ? 'https:' : 'http:') . $u;
+    }
+    if ($__dom === '') {
+        return $u;
+    }
+    if (substr($u, 0, 1) !== '/') {
+        $u = '/' . $u;
+    }
+    return $__dom . $u;
+};
+if ($__can !== '') {
+    echo '<link rel="canonical" href="' . $__h($__can) . '" />' . "\n";
+}
+if (isset($__PAGING__) && is_array($__PAGING__) && !empty($__PAGING__['page_total']) && (int) $__PAGING__['page_total'] > 1 && !empty($__PAGING__['page_url'])) {
+    $pc = isset($__PAGING__['page_current']) ? (int) $__PAGING__['page_current'] : 1;
+    $pt = (int) $__PAGING__['page_total'];
+    if ($pc > 1) {
+        echo '<link rel="prev" href="' . $__h($__abs(mac_url_page($__PAGING__['page_url'], $pc - 1))) . '" />' . "\n";
+    }
+    if ($pc < $pt) {
+        echo '<link rel="next" href="' . $__h($__abs(mac_url_page($__PAGING__['page_url'], $pc + 1))) . '" />' . "\n";
+    }
+}
+$__meta_line = function ($prop, $content) use ($__h) {
+    if ($content === '' || $content === null) {
+        return;
+    }
+    echo '<meta property="' . $__h($prop) . '" content="' . $__h($content) . '" />' . "\n";
+};
+$__name_line = function ($prop, $content) use ($__h) {
+    if ($content === '' || $content === null) {
+        return;
+    }
+    echo '<meta name="' . $__h($prop) . '" content="' . $__h($content) . '" />' . "\n";
+};
+$__og_tw = function ($title, $desc, $url, $img, $type) use ($__meta_line, $__name_line) {
+    if ($title === '') {
+        return;
+    }
+    $__meta_line('og:type', $type);
+    $__meta_line('og:title', $title);
+    if ($desc !== '') {
+        $__meta_line('og:description', $desc);
+    }
+    if ($url !== '') {
+        $__meta_line('og:url', $url);
+    }
+    if ($img !== '') {
+        $__meta_line('og:image', $img);
+    }
+    $__name_line('twitter:card', 'summary_large_image');
+    $__name_line('twitter:title', $title);
+    if ($desc !== '') {
+        $__name_line('twitter:description', $desc);
+    }
+    if ($img !== '') {
+        $__name_line('twitter:image', $img);
+    }
+};
+$__dump_ld = function ($data) {
+    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS);
+    if ($json === false) {
+        return;
+    }
+    echo '<script type="application/ld+json">' . $json . '</script>' . "\n";
+};
+$__vod_img = '';
+if (($__aid === 14 || $__aid === 15 || $__aid === 16) && !empty($obj['vod_pic'])) {
+    $__vod_img = $__abs(mac_url_img($obj['vod_pic']));
+}
+$__vod_title = !empty($obj['vod_name']) ? mac_filter_html($obj['vod_name']) : '';
+$__vod_desc = '';
+if (!empty($obj['vod_blurb'])) {
+    $__vod_desc = mac_substring(mac_filter_html($obj['vod_blurb']), 150);
+} elseif ($__vod_title !== '') {
+    $__vod_desc = $__vod_title;
+}
+if ($__aid === 14 && !empty($obj['vod_id']) && $__vod_title !== '') {
+    $__og_tw($__vod_title, $__vod_desc, $__can, $__vod_img, 'video.other');
+    $__vo = [
+        '@context' => 'https://schema.org',
+        '@type' => 'VideoObject',
+        'name' => $__vod_title,
+        'description' => $__vod_desc,
+    ];
+    if ($__vod_img !== '') {
+        $__vo['thumbnailUrl'] = $__vod_img;
+    }
+    if ($__can !== '') {
+        $__vo['url'] = $__can;
+    }
+    $__dump_ld($__vo);
+}
+if ($__aid === 15 && !empty($obj['vod_id']) && $__vod_title !== '') {
+    $__sid = isset($param['sid']) ? (int) $param['sid'] : 1;
+    $__nid = isset($param['nid']) ? (int) $param['nid'] : 1;
+    $__ep = '';
+    if (!empty($obj['vod_play_list'][$__sid]['urls'][$__nid]['name'])) {
+        $__ep = mac_filter_html($obj['vod_play_list'][$__sid]['urls'][$__nid]['name']);
+    }
+    $__play_title = $__vod_title . ($__ep !== '' ? ' · ' . $__ep : '');
+    $__og_tw($__play_title, $__vod_desc, $__can, $__vod_img, 'video.other');
+    $__vp = [
+        '@context' => 'https://schema.org',
+        '@type' => 'VideoObject',
+        'name' => $__play_title,
+        'description' => $__vod_desc,
+    ];
+    if ($__vod_img !== '') {
+        $__vp['thumbnailUrl'] = $__vod_img;
+    }
+    if ($__can !== '') {
+        $__vp['url'] = $__can;
+    }
+    $__dump_ld($__vp);
+}
+if ($__aid === 16 && !empty($obj['vod_id']) && $__vod_title !== '') {
+    $__sid = isset($param['sid']) ? (int) $param['sid'] : 1;
+    $__nid = isset($param['nid']) ? (int) $param['nid'] : 1;
+    $__dn = '';
+    if (!empty($obj['vod_play_list'][$__sid]['urls'][$__nid]['name'])) {
+        $__dn = mac_filter_html($obj['vod_play_list'][$__sid]['urls'][$__nid]['name']);
+    }
+    $__down_title = $__vod_title . ($__dn !== '' ? ' · ' . $__dn : '') . ' · ' . $__seo['download'];
+    $__og_tw($__down_title, $__vod_desc, $__can, $__vod_img, 'video.other');
+    $__vd = [
+        '@context' => 'https://schema.org',
+        '@type' => 'VideoObject',
+        'name' => $__down_title,
+        'description' => $__vod_desc,
+    ];
+    if ($__vod_img !== '') {
+        $__vd['thumbnailUrl'] = $__vod_img;
+    }
+    if ($__can !== '') {
+        $__vd['url'] = $__can;
+    }
+    $__dump_ld($__vd);
+}
+if ($__aid === 24 && !empty($obj['art_id'])) {
+    $__art_title = !empty($obj['art_name']) ? mac_filter_html($obj['art_name']) : '';
+    $__art_desc = '';
+    if (!empty($obj['art_blurb'])) {
+        $__art_desc = mac_substring(mac_filter_html($obj['art_blurb']), 150);
+    } elseif ($__art_title !== '') {
+        $__art_desc = $__art_title;
+    }
+    $__art_img = !empty($obj['art_pic']) ? $__abs(mac_url_img($obj['art_pic'])) : '';
+    if ($__art_title !== '') {
+        $__og_tw($__art_title, $__art_desc, $__can, $__art_img, 'article');
+        $__art = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Article',
+            'headline' => $__art_title,
+            'description' => $__art_desc,
+        ];
+        if ($__art_img !== '') {
+            $__art['image'] = [$__art_img];
+        }
+        if ($__can !== '') {
+            $__art['mainEntityOfPage'] = ['@type' => 'WebPage', '@id' => $__can];
+        }
+        $__dump_ld($__art);
+    }
+}
+if ($__aid === 34 && !empty($obj['topic_id'])) {
+    $__topic_title = !empty($obj['topic_title']) ? mac_filter_html($obj['topic_title']) : (!empty($obj['topic_name']) ? mac_filter_html($obj['topic_name']) : '');
+    $__topic_desc = '';
+    if (!empty($obj['topic_des'])) {
+        $__topic_desc = mac_substring(mac_filter_html($obj['topic_des']), 150);
+    } elseif (!empty($obj['topic_blurb'])) {
+        $__topic_desc = mac_substring(mac_filter_html($obj['topic_blurb']), 150);
+    } elseif ($__topic_title !== '') {
+        $__topic_desc = $__topic_title;
+    }
+    $__topic_img = '';
+    if (!empty($obj['topic_pic'])) {
+        $__topic_img = $__abs(mac_url_img($obj['topic_pic']));
+    } elseif (!empty($obj['topic_pic_thumb'])) {
+        $__topic_img = $__abs(mac_url_img($obj['topic_pic_thumb']));
+    }
+    if ($__topic_title !== '') {
+        $__og_tw($__topic_title, $__topic_desc, $__can, $__topic_img, 'article');
+        $__tp = [
+            '@context' => 'https://schema.org',
+            '@type' => 'CollectionPage',
+            'name' => $__topic_title,
+            'description' => $__topic_desc,
+        ];
+        if ($__can !== '') {
+            $__tp['url'] = $__can;
+        }
+        if ($__topic_img !== '') {
+            $__tp['image'] = $__topic_img;
+        }
+        $__dump_ld($__tp);
+    }
+}
+if ($__aid === 84 && !empty($obj['actor_id']) && !empty($obj['actor_name'])) {
+    $__actor_name = mac_filter_html($obj['actor_name']);
+    $__actor_desc = mac_substring(mac_filter_html(sprintf($__seo['person_desc'], $obj['actor_name'], (string) (isset($maccms['site_name']) ? $maccms['site_name'] : ''))), 150);
+    $__actor_img = !empty($obj['actor_pic']) ? $__abs(mac_url_img($obj['actor_pic'])) : '';
+    $__og_tw($__actor_name, $__actor_desc, $__can, $__actor_img, 'profile');
+    $__person = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Person',
+        'name' => $__actor_name,
+        'description' => $__actor_desc,
+    ];
+    if ($__actor_img !== '') {
+        $__person['image'] = $__actor_img;
+    }
+    if ($__can !== '') {
+        $__person['url'] = $__can;
+    }
+    $__dump_ld($__person);
+}
+{/php}

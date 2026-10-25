@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+	{include file="public/include"}
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/fallback-pages.css?v=202610211" />
+</head>
+<body>
+	{include file="public/th" /}
+	{include file="public/head"}
+	<div class="container fb-page">
+		{include file="ads/ads_all"}
+		<header class="fb-hero">
+			<h1 class="fb-title">剧情搜索</h1>
+			<p class="fb-sub">{if condition="$param.wd neq ''"}与“<em>{$param.wd|mac_filter_html}</em>”相关的{else}全部{/if}共 <em class="fb-count" id="fbPlotTotal">0</em> 部剧情</p>
+		</header>
+		<form class="fb-search" method="get" action="{:mac_url('plot/search')}" autocomplete="off">
+			<input type="text" name="wd" value="{$param.wd|mac_filter_html}" data-placeholder="string_search_episode_plot" placeholder="搜索分集剧情" />
+			<button type="submit">搜索</button>
+		</form>
+		{if condition="$maccms.search_hot neq ''"}
+		<div class="fb-tags">
+			<span class="fb-tags__label">热门：</span>
+			{maccms:foreach name=":explode(',',$maccms.search_hot)"}
+			<a class="fb-tag" href="{:mac_url('plot/search',['wd'=>$vo])}">{$vo}</a>
+			{/maccms:foreach}
+		</div>
+		{/if}
+		<div class="fb-tags">
+			<span class="fb-tags__label">搜索分类：</span>
+			<a class="fb-tag" href="{:mac_url('vod/search',['wd'=>$param.wd])}">视频</a>
+			<a class="fb-tag" href="{:mac_url('actor/search',['wd'=>$param.wd])}">明星</a>
+			<a class="fb-tag" href="{:mac_url('topic/search',['wd'=>$param.wd])}">专题</a>
+			<a class="fb-tag" href="{:mac_url('role/search',['wd'=>$param.wd])}">角色</a>
+			<a class="fb-tag is-active" href="javascript:;">剧情</a>
+		</div>
+		<ul class="fb-grid">
+			{maccms:vod num="24" paging="yes" half="3" pageurl="plot/search" type="all" plot="1" order="desc" by="time"}
+			<li class="fb-card">
+				<a class="fb-card__poster" href="{:mac_url_plot_detail($vo)}" title="{$vo.vod_name}">
+					<img src="{:mac_url_img($vo.vod_pic)}" alt="{$vo.vod_name}" loading="lazy">
+				</a>
+				<p class="fb-card__title"><a href="{:mac_url_plot_detail($vo)}" title="{$vo.vod_name}">{$vo.vod_name}</a></p>
+				<p class="fb-card__sub">{$vo.vod_actor|mac_filter_html|mac_default='暂无演员信息'}</p>
+			</li>
+			{/maccms:vod}
+		</ul>
+		{include file="widget/page"}
+		{empty name="$__PAGING__.record_total"}
+		<div class="fb-empty"><i class="iconfont">&#xe630;</i><p>暂无分集剧情数据</p></div>
+		{/empty}
+	</div>
+	<script type="text/javascript">
+	(function () {
+		var el = document.getElementById('fbPlotTotal');
+		if (el) { el.innerHTML = '{$__PAGING__.record_total}'; }
+	})();
+	</script>
+	{include file="public/foot"}
+</body>
+</html>

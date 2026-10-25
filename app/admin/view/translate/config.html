@@ -1,0 +1,131 @@
+{include file="../../../app/admin/view/public/head" /}
+<div class="page-container">
+    <form class="layui-form layui-form-pane" lay-filter="translate_form">
+        <blockquote class="layui-elem-quote layui-quote-nm">
+            {:lang('admin/translate/desc')}
+            {if$available==1}<span style="color:#5FB878;">&nbsp;✓&nbsp;{:lang('admin/translate/available')}</span>{else}<span style="color:#FF5722;">&nbsp;✗&nbsp;{:lang('admin/translate/not_configured')}</span>{/if}
+        </blockquote>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">{:lang('admin/translate/type')}</label>
+            <div class="layui-input-block">
+                <select name="type" lay-filter="tr_type" lay-verify="">
+                    <option value="" {if$config['type']==''}selected{/if}>{:lang('admin/translate/type_none')}</option>
+                    <option value="baidu" {if$config['type']=='baidu'}selected{/if}>{:lang('admin/translate/provider_baidu')}</option>
+                    <option value="tencent" {if$config['type']=='tencent'}selected{/if}>{:lang('admin/translate/provider_tencent')}</option>
+                    <option value="deepl" {if$config['type']=='deepl'}selected{/if}>DeepL API</option>
+                    <option value="openai" {if$config['type']=='openai'}selected{/if}>{:lang('admin/translate/provider_openai')}</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="tr-group" data-t="baidu" style="display:{if$config['type']=='baidu'}block{else}none{/if};">
+            <div class="layui-form-item">
+                <label class="layui-form-label">AppID</label>
+                <div class="layui-input-block">
+                    <input type="text" name="appid" value="{$config['appid']}" autocomplete="off" placeholder="{:lang('admin/translate/baidu_appid_ph')}" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">Secret Key</label>
+                <div class="layui-input-block">
+                    <input type="text" name="secret" value="{$config['secret']}" autocomplete="off" placeholder="{:lang('admin/translate/baidu_secret_ph')}" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="tr-group" data-t="tencent" style="display:{if$config['type']=='tencent'}block{else}none{/if};">
+            <div class="layui-form-item">
+                <label class="layui-form-label">SecretId</label>
+                <div class="layui-input-block">
+                    <input type="text" name="secret_id" value="{$config['secret_id']}" autocomplete="off" placeholder="{:lang('admin/translate/tencent_secretid_ph')}" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">SecretKey</label>
+                <div class="layui-input-block">
+                    <input type="text" name="secret_key" value="{$config['secret_key']}" autocomplete="off" placeholder="{:lang('admin/translate/tencent_secretkey_ph')}" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">{:lang('admin/translate/region')}</label>
+                <div class="layui-input-block">
+                    <input type="text" name="region" value="{$config['region']}" autocomplete="off" placeholder="ap-guangzhou" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="tr-group" data-t="deepl" style="display:{if$config['type']=='deepl'}block{else}none{/if};">
+            <div class="layui-form-item">
+                <label class="layui-form-label">Auth Key</label>
+                <div class="layui-input-block">
+                    <input type="text" name="auth_key" value="{$config['auth_key']}" autocomplete="off" placeholder="{:lang('admin/translate/deepl_ph')}" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="tr-group" data-t="openai" style="display:{if$config['type']=='openai'}block{else}none{/if};">
+            <div class="layui-form-item">
+                <label class="layui-form-label">API Key</label>
+                <div class="layui-input-block">
+                    <input type="text" name="api_key" value="{$config['api_key']}" autocomplete="off" placeholder="{:lang('admin/translate/openai_key_ph')}" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">Model</label>
+                <div class="layui-input-block">
+                    <input type="text" name="model" value="{$config['model']}" autocomplete="off" placeholder="{:lang('admin/translate/model_ph')}" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">Base URL</label>
+                <div class="layui-input-block">
+                    <input type="text" name="base_url" value="{$config['base_url']}" autocomplete="off" placeholder="https://api.openai.com" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn" lay-submit lay-filter="tr_save">{:lang('save')}</button>
+                <button type="button" class="layui-btn layui-btn-normal" id="tr_test">{:lang('admin/translate/test')}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{include file="../../../app/admin/view/public/foot" /}
+<script>
+    layui.use(['form', 'layer', 'jquery'], function () {
+        var form = layui.form, layer = layui.layer, $ = layui.jquery;
+
+        form.on('select(tr_type)', function (data) {
+            $('.tr-group').hide();
+            $('.tr-group[data-t="' + data.value + '"]').show();
+        });
+
+        form.on('submit(tr_save)', function (data) {
+            var load = layer.load(2);
+            $.post("{:url('translate/save')}", data.field, function (res) {
+                layer.close(load);
+                if (res.code === 1) {
+                    layer.msg(res.msg, { icon: 1, time: 1500 });
+                } else {
+                    layer.msg(res.msg || 'error', { icon: 2, time: 2500 });
+                }
+            }, 'json');
+            return false;
+        });
+
+        $('#tr_test').on('click', function () {
+            var load = layer.load(2);
+            $.post("{:url('translate/test')}", { from: 'zh-cn', to: 'en-us' }, function (res) {
+                layer.close(load);
+                if (res.code === 1) {
+                    layer.alert(res.result, { title: 'OK' });
+                } else {
+                    layer.msg(res.msg || 'error', { icon: 2, time: 2500 });
+                }
+            }, 'json');
+        });
+    });
+</script>

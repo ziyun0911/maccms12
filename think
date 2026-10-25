@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+namespace think;
+// 苹果CMS v12 —— ThinkPHP 8 控制台入口
+// 加载基础文件
+require __DIR__ . '/vendor/autoload.php';
+
+// 应用初始化
+$app = new App();
+
+// 控制台运行
+$console = $app->console;
+$console->run();

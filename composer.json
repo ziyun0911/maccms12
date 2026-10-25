@@ -1,0 +1,62 @@
+{
+    "name": "magicblack/maccms12",
+    "description": "苹果CMS v12 (ThinkPHP 8)",
+    "type": "project",
+    "keywords": ["maccms", "cms", "thinkphp", "video"],
+    "homepage": "https://www.maccms.com",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "magicblack",
+            "homepage": "https://github.com/magicblack"
+        }
+    ],
+    "require": {
+        "php": ">=8.0.2",
+        "topthink/framework": "^8.1",
+        "topthink/think-multi-app": "^1.0",
+        "topthink/think-template": "^2.0",
+        "topthink/think-view": "^1.0",
+        "topthink/think-orm": "^3.0",
+        "topthink/think-captcha": "^3.0",
+        "topthink/think-filesystem": "^3.0",
+        "topthink/think-helper": "^3.0",
+        "topthink/think-queue": "^3.0",
+        "topthink/think-trace": "^1.0"
+    },
+    "suggest": {
+        "workerman/workerman": "常驻 WebSocket 服务，启用 socialws 插件时需要。安装：composer require workerman/workerman"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "app",
+            "addons\\": "addons",
+            "ip_limit\\": "extend/ip_limit",
+            "login\\": "extend/login",
+            "Qiniu\\": "extend/qiniu/src",
+            "Upyun\\": "extend/upyun/src",
+            "Aws\\": "extend/aws",
+            "PHPMailer\\PHPMailer\\": "extend/phpmailer/src"
+        },
+        "files": [
+            "app/common.php",
+            "extend/upyun/vendor/autoload.php"
+        ]
+    },
+    "config": {
+        "vendor-dir": "vendor",
+        "preferred-install": "dist",
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "topthink/think-installer": true
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@php think service:discover",
+            "@php think vendor:publish"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

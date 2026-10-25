@@ -1,0 +1,83 @@
+{include file="../../../app/admin/view/public/head" /}
+
+<div class="page-container p10">
+
+    <div class="my-toolbar-box">
+
+        <div class="flex gap-5 overflow-x-auto overflow-y-hidden">
+            <a data-href="{:url('info')}" class="layui-btn layui-btn-primary j-iframe" data-width="800px" data-height="610px"><i class="layui-icon">&#xe654;</i>{:lang('add')}</a>
+            <a data-href="{:url('del')}" class="layui-btn layui-btn-primary j-page-btns confirm"><i class="layui-icon">&#xe640;</i>{:lang('del')}</a>
+            <a data-href="{:url('clearbind')}" class="layui-btn layui-btn-primary j-page-btns confirm" data-checkbox="false" data-ajax="yes"><i class="layui-icon">&#xe640;</i>{:lang('admin/collect/clear_bind')}</a>
+
+                {if condition="$collect_break_vod neq ''"}
+                <a href="{:url('load')}?flag=vod" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_vod_break')}】</a>
+                {/if}
+                {if condition="$collect_break_art neq ''"}
+                <a href="{:url('load')}?flag=art" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_art_break')}】</a>
+                {/if}
+                {if condition="$collect_break_actor neq ''"}
+                <a href="{:url('load')}?flag=actor" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_actor_break')}】</a>
+                {/if}
+                {if condition="$collect_break_role neq ''"}
+                <a href="{:url('load')}?flag=role" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_role_break')}】</a>
+                {/if}
+                {if condition="$collect_break_website neq ''"}
+                <a href="{:url('load')}?flag=website" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_website_break')}】</a>
+                {/if}
+                {if condition="$collect_break_manga neq ''"}
+                <a href="{:url('load')}?flag=manga" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_manga_break')}】</a>
+                {/if}
+
+        </div>
+
+    </div>
+
+    <form class="layui-form " method="post" id="pageListForm">
+        <table class="layui-table" lay-size="sm">
+            <thead>
+            <tr>
+                <th width="25"><input type="checkbox" lay-skin="primary" lay-filter="allChoose"></th>
+                <th width="100">{:lang('id')}</th>
+                <th width="100">{:lang('admin/collect/api_type')}</th>
+                <th width="100">{:lang('admin/collect/data_type')}</th>
+                <th>{:lang('admin/collect/site')}</th>
+                <th width="260">{:lang('admin/collect/collect_opt')}</th>
+                <th width="180">{:lang('opt')}</th>
+            </tr>
+            </thead>
+
+            {volist name="list" id="vo"}
+            <tr>
+                <td><input type="checkbox" name="ids[]" value="{$vo.collect_id}" class="layui-checkbox checkbox-ids" lay-skin="primary"></td>
+                <td>{$vo.collect_id}</td>
+                <td>{if condition="$vo['collect_type'] eq 1"}xml{else/}json{/if} </td>
+                <td>{$vo.collect_mid|mac_get_mid_text}</td>
+                <td><a class="layui-badge-rim" href="{:url('api')}?{:http_build_query(['ac'=>'list','cjflag'=>md5($vo.collect_url),'cjurl'=>$vo.collect_url,'h'=>'','t'=>'','ids'=>'','wd'=>'','type'=>$vo.collect_type,'mid'=>$vo.collect_mid,'opt'=>$vo.collect_opt,'sync_pic_opt'=>$vo.collect_sync_pic_opt,'filter'=>$vo.collect_filter,'filter_from'=>$vo.collect_filter_from,'filter_year'=>$vo.collect_filter_year,'param'=>base64_encode($vo.collect_param)])}" title="{:lang('admin/resourcehub/btn_enter')}">【{$vo.collect_name}】{$vo.collect_url}</a></td>
+                <td>
+                    <a class="layui-badge-rim" href="{:url('api')}?{:http_build_query(['ac'=>'cj','cjflag'=>md5($vo.collect_url),'cjurl'=>$vo.collect_url,'h'=>'24','t'=>'','ids'=>'','wd'=>'','type'=>$vo.collect_type,'mid'=>$vo.collect_mid,'opt'=>$vo.collect_opt,'sync_pic_opt'=>$vo.collect_sync_pic_opt,'filter'=>$vo.collect_filter,'filter_from'=>$vo.collect_filter_from,'filter_year'=>$vo.collect_filter_year,'param'=>base64_encode($vo.collect_param)])}" title="{:lang('admin/collect/cj_day')}">{:lang('admin/collect/cj_day')}</a>
+                    <a class="layui-badge-rim" href="{:url('api')}?{:http_build_query(['ac'=>'cj','cjflag'=>md5($vo.collect_url),'cjurl'=>$vo.collect_url,'h'=>'168','t'=>'','ids'=>'','wd'=>'','type'=>$vo.collect_type,'mid'=>$vo.collect_mid,'opt'=>$vo.collect_opt,'sync_pic_opt'=>$vo.collect_sync_pic_opt,'filter'=>$vo.collect_filter,'filter_from'=>$vo.collect_filter_from,'filter_year'=>$vo.collect_filter_year,'param'=>base64_encode($vo.collect_param)])}" title="{:lang('admin/collect/cj_week')}">{:lang('admin/collect/cj_week')}</a>
+                    <a class="layui-badge-rim" href="{:url('api')}?{:http_build_query(['ac'=>'cj','cjflag'=>md5($vo.collect_url),'cjurl'=>$vo.collect_url,'h'=>'','t'=>'','ids'=>'','wd'=>'','type'=>$vo.collect_type,'mid'=>$vo.collect_mid,'opt'=>$vo.collect_opt,'sync_pic_opt'=>$vo.collect_sync_pic_opt,'filter'=>$vo.collect_filter,'filter_from'=>$vo.collect_filter_from,'filter_year'=>$vo.collect_filter_year,'param'=>base64_encode($vo.collect_param)])}" title="{:lang('admin/collect/cj_all_full')}">{:lang('admin/collect/cj_all_full')}</a>
+                </td>
+                <td>
+                    <a class="layui-badge-rim j-iframe" data-href="{:url('info?id='.$vo['collect_id'])}" data-width="800px" data-height="610px" href="javascript:;" title="{:lang('edit')}">{:lang('edit')}</a>
+                    <a class="layui-badge-rim j-tr-del" data-href="{:url('del?ids='.$vo['collect_id'])}" href="javascript:;" title="{:lang('del')}">{:lang('del')}</a>
+                </td>
+            </tr>
+            {/volist}
+            </tbody>
+        </table>
+        <div id="pages" class="center"></div>
+    </form>
+</div>
+
+{include file="../../../app/admin/view/public/foot" /}
+<script type="text/javascript">
+    layui.use(['laypage', 'layer'], function() {
+        var laypage = layui.laypage
+                , layer = layui.layer;
+
+
+    });
+</script>
+</body>
+</html>

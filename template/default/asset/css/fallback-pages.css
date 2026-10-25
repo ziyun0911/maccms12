@@ -1,0 +1,220 @@
+/* 缺失模板兜底页：vod/index、role/search、topic/search、plot/search、search/index */
+.fb-page {
+    --fb-radius: 10px;
+    box-sizing: border-box;
+    color: var(--tpl-text);
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 16px 14px 40px;
+}
+.container.fb-page {
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 0;
+    width: 100%;
+}
+.fb-hero { margin-bottom: 18px; }
+.fb-title {
+    color: var(--tpl-text-strong);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0 0 8px;
+}
+.fb-sub {
+    color: var(--tpl-text-subtle);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0;
+}
+.fb-sub em { color: var(--tpl-accent); font-style: normal; font-weight: 600; }
+.fb-count { color: var(--tpl-accent); font-style: normal; font-weight: 600; }
+.fb-search { display: flex; gap: 8px; margin: 14px 0 12px; }
+.fb-search input {
+    background: var(--tpl-bg-muted);
+    border: 1px solid var(--tpl-border);
+    border-radius: 999px;
+    box-sizing: border-box;
+    color: var(--tpl-text);
+    flex: 1 1 auto;
+    font-size: 14px;
+    height: 40px;
+    min-width: 0;
+    outline: 0;
+    padding: 0 16px;
+    -webkit-appearance: none;
+}
+.fb-search input:focus { border-color: var(--tpl-accent); }
+.fb-search button {
+    background: var(--tpl-accent);
+    border: 0;
+    border-radius: 999px;
+    color: var(--tpl-text-on-inverse);
+    cursor: pointer;
+    flex: 0 0 auto;
+    font-size: 14px;
+    height: 40px;
+    padding: 0 22px;
+}
+.fb-search button:hover { background: var(--tpl-accent-hover); }
+.fb-tags {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 14px;
+}
+.fb-tags__label {
+    align-items: center;
+    color: var(--tpl-text-subtle);
+    display: inline-flex;
+    font-size: 13px;
+}
+.fb-tag {
+    background: var(--tpl-bg-muted);
+    border: 1px solid var(--tpl-border-soft);
+    border-radius: 999px;
+    color: var(--tpl-text-muted);
+    display: inline-block;
+    font-size: 13px;
+    line-height: 1;
+    padding: 8px 14px;
+    text-decoration: none;
+}
+.fb-tag:hover { color: var(--tpl-accent); }
+.fb-tag.is-active {
+    background: var(--tpl-accent);
+    border-color: var(--tpl-accent);
+    color: var(--tpl-text-on-inverse);
+}
+.fb-grid {
+    display: grid;
+    gap: 16px 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.fb-card { min-width: 0; }
+.fb-card__poster {
+    background: var(--tpl-bg-muted);
+    border-radius: var(--tpl-radius-cover, 6px);
+    display: block;
+    overflow: hidden;
+    padding-top: 145%;
+    position: relative;
+}
+.fb-card__poster img {
+    height: 100%;
+    left: 0;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+.fb-card__title {
+    color: var(--tpl-text);
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 8px 0 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.fb-card__title a { color: inherit; text-decoration: none; }
+.fb-card__title a:hover { color: var(--tpl-accent); }
+.fb-card__sub {
+    color: var(--tpl-text-subtle);
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.fb-grid--wide { grid-template-columns: 1fr; }
+.fb-card--row {
+    background: var(--tpl-bg-muted);
+    border-radius: var(--fb-radius);
+    display: flex;
+    gap: 12px;
+    padding: 10px;
+}
+.fb-card--row .fb-card__poster {
+    flex: 0 0 88px;
+    height: 116px;
+    padding-top: 0;
+    width: 88px;
+}
+.fb-card--row .fb-card__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+.fb-card--row .fb-card__title { margin-top: 0; }
+.fb-card__text {
+    color: var(--tpl-text-muted);
+    display: -webkit-box;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 4px 0 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+.fb-card--topic .fb-card__poster { padding-top: 56%; }
+.fb-empty {
+    background: var(--tpl-bg-muted);
+    border-radius: var(--fb-radius);
+    padding: 44px 16px;
+    text-align: center;
+}
+.fb-empty .iconfont {
+    color: var(--tpl-border);
+    display: block;
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+.fb-empty p {
+    color: var(--tpl-text-subtle);
+    font-size: 14px;
+    margin: 0;
+}
+.fb-section { margin-top: 30px; }
+.fb-section__head {
+    align-items: center;
+    border-bottom: 1px solid var(--tpl-border-soft);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+}
+.fb-section__title {
+    color: var(--tpl-text-strong);
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+}
+.fb-section__more {
+    color: var(--tpl-text-subtle);
+    font-size: 13px;
+    text-decoration: none;
+}
+.fb-section__more:hover { color: var(--tpl-accent); }
+.fb-paging { margin-top: 22px; }
+
+@media (min-width: 640px) {
+    .fb-grid { gap: 20px 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .fb-grid--wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 820px) {
+    .container.fb-page { margin-top: 20px; padding: 0 24px 56px; }
+    .fb-title { font-size: 28px; }
+    .fb-search { max-width: 620px; }
+    .fb-grid { gap: 24px 16px; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .fb-grid--wide { gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fb-card--row .fb-card__poster { flex-basis: 104px; height: 138px; width: 104px; }
+    .fb-section { margin-top: 40px; }
+}

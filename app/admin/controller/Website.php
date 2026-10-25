@@ -1,0 +1,365 @@
+<?php
+namespace app\admin\controller;
+use think\facade\Db;
+use app\common\util\Pinyin;
+
+class Website extends Base
+{
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function data()
+    {
+        $param = input();
+        $param['page'] = intval($param['page']) < 1 ? 1 : $param['page'];
+        $param['limit'] = intval($param['limit']) < 1 ? $this->_pagesize : $param['limit'];
+
+        $where = [];
+        if (!empty($param['type'])) {
+            $where['type_id|type_id_1'] = ['eq', $param['type']];
+        }
+        if (!empty($param['level'])) {
+            $where['website_level'] = ['eq', $param['level']];
+        }
+        if (in_array($param['status'], ['0', '1'])) {
+            $where['website_status'] = ['eq', $param['status']];
+        }
+        if (!empty($param['lock'])) {
+            $where['website_lock'] = ['eq', $param['lock']];
+        }
+        if(!empty($param['pic'])){
+            if($param['pic'] == '1'){
+                $where['website_pic'] = ['eq',''];
+            }
+            elseif($param['pic'] == '2'){
+                $where['website_pic'] = ['like','http%'];
+            }
+            elseif($param['pic'] == '3'){
+                $where['website_pic'] = ['like','%#err%'];
+            }
+        }
+        if(!empty($param['wd'])){
+            $param['wd'] = htmlspecialchars(urldecode($param['wd']));
+            $like = mac_search_wd_like($param['wd']);
+            if ($like) {
+                $where['website_name'] = $like;
+            }
+        }
+
+        if(!empty($param['repeat'])){
+            if($param['page'] ==1){
+                Db::execute('DROP TABLE IF EXISTS '.config('database.connections.mysql.prefix').'tmpwebsite');
+                Db::execute('CREATE TABLE `'.config('database.connections.mysql.prefix').'tmpwebsite` (`id1` int unsigned DEFAULT NULL, `name1` varchar(1024) NOT NULL DEFAULT \'\') ENGINE=MyISAM');
+                Db::execute('INSERT INTO `'.config('database.connections.mysql.prefix').'tmpwebsite` (SELECT min(website_id)as id1,website_name as name1 FROM '.config('database.connections.mysql.prefix').'website GROUP BY name1 HAVING COUNT(name1)>1)');
+            }
+            $order='website_name asc';
+            $res = (new \app\common\model\Website())->listRepeatData($where,$order,$param['page'],$param['limit']);
+        }
+        else{
+            $order='website_time desc';
+            $res = (new \app\common\model\Website())->listData($where,$order,$param['page'],$param['limit']);
+        }
+
+        foreach($res['list'] as $k=>&$v){
+            $v['ismake'] = 1;
+            if($GLOBALS['config']['view']['website_detail'] >0 && $v['website_time_make'] < $v['website_time']){
+                $v['ismake'] = 0;
+            }
+        }
+
+        $this->assign('list', $res['list']);
+        $this->assign('total', $res['total']);
+        $this->assign('page', $res['page']);
+        $this->assign('limit', $res['limit']);
+
+        $param['page'] = '{page}';
+        $param['limit'] = '{limit}';
+        $this->assign('param', $param);
+
+        $type_tree = (new \app\common\model\Type())->getCache('type_tree');
+        $this->assign('type_tree', $type_tree);
+
+        $this->assign('title',lang('admin/website/title'));
+        return $this->fetch('admin@website/index');
+    }
+
+    public function batch()
+    {
+        $param = input();
+        if (!empty($param)) {
+
+            mac_echo('<style type="text/css">body{font-size:12px;color: #333333;line-height:21px;}span{font-weight:bold;color:#FF0000}</style>');
+
+            if(empty($param['ck_del']) && empty($param['ck_level']) && empty($param['ck_status']) && empty($param['ck_lock']) && empty($param['ck_hits']) ){
+                return $this->error(lang('param_err'));
+            }
+            $where = [];
+            if(!empty($param['type'])){
+                $where['type_id'] = ['eq',$param['type']];
+            }
+            if(!empty($param['level'])){
+                $where['website_level'] = ['eq',$param['level']];
+            }
+            if(in_array($param['status'],['0','1'])){
+                $where['website_status'] = ['eq',$param['status']];
+            }
+            if(!empty($param['lock'])){
+                $where['website_lock'] = ['eq',$param['lock']];
+            }
+            if(!empty($param['pic'])){
+                if($param['pic'] == '1'){
+                    $where['website_pic'] = ['eq',''];
+                }
+                elseif($param['pic'] == '2'){
+                    $where['website_pic'] = ['like','http%'];
+                }
+                elseif($param['pic'] == '3'){
+                    $where['website_pic'] = ['like','%#err%'];
+                }
+            }
+            if(!empty($param['wd'])){
+                $param['wd'] = htmlspecialchars(urldecode($param['wd']));
+                $like = mac_search_wd_like($param['wd']);
+                if ($like) {
+                    $where['website_name'] = $like;
+                }
+            }
+
+
+            if($param['ck_del'] == 1){
+                $res = (new \app\common\model\Website())->delData($where);
+                mac_echo(lang('multi_del_ok'));
+                mac_jump( url('website/batch') ,3);
+                exit;
+            }
+
+            if(empty($param['page'])){
+                $param['page'] = 1;
+            }
+            if(empty($param['limit'])){
+                $param['limit'] = 100;
+            }
+            if(empty($param['total'])) {
+                $param['total'] = (new \app\common\model\Website())->countData($where);
+                $param['page_count'] = ceil($param['total'] / $param['limit']);
+            }
+
+            if($param['page'] > $param['page_count']) {
+                mac_echo(lang('multi_opt_ok'));
+                mac_jump( url('website/batch') ,3);
+                exit;
+            }
+            mac_echo( "<font color=red>".lang('admin/batch_tip',[$param['total'],$param['limit'],$param['page_count'],$param['page']])."</font>");
+
+            $order='website_id desc';
+            $res = (new \app\common\model\Website())->listData($where,$order,$param['page'],$param['limit']);
+
+            foreach($res['list'] as  $k=>$v){
+                $where2 = [];
+                $where2['website_id'] = $v['website_id'];
+
+                $update = [];
+                $des = $v['website_id'].','.$v['website_name'];
+
+                if(!empty($param['ck_level']) && !empty($param['val_level'])){
+                    $update['website_level'] = $param['val_level'];
+                    $des .= '&nbsp;'.lang('level').'：'.$param['val_level'].'；';
+                }
+                if(!empty($param['ck_status']) && isset($param['val_status'])){
+                    $update['website_status'] = $param['val_status'];
+                    $des .= '&nbsp;'.lang('status').'：'.($param['val_status'] ==1 ? '['.lang('reviewed').']':'['.lang('reviewed_not').']') .'；';
+                }
+                if(!empty($param['ck_lock']) && isset($param['val_lock'])){
+                    $update['website_lock'] = $param['val_lock'];
+                    $des .= '&nbsp;'.lang('lock').'：'.($param['val_lock']==1 ? '['.lang('lock').']':'['.lang('unlock').']').'；';
+                }
+                if(!empty($param['ck_hits']) && !empty($param['val_hits_min']) && !empty($param['val_hits_max']) ){
+                    $update['website_hits'] = rand($param['val_hits_min'],$param['val_hits_max']);
+                    $des .= '&nbsp;'.lang('hits').'：'.$update['website_hits'].'；';
+                }
+                mac_echo($des);
+                $res2 = (new \app\common\model\Website())->where($where2)->update($update);
+
+            }
+            $param['page']++;
+            $url = url('website/batch') .'?'. http_build_query($param);
+            mac_jump( $url ,3);
+            exit;
+        }
+
+        $type_tree = (new \app\common\model\Type())->getCache('type_tree');
+        $this->assign('type_tree',$type_tree);
+
+        $this->assign('title',lang('admin/website/title'));
+        return $this->fetch('admin@website/batch');
+    }
+
+    public function info()
+    {
+        if (Request()->isPost()) {
+            $param = input('post.');
+            $contentLang = $param['content_lang'] ?? [];
+            unset($param['content_lang']);
+            $param['website_content'] = str_replace( $GLOBALS['config']['upload']['protocol'].':','mac:',$param['website_content']);
+            $res = (new \app\common\model\Website())->saveData($param);
+            if($res['code']>1){
+                return $this->error($res['msg']);
+            }
+            $websiteId = (int)($res['website_id'] ?? 0);
+            if ($websiteId > 0 && is_array($contentLang)) {
+                $defaultLang = mac_content_lang_default();
+                foreach ($contentLang as $langCode => $fields) {
+                    if ((string)$langCode === $defaultLang || !is_array($fields)) {
+                        continue;
+                    }
+                    (new \app\common\model\ContentLang())->saveFields('website', $websiteId, (string)$langCode, $fields, 'manual', 1);
+                }
+            }
+            return $this->success($res['msg']);
+        }
+
+        $id = input('id');
+        $where=[];
+        $where['website_id'] = ['eq',$id];
+        $res = (new \app\common\model\Website())->infoData($where);
+
+        $info = $res['info'];
+        $this->assign('info',$info);
+        $this->assign('website_page_list',$info['website_page_list']);
+
+        $type_tree = (new \app\common\model\Type())->getCache('type_tree');
+        $this->assign('type_tree',$type_tree);
+
+        //内容级多语言
+        $content_lang_default = mac_content_lang_default();
+        $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
+        $content_lang_data = [];
+        if (!empty($info['website_id'])) {
+            foreach ($content_lang_enabled as $langCode) {
+                $content_lang_data[$langCode] = (new \app\common\model\ContentLang())->getFields('website', $info['website_id'], $langCode);
+            }
+        }
+        $this->assign('content_lang_default', $content_lang_default);
+        $this->assign('content_lang_enabled', $content_lang_enabled);
+        $this->assign('content_lang_multi', count($content_lang_enabled) > 1);
+        $this->assign('content_lang_data', $content_lang_data);
+        $this->assign('content_translate_available', mac_content_translate_available());
+
+        $this->assign('title',lang('admin/website/title'));
+        return $this->fetch('admin@website/info');
+    }
+
+    /**
+     * 调用已安装的翻译插件（若有）翻译单个字段。
+     */
+    public function contentLangTranslate()
+    {
+        $text = (string)input('post.text', '');
+        $from = (string)input('post.from', mac_content_lang_default());
+        $to = (string)input('post.to', '');
+        if ($text === '' || $to === '') {
+            return $this->error(lang('param_err'));
+        }
+        if (!mac_content_translate_rate_limit($this->_admin['admin_id'])) {
+            return $this->error(lang('frequently'));
+        }
+        $result = mac_content_translate($text, $from, $to, ['content_type' => 'website']);
+        if ($result === '') {
+            return $this->error(lang('admin/website/content_lang_translate_err'));
+        }
+        return json(['code' => 1, 'msg' => 'ok', 'data' => $result]);
+    }
+
+    public function del()
+    {
+        $param = input();
+        $ids = $param['ids'];
+
+        if(!empty($ids)){
+            $where=[];
+            $where['website_id'] = ['in',$ids];
+            $res = (new \app\common\model\Website())->delData($where);
+            if($res['code']>1){
+                return $this->error($res['msg']);
+            }
+            return $this->success($res['msg']);
+        }
+        elseif(!empty($param['repeat'])){
+            $st = ' not in ';
+            if($param['retain']=='max'){
+                $st=' in ';
+            }
+            $sql = 'delete from '.config('database.connections.mysql.prefix').'website where website_name in(select name1 from '.config('database.connections.mysql.prefix').'tmpwebsite) and website_id '.$st.'(select id1 from '.config('database.connections.mysql.prefix').'tmpwebsite)';
+            $res = (new \app\common\model\Website())->execute($sql);
+            if($res===false){
+                return $this->success(lang('del_err'));
+            }
+            return $this->success(lang('del_ok'));
+        }
+        return $this->error(lang('param_err'));
+    }
+
+    public function field()
+    {
+        $param = input();
+        $ids = $param['ids'];
+        $col = $param['col'];
+        $val = $param['val'];
+        $start = $param['start'];
+        $end = $param['end'];
+        if ($col == 'type_id' && $val==''){
+            return $this->error(lang('select_type_must'));
+        }
+        // 与 batch() 同一套白名单：目标分类必须存在且属于网址模块(type_mid=11)。
+        // field() 同样是一次改整批数据的入口，表单可被直接构造，写进不存在或跨模块的
+        // type_id 后前台按分类取数会整批丢失。取一次缓存供下面复用。
+        $type_pid = 0;
+        if($col == 'type_id'){
+            $type_list = (new \app\common\model\Type())->getCache();
+            $type_id = intval($val);
+            if($type_id < 1 || !isset($type_list[$type_id]) || intval($type_list[$type_id]['type_mid']) != 11){
+                return $this->error(lang('select_type_must'));
+            }
+            $type_pid = intval($type_list[$type_id]['type_pid']);
+        }
+
+        if(!empty($ids) && in_array($col,['website_status','website_lock','website_level','website_hits','type_id'])){
+            $where=[];
+            $where['website_id'] = ['in',$ids];
+            $update = [];
+            if(empty($start)) {
+                $update[$col] = $val;
+                if($col == 'type_id'){
+                    $update['type_id_1'] = $type_pid;
+                }
+                $res = (new \app\common\model\Website())->fieldData($where, $update);
+            }
+            else{
+                if(empty($end)){$end = 9999;}
+                $ids = explode(',',$ids);
+                foreach($ids as $k=>$v){
+                    $val = rand($start,$end);
+                    $where['website_id'] = ['eq',$v];
+                    $update[$col] = $val;
+                    $res = (new \app\common\model\Website())->fieldData($where, $update);
+                }
+            }
+            if($res['code']>1){
+                return $this->error($res['msg']);
+            }
+            return $this->success($res['msg']);
+        }
+        return $this->error(lang('param_err'));
+    }
+
+    public function updateToday()
+    {
+        $param = input();
+        $flag = $param['flag'];
+        $res = (new \app\common\model\Website())->updateToday($flag);
+        return json($res);
+    }
+
+}
