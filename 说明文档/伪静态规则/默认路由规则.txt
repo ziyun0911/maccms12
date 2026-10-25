@@ -5,7 +5,7 @@ maccms12（ThinkPHP 8）前台默认 URL 路由规则
 （git 跟踪，共 58 条 Route::rule）逐条对应；<page?> 等带 ? 的参数为可选，
 结尾带 $ 的规则表示「不带参数时也命中」。
 
-· 后台查看/修改位置：系统设置 → 网站参数 →「URL地址配置」分页 →
+· 后台查看/修改位置：系统 → 网站参数 →「URL地址配置」分页 →
   「路由伪静态设置」→「路由规则」文本域。
   规则以「表达式 => 路由地址」每行一条保存，落库到 app/extra/maccms.php 的
   rewrite.route；保存后系统会自动重新生成 app/index/route/rewrite.php。

@@ -30,7 +30,7 @@ maccms12（ThinkPHP 8）说明
 二、搜索接口
 说明：
 - 与 **四、模块接口** 相同，受后台 **API 公开接口（PublicApi）** 开关约束；未开启时请求可能被拒绝。
-- 视频 **联想** 另受后台 **系统设置 → 网站参数** 的搜索开关（app.search）约束：关闭时联想接口返回 code=999（与前台关闭搜索一致）。
+- 视频 **联想** 另受后台 **系统 → 网站参数** 的搜索开关（app.search）约束：关闭时联想接口返回 code=999（与前台关闭搜索一致）。
 
 0) 统一搜索（跨模块）— 独立搜索 API
 - 路径：GET /api.php/search/index
@@ -334,7 +334,7 @@ maccms12（ThinkPHP 8）说明
     - comment_content：string 必填，正文
     - comment_pid：number 可选，父评论 id，默认 0
     - comment_name：string 可选，未登录游客昵称（已登录从 Cookie 取用户）
-  - 说明：后台「会员设置 → 会员互动 → 评论留言配置」可强制登录(comment.login)、审核(comment.audit)；有频率 Cookie 限制
+  - 说明：后台「系统 → 会员互动 → 评论留言配置」可强制登录(comment.login)、审核(comment.audit)；有频率 Cookie 限制
   - 返回：与 model 保存结果一致（code/msg）
 - 举报：GET /api.php/comment/report
   - 参数：id：number 必填，comment_id
@@ -580,7 +580,7 @@ maccms12（ThinkPHP 8）说明
 - 预留参数（扩展分类/地区/年份等）：GET /api.php/config/get_extra_var/
   - 参数：无
   - 返回：{"code":1,"msg":"...","data":{"vod_extend_area":[],"vod_extend_year":[],"art_extend_class":[],"vod_extend_class":[],"extra_var":{...}, ...}}
-  - 说明：与后台「系统设置 → 网站参数 → 预留参数」分页一致；模板 default 中 vod/manga/art 的 show 筛选器通过前端 ajax 拉取本接口填充选项
+  - 说明：与后台「系统 → 网站参数 → 预留参数」分页一致；模板 default 中 vod/manga/art 的 show 筛选器通过前端 ajax 拉取本接口填充选项
 - 站点壳层 + config.json：GET /api.php/config/get_tpl_config/
   - 参数：无
   - 返回：{code:1, msg:'获取成功', info:{site:{site_name, site_url, site_logo, site_wap_logo, template_dir, ...}, features:{user_status, gbook_status, comment_status}, search:{search_hot}, tpl_config:{...}}}
@@ -918,7 +918,7 @@ maccms12（ThinkPHP 8）说明
 23) Sycms（SyCMS 远程采集转换）
   ~~maccms12 当前版本未包含此控制器（无 app/api/controller/Sycms.php）；
   以下为官方 master 功能描述，仅作版本演进参考。~~
-  说明：SyCMS 数据采集桥接接口，从远程 SyCMS API (apiv3.sycms.cc) 获取加密数据并转换为 MacCMS 标准格式。可在后台「采集中心 → 资源站中心」配置此接口地址。不继承 PublicApi 检查。
+  说明：SyCMS 数据采集桥接接口，从远程 SyCMS API (apiv3.sycms.cc) 获取加密数据并转换为 MacCMS 标准格式。可在后台「采集 → 资源站中心」配置此接口地址。不继承 PublicApi 检查。
 
 - 主入口：GET /api.php/sycms/index
   - 参数：
@@ -1062,7 +1062,7 @@ maccms12（ThinkPHP 8）说明
 
 6) PublicApi（公开接口总开关）
    - check_config：公开接口开关检查（多数 API 模块继承该基类，受后台
-     「采集中心 → 内容接入 → 开放API配置」约束，配置键 api.publicapi.status）
+     「系统 → 内容接入 → 开放API配置」约束，配置键 api.publicapi.status）
 
 7) Recommend（推荐）
    - list：推荐位/推荐列表
