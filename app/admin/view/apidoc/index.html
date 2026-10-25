@@ -451,6 +451,133 @@
         border-radius: 8px;
     }
 
+    /* 末尾的 Schemas 区：swagger 默认灰底深边框、标题 16px 常规体、箭头贴最右，
+       和上面的分组白卡对不上，这里统一成同一种卡片 */
+    #swagger-ui .swagger-ui section.models {
+        margin: 0 0 8px;
+        padding: 0;
+        background: #fff;
+        border: 1px solid #e8edf3;
+        border-radius: 12px;
+        box-shadow: none;
+    }
+
+    #swagger-ui .swagger-ui section.models h4 {
+        margin: 0;
+        padding: 12px 14px;
+        font-family: inherit;
+        border-bottom: 0;
+        border-radius: 12px;
+        box-shadow: none;
+        transition: background-color .18s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    /* swagger 给 h4 画了条 rgba(59,65,81,.3) 深色下边框，展开收起都在；
+       改成跟随展开状态的浅色内缩分隔线 */
+    #swagger-ui .swagger-ui section.models h4 .models-control[aria-expanded="true"] {
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eef1f5;
+    }
+
+    #swagger-ui .swagger-ui section.models h4:hover {
+        background: #f5f7fa;
+    }
+
+    #swagger-ui .swagger-ui section.models h4 .models-control {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1a2233;
+        text-align: left;
+        background: none;
+        border: 0;
+        cursor: pointer;
+    }
+
+    /* "Schemas"/"Models" 是 bundle 里写死的英文，改不动组件也不该改；
+       藏掉原节点、用后台语言渲染 ::before，React 重渲染也不会退回英文 */
+    #swagger-ui .swagger-ui section.models h4 .models-control > span {
+        display: none;
+    }
+
+    #swagger-ui .swagger-ui section.models h4 .models-control::before {
+        content: "{:lang('admin/apidoc/schemas_label')}";
+    }
+
+    #swagger-ui .swagger-ui section.models h4 .models-control svg {
+        flex: 0 0 auto;
+        margin-left: 6px;
+        fill: #64748b;
+    }
+
+    #swagger-ui .swagger-ui section.models .no-margin {
+        padding: 0 14px 12px;
+    }
+
+    #swagger-ui .swagger-ui section.models .model-container {
+        margin: 0 0 8px;
+        padding: 0;
+        background: #f5f7fa;
+        border: 1px solid #eef1f5;
+        border-radius: 10px;
+    }
+
+    #swagger-ui .swagger-ui section.models .model-container:last-child {
+        margin-bottom: 0;
+    }
+
+    #swagger-ui .swagger-ui section.models .model-container > .model-box {
+        display: block;
+        padding: 0;
+    }
+
+    #swagger-ui .swagger-ui section.models .model-box-control {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 9px 12px;
+        font-family: inherit;
+        font-size: 13px;
+        color: #1a2233;
+        text-align: left;
+        background: none;
+        border: 0;
+        cursor: pointer;
+    }
+
+    #swagger-ui .swagger-ui section.models .model-title {
+        font-family: Consolas, Monaco, "Courier New", monospace;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1a2233;
+    }
+
+    #swagger-ui .swagger-ui section.models table.model {
+        margin: 0 12px 10px;
+        padding: 0;
+        font-family: Consolas, Monaco, "Courier New", monospace;
+        font-size: 12px;
+        color: #475569;
+    }
+
+    #swagger-ui .swagger-ui section.models table.model td {
+        padding: 3px 12px 3px 0;
+        font-weight: 600;
+        color: #475569;
+        vertical-align: top;
+    }
+
+    #swagger-ui .swagger-ui section.models table.model tr.description td,
+    #swagger-ui .swagger-ui section.models .renderedMarkdown,
+    #swagger-ui .swagger-ui section.models .renderedMarkdown p {
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        font-weight: 400;
+        color: #64748b;
+    }
+
     @media (max-width: 767px) {
         .apidoc-bar {
             gap: 8px 10px;
@@ -481,6 +608,14 @@
 
         #swagger-ui .swagger-ui .opblock-tag small {
             display: none;
+        }
+
+        #swagger-ui .swagger-ui section.models h4 {
+            padding: 10px 12px;
+        }
+
+        #swagger-ui .swagger-ui section.models h4 .models-control {
+            font-size: 14px;
         }
     }
 </style>

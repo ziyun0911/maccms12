@@ -254,6 +254,7 @@ return array (
   'admin/apidoc/expand_all' => 'Expand all',
   'admin/apidoc/filter_ph' => 'Filter operations by tag',
   'admin/apidoc/openapi_menu' => 'OpenAPI Spec',
+  'admin/apidoc/schemas_label' => 'Data models',
   'admin/apidoc/page_desc' => 'Browse and debug this site\'s API online (based on the OpenAPI 3.0 spec)',
   'admin/apidoc/stat_groups' => 'groups',
   'admin/apidoc/stat_ops' => 'operations',

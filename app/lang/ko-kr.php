@@ -254,6 +254,7 @@ return array (
   'admin/apidoc/expand_all' => '모두 펼치기',
   'admin/apidoc/filter_ph' => '태그로 엔드포인트 필터링',
   'admin/apidoc/openapi_menu' => 'OpenAPI 명세',
+  'admin/apidoc/schemas_label' => '데이터 모델',
   'admin/apidoc/page_desc' => '본 사이트 API를 온라인으로 조회하고 디버깅 (OpenAPI 3.0 명세 기반)',
   'admin/apidoc/stat_groups' => '그룹',
   'admin/apidoc/stat_ops' => '엔드포인트',

@@ -257,6 +257,7 @@ return array (
   'admin/apidoc/expand_all' => 'Развернуть все',
   'admin/apidoc/filter_ph' => 'Фильтровать операции по тегу',
   'admin/apidoc/openapi_menu' => 'Спецификация OpenAPI',
+  'admin/apidoc/schemas_label' => 'Модели данных',
   'admin/apidoc/page_desc' => 'Просмотр и отладка API этого сайта онлайн (на основе спецификации OpenAPI 3.0)',
   'admin/apidoc/stat_groups' => 'групп',
   'admin/apidoc/stat_ops' => 'операций',

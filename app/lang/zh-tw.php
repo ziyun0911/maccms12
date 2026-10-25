@@ -254,6 +254,7 @@ return array (
   'admin/apidoc/expand_all' => '展開全部',
   'admin/apidoc/filter_ph' => '依標籤過濾介面',
   'admin/apidoc/openapi_menu' => 'OpenAPI 規範',
+  'admin/apidoc/schemas_label' => '數據模型',
   'admin/apidoc/page_desc' => '線上瀏覽與除錯本站 API 介面（基於 OpenAPI 3.0 規範）',
   'admin/apidoc/stat_groups' => '個分組',
   'admin/apidoc/stat_ops' => '個介面',

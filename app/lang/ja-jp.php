@@ -254,6 +254,7 @@ return array (
   'admin/apidoc/expand_all' => 'すべて展開',
   'admin/apidoc/filter_ph' => 'タグでエンドポイントを絞り込み',
   'admin/apidoc/openapi_menu' => 'OpenAPI 仕様',
+  'admin/apidoc/schemas_label' => 'データモデル',
   'admin/apidoc/page_desc' => '本サイトの API をオンラインで閲覧・デバッグ（OpenAPI 3.0 仕様準拠）',
   'admin/apidoc/stat_groups' => 'グループ',
   'admin/apidoc/stat_ops' => 'エンドポイント',

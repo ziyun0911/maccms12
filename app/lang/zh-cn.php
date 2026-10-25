@@ -3543,6 +3543,7 @@ https://www.baidu.com/123.jpg
   'menu/apidoc' => 'API 文档',
   'admin/apidoc/filter_ph' => '按标签过滤接口',
   'admin/apidoc/openapi_menu' => 'OpenAPI 规范',
+  'admin/apidoc/schemas_label' => '数据模型',
   'admin/apidoc/page_desc' => '在线浏览与调试本站 API 接口（基于 OpenAPI 3.0 规范）',
   'admin/apidoc/api_base' => '接口入口',
   'admin/apidoc/collapse_all' => '收起全部',
