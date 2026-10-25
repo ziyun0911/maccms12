@@ -1,0 +1,250 @@
+/* 后台文档类页面（「API 文档」「说明文档」）共用的页面外壳。
+   这些页面在 admin 首页的 iframe 里渲染，取不到 admin_index_shell.css 的 :root 变量，
+   所以颜色与圆角按同一套设计令牌硬编码：brand #40CC92 / ink #1a2233 / muted #64748b
+   / faint #94a3b8 / line #e8edf3 / bg #f0f3f7 / radius 12px。 */
+
+.doc-page {
+    min-height: 100%;
+    padding-bottom: 28px;
+    background: #f0f3f7;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    color: #1a2233;
+}
+
+.doc-bar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 10px 14px;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e8edf3;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+}
+
+.doc-bar__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a2233;
+}
+
+.doc-bar__desc {
+    flex: 1 1 220px;
+    min-width: 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.doc-bar__chip {
+    padding: 3px 8px;
+    font-size: 12px;
+    color: #2db87d;
+    word-break: break-all;
+    background: #e4f8f0;
+    border: 1px solid rgba(64, 204, 146, .24);
+    border-radius: 6px;
+}
+
+.doc-bar__stat {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.doc-bar__ops {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.doc-bar .layui-btn {
+    margin: 0;
+    color: #475569;
+    border-color: #e8edf3;
+    border-radius: 8px;
+}
+
+.doc-bar .layui-btn:hover {
+    color: #2db87d;
+    border-color: rgba(64, 204, 146, .45);
+}
+
+.doc-filter-input {
+    width: 220px;
+    max-width: 100%;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #1a2233;
+    background: #fff;
+    border: 1px solid #e8edf3;
+    border-radius: 10px;
+    outline: none;
+    box-shadow: none;
+}
+
+.doc-filter-input:focus {
+    border-color: rgba(64, 204, 146, .55);
+    box-shadow: 0 0 0 3px rgba(64, 204, 146, .14);
+}
+
+.doc-body {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 16px 0;
+}
+
+.doc-card {
+    margin: 0 0 12px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e8edf3;
+    border-radius: 12px;
+}
+
+.doc-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #1a2233;
+    word-break: break-all;
+    background: #fff;
+    border-bottom: 1px solid #eef1f5;
+}
+
+.doc-card__head small {
+    font-size: 12px;
+    font-weight: 400;
+    color: #64748b;
+}
+
+.doc-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    color: inherit;
+    text-decoration: none;
+    box-shadow: 0 1px 0 #eef1f5;
+    transition: background-color .18s cubic-bezier(.22, 1, .36, 1);
+}
+
+.doc-row:last-child {
+    box-shadow: none;
+}
+
+.doc-row:hover {
+    background: #f5f7fa;
+}
+
+.doc-row:hover .doc-row__name {
+    color: #2db87d;
+}
+
+.doc-row__name {
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a2233;
+    word-break: break-all;
+}
+
+.doc-row__meta {
+    margin-left: auto;
+    font-size: 12px;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.doc-row__go {
+    padding: 3px 10px;
+    font-size: 12px;
+    color: #475569;
+    white-space: nowrap;
+    background: #f5f7fa;
+    border: 1px solid #e8edf3;
+    border-radius: 999px;
+}
+
+.doc-row:hover .doc-row__go {
+    color: #2db87d;
+    border-color: rgba(64, 204, 146, .45);
+}
+
+.doc-empty {
+    padding: 18px 14px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.doc-note {
+    margin: 0 0 12px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #b45309;
+    background: #fff7e6;
+    border: 1px solid #fde9c8;
+    border-radius: 10px;
+}
+
+.doc-pre {
+    margin: 0;
+    padding: 16px 18px;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.75;
+    color: #1a2233;
+    white-space: pre-wrap;
+    word-break: break-all;
+    background: #fff;
+}
+
+@media (max-width: 767px) {
+    .doc-bar {
+        gap: 8px 10px;
+        padding: 10px 12px;
+    }
+
+    .doc-bar__desc {
+        display: none;
+    }
+
+    .doc-bar__ops {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .doc-filter-input {
+        width: 100%;
+    }
+
+    .doc-body {
+        padding: 10px 10px 0;
+    }
+
+    .doc-card__head {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .doc-row {
+        flex-wrap: wrap;
+        padding: 10px 12px;
+    }
+
+    .doc-row__meta {
+        margin-left: 0;
+    }
+
+    .doc-pre {
+        padding: 12px 14px;
+        font-size: 12px;
+    }
+}

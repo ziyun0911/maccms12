@@ -23,7 +23,9 @@ class Doc extends Base
 
     public function index()
     {
-        $this->assign('list', $this->fileList());
+        $list = $this->fileList();
+        $this->assign('groups', $this->groupList($list));
+        $this->assign('total', count($list));
         $this->assign('title', lang('admin/doc/title'));
         return $this->fetch('admin@doc/index');
     }
@@ -89,6 +91,30 @@ class Doc extends Base
             return strcmp($a['rel'], $b['rel']);
         });
         return $list;
+    }
+
+    /**
+     * 按所在目录分组，列表页一个目录一张卡
+     * @return array
+     */
+    protected function groupList($list)
+    {
+        $groups = [];
+        foreach ($list as $item) {
+            $dir = $item['dir'];
+            if (!isset($groups[$dir])) {
+                $groups[$dir] = [
+                    'dir'   => $dir,
+                    'label' => $dir === '' ? lang('admin/doc/group_root') : $dir,
+                    'files' => [],
+                ];
+            }
+            $groups[$dir]['files'][] = $item;
+        }
+        foreach ($groups as $k => $v) {
+            $groups[$k]['count'] = count($v['files']);
+        }
+        return array_values($groups);
     }
 
     /**

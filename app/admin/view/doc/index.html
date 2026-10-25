@@ -1,37 +1,64 @@
 {include file="../../../app/admin/view/public/head" /}
-<div class="page-container p10">
-    <div class="layui-form-item" style="padding:10px 0 0;">
-        <span class="layui-word-aux">{:lang('admin/doc/tip')}</span>
+<link rel="stylesheet" href="__STATIC__/css/admin_doc_shell.css?{$MAC_VERSION}">
+<div class="doc-page">
+    <div class="doc-bar">
+        <span class="doc-bar__title">{:lang('admin/doc/title')}</span>
+        <span class="doc-bar__desc">{:lang('admin/doc/tip')}</span>
+        <span class="doc-bar__stat" id="docStat">{$total} {:lang('admin/doc/stat_files')}</span>
+        <span class="doc-bar__ops">
+            <input type="text" class="doc-filter-input" id="docFilter" autocomplete="off" placeholder="{:lang('admin/doc/filter_ph')}">
+        </span>
     </div>
 
-    <table class="layui-table" lay-size="sm">
-        <thead>
-        <tr>
-            <th width="300">{:lang('admin/doc/col_file')}</th>
-            <th width="220">{:lang('admin/doc/col_dir')}</th>
-            <th width="100">{:lang('admin/doc/col_size')}</th>
-            <th width="160">{:lang('admin/doc/col_mtime')}</th>
-            <th width="90">{:lang('opt')}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {volist name="list" id="vo"}
-        <tr>
-            <td>{$vo.name|htmlspecialchars}</td>
-            <td>{$vo.dir|htmlspecialchars}</td>
-            <td>{$vo.size_text}</td>
-            <td>{$vo.mtime|mac_day}</td>
-            <td>
-                <a class="layui-badge-rim" style="height: 32px;line-height: 32px;padding: 0 15px;" href="{:url('info')}?id={$vo.rel|rawurlencode}" title="{:lang('admin/doc/read')}">{:lang('admin/doc/read')}</a>
-            </td>
-        </tr>
+    <div class="doc-body">
+        {volist name="groups" id="grp"}
+        <section class="doc-card" data-group>
+            <div class="doc-card__head">
+                {$grp.label|htmlspecialchars}
+                <small>{$grp.count} {:lang('admin/doc/stat_files')}</small>
+            </div>
+            {volist name="grp.files" id="vo"}
+            <a class="doc-row" href="{:url('info')}?id={$vo.rel|rawurlencode}" data-name="{$vo.rel|htmlspecialchars}">
+                <span class="doc-row__name">{$vo.name|htmlspecialchars}</span>
+                <span class="doc-row__meta">{$vo.size_text} &middot; {$vo.mtime|mac_day}</span>
+                <span class="doc-row__go">{:lang('admin/doc/read')}</span>
+            </a>
+            {/volist}
+        </section>
         {/volist}
-        {empty name="list"}
-        <tr><td colspan="5">{:lang('admin/doc/empty')}</td></tr>
+
+        {empty name="groups"}
+        <div class="doc-card doc-empty">{:lang('admin/doc/empty')}</div>
         {/empty}
-        </tbody>
-    </table>
+        <div class="doc-card doc-empty" id="docNoHit" style="display:none;">{:lang('admin/doc/no_hit')}</div>
+    </div>
 </div>
+<script>
+jQuery(function ($) {
+    var total = {$total};
+    var statWord = "{:addslashes(lang('admin/doc/stat_files'))}";
+    var $groups = $('[data-group]'), $stat = $('#docStat'), $noHit = $('#docNoHit');
+
+    $('#docFilter').on('input keyup', function () {
+        var kw = $.trim(this.value).toLowerCase();
+        var hit = 0;
+        // 一次遍历同时决定行和卡的显隐；不能用 :visible 判断——分组卡刚被隐藏时
+        // 里面的行即使 display 恢复也查不出可见，卡片会永远翻不回来
+        $groups.each(function () {
+            var $group = $(this), shown = 0;
+            $group.find('.doc-row').each(function () {
+                var ok = kw === '' || String($(this).attr('data-name') || '').toLowerCase().indexOf(kw) >= 0;
+                this.style.display = ok ? '' : 'none';
+                if (ok) { shown++; }
+            });
+            this.style.display = shown ? '' : 'none';
+            hit += shown;
+        });
+        $stat.text((kw === '' ? total : hit) + ' ' + statWord);
+        $noHit.toggle(kw !== '' && hit === 0);
+    });
+});
+</script>
 {include file="../../../app/admin/view/public/foot" /}
 </body>
 </html>

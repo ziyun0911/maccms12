@@ -129,8 +129,10 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
    本目录公开下载已被拦截（403），为方便查阅在后台加了只读阅读页：
    - 控制器 app/admin/controller/Doc.php（继承 Base，走通用登录 + 权限校验）；
      index() 列清单，info() 出正文。
-   - 视图 app/admin/view/doc/index.html、app/admin/view/doc/info.html（layui 表格 +
-     <pre> 原文，正文经 htmlspecialchars 转义；页面不含任何写操作）。
+   - 视图 app/admin/view/doc/index.html、app/admin/view/doc/info.html（按目录分组的
+     卡片列表 + <pre> 原文，正文经 htmlspecialchars 转义；页面不含任何写操作）。
+     两个页面的外壳与「API 文档」共用 static/css/admin_doc_shell.css（.doc-page 浅灰
+     底 + .doc-bar 粘性工具条 + 白卡），列表顶部可按文件名筛选。
    - 菜单与权限点 app/admin/common/auth.php 第 23 组「文档与手册」下 673=doc/index
      （show=1，出现在左侧菜单）、67301=doc/info（show=0，只出现在管理员权限列表；
      子管理员两项都要勾选才能从列表点进正文）。

@@ -1,19 +1,28 @@
 {include file="../../../app/admin/view/public/head" /}
-<div class="page-container p10">
-    <div class="my-toolbar-box">
-        <div class="flex gap-5 overflow-x-auto overflow-y-hidden">
-            <a href="{:url('index')}" class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe65c;</i>{:lang('admin/doc/back')}</a>
-            <span class="layui-btn layui-btn-primary layui-border-green" style="cursor:default;">{$doc.name|htmlspecialchars}</span>
-            <span class="layui-btn layui-btn-primary" style="cursor:default;">{$doc.size_text}</span>
-            <span class="layui-btn layui-btn-primary" style="cursor:default;">{$doc.mtime|mac_day}</span>
+<link rel="stylesheet" href="__STATIC__/css/admin_doc_shell.css?{$MAC_VERSION}">
+<div class="doc-page">
+    <div class="doc-bar">
+        <a href="{:url('index')}" class="layui-btn layui-btn-sm layui-btn-primary">
+            <i class="layui-icon">&#xe65c;</i>{:lang('admin/doc/back')}
+        </a>
+        <span class="doc-bar__title">{$doc.name|htmlspecialchars}</span>
+        <span class="doc-bar__chip">{$doc.size_text}</span>
+        <span class="doc-bar__chip">{$doc.mtime|mac_day}</span>
+        <span class="doc-bar__ops">
+            {notempty name="doc.dir"}
+            <span class="doc-bar__stat">{$doc.dir|htmlspecialchars}</span>
+            {/notempty}
+        </span>
+    </div>
+
+    <div class="doc-body">
+        {notempty name="truncated"}
+        <div class="doc-note">{:lang('admin/doc/truncated',[$max_size])}</div>
+        {/notempty}
+        <div class="doc-card">
+            <pre class="doc-pre">{$content|htmlspecialchars}</pre>
         </div>
     </div>
-    {notempty name="truncated"}
-    <div class="layui-form-item">
-        <span class="layui-word-aux">{:lang('admin/doc/truncated',[$max_size])}</span>
-    </div>
-    {/notempty}
-    <pre style="white-space:pre-wrap;word-break:break-all;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;background:#fafafa;border:1px solid #eee;border-radius:4px;padding:12px;">{$content|htmlspecialchars}</pre>
 </div>
 {include file="../../../app/admin/view/public/foot" /}
 </body>

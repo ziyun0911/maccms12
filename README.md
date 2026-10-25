@@ -80,6 +80,7 @@
 - 后台顶级组改名：模板与界面 → **主题与模板**、采集与接入 → **采集中心**、站点参数 → **站点设置**（`app/lang/*.php` 的 `menu/*` 键，6 份语言包同步）；「系统信息」「网站参数」（含隐藏节点「SEO 参数配置」）从 站点设置 组移入 **首页** 组，与欢迎页面、自定义菜单配置并列。
 - PC 顶栏放不下的顶级组自动收进右侧「更多」下拉：`app/admin/view/index/index.html` 的 `layoutMainNav()` 按容器宽度实时计算可见项，剩余项加 `is-overflow`（`display:none`）并复制成下拉条目，点击同样切换左侧面板并同步高亮；容器宽度变化由 `resize` + `ResizeObserver` 触发重算。移动端抽屉（23 项全列）不受影响，权限树分组不变。
 - 后台「API 文档」页（`app/admin/view/apidoc/index.html`）重排版式：Swagger 默认 24px `sans-serif` 的分组标题收进 15px 圆角卡片、接口行与参数表统一 12–13px 灰阶层级、代码块保留 highlight.js 深色底但统一圆角与滚动，顶栏改为常驻工具条并新增「展开全部 / 收起全部」与「28 个分组 / 145 个接口」统计；过滤框占位文案改用 6 份语言包的 `admin/apidoc/filter_ph`。末尾的 Schemas（数据模型）区一并收进白卡：16px `sans-serif` 标题 + `rgba(59,65,81,.3)` 深色下边框换成与分组卡一致的 15px 粗体标题和浅色内缩分隔线，箭头紧跟文字；`Schemas` 是 swagger bundle 里写死的英文，改为用 `admin/apidoc/schemas_label` 经 CSS `::before` 输出页面语言，组件重渲染也不会退回英文。全部通过页面内覆盖样式实现，`static/swagger/` 第三方文件未改动。
+- 「说明文档」两个页面（`app/admin/view/doc/index.html`、`doc/info.html`）改用同一套外壳：新增 `static/css/admin_doc_shell.css` 承载 `.doc-page` / `.doc-bar` 粘性工具条 / 白卡 / 代码块，「API 文档」页的 `.apidoc-*` 基样式一并搬过去共用。列表页从 layui 表格换成按目录分组的卡片（站点根目录、说明文档、说明文档/伪静态规则），顶部可按文件名筛选（纯前端过滤，命中数同步工具条统计）；阅读页正文卡片保留等宽 `<pre>` + `htmlspecialchars` 转义，安全边界不变。`Doc::index()` 新增 `groupList()` 按 `dir` 分组，读取白名单与路径校验逻辑未动。语言包 `admin/doc/` 删掉 4 个表格列名键、补 `stat_files` / `filter_ph` / `group_root` / `no_hit`，仍是 12 个键 × 6 份。
 - 插件 zip 顶层目录黑名单 `AddonSecureInstaller::$blockedPrefixes` 补上 TP8 的 `app/`、`config/`、`route/`（原来只有 maccms10 的 `application/` 等），两种命名的插件包都拦得住。
 
 ---
