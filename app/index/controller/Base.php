@@ -19,7 +19,6 @@ class Base extends All
         $this->label_maccms();
         $this->check_browser_jump();
         $this->label_user();
-        $this->assign('conch', config('conchvip'));
     }
 
     /**

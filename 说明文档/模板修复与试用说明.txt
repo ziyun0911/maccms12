@@ -1,9 +1,11 @@
-模板修复与试用说明（conch / datll_Layui_v1）
+模板修复记录（conch / datll_Layui_v1，历史存档）
 ================================================================================
-maccms12 内置三套前台模板：default（官方基础版）、conch（精选导航主题）、
-datll_Layui_v1（Layui 主题）。后两套来自官方 maccms10 发行包，经 TP5 → TP8
-整树升级后存在模板语法兼容与缺失文件问题，已全部修复并经全量 HTTP 验收。
-当前默认模板：conch（app/extra/maccms.php → 'template_dir' => 'conch'）。
+【现状】maccms12 当前只随包提供一套前台模板：default，且
+app/extra/maccms.php 的 'template_dir' / 'mob_template_dir' 均为 'default'。
+conch、datll_Layui_v1 两套模板来自官方 maccms10 发行包，曾随 maccms12 一起
+做过 TP5 → TP8 语法迁移并全量 HTTP 验收（即下文记录），后续已从 template/
+目录移除，本文仅作修复过程存档保留；下文中的目录名、页面数、验收结果都对应
+移除之前的状态，不要据此判断当前包内容。
 
 --------------------------------------------------------------------------------
 一、conch 修复内容
@@ -23,6 +25,8 @@ datll_Layui_v1（Layui 主题）。后两套来自官方 maccms10 发行包，�
 4. app/extra/conchvip.php 原为 GBK 乱码损坏（字符串引号断裂导致
    ParseError: syntax error, unexpected identifier "by"），已用
    iconv('UTF-8','GBK')→('GBK','UTF-8') 双转换恢复中文并 php -l 通过。
+   —— 该文件随 conch 模板一并退役（2026-10-25）：模板移除后没有任何视图
+   读取 $conch，前台唯一的 config('conchvip') 赋值点也已删除。
 5. app/common.php 的 mac_url_type() 增加 is_array($info) 容错：TP8 下
    收到 '0-9'、'其他' 等筛选值字符串时不再抛
    Cannot access offset of type string（TP5/PHP7 不致命，TP8 抛异常）。
@@ -64,9 +68,10 @@ datll_Layui_v1（Layui 主题）。后两套来自官方 maccms10 发行包，�
 3. 偶发的「模板串扰」：测试期间曾出现配置为 datll 却渲染 conch（或反之）
    的瞬态，复测即消失，疑似内置服务器在并发/连续请求下 think-template
    编译缓存竞态；换 Nginx/Apache 部署或清 runtime/temp 后可忽略。
-4. 换模板：改 app/extra/maccms.php 的 'template_dir'（conch /
-   datll_Layui_v1 / default）后清 runtime/temp、runtime/cache 即可。
+4. 换模板：改 app/extra/maccms.php 的 'template_dir' / 'mob_template_dir'
+   （当前仅 default 可用）后清 runtime/temp、runtime/cache 即可。
 
 ================================================================================
-*本说明随 maccms12 交付；两套模板修复结果已按上文逐项实测。*
+*本说明随 maccms12 交付；conch / datll_Layui_v1 两套模板的修复结果已按上文
+逐项实测，两套模板此后已从发布包移除，本文保留为修复过程存档。*
 ================================================================================
