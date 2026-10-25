@@ -2316,7 +2316,7 @@ return array (
       6901 => 
       array (
         'show' => 0,
-        'name' => lang('notify/admin_broadcast'),
+        'name' => lang('menu/announce_edit'),
         'controller' => 'notify',
         'action' => 'info',
       ),
