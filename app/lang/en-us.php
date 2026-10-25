@@ -3990,7 +3990,7 @@ Note: If both black and white lists are filled, both policies will take effect.'
   'menu/ui_make' => 'Templates & Generation',
   'menu/ops' => 'Operations',
   'menu/ai' => 'AI Tools',
-  'menu/statistics' => 'Statistics',
+  'menu/statistics' => 'Analytics',
   'menu/member_account' => 'Members',
   'menu/marketing' => 'Marketing and Orders',
   'menu/template_ui' => 'Templates and UI',

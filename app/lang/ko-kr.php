@@ -3997,7 +3997,7 @@ return array (
   'menu/ui_make' => '템플릿·생성',
   'menu/ops' => '운영・보안',
   'menu/ai' => 'AI 기능',
-  'menu/statistics' => '통계 및 리포트',
+  'menu/statistics' => '운영 통계',
   'menu/member_account' => '회원 계정',
   'menu/marketing' => '마케팅 및 거래',
   'menu/template_ui' => '템플릿과 화면',

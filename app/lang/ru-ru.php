@@ -4004,7 +4004,7 @@ return array (
   'menu/ui_make' => 'Шаблоны и генерация',
   'menu/ops' => 'Эксплуатация',
   'menu/ai' => 'AI-инструменты',
-  'menu/statistics' => 'Статистика',
+  'menu/statistics' => 'Аналитика',
   'menu/member_account' => 'Аккаунты',
   'menu/marketing' => 'Маркетинг и заказы',
   'menu/template_ui' => 'Шаблоны и интерфейс',

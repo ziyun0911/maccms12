@@ -3998,7 +3998,7 @@ return array (
   'menu/ui_make' => 'テンプレートと生成',
   'menu/ops' => '運用・セキュリティ',
   'menu/ai' => 'AI機能',
-  'menu/statistics' => '統計とレポート',
+  'menu/statistics' => '運営分析',
   'menu/member_account' => '会員アカウント',
   'menu/marketing' => 'マーケティングと取引',
   'menu/template_ui' => 'テンプレートと画面',

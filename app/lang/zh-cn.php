@@ -4582,7 +4582,7 @@ https://www.baidu.com/123.jpg
   'menu/ui_make' => '界面与生成',
   'menu/ops' => '运维与安全',
   'menu/ai' => 'AI 能力',
-  'menu/statistics' => '统计与报表',
+  'menu/statistics' => '运营统计',
   'menu/member_account' => '会员账户',
   'menu/marketing' => '营销与交易',
   'menu/template_ui' => '模板与界面',

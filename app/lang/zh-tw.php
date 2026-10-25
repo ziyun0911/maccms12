@@ -3999,7 +3999,7 @@ return array (
   'menu/ui_make' => '介面與生成',
   'menu/ops' => '維護與安全',
   'menu/ai' => 'AI 能力',
-  'menu/statistics' => '統計與報表',
+  'menu/statistics' => '運營統計',
   'menu/member_account' => '會員賬戶',
   'menu/marketing' => '行銷與交易',
   'menu/template_ui' => '模板與界面',
