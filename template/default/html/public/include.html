@@ -6,18 +6,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 {include file="widget/logo_lottie_preload" /}
 
-<link rel="stylesheet" href="{$maccms.path}template/default/asset/css/iconfont-alicdn.css">
-<link rel="stylesheet" type="text/css" href="{$maccms.path}template/default/asset/css/public-head-early.css?v=202604161">
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/front-head.bundle.css?{:mac_tpl_asset_ver('css/front-head.bundle.css')}">
 {include file="module/poster_cover_vars" /}
 {php}echo $mac_poster_ratio_style;{/php}
 <link rel="stylesheet" type="text/css" href="{$maccms.path}template/default/asset/css/black.css" id="macThemeDarkSheet">
-<link rel="stylesheet" href="{$maccms.path_tpl}asset/css/notify-bell.css?v=202607149">
-<link rel="stylesheet" href="{$maccms.path_tpl}asset/css/user-profile-card.css?v=202607281">
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/front-tail.bundle.css?{:mac_tpl_asset_ver('css/front-tail.bundle.css')}">
 
 <script type="text/javascript" src="{$maccms.path}template/default/asset/js/jquery.js"></script>
 <script type="text/javascript" src="{$maccms.path}template/default/asset/js/head-sync.js?v=202604161"></script>
 
-<link href="{$maccms.path}template/default/asset/css/public-head-main.css?v=202604161" rel="stylesheet" type="text/css" />
 <script defer src="{$maccms.path}template/default/asset/js/head-defer-public.js?v=202610231700"></script>
 <!-- 前台内容语言切换：head 里的 data-mac-lang 条目靠它写 cookie 后整页刷新 -->
 <script defer src="{$maccms.path}static/js/mac-theme-runtime.js?v=202610231500"></script>
@@ -45,7 +42,6 @@ html.license-locked body::after {
 }
 </style>
 <script defer type="text/javascript" src="{$maccms.path}template/default/asset/js/public-home-stack.js?v=2026102303"></script>
-<link href="{$maccms.path_tpl}asset/css/mac-pop-sheets.css" rel="stylesheet" type="text/css" />
 <script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/user-upgrade-submit.js?v=2026102304"></script>
 <script defer type="text/javascript" src="{$maccms.path}template/default/asset/js/auth-reg-success.js"></script>
 <script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/auth-invite-collapsible.js"></script>

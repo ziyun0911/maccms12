@@ -4844,3 +4844,25 @@ function mac_ui_lang_dir()
     }
     return 'ltr';
 }
+
+/**
+ * 前台模板资源版本号。mac_asset_ver() 的根路径写死 static/，够不到
+ * template/default/asset/，前台 bundle 用这个。相对 asset/，取不到文件时退回系统版本号。
+ * 模板用法：<link href="{$maccms.path_tpl}asset/css/front-tail.bundle.css?{:mac_tpl_asset_ver('css/front-tail.bundle.css')}">
+ */
+function mac_tpl_asset_ver($path)
+{
+    $base = realpath(ROOT_PATH . 'template' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'asset');
+    $rel = str_replace('\\', '/', (string) $path);
+    $file = $base === false ? false : realpath($base . '/' . ltrim($rel, '/'));
+    // realpath 之后必须仍落在 asset/ 内，挡掉 ../ 穿越
+    if ($file !== false && strpos(str_replace('\\', '/', $file), str_replace('\\', '/', $base) . '/') === 0
+        && is_file($file)) {
+        $time = (int) filemtime($file);
+        if ($time > 0) {
+            return (string) $time;
+        }
+    }
+    $ver = config('version');
+    return isset($ver['code']) ? (string) $ver['code'] : 'v10';
+}
