@@ -1486,6 +1486,7 @@ return array (
   'admin/system/config/site_publish_err_groups_len' => 'Domain groups JSON is too long',
   'admin/system/config/site_publish_err_links_or_groups' => 'When the publish page is enabled, configure at least one valid domain group',
   'admin/system/config/site_publish_err_perm_text_len' => 'Permanent address display text is too long (max 200 characters)',
+  'admin/system/config/page_404_err' => 'The 404 page template name may only contain letters, digits, underscores and hyphens (max 64 characters)',
   'admin/system/config/site_publish_err_subtitle_len' => 'Publish page subtitle is too long (max 240 characters)',
   'admin/system/config/site_publish_err_title_len' => 'Publish page title is too long (max 120 characters)',
   'admin/system/config/site_publish_footer' => 'Footer note',

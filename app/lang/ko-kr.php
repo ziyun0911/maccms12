@@ -1494,6 +1494,7 @@ return array (
   'admin/system/config/site_publish_err_groups_len' => '도메인 그룹 JSON이 너무 깁니다',
   'admin/system/config/site_publish_err_links_or_groups' => '공개 페이지를 켠 경우 유효한 도메인 그룹을 하나 이상 설정하세요',
   'admin/system/config/site_publish_err_perm_text_len' => '고정 주소 표시 텍스트가 너무 깁니다(최대 200자)',
+  'admin/system/config/page_404_err' => '404 페이지 템플릿 이름은 영문, 숫자, 밑줄, 하이픈만 사용할 수 있습니다(최대 64자)',
   'admin/system/config/site_publish_err_subtitle_len' => '공개 페이지 부제가 너무 깁니다(최대 240자)',
   'admin/system/config/site_publish_err_title_len' => '공개 페이지 제목이 너무 깁니다(최대 120자)',
   'admin/system/config/site_publish_footer' => '하단 안내',

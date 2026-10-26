@@ -1485,6 +1485,7 @@ return array (
   'admin/system/config/site_publish_err_groups_len' => 'JSON групп доменов слишком длинный',
   'admin/system/config/site_publish_err_links_or_groups' => 'При включённой странице публикации настройте хотя бы одну корректную группу доменов',
   'admin/system/config/site_publish_err_perm_text_len' => 'Слишком длинный текст постоянной ссылки (максимум 200 символов)',
+  'admin/system/config/page_404_err' => 'Имя шаблона страницы 404 может содержать только буквы, цифры, подчёркивания и дефисы (не более 64 символов)',
   'admin/system/config/site_publish_err_subtitle_len' => 'Подзаголовок страницы публикации слишком длинный (не более 240 символов)',
   'admin/system/config/site_publish_err_title_len' => 'Заголовок страницы публикации слишком длинный (не более 120 символов)',
   'admin/system/config/site_publish_footer' => 'Нижняя заметка',

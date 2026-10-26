@@ -1494,6 +1494,7 @@ return array (
   'admin/system/config/site_publish_err_groups_len' => '網域組 JSON 過長',
   'admin/system/config/site_publish_err_links_or_groups' => '開啟發布頁時，請至少設定一組有效網域組',
   'admin/system/config/site_publish_err_perm_text_len' => '永久網址顯示文字過長（最多 200 字）',
+  'admin/system/config/page_404_err' => '404 頁面模板名只能使用字母、數字、底線和連字符（最多 64 字）',
   'admin/system/config/site_publish_err_subtitle_len' => '發布頁副標題過長（最多 240 字）',
   'admin/system/config/site_publish_err_title_len' => '發布頁標題過長（最多 120 字）',
   'admin/system/config/site_publish_footer' => '底部說明',

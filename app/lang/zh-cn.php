@@ -1118,6 +1118,7 @@ https://www.baidu.com/123.jpg
   'admin/system/config/site_publish_permanent_url' => '链接',
   'admin/system/config/site_publish_permanent_tip' => '前台发布页与域名组页会显示一行「永久地址」；链接仅允许 http(s) 或站内路径（以 / 或 ./ 开头）。仅填链接时，链接文字会用该链接本身。',
   'admin/system/config/site_publish_err_perm_text_len' => '永久地址展示文本过长（最多 200 字）',
+  'admin/system/config/page_404_err' => '404 页面模板名只能使用字母、数字、下划线和连字符（最多 64 字）',
   'admin/system/config/site_publish_groups' => '域名组',
   'admin/system/config/site_publish_groups_tip' => '点「添加域名组」填写组标题与链接。每组至少 1 条链接；最多 20 组、每组 30 条。开启发布页时须至少一组有效。',
   'admin/system/config/site_publish_groups_add_group' => '添加域名组',

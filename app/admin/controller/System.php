@@ -458,6 +458,13 @@ class System extends Base
             if (!isset($config['app']['pathinfo_depr']) || trim((string)$config['app']['pathinfo_depr']) === '') {
                 return $this->error($invalidSubmitMsg);
             }
+            // 模板名会原样拼进主题目录（think-view 不过滤 ../），只允许字面量文件名
+            if (array_key_exists('page_404', $config['app'])) {
+                $config['app']['page_404'] = trim((string)$config['app']['page_404']);
+                if ($config['app']['page_404'] !== '' && !preg_match('/^[A-Za-z0-9_-]{1,64}$/', $config['app']['page_404'])) {
+                    return $this->error(lang('admin/system/config/page_404_err'));
+                }
+            }
 
 
             $ads_dir='ads';

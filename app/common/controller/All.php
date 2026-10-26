@@ -383,8 +383,10 @@ polyfill;
         $this->assign('wait',$wait);
         $this->assign('msg',$msg);
         $tpl = 'jump';
-        if(!empty($GLOBALS['config']['app']['page_404'])){
-            $tpl = $GLOBALS['config']['app']['page_404'];
+        // 站内已存在的配置可能带路径段：page_404 只认字面量模板名，否则回退 public/jump
+        $page404 = isset($GLOBALS['config']['app']['page_404']) ? (string) $GLOBALS['config']['app']['page_404'] : '';
+        if($page404 !== '' && preg_match('/^[A-Za-z0-9_-]{1,64}$/', $page404)){
+            $tpl = $page404;
         }
         $html = $this->label_fetch('public/'.$tpl);
         header("HTTP/1.1 404 Not Found");

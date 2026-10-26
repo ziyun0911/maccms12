@@ -458,13 +458,35 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
       fail-page（主题 404），删除前后指纹一致、副本独有的 mac_msg_jump 与「维护中」
       全程零命中；临时把 page_404 改成 msg 后渲染的是主题 public/msg.html（weui_msg_jump
       + public-msg.css），改回 '404' 后配置文件与备份逐字节 cmp 相同。
-    - 另记两处顺带发现，本轮未动：① app/admin/view/public/msg.html 同样零引用（后台
+    - 另记两处顺带发现：① app/admin/view/public/msg.html 同样零引用（后台
       只走 jump.html 那张），属同类孤儿，删不删等下一轮定；② page_404 未做字符校验，
       think-view 的 parseTemplate（vendor/topthink/think-view/src/Think.php:229）直接
       $path . $template 拼接、不过滤 ../，所以把该字段填成带 ../ 的值可以让 404 页渲染
-      主题目录之外的 .html。写入点是后台管理员权限、且只能渲染 .html，风险有限，
-      但按站内其它地方的口径（如 Update::step1 的白名单正则）应当补一条
-      preg_match('/^[a-z0-9_-]+$/i') 再放行。
+      主题目录之外的 .html。② 已由说明 18 修掉。
+
+18. 【2026-10-26 page_404 加字符白名单：保存侧拒绝 + 读取侧兜底】
+    口径同站内其它地方（Update::step1 的文件名白名单）：只认字面量模板名
+    /^[A-Za-z0-9_-]{1,64}$/，空值仍表示默认的 public/jump。
+    - 保存侧：app/admin/controller/System.php::config() 在 pathinfo_depr 校验之后
+      trim 再比白名单，非法即 return $this->error(lang('admin/system/config/page_404_err'))，
+      不落盘。六个语言包各加一条 key（zh-cn / zh-tw / en-us / ja-jp / ko-kr / ru-ru）。
+    - 读取侧：app/common/controller/All.php::page_error() 同一条正则再判一次，不合法
+      直接回退 public/jump。这一道是真正的边界：think-view 不拦 ../，而修复前已经写进
+      app/extra/maccms.php 的旧值不会被保存侧追认。
+    - 深度纠正（说明 17 的说法太乐观）：../ 要从 template/default/html/public/ 爬出去才
+      有效，三层只到 template/、命中不了文件；实测 '../../../../app/admin/view/public/jump'
+      （四层）才真的渲染到后台那张跳页。
+    - A/B 实测：用 git show HEAD 的旧 All.php + 上述四层 payload → 前台未登录请求返回
+      HTTP 404 / 1811 B / <title>跳转提示 -…</title>（后台跳页被公开前台渲染）；换上本轮
+      代码后同一 payload → 2019 B、weui_msg_jump + public-jump.css（主题 jump）、「跳转提示」
+      零命中；两种情况都不打印绝对路径。合法值 'msg' 仍渲染主题 msg（925 B + public-msg.css）；
+      不存在但合规的 'nosuchtpl' 走 renderFetch 的 404 回退（9733 B、fail-page），不会 500。
+    - 后台 UI 实测（:8080 网站参数）：填四层 payload 点保存 → 吐司「404 页面模板名只能使用
+      字母、数字、下划线和连字符（最多 64 字）」，app/extra/maccms.php 的 md5 与提交前一致
+      （零写入）；填回 '404' 点保存 → {"code":1,"msg":"保存成功!"}，保存后的 maccms.php 与
+      提交前逐字节相同（diff 0 行）。
+    - 顺带一个坑：该页 __token__ 是一次性的，同一个页面连点两次保存，第二次会得到
+      「请求失败」，与本轮校验无关，重新加载页面即恢复。
 
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）

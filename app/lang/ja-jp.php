@@ -1494,6 +1494,7 @@ return array (
   'admin/system/config/site_publish_err_groups_len' => 'ドメイングループの JSON が長すぎます',
   'admin/system/config/site_publish_err_links_or_groups' => '公開ページを有効にする場合は、有効なドメイングループを少なくとも 1 つ設定してください',
   'admin/system/config/site_publish_err_perm_text_len' => '固定アドレスの表示テキストが長すぎます（最大 200 文字）',
+  'admin/system/config/page_404_err' => '404 ページのテンプレート名は英数字とアンダースコア、ハイフンのみ利用できます（最大 64 文字）',
   'admin/system/config/site_publish_err_subtitle_len' => '公開ページのサブタイトルが長すぎます（最大 240 文字）',
   'admin/system/config/site_publish_err_title_len' => '公開ページのタイトルが長すぎます（最大 120 文字）',
   'admin/system/config/site_publish_footer' => 'フッター説明',
