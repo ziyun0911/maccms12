@@ -6,7 +6,11 @@ return [
     // 默认命令
     'default'     => 'list',
     // 命令列表
+    // 用数字键（列表式），框架才会取 setName() 的命令名；
+    // 一旦写成 '类名' => '类名'，Console::addCommand() 会拿这个键当命令名，
+    // setName() 被整体忽略，只能按类名调用。
     'commands'    => [
-        'app\command\SeoAiGenerate' => 'app\command\SeoAiGenerate',
+        'app\command\SeoAiGenerate',
+        'app\command\FrontBundleBuild',
     ],
 ];
