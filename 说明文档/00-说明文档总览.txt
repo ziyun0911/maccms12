@@ -437,6 +437,35 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
       渲染（说明 hash 校验通过），首页仍带 showUpdate / update/step1 / skin_updae_from；
       /static/mycj/ 下文件 404，前台首页 200，php think front:bundle --check 五张全 ok。
 
+17. 【2026-10-26 跳转/提示页的三份副本与 page_404 的真实链路】
+    承接说明 16，把 app/index/view/public/ 下最后两份残副本（jump.html、msg.html，
+    内容都是 v10 时代的「网站维护中」页）一并删除；同轮把跳转页的解析链彻底查清：
+    - Jump::jump()（app/common/controller/Jump.php:43-57）先读 app.dispatch_success_tmpl
+      /dispatch_error_tmpl：后台入口拿到的是 config/app.php:65-66 的绝对路径
+      app/admin/view/public/jump.html，is_file() 为真 → display(文件内容)；前台入口被
+      Init 中间件（app/common/middleware/Init.php:120-125）改写成相对串 public/jump，
+      is_file() 为假 → fetch('public/jump')，按当前 view_path 落到主题目录。
+    - All::page_error()（app/common/controller/All.php:375-393）用
+      label_fetch('public/' . $GLOBALS['config']['app']['page_404'])，page_404 是后台
+      「网站参数」里的自由文本（app/admin/view/system/config.html:850），本机当前值 404。
+      因此 template/default/html/public/404.html 与 …/public/msg.html 都是活的：站长把
+      page_404 填成 msg 就会渲染主题那张 msg，删主题副本会直接把 404 页打挂。
+    - 结论：只有 app/<模块>/view/public/ 下的副本是死的。前台 view_path 恒为
+      template/<主题>/html/（Init 里置空的分支只在 admin 且主题目录缺失时触发），所以
+      这两份永远不会被解析；api 入口沿用 config/app.php 的后台绝对路径，也轮不到它们。
+    - 已实测（curl 指纹）：/index.php/user/oauth.html 渲染 weui_msg_jump +
+      public-jump.css（主题 jump），/index.php/nopecontroller/nopeaction.html 渲染
+      fail-page（主题 404），删除前后指纹一致、副本独有的 mac_msg_jump 与「维护中」
+      全程零命中；临时把 page_404 改成 msg 后渲染的是主题 public/msg.html（weui_msg_jump
+      + public-msg.css），改回 '404' 后配置文件与备份逐字节 cmp 相同。
+    - 另记两处顺带发现，本轮未动：① app/admin/view/public/msg.html 同样零引用（后台
+      只走 jump.html 那张），属同类孤儿，删不删等下一轮定；② page_404 未做字符校验，
+      think-view 的 parseTemplate（vendor/topthink/think-view/src/Think.php:229）直接
+      $path . $template 拼接、不过滤 ../，所以把该字段填成带 ../ 的值可以让 404 页渲染
+      主题目录之外的 .html。写入点是后台管理员权限、且只能渲染 .html，风险有限，
+      但按站内其它地方的口径（如 Update::step1 的白名单正则）应当补一条
+      preg_match('/^[a-z0-9_-]+$/i') 再放行。
+
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）
 --------------------------------------------------------------------------------
