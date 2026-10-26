@@ -19,7 +19,8 @@ Thumbs.db
 #   app/extra/translate.php  → 翻译服务 appid + secret
 #   app/extra/maccms.php     → api_jwt_secret 及各类接口 token
 # 代价：这三个文件的改动不再进历史，改之前请自行复制到 docroot 之外备份。
-# 换新环境时须手工重建：install.php 会重新生成 database.php 与 maccms.php。
+# 换新环境时：install.php 只重新生成 database.php；maccms.php 它只做「补缺失键」，
+# 出厂副本不在这个仓库里，全新克隆直接安装会写出残缺配置（见 app/extra/README.md 第六节第 3 条）。
 config/database.php
 app/extra/translate.php
 app/extra/maccms.php

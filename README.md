@@ -1,17 +1,24 @@
-# 苹果 CMS v12（maccms12）— ThinkPHP 8 升级版
+# 苹果 CMS v12（maccms12）— ThinkPHP 8 版
 
-> 由 maccms10（ThinkPHP 5.1）整树迁移、重写升级而来。核心框架已实装 **ThinkPHP 8.1.4**，功能与数据结构保持兼容。
+> 由 maccms10（ThinkPHP 5.1）整树迁移升级而来：内核 **ThinkPHP 8.1.4**，运行在 PHP 8.0.2+（本仓库验证环境 PHP 8.3.8），功能与数据结构保持兼容。
+
+这份 README 只回答三件事：**跑起来要什么、目录长什么样、文档去哪儿读**。
+
+- 具体操作（安装、配置、后台、模板、接口、插件……）在 [`说明文档/`](file:///D:/wwwroot/maccms/maccms12/说明文档) 的 12 份使用者手册里，入口见本文件第七节。
+- 当年 v10→v12 的框架改造流水账已从本文件移出，收在 [`说明文档/90-变更记录.md` §3](file:///D:/wwwroot/maccms/maccms12/说明文档/90-变更记录.md)；**当前代码里核实存在的缺陷与遗留**在同一文件 §1，改代码前必读。
 
 ---
 
 ## 一、运行环境要求
 
-| 项目 | 要求 |
-| --- | --- |
-| PHP | **≥ 8.0.2**（本环境验证使用 PHP 8.3.8） |
-| 数据库 | MySQL 5.7 / 8.0+ |
-| Web 服务器 | Nginx / Apache / PHP 内置服务器均可 |
-| 扩展 | PDO、pdo_mysql、GD、curl、openssl 等常用扩展 |
+| 项目 | 要求 / 本机验证值 | 依据 |
+| --- | --- | --- |
+| PHP | **≥ 8.0.2**（本机 8.3.8） | [composer.json:15](file:///D:/wwwroot/maccms/maccms12/composer.json#L15) |
+| 框架 | ThinkPHP 8.1.4 + think-orm 3.0.34 + think-view 1.0.14 + think-multi-app 1.1.1 | [composer.json:16-19](file:///D:/wwwroot/maccms/maccms12/composer.json#L16) |
+| 数据库 | MySQL 5.7 / 8.0+（本机 5.7.38），表前缀 `mac_`，编码 `utf8mb4` | [config/database.php](file:///D:/wwwroot/maccms/maccms12/config/database.php) |
+| Web 服务器 | Nginx / Apache / IIS / PHP 内置服务器均可 | 伪静态规则四套样例见 [说明文档/伪静态规则/](file:///D:/wwwroot/maccms/maccms12/说明文档/伪静态规则) |
+| 常用扩展 | PDO、pdo_mysql、GD、curl、openssl | — |
+| 插件相关 | 本地上传 / 云安装 / 卸载备份需要 **zip 扩展（`ZipArchive`）**；常驻 WebSocket 插件（socialws）需要 `workerman/workerman`，靠 `composer require` 另装 | [composer.json:25-26](file:///D:/wwwroot/maccms/maccms12/composer.json#L25)、[10-插件与扩展手册.md §5.3/§8](file:///D:/wwwroot/maccms/maccms12/说明文档/10-插件与扩展手册.md) |
 
 ---
 
@@ -19,74 +26,51 @@
 
 | 入口 | 访问地址 | 说明 |
 | --- | --- | --- |
-| 前台 | `http://<域名>/index.php` | 站点前台首页 |
-| 后台 | `http://<域名>/admin.php` | 管理后台登录 |
-| 定时任务 | `http://<域名>/api.php/timming/index.html` | API 计划任务 |
-| 安装程序 | `http://<域名>/install.php` | 全新安装（已安装后访问提示已锁） |
+| 前台 | `http://<域名>/index.php` | 站点前台，应用绑定在 [index.php:48](file:///D:/wwwroot/maccms/maccms12/index.php#L48) |
+| 后台 | `http://<域名>/admin.php` | 管理后台，建议改名或加访问限制；入口检查与后台基类闸门见 [03-后台操作手册.md §1](file:///D:/wwwroot/maccms/maccms12/说明文档/03-后台操作手册.md) |
+| 接口 | `http://<域名>/api.php` | 对外开放接口（内容读取、用户、站外入库、供数据、埋点等），鉴权分五类，见 [06-接口与采集手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/06-接口与采集手册.md) |
+| 计划任务 | `http://<域名>/api.php/timming/index.html` | 定时调度入口，**无鉴权**，靠服务端限制来源 |
+| 安装程序 | `http://<域名>/install.php` | 全新安装；存在 `app/data/install/install.lock` 后访问提示已锁 |
 
-> 使用 Nginx 时建议配置 PATHINFO 伪静态（`try_files $uri $uri/ /index.php?s=$uri&$args;`），使 URL 更友好；当前内置服务器可直接访问。
-
----
-
-## 三、数据库配置
-
-数据库配置文件位于 `config/database.php`，当前环境为：
-
-- 主机：`127.0.0.1`
-- 端口：`3306`
-- 库名：`maccms12`（84 张表，含内容语言表 mac_content_lang）
-- 用户名：`root`
-- 密码：不入库、不写入文档，取本机 `config/database.php`（该文件已在 `.gitignore` 内）
-- 表前缀：`mac_`
-- 编码：`utf8mb4`
-
-> 配置为 TP8 原生结构，连接参数统一位于 `connections.mysql`；代码中通过 `config('database.connections.mysql.*')` 或 `Db::getConfig('connections.mysql.*')` 读取，不存在 TP5 顶层镜像键。
+Nginx 需配 PATHINFO 伪静态（`try_files $uri $uri/ /index.php?s=$uri&$args;`）；`?s=/vod/detail/id/1` 兼容模式同样可用。
 
 ---
 
-## 四、默认后台账号
+## 三、快速开始
 
-- 账号：`admin`
-- 密码：不写入文档；本地测试站的取值见部署笔记，正式环境务必改掉
-- 验证码配置：`app/extra/maccms.php` → `admin_login_verify`（`1` 开启 / `0` 关闭）
+```bash
+# 1) 建一个空库（utf8mb4），把站点根目录指向本目录
+# 2) 浏览器访问 install.php，按向导填数据库与站点信息（会写 config/database.php 与 app/extra/maccms.php）
+# 3) 导入种子数据（安装向导里点「导入数据」即可，等价于手工执行）
+#    app/install/sql/install.sql   —— 建 80 张表
+#    app/install/sql/initdata.sql  —— 出厂数据
+# 4) 装完删掉/保留 install.lock（保留即锁死安装），登录后台先改密码
+# 5) 改过 static/ 下的 CSS/JS 源文件后重建资源包
+php think front:bundle            # 生成五张 bundle（含后台 admin.bundle.css）
+php think front:bundle --check    # 只校验是否与源文件一致，不写盘
+```
+
+命令行工具只有两个（[config/console.php](file:///D:/wwwroot/maccms/maccms12/config/console.php)）：`front:bundle` 与 `seo:generate`（AI SEO 文案批量生成，`--mid/--limit/--id`）。计划任务不是命令行工具，走 `api.php/timming`，详见 [07-定时任务与运维手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/07-定时任务与运维手册.md)。
+
+用 PHP 内置服务器调试：`php -S 127.0.0.1:8080 router.php`（根 `router.php` 承担静态路由与内部文件拦截）。
 
 ---
 
-## 五、TP8 兼容性改造清单（相对 maccms10）
+## 四、数据库与配置放在哪
 
-1. **目录结构**：`application/` → `app/`；模块 `admin` / `api` / `index` / `install` 按 TP8 多应用布局迁移。
-2. **入口引导**：`index.php` / `admin.php` / `api.php` / `install.php` 重写为 TP8 引导并修复 PATHINFO 解析。
-3. **行为迁移**：12 个 `behavior/*`（TP5 行为）迁为 `middleware/*`（TP8 中间件）。
-4. **公共层**：TP5 兼容助手里 `app/common.php` 仅保留 `mac_load_extra()`（将 `app/extra/*.php` 注册为独立配置组，等价 TP8 的 extra 配置扩展）；已移除 `mac_config_set()`、`model()`、`THINK_VERSION`、`class_alias` 等兼容助手。其余 200+ 个 `mac_*` 函数是程序自身的助手族（配置读写 `mac_arr2file()` / `mac_save_config_data()`、模板与 URL `mac_tpl_file()` / `mac_url()`、输出 `mac_echo()` / `mac_jump()` 等），不属于兼容层。
-5. **控制器基类**：`Jump` 的 `redirect()` 改为先用 `url()` 拼装参数再跳转（TP8 `redirect(string,int)` 不再收 params）。
-6. **表前缀占位符**：`__ANALYTICS_SESSION__` / `__COUPON__` / `__USER__` 等 `__TABLENAME__` 占位符（think-orm 不解析）替换为实际表名（`mac_analytics_session` 等）；读取前缀统一走 `connections.mysql.prefix`。
-7. **标签库**：`app/common/taglib/Maccms.php` 9 处 `paging=='yes'` 增加空值防御。
-8. **后台视图路径**：`app/admin/view/` 下 `../../../application/` → `../../../app/`（迁移时一次改了 352 处；现存 `../../../app/` 引用 360 处，`application/` 残留 0 处，其余 `application/json` 等为 MIME 类型）；中间件按入口设置 `view.view_dir_name`。
-9. **路由完整匹配**：`config/route.php` 开启 `route_complete_match => true`，避免含可选变量的规则（如 `actor-【page】`）前缀匹配劫持 detail/type 等其他路由。
-10. **查询构造器**：`app/common/db/Query` 继承 `think\db\Query`，兼容旧代码中 `limit('offset,length')` / `page('x,y')` 的字符串写法，不改动 vendor 源码。
-11. **插件体系**：`app/common/addon`（Service / AddonManager / helpers）为 TP8 原生实现，插件命名空间 `addons\` 映射 `/addons`，支持动态挂载、启停、配置与跨模块视图布局；插件 SQL 使用 `__PREFIX__` 占位符。
-12. **入口路由挂载**：各入口通过 `$app->http->name(...)` 绑定应用；插件路由由 `route/addons.php` 及各应用 `route/addons.php` 加载。
+- **数据库连接**：[config/database.php](file:///D:/wwwroot/maccms/maccms12/config/database.php)，TP8 原生结构，参数统一在 `connections.mysql` 下；代码里读 `config('database.connections.mysql.*')`，没有 TP5 的顶层镜像键。该文件已在 `.gitignore` 内，**密码不入库、不出现在任何文档里**。
+- **表**：建表脚本 [app/install/sql/install.sql](file:///D:/wwwroot/maccms/maccms12/app/install/sql/install.sql) 80 张。本机库里是 84 张——多出的 `mac_tmpart` / `mac_tmpmanga` / `mac_tmpwebsite` / `mac_vod_repeat` 由后台「重名数据」功能按需 `CREATE TABLE`（如 [app/admin/controller/Art.php:57-58](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Art.php#L57)），不在建表脚本里。
+- **站点配置**：`app/extra/*.php` 共 16 个文件，由 [`mac_load_extra()`](file:///D:/wwwroot/maccms/maccms12/app/common.php#L14) 在各入口注册成独立配置组；其中大部分是**运行期用户数据**，后台保存时整文件 `var_export` 回写。逐文件说明见 [app/extra/README.md](file:///D:/wwwroot/maccms/maccms12/app/extra/README.md)，逐项作用见 [02-站点配置参考.md](file:///D:/wwwroot/maccms/maccms12/说明文档/02-站点配置参考.md)。
+- **运行缓存与日志**：`runtime/`（不发布、不公开）。
 
-### 清理项（相对 maccms10 遗留）
+---
 
-- 删除 TP5 惰性死代码：`app/common/behavior/*`（12 个，已迁为中间件）、`app/tags.php`
-- 删除无用文件/目录：`theme-request-form/`、`tests/`、`storage/`（空）
-- 删除 `tp5_buding/` 兼容补丁包：三处 vendor 补丁已回滚，`vendor/` 保持 Composer 原样（`composer update` 后无需再打补丁）
-- `static_new/` 已并入 `static/`（同名以 static_new 版本覆盖，保留目录名 `static`），代码中 17 处 `static_new` 引用统一改为 `static`（现全库 `static_new` 引用 0 处）
-- 6 份界面语言包（`app/lang/*.php`）里 5 处提示文案的旧目录名 `application/data/admin_assistant/`、`application/data/addon/local_public.pem`、`application/extra/addons.php` 改为 `app/...`；快捷菜单示例地址 `/application/xxxx.html` 改为插件路由 `/index.php/addons/plugin/controller/action`（`app/` 已被 HTTP 拦截，旧示例点了只会 403/404）
-- `middleware/Init.php` 中 memcache/memcached 动态配置改用 TP8 `Config::set([...], 'cache')` 整组写入
-- 后台「网站参数 → 计划任务」下拉补齐为 14 项（新增 `annotate` / `content_quality` / `user_profile`，与安装脚本预置的 `content_ai_annotate` / `content_quality(_art)` / `user_profile` 对应）；此前这三条预置任务在下拉里无匹配项，编辑后保存会静默落到第一项 `collect`。现在不在候选项里的自定义执行文件也会作为保底 option 原样保留（`app/admin/view/timming/info.html`）。
-- 后台菜单分两层（`app/admin/common/auth.php`，16 组 / 362 节点），在 maccms10-2026.1000.4056 官方 15 组基础上，把「系统信息」从首页组拆成独立顶栏模块，原「系统」组更名「网站参数」：顶栏 16 个主模块，顺序即 auth.php 的排列顺序 —— 首页(1) / 系统信息(16) / 网站参数(2) / 基础(3) / 文章(5) / 漫画(13) / 视频(4) / 网址(12) / 用户(6) / 模版(7) / 生成(8) / 采集(9) / 数据库(10) / 应用(11) / 直播(14) / 监控告警(15)；左侧面板默认每组一个扁平列表，没有分节小标题，也没有 `nav_in` 折叠（系统信息组例外：概览入口下按 8 个分组列出 24 个设置项）。此前 23 组的全部节点都并进了这些组（含 AI 标注队列 / 内容质量 / 翻译设置等原「AI 工具」组页面，按功能归入 用户 / 网站参数），节点键与 `controller/action` 不变。权限数据 `admin_auth` 存的是 `controller/action` 字符串，因此并组、改名都不影响既有子管理员授权；权限树（`admin/info`）按 16 组全列。
-- 系统信息页取消页内左侧设置栏与嵌套 iframe：24 个设置入口按 8 个分组渲染到后台左栏（带图标、开关状态点、分组小标题与搜索框），点击后按 `16-settings-<key>` 打开框架页标签；概览页的卡片与体检「去配置」通过父框架 `AdminShell.openSettings()` 打开同一批标签。设置项定义抽到 `app/common/util/SystemSettingsMenu.php`，由框架页与 `system/index` 概览共用；权限仍逐项走 `check_auth('system', action)`，auth.php 未动，362 节点不变。
-- 组名与节点名同步（`app/lang/*.php` 的 `menu/*` 键，6 份语言包一致）：16 个组名为 首页 / 系统信息 / 网站参数 / 基础 / 文章 / 漫画 / 视频 / 网址 / 用户 / 模版 / 生成 / 采集 / 数据库 / 应用 / 直播 / 监控告警；节点名沿用上一轮的消重结果（如「数据库备份」「分类列表」）。「系统信息」使用 `menu/systeminfo`，页面标题与页头同步为「系统信息」；「网站参数」组直接用 `menu/config`（6 份语言包已有该键），侧栏首项仍是「网站参数」，因此顶栏与首项同名是本次指定口径。`menu/system` 仍供系统信息左栏设置导航的「系统」分组使用，没有删除。
-- 组名改掉后会和组内第一个页面撞字，因此把**页面**那侧改名（只动 `menu/*` 与 `admin/perm/*` 的显示值，`admin_auth` 存的是 `controller/action`，不影响授权）：数据库 组的 `database/index`（节点 101）`menu/database` → **数据库备份**，页面标题 `admin/database/title` 仍是「数据库管理」；它的导出动作 `admin/perm/database_export` → **生成备份文件**，否则与节点重名。基础 组的 `type/index`（节点 31）`menu/type` → **分类列表**；用户 组的 `analytics/index`（节点 671）`menu/analytics` → **统计总览**；用户 组里 `notify/info`（节点 6901，`show=0`）从复用 `notify/admin_broadcast` 改为新键 `menu/announce_edit` → **公告编辑**，与 `notify/broadcast`「发送公告」区分。非中文语言包另有两处同类重字已修：`menu/theme/config`（zh-tw/ja/ko/ru 原与「主题设置」组名同字）、`menu/doc`（ja/ru 原与「文档与手册」组名同字）。剩余的同名条目是 添加/删除/状态/设置/保存 这类通用动作名，仅出现在权限树，不改。
-- 找回两个没有入口的后台页：`comment/blacklist`（评论黑名单关键字）与 `comment/blacklist_ip`（黑名单IP）写的是 `app/extra/blacks.php`，被 `IpBlock` 中间件和聊天室、弹幕接口读取，此前既无菜单节点也无任何视图链接，子管理员更无从授权。现分别登记为 基础 组的「评论黑名单」与「IP黑名单」（节点 3505 / 2112，`show=1`，新增 `menu/comment_blacklist` / `menu/black_ip` × 6 份语言包）。
-- PC 顶栏放不下的顶级组自动收进右侧「更多」下拉：`app/admin/view/index/index.html` 的 `layoutMainNav()` 按容器宽度实时计算可见项，剩余项加 `is-overflow`（`display:none`）并复制成下拉条目，点击同样切换左侧面板并同步高亮；容器宽度变化由 `resize` + `ResizeObserver` 触发重算。
-- 后台「API 文档」页（`app/admin/view/apidoc/index.html`）重排版式：Swagger 默认 24px `sans-serif` 的分组标题收进 15px 圆角卡片、接口行与参数表统一 12–13px 灰阶层级、代码块保留 highlight.js 深色底但统一圆角与滚动，顶栏改为常驻工具条并新增「展开全部 / 收起全部」与「28 个分组 / 145 个接口」统计；过滤框占位文案改用 6 份语言包的 `admin/apidoc/filter_ph`。末尾的 Schemas（数据模型）区一并收进白卡：16px `sans-serif` 标题 + `rgba(59,65,81,.3)` 深色下边框换成与分组卡一致的 15px 粗体标题和浅色内缩分隔线，箭头紧跟文字；`Schemas` 是 swagger bundle 里写死的英文，改为用 `admin/apidoc/schemas_label` 经 CSS `::before` 输出页面语言，组件重渲染也不会退回英文。全部通过页面内覆盖样式实现，`static/swagger/` 第三方文件未改动。
-- 「说明文档」两个页面（`app/admin/view/doc/index.html`、`doc/info.html`）改用同一套外壳：新增 `static/css/admin_doc_shell.css` 承载 `.doc-page` / `.doc-bar` 粘性工具条 / 白卡 / 代码块，「API 文档」页的 `.apidoc-*` 基样式一并搬过去共用。列表页从 layui 表格换成按目录分组的卡片（站点根目录、说明文档、说明文档/伪静态规则），顶部可按文件名筛选（纯前端过滤，命中数同步工具条统计）；阅读页正文卡片保留等宽 `<pre>` + `htmlspecialchars` 转义，安全边界不变。`Doc::index()` 新增 `groupList()` 按 `dir` 分组，读取白名单与路径校验逻辑未动。语言包 `admin/doc/` 删掉 4 个表格列名键、补 `stat_files` / `filter_ph` / `group_root` / `no_hit`，仍是 12 个键 × 6 份。
-- 提交卫生补两条 `.gitignore`：`app/extra/timming.php`（`app/api/controller/Timming.php` 每个 tick 都回写 `'runtime'` 时间戳，任务定义由 `app/install/controller/Index.php` 幂等注入重建，因此解除跟踪后不再产生无意义 diff）与后台「静态生成」写到 docroot 根的 `/index.html`、`/wap_index.html`、`/map.html`（`Make.php` 的输出物，随时可重生成且带站点真实内容）。两者均已 `git rm --cached`，磁盘文件保留。
-- 插件 zip 顶层目录黑名单 `AddonSecureInstaller::$blockedPrefixes` 补上 TP8 的 `app/`、`config/`、`route/`（原来只有 maccms10 的 `application/` 等），两种命名的插件包都拦得住。
-- 后台配置页重新归位：「附件参数配置 / URL地址配置 / 播放器参数配置」从独立页 `system/configupload` 的三个页签整体并入 **网站参数**（`system/config` 现 11 个页签：基本设置 / 地址发布页 / 性能优化 / 预留参数 / 后台设置 / SEO参数配置 / AI SEO 设置 / AI 视频封面设置 / 附件参数配置 / URL地址配置 / 播放器参数配置；附件页签字段抽成 `app/admin/view/system/config_embed_upload.html`，三张页签各自带 `<form>` + `__token__`，提交目标不变）。「AI SEO 设置 / AI 视频封面设置」与 maccms10 一致留在网站参数里做页签（节点 214、2141 改回 `show=0`，只作权限点）；AI 搜索设置、Meilisearch 设置、后台助手设置、主题 AI 设置、AI 标注设置（节点 215–219）登记在 网站参数 组（`show=1`，左侧面板直接列出）；原「AI 工具」组的 AI 标注队列 / 内容质量归入 用户 组，翻译设置归入 网站参数 组。组内重名保持上一轮的消重结果：AI 能力 → AI 工具（该组本轮并入 用户 / 网站参数）、AI标注 → AI 标注队列，同类页名统一空格与「设置」后缀；设置中心里 `ai` 分组的小标题改用新键 `admin/system/config/ai_section`（原先是复用页面名 `menu/configaiseo`）。`configupload` / `configurl` / `configplay` / `configaiseo` / `configaicover` 的 GET 一律 `redirect` 到 `config?tab=…`，POST 分支与权限点不变；`configupload.html`、`configurl.html`、`configplay.html`、`configaiseo.html`、`configaicover.html` 与两个孤立 embed 移入 `_bak_legacy_20261025/`。顺带修掉：`sethtmldir()` 只定义在已下线的 `configurl.html` 上导致合并页点「静态路径」下拉抛 ReferenceError（原实现里的调试 `alert` 一并删）；`extend/upload/*.html` 29 个字段挂着 `form="form_config_upload"`，页签搬家后该 id 不存在会静默丢掉云存储密钥；`config()` 里 `mac_extends_list('upload')` 必须排在 `assign('config')` 之后，否则扩展字段渲染成空值；安全体检的 AI SEO 条目仍链向 `config?tab=aiseo`；页签记忆 cookie 需先确认 lay-id 仍在页签条上，避免旧页面的 `up_*` 值失效。
+## 五、默认后台账号
+
+- 账号：安装向导里自己填的那个；本地测试站为 `admin`
+- 密码：不写入文档；正式环境务必改掉。`mac_admin` 里存 bcrypt（老数据兼容 md5，首次登录成功自动升级为 bcrypt）
+- 图形验证码开关：`app/extra/maccms.php` → `app.admin_login_verify`（`1` 开 / `0` 关）
+- 子管理员按「控制器/动作」逐项授权；`admin_id = 1` 在权限判断里直接全放行，细节见 [09-安全与权限手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/09-安全与权限手册.md) 与 [03-后台操作手册.md §2](file:///D:/wwwroot/maccms/maccms12/说明文档/03-后台操作手册.md)
 
 ---
 
@@ -95,53 +79,65 @@
 | 路径 | 说明 |
 | --- | --- |
 | `app/` | TP8 应用目录（common / admin / api / index / install） |
-| `app/extra/` | 运行期生成的可覆盖配置（maccms.php、version.php 等） |
-| `app/common/middleware/` | 迁入的中间件 |
-| `config/` | TP8 全局配置（app / database / cache / view …） |
-| `template/` | 前台模板（当前仅 `default`，PC 与移动端均使用它） |
+| `app/extra/` | 运行期生成的可覆盖配置（`maccms.php`、`vodplayer.php`、`version.php` 等 16 个） |
+| `app/common/middleware/` | 12 个中间件（原 TP5 behavior 全部迁来） |
+| `app/common/addon/` | 插件体系内核（Service / AddonManager / Dispatcher / helpers） |
+| `app/common/extend/` | 七类扩展驱动（upload / sms / connect / …），机制见 10 §10 |
 | `app/admin/view/` | 后台视图 |
-| `static/` | 站点静态资源（static 与 static_new 已合并） |
-| `说明文档/` | 按官方 maccms10「说明文档」结构整理的 maccms12 详细说明文档（API/伪静态/多语言/定时任务/标签/火车头/站外入库，见《00-说明文档总览.txt》） |
+| `config/` | TP8 全局配置（app / database / cache / route / view …） |
 | `route/addons.php` | 插件公共路由（各应用入口在绑定后加载） |
-| `addons/` | 插件目录（PSR-4 命名空间 `addons\`） |
-| `vendor/` | Composer 依赖（保持官方原样，无兼容补丁） |
+| `addons/` | 插件目录（PSR-4 命名空间 `addons\`），插件的**代码**在这里，不在 `app/data/addon/` |
+| `template/` | 前台模板（当前仅 `default`，PC 与移动端同用） |
+| `static/` | 站点静态资源（`static_new/` 已并入） |
+| `extend/` | 第三方 SDK / 类库 |
+| `app/data/` | 程序自用的数据目录：安装锁、备份、升级包落地、后台助手知识卡片、插件开发文档 |
+| `说明文档/` | 12 份使用者手册 + `伪静态规则/` + `火车头模块/`，从 [00-文档导航.md](file:///D:/wwwroot/maccms/maccms12/说明文档/00-文档导航.md) 进 |
+| `vendor/` | Composer 依赖（**保持官方原样，本仓不打任何兼容补丁**） |
 | `runtime/` | 运行缓存与日志 |
 
 ---
 
-## 七、说明文档
+## 七、文档从哪里读
 
-按官方 maccms10 GitHub「说明文档」目录结构建立了 maccms12 详细说明文档，位于项目根 `说明文档/`：
+详细导航（按场景跳转、阅读顺序、旧 `.txt` 处置对照）在 [说明文档/00-文档导航.md](file:///D:/wwwroot/maccms/maccms12/说明文档/00-文档导航.md)。
 
-- 接口对接 / 二次开发 → `API接口说明.txt`（含 maccms12 独有补充接口第十章；文末附录A 为老格式 Provide 聚合接口速查与 JSON / XML 样例）
-- 火车头等第三方入库 → `站外入库接口说明.txt` + `火车头模块/`（6 个 .wpm，兼容）
-- 伪静态部署 → `伪静态规则/`（Apache / IIS6 / IIS7+ / Nginx + rewrite 说明 + 默认路由规则）
-- 模板开发 → `标签说明.txt`（模板结构 / 全局与模块标签 / 处理函数 / JS 类处理）
-- 采集调度 → `定时任务说明.txt`（api.php/timming + 后台执行文件）
-- 多语言 → `多语言支持说明.txt`（界面语言包）；`内容级多语言说明.txt`（内容级多语言，maccms12 已按官方 master 蓝本完整实现）
-- 模板开发 / 排查 → `标签说明.txt`（模板标签）；`模板修复与试用说明.txt`（conch / datll_Layui_v1 的历史修复记录，两套模板未随包提供）
-- 导航与差异摘要 → `00-说明文档总览.txt`
+| 编号 | 文件 | 讲什么 |
+|---|---|---|
+| 01 | [安装与升级手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/01-安装与升级手册.md) | 环境、安装器逐步、种子数据、升级与数据脚本、装完自检 |
+| 02 | [站点配置参考.md](file:///D:/wwwroot/maccms/maccms12/说明文档/02-站点配置参考.md) | 配置三层结构，每个站点配置项「键 → 作用 → 后台入口 → 生效方式」 |
+| 03 | [后台操作手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/03-后台操作手册.md) | 进后台的门、16 组菜单地图、内容编辑共性、播放地址格式、破坏性动作清单 |
+| 04 | [前台模板与静态化手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/04-前台模板与静态化手册.md) | 三条出路径、模板选择链、`mac_url()`、路由与伪静态、静态生成 |
+| 05 | [模板标签手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/05-模板标签手册.md) | 标签引擎、20 个标签、`$maccms` 全局变量、属性怎么查才算准 |
+| 06 | [接口与采集手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/06-接口与采集手册.md) | `api.php` 五种鉴权、接口清单、对外供数据、站外入库 |
+| 07 | [定时任务与运维手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/07-定时任务与运维手册.md) | 计划任务端点与调度判定、任务清单、crontab、缓存与日志、排障 |
+| 08 | [多语言手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/08-多语言手册.md) | 界面语言 / 内容多语言 / 模板短语 / 前台短语四层机制 |
+| 09 | [安全与权限手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/09-安全与权限手册.md) | 请求面、后台登录、权限模型、两套 CSRF 令牌、哈希闸门、五层下载拦截 |
+| 10 | [插件与扩展手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/10-插件与扩展手册.md) | 四种扩展形态、插件包与 `info.ini`、6 个钩子插槽、云市场、七类驱动 |
+| 90 | [变更记录.md](file:///D:/wwwroot/maccms/maccms12/说明文档/90-变更记录.md) | §1 已核实缺陷与遗留台账；§2-§3 迁移与核对记录归档 |
 
-> 文档内容已与 maccms12 代码库/数据库逐项核对；官方文档中 maccms12 未实现的功能（Novel 小说、Sycms）均已醒目标注；内容级多语言为 maccms12 已实现功能。
-> 这些文件不随站点公开分发（见第八节）；登录后在后台「网站参数 → 说明文档」即可在线阅读，无需临时放开下载规则。
+> 文档里的每一句都带 `文件:行`，可以直接对着代码核。行号会漂，所以同时写了函数名/键名。
+> 后台「网站参数 → 说明文档」也能打开这一批文件，但那一页是 `<pre>` 原样输出，**Markdown 会显示成源码**；要阅读体验请在 IDE 或 Git 平台里看。
+
+---
 
 ## 八、部署提示
 
-- 正式部署请将站点根目录指向本目录，并将 `install.lock`（`app/data/install/install.lock`）保留以锁定安装。
+- 正式部署请将站点根目录指向本目录，并保留 `install.lock`（`app/data/install/install.lock`）以锁定安装。
 - 后台入口建议改名或加访问限制（`admin.php`）。
-- `addons`、`extend` 插件目录结构与 maccms10 保持一致，插件升级依赖另行安装（如 workerman）。
+- `addons`、`extend` 目录结构与 maccms10 保持一致；插件的额外依赖（如 workerman）另行安装。
 - 站点根目录即源码树，`说明文档/`、`runtime/`、`config/`、`app/`、`vendor/`、`extend/` 及
   `.md .sql .log .lock .wpm .sh .ps1 .py .bak .old .orig` 等内部文件一律禁止经 HTTP 直接下载：
   Apache 用根 `.htaccess`（nginx / IIS 的规则见 `说明文档/伪静态规则/` 内同名文件），
-  PHP 内置服务器用根 `router.php`。五套规则的拦截名单需同步维护，新增根级文件时按此清单补全。
+  PHP 内置服务器用根 `router.php`。五套规则的拦截名单需同步维护，新增根级文件时按此清单补全，
+  现状与逐条依据见 [09-安全与权限手册.md §7](file:///D:/wwwroot/maccms/maccms12/说明文档/09-安全与权限手册.md)。
 - 拦截的是公网直连，不是「文档看不到」：后台「网站参数 → 说明文档」（`admin.php/doc/index.html`，
-  控制器 `app/admin/controller/Doc.php`）列出 `说明文档/` 全部文本与根 `README.md` 并渲染正文，
+  控制器 `app/admin/controller/Doc.php`）列出 `说明文档/` 与本 `README.md` 并渲染正文，
   仅登录管理员可见，子管理员需单独勾选 `doc/index`、`doc/info` 权限。只读白名单为
   `.txt .md .conf .ini .config`，超出站点文档目录的路径一律拒绝，单文件超过 1MB 只截断显示开头。
 
 ---
 
-*本文档为 maccms12（TP8）交付说明。原 maccms10 站点与数据库未做任何改动。*
+*本文档为 maccms12（ThinkPHP 8）仓库门面说明。原 maccms10 站点与数据库未做任何改动。*
 
 ---
 

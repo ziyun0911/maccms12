@@ -7,7 +7,7 @@ Answer in **clear numbered steps**. Do not assume server panel brand; mention **
 ## 空白页 / 500
 
 1. 打开 `runtime/log/` 下当天日志（或宿主 PHP error_log）。  
-2. 检查 **PHP 版本** 是否满足程序要求，`openssl`/`curl`/`mysqli`/`gd` 等扩展是否开启。  
+2. 检查 **PHP 版本** 是否 **≥ 8.0.2**（[admin.php:6](file:///d:/wwwroot/maccms/maccms12/admin.php#L6) 直接 die），扩展按安装自检清单核对：**pdo、pdo_mysql、zip、fileinfo、curl、xml** 与 `file_get_contents`、`mb_strlen`（[app/install/controller/Index.php:518-527](file:///d:/wwwroot/maccms/maccms12/app/install/controller/Index.php#L518-L527)）。**没有 `mysqli`、`gd` 要求**，别照着旧教程去装这两个。  
 3. 若为 **syntax error**：最近是否改了 `app/extra/*.php` 或模板 PHP 混入。  
 
 ## 安装/保存配置失败「无写入权限」
@@ -16,7 +16,7 @@ Answer in **clear numbered steps**. Do not assume server panel brand; mention **
 
 ## 采集无数据 / 全部失败
 
-1. **采集参数配置** 是否保存。  
+1. **网站参数 → 内容接入**（第一个 Tab「内容采集」）是否保存成功。  
 2. 节点 **接口 URL** 是否可访问（服务器 **出站** 是否封禁、DNS 是否正常）。  
 3. **分类映射** 是否为空或错误。  
 4. 资源站是否 **换接口/需签名**（联系资源站文档）。  
@@ -29,18 +29,18 @@ Answer in **clear numbered steps**. Do not assume server panel brand; mention **
 
 ## 前台样式乱 / 改模板无效
 
-1. **清理 CMS 缓存** 与 **浏览器缓存**。  
+1. 点后台 **顶栏右侧「⋯」→ 清理缓存**（`index/clear`），再清 **浏览器缓存**。  
 2. 是否开启了 **CDN** 未刷新。  
-3. 是否编辑了 **错误的模板目录**（PC/WAP 模板目录弄反）。  
+3. 是否编辑了 **错误的模板目录**（**模版 → 模板管理** 里 PC/WAP 模板目录弄反）。  
 
 ## AI / 后台助手无响应
 
-1. **AI 搜索配置**：前台问答与嵌入重排用到的 Key、Base、`/v1` 前缀是否正确（兼容 OpenAI 的网关）。  
-2. **后台助手配置**：助手是否启用；若勾选 **复用 AI 搜索 Key**，请先确保 **AI 搜索配置** 中已填写有效凭据；否则在助手页填写 **助手专用 Key**。  
+1. **网站参数 → AI 搜索设置**：前台问答与嵌入重排用到的 Key、Base、`/v1` 前缀是否正确（兼容 OpenAI 的网关）。  
+2. **网站参数 → 后台助手设置**：助手是否启用；若勾选 **复用 AI 搜索 Key**，请先确保 **AI 搜索设置** 中已填写有效凭据；否则在助手页填写 **助手专用 Key**。  
 3. 服务器 **能否访问外网**（防火墙出站、地区限制）。  
 4. **频率限制 / 超时** 是否过小；适当增加 **timeout**/`max_tokens`。  
 
-## 定时任务不跑
+## 计划任务不跑
 
 1. **crontab** 是否真的执行（看系统 mail 日志或面板执行记录）。  
 2. wget/curl **URL** 是否带完整参数与 **https** 证书问题。  

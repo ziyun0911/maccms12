@@ -1,197 +1,109 @@
-# app/extra/ 配置文件分类说明
+# `app/extra/` 目录说明
 
-> 本文档是「配置文件分级分层重构」评估 issue 的落地产出。结论：**不做目录级改造，只做分类说明**（原因见第二节），
-> 不改变任何现有文件的读写方式，因此没有迁移期、没有新旧文件兼容问题。
+> 本目录是 **运行期可覆盖配置**：每个 `.php` 文件返回一个数组，被注册成同名配置组，代码里用 `config('<文件名>.<键>')` 读。
+> 目录里有 16 个 `.php` + 本说明。**配置项逐键的作用与后台入口在 [说明文档/02-站点配置参考.md](file:///D:/wwwroot/maccms/maccms12/说明文档/02-站点配置参考.md)**，
+> 本文只讲「文件级」的事：谁在写、能不能手改、哪些键改了会被覆盖、新增文件要守什么规矩。
 
-## 一、结论摘要
+---
 
-- 本目录下 15 个 `*.php` 配置文件，**除 `captcha.php`、`queue.php` 外全部属于"运行期用户数据"**，
-  必须遵守"读取 → 检查缺失键 → 只补缺失键 → 整文件回写"的机制（第三节）。
-- 分类不通过目录/文件迁移实现，而是通过本文档 + 分类表实现"一看就知道去哪改"。
-- 三级分类标准：
+## 一、加载机制
 
-  | 级别 | 含义 | 站长改动频率 | 谁该改 / 是否安全 |
-  |---|---|---|---|
-  | 🖥️ **服务器/部署相关** | 跟着服务器、网络、存储环境走的参数，装机/换服务器时才需要碰 | 极低，通常只在安装或迁移服务器时改一次 | 建站时由站长本人或代维护的技术人员设置一次；填错会直接导致连不上库/存储/邮件服务，改动前建议先在测试环境验证 |
-  | ⚙️ **运营相关** | 站长日常运营网站时会打开后台去调整的业务设置 | 中到高，是后台"设置"页面的主体 | ✅ 面向站长，随便改，都有后台表单，改错影响范围小且可随时改回来 |
-  | 🔒 **固定/系统级** | 框架底层参数或由程序自动维护的数据，站长一般不需要、也不建议手动碰 | 几乎为零 | 🚫 不建议站长碰，只有开发者做二次开发或官方升级流程会动；改错可能导致前台 404、路由错乱或插件系统损坏 |
+- 加载函数 [`mac_load_extra()`](file:///D:/wwwroot/maccms/maccms12/app/common.php#L14)（`app/common.php:14-28`）：
+  对 `app/extra/*.php` 做**非递归 `glob()`**，逐个 `include`，是数组就 `Config::set($data, <文件名>)`；文件名叫 `README` 的跳过。
+- 调用点在四个入口：[index.php:60](file:///D:/wwwroot/maccms/maccms12/index.php#L60)、
+  [admin.php:60](file:///D:/wwwroot/maccms/maccms12/admin.php#L60)、[api.php:60](file:///D:/wwwroot/maccms/maccms12/api.php#L60)、
+  [install.php:65](file:///D:/wwwroot/maccms/maccms12/install.php#L65)。
+- 因此**不能建子目录**：加载器只扫一层，挪进子目录等于不加载；而所有 `config('xxx.yyy')` 调用点和
+  `mac_arr2file(APP_PATH.'extra/xxx.php', ...)` 写入点都要跟着改路径，改漏一处就是线上事故。
+- 文件内**不要写注释来解释配置**（除第四节标 ❌ 的那 4 个文件）：后台保存走整文件 `var_export` 回写，注释必被抹掉（见第二节）。
 
-## 二、为什么不做目录级分层
+## 二、两条读取路径，和一条写入路径
 
-1. **需求已明确**：用户方澄清过，不需要目录层级，只需要"分类说明，方便查找和修改"。
-2. **框架层面也做不到无风险的目录嵌套**：TP8 原生并不自动加载 `app/extra/`，本系统的加载由
-   [`mac_load_extra()`](../common.php)（`app/common.php`）完成，内部是**非递归的 `glob()`**，只扫描 `extra/` 一层：
-   ```php
-   foreach (glob(APP_PATH . 'extra' . DIRECTORY_SEPARATOR . '*.php') as $file) {
-       Config::set(include $file, pathinfo($file, PATHINFO_FILENAME));
-   }
-   ```
-   若把文件挪进子目录，加载器不会自动递归，等于要另写一套扫描逻辑——收益（目录好看一点）远小于风险
-   （所有 `config('xxx')` 调用点、所有 `mac_arr2file(APP_PATH.'extra/xxx.php', ...)` 写入点都要跟着改路径，
-   改漏一处就是线上事故）。
-3. **文件内注释也不是好的分类载体**：管理员在后台保存设置时，写盘统一走
-   [`mac_arr2file()`](../common.php#L328)（`app/common.php:328`），内部用 `var_export()` 把整个
-   PHP 数组重新序列化成 `"<?php\nreturn $con;"`。**任何手写在文件头部的注释，会在站长下一次保存该设置页面时被整体覆盖丢失**
-   （`type_synonyms.php` 目前文件头就有一段说明注释，但它没有被任何 admin 控制器写回，所以还留着；
-   `maccms.php`/`timming.php`/`vodplayer.php` 等一旦被写回，行内注释必丢）。
-   因此凡是"运行期用户数据"文件，分类信息只能放在本文档这类外部说明里，不能塞进文件本身。
-
-## 三、"运行期用户数据"范围认定（issue 要求的第一项）
-
-判定标准：该文件是否会被 admin 后台功能通过 `mac_arr2file()` / `mac_save_config_data()` 整体回写。
-
-| 文件 | 是否运行期用户数据 | 回写入口 |
+| 机制 | 位置 | 后果 |
 |---|---|---|
-| `maccms.php` | ✅ 是 | `admin/controller/System.php`（30+ 处）等几乎所有设置页 |
-| `timming.php` | ✅ 是 | `admin/controller/ResourceHub.php:966`、`Timming.php` |
-| `vodplayer.php` | ✅ 是 | `admin/controller/ResourceHub.php:839`、`BatchPlayer.php` |
-| `vodserver.php` | ✅ 是 | `admin/controller/ResourceHub.php` |
-| `voddowner.php` | ✅ 是 | `admin/controller/ResourceHub.php` / `BatchPlayer.php` |
-| `bind.php` | ✅ 是 | `admin/controller/ResourceHub.php:620`、`Collect.php` |
-| `blacks.php` | ✅ 是 | `admin/controller/Comment.php`、`common/util/IpBanRepository.php` |
-| `domain.php` | ✅ 是 | `admin/controller/Domain.php` |
-| `quickmenu.php` | ✅ 是 | `admin/controller/Index.php` |
-| `addons.php` | ✅ 是（程序自动维护，非表单填写） | `Service::refresh()`（`vendor/karsonzhang/fastadmin-addons/src/addons/Service.php:242-244`，装卸插件时用 `var_export` 整文件重写） |
-| `mctheme.php` | ✅ 是 | `admin/controller/TplConfig.php`、`api/controller/Config.php` |
-| `type_synonyms.php` | ❌ 否，目前只读 | 仅被 `admin/controller/ResourceHub.php` 读取用于分类匹配，代码库中没有任何写入点，文件头注释可以安全保留 |
-| `version.php` | ❌ 否，非站长数据 | 没有任何程序化写入点；`code`/`update_hash` 由发布方随升级包整体替换（类似代码文件，而不是"合并补写"的用户配置），站长不应手动改，也不需要合并保护 |
-| `captcha.php` | ❌ 否，框架默认参数，无 admin 写入点 | — |
-| `queue.php` | ❌ 否，框架默认参数，无 admin 写入点 | — |
+| 写回 | [`mac_arr2file()`](file:///D:/wwwroot/maccms/maccms12/app/common.php#L280)（`app/common.php:280-293`）：`var_export($arr,true)` → `"<?php\nreturn …;"` 整文件重写 + `opcache_invalidate()` | 手写注释丢失；已有键**保持原位置**（后台都是 `array_merge($old,$new)` 后整体回写）；文件里原本没有的键**追加到末尾** |
+| 写回（别名） | [`mac_save_config_data()`](file:///D:/wwwroot/maccms/maccms12/app/common.php#L295)（`:295-301`）只是 `is_array()` 包一层再转调 | 同上 |
+| 读法 A | `config('maccms.xxx')` / `config('maccms')` | **只认文件里真实存在的键**，缺键拿到 `null`（`Init` 第 14 行把 warning/deprecated 全压掉了，不会报错，见下） |
+| 读法 B | `$GLOBALS['config']['xxx']`（老代码里 745 处、106 个文件用这种） | 拿到的是 [`Init` 中间件](file:///D:/wwwroot/maccms/maccms12/app/common/middleware/Init.php#L18) 内存兜底后的那份（注入在 `:18-64`，赋值在 `:199`） |
 
-**结论：15 个文件中 11 个是需要合并/补写保护的运行期用户数据；`type_synonyms.php` 目前只读（未来如果加"后台编辑同义词"功能，写入时需要补上幂等合并逻辑）；
-`version.php` 定位更接近"随发布包整体替换的版本元数据"而非用户配置；`captcha.php`、`queue.php` 是纯框架默认值。
-这 4 个文件目前都没有 admin 整文件回写点，因此本次已经给它们加上了分类头部注释（见下方"已落地的改动"）。**
+> **两种读法可能不一致**，因为 `Init` 只往局部变量里补默认值、**从不回写 `maccms` 配置组**（全文件没有 `Config::set($config,'maccms')`）。
+> 目前 `Init` 内存注入的键有 `app.security_headers_base`、`app.content_lang_list`、`app.content_lang_default`（`:22-29`）、
+> `meilisearch`（`:31`）、`template_cloud`（`:42`）、`addon_cloud`（`:49`）。
+> 其中 `template_cloud` / `addon_cloud` 恰好也不在出厂 `maccms.php` 里——所以对应的两个服务类自己又写了一遍默认值：
+> [`TemplateCloudService.php:29-38`](file:///D:/wwwroot/maccms/maccms12/app/common/util/TemplateCloudService.php#L29)、
+> [`AddonCloudService.php:24-40`](file:///D:/wwwroot/maccms/maccms12/app/common/util/AddonCloudService.php#L24)。
+> 前者用 `config()`、后者优先 `$GLOBALS['config']`。**新代码请统一走 `config()`，并把键真的落进文件**，别依赖 `Init` 兜底。
 
-## 已落地的改动（2026-08-04）
+## 三、三个分级口径
 
-基于上面的判定，给这 4 个确认无回写风险的文件加了分类头部注释，方便直接打开文件就知道它属于哪一级、要不要改：
-`captcha.php`、`queue.php`、`version.php`、`type_synonyms.php`（在原有说明基础上追加分类标签）。
-其余 11 个"运行期用户数据"文件按第二节的结论，**没有**加任何头部注释——加了也会在下次后台保存时被 `var_export` 静默抹掉，
-写了等于没写，所以维持原状，分类信息只在本文档里维护。
-
-另外，`maccms.php` 的 23 个顶层分区已经按第五节描述的三级分组重新排列了物理顺序（内容/值完全不变，只是顺序调整，
-过程用脚本 + 严格 `===` 校验 + 写盘前后二次校验保证零数据丢失，改动前的文件已备份）。这是目前**唯一**一个动了内容顺序的文件，
-因为它是唯一一个内部混合了三种级别的文件；其余 14 个文件本身单一分类、无需内部重排。
-
-## 四、按文件分类（三级分类总表）
-
-| 文件 | 分类 | 一句话说明 | 常用后台入口 | 站长可以直接改吗 |
-|---|---|---|---|---|
-| `domain.php` | 🖥️ 服务器/部署 | 多域名 → 站点映射，跟着站点绑定的域名走 | 系统设置 → 域名管理 | ✅ 可以，绑定新域名时改 |
-| `queue.php` | 🖥️ 服务器/部署 | 队列驱动（默认同步执行），只有接队列中间件才需要改 | 无（需手改） | ⚠️ 一般不用改，接队列中间件时才需要，建议懂技术的人操作 |
-| `addons.php` | 🔒 固定/系统级 | 插件系统的 hook/route 注册表，随装卸插件自动生成 | 插件管理（间接） | 🚫 不要手动改，装卸插件时程序自动重写 |
-| `captcha.php` | 🔒 固定/系统级 | 验证码底层参数，基本不用碰 | 无 | 🚫 不建议改，改错验证码功能会失效 |
-| `version.php` | 🔒 固定/系统级 | 程序版本号、授权类型、升级校验哈希 | 无（随升级包整体替换） | 🚫 不要手动改，会导致升级校验异常 |
-| `mctheme.php` | ⚙️ 运营相关 | 前台展示：logo、banner、App 下载引导、首页分类图标等 | 模板设计 / 主题配置 | ✅ 可以，站长常改的展示类设置 |
-| `timming.php` | ⚙️ 运营相关 | 定时任务开关与执行时间（采集、生成、统计聚合等） | 系统设置 → 定时任务 | ✅ 可以 |
-| `type_synonyms.php` | ⚙️ 运营相关 | 采集分类同义词表，接新采集源时经常要扩充 | 资源库 → 分类同义词 | ✅ 可以，目前需要直接改文件（后台暂无编辑入口） |
-| `vodplayer.php` | ⚙️ 运营相关 | 视频播放器/解析方式定义 | 资源库 → 播放器管理 | ✅ 可以 |
-| `vodserver.php` | ⚙️ 运营相关 | 采集/解析服务器定义 | 资源库 → 采集服务器 | ✅ 可以 |
-| `voddowner.php` | ⚙️ 运营相关 | 下载方式定义（http/迅雷等） | 资源库 → 下载方式 | ✅ 可以 |
-| `bind.php` | ⚙️ 运营相关 | 采集分类绑定映射数据 | 采集 → 分类绑定 | ✅ 可以，但一般通过后台操作生成，不建议手写 |
-| `blacks.php` | ⚙️ 运营相关 | 评论/留言的关键词与 IP 黑名单 | 评论管理 → 黑名单 | ✅ 可以 |
-| `quickmenu.php` | ⚙️ 运营相关 | 后台顶部快捷菜单自定义 | 系统设置 → 快捷菜单 | ✅ 可以 |
-| `maccms.php` | 🖥️/⚙️/🔒 混合 | 站点主配置，23 个顶层分区，**已按三级分类重新排列物理顺序**（见第五节） | 系统设置（各子页） | 视具体分区而定，见第五节 |
-
-## 五、`maccms.php` 内部再分类（这是最需要"一眼看懂"的文件）
-
-`maccms.php` 是唯一一个混合了三种级别的大文件。**文件内的 23 个顶层分区已经按下面三个分组物理重排过**
-（只调整顶层 key 的排列顺序，没有改任何值、没有改任何嵌套结构——做法与验证方式见本节末尾）。
-现在用编辑器打开这个文件，从上到下就是"服务器相关 → 运营相关 → 固定/系统级"三段，不用再满屏搜索。
-
-### 🖥️ 服务器/部署相关（文件最前面，换服务器、换存储、换 SMTP 时才需要碰）
-
-| 顶层 key | 内容 | 谁该改 |
+| 级别 | 含义 | 谁该改 |
 |---|---|---|
-| `db` | 数据库连接信息（与 `config/database.php` 是两份，`config/database.php` 才是真正生效的 TP8 连接配置，`maccms.php['db']` 主要用于备份功能展示，改动要两处一起看） | 建站/换库时，懂技术的人 |
-| `meilisearch.host` / `api_key` | 外部搜索服务地址与密钥 | 接入 Meilisearch 时，懂技术的人 |
-| `email.phpmailer` | SMTP 服务器地址、端口、账号密码（`email.tpl` 邮件文案本身是运营内容，但整个 `email` 分区物理上放在服务器区，因为最容易出问题的是 SMTP 连接参数） | 配置发信服务器时，懂技术的人 |
+| 🖥️ 服务器/部署 | 跟着服务器、网络、存储、凭据走 | 装机或迁移时由懂技术的人改一次，填错直接连不上库/存储/发信 |
+| ⚙️ 运营 | 后台设置页的主体 | 站长随便改，改错影响小且可回退 |
+| 🔒 系统级 | 框架底层参数或程序自动维护的派生数据 | 🚫 不要手改：只有二次开发和官方升级流程会动，改错会导致前台 404、路由错乱或插件系统失效 |
 
-> 另外几个"服务器属性"的键嵌套在下面的运营分区里，没有单独提出来（提出来要重排嵌套层级，收益不大、风险更高）：
-> `app.cache_type`/`cache_host`/`cache_port`/`cache_username`/`cache_password`/`cache_db`（缓存服务器地址）、
-> `upload.mode`/`protocol`/`api.ftp`/`api.qiniu`/`api.upyun`/`api.weibo`/`api.uomg`（存储/图床对接凭据）、
-> `trusted_proxies`（反代信任 IP，本机尚未升级到包含此键的版本）。
+## 四、逐文件：谁在写、能不能手改
 
-### ⚙️ 运营相关（文件中段，后台"设置"页面的主体，站长常改）
+`APP_PATH` = `app/`。下表行号为 2026-10-27 对着当前树量过的结果。
 
-`site`、`app`、`user`（会员注册/积分/打赏/提现规则）、`gbook`、`comment`（留言评论开关）、
-`upload`（图片相关，含存储凭据+水印规则）、`interface`（资源站接口密码）、`pay`（支付渠道 appid/appkey）、
-`collect`（采集规则）、`api`（接口开关/收费/权限/限流）、`connect`（QQ/微信第三方登录）、
-`weixin`（公众号自动回复）、`play`（播放器展示样式）、`sms`（短信签名与模板）、`seo`（SEO 标题关键词）、
-`urlsend`（搜索引擎主动推送 token）、`extra`（预留自定义扩展位）。
-（`ai_search`/`ai_content`/`analytics`/`monitor`/`push` 是较新的按需开关类功能，本机的 `maccms.php`
-尚未经过对应的升级补丁注入，还没有这些键；一旦补丁跑过，它们会被追加在文件末尾——见本节末尾"未来新增键"的说明。）
+| 文件 | 级别 | 运行期用户数据 | 回写入口（`文件:行`） | 后台入口 | 能不能手改 |
+|---|---|---|---|---|---|
+| `maccms.php` | 🖥️+⚙️+🔒 混合 | ✅ | [`System.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/System.php#L553) 25 处（553/709/751/828/883/920/948/976/1004/1042/1075/1123/1160/1194/1298/1352/1392/1493/1568/1767/2007/2108/2168/2243/2306）、[`Collect.php:33`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Collect.php#L33)、[`Meilisearch.php:115`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Meilisearch.php#L115)、[`Urlsend.php:24`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Urlsend.php#L24)、[`SecurityHealthCheck.php:242`](file:///D:/wwwroot/maccms/maccms12/app/common/util/SecurityHealthCheck.php#L242)、[`SinaUpload.php:30`](file:///D:/wwwroot/maccms/maccms12/app/common/util/SinaUpload.php#L30)、[`install/Index.php:341`](file:///D:/wwwroot/maccms/maccms12/app/install/controller/Index.php#L341) | 网站参数组各子页（02 §3） | ✅ 手改立即生效；但要防注释被抹、防下次表单保存覆盖同名键 |
+| `timming.php` | ⚙️ | ✅ | [`Timming.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Timming.php#L37) 37/56/79、[`ResourceHub.php:809`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/ResourceHub.php#L809)、[`api/Timming.php:63`](file:///D:/wwwroot/maccms/maccms12/app/api/controller/Timming.php#L63)（每个 tick 回写 `runtime` 时间戳） | 网站参数 → 计划任务 | ✅ 任务定义手改有效 |
+| `vodplayer.php` | ⚙️ | ✅ | [`Vodplayer.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Vodplayer.php#L53) 53/109/132/193、[`BatchPlayer.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/BatchPlayer.php#L46) 46/72/101/130、[`ResourceHub.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/ResourceHub.php#L699) 699/985 | 视频 → 播放器；采集 → 批量播放器管理 / 资源站中心 | ✅ 但它同时驱动 `static/js/playerconfig.js` 与 `static/player/*.js` 的生成，改完要在后台重新保存对应页（10 §11） |
+| `vodserver.php` | ⚙️ | ✅ | [`Vodserver.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Vodserver.php#L49) 49/96/120（写入路径用 `$this->_pre` 拼文件名） | 视频 → 服务器组 | ✅ |
+| `voddowner.php` | ⚙️ | ✅ | [`Voddowner.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Voddowner.php#L49) 49/96/119 | 视频 → 下载器 | ✅ |
+| `bind.php` | ⚙️ | ✅ | [`Collect.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Collect.php#L236) 236/264、[`ResourceHub.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/ResourceHub.php#L501) 501/923 | 采集 → 分类绑定 | ⚠️ 建议只通过后台操作生成，手写映射容易对不上 `type_id` |
+| `blacks.php` | ⚙️ | ✅ | [`Comment.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Comment.php#L144) 144/167、[`IpBanRepository.php:109-125`](file:///D:/wwwroot/maccms/maccms12/app/common/util/IpBanRepository.php#L109) | 基础 → 评论黑名单 / IP黑名单 | ✅ 读的一方是 [`IpBlock` 中间件:21](file:///D:/wwwroot/maccms/maccms12/app/common/middleware/IpBlock.php#L21)、[`api/Chatroom.php:70`](file:///D:/wwwroot/maccms/maccms12/app/api/controller/Chatroom.php#L70)、[`api/Danmaku.php:199`](file:///D:/wwwroot/maccms/maccms12/app/api/controller/Danmaku.php#L199) |
+| `domain.php` | 🖥️ | ✅ | [`Domain.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Domain.php#L33) 33/70/130 | 网站参数 → 站群管理 | ✅ 但该页 POST 不校验令牌（`90` §1.2） |
+| `quickmenu.php` | ⚙️ | ✅ | [`admin/Index.php:187`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Index.php#L187) | 首页 → 自定义菜单配置 | ✅ 存的是 `标识,地址` 字符串数组 |
+| `mctheme.php` | ⚙️ | ✅ | [`TplConfig.php:171`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/TplConfig.php#L171)（走 `mac_save_config_data()`）、[`TemplateCloudService.php:635-645`](file:///D:/wwwroot/maccms/maccms12/app/common/util/TemplateCloudService.php#L635)（主题包下发的 `theme` 递归合并后回写，写入调用在 `:645`） | 模版 → 主题配置 / 主题设计 | ✅ 每请求由 [`Init.php:16`](file:///D:/wwwroot/maccms/maccms12/app/common/middleware/Init.php#L16) 塞进 `$GLOBALS['mctheme']` |
+| `translate.php` | 🖥️ | ✅ | [`Translate.php:43`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Translate.php#L43) | 网站参数 → 翻译设置 | ⚠️ 里面有第三方翻译服务的 appid / secret **明文**；已在 `.gitignore` 内。任何文档、截图、提交信息都只写键名，不写值 |
+| `addons.php` | 🔒 | ✅ 程序自动维护 | [`common/addon/Service.php:141-151`](file:///D:/wwwroot/maccms/maccms12/app/common/addon/Service.php#L141)（启停/装卸时整文件重写，`autoload` 恒 `true`、`route` 恒空） | 应用 → 本地应用（间接） | 🚫 手改必被覆盖，见 10 §5 |
+| `type_synonyms.php` | ⚙️ | ❌ 只读 | **无写入点**；唯一读取 [`ResourceHub.php:527`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/ResourceHub.php#L527)（直接 `include`，不走配置组） | 无（后台没有编辑页） | ✅ 只能手改文件，扩充采集分类同义词；正因为没有回写点，它的头部注释可以安全保留 |
+| `version.php` | 🔒 | ❌ | 无程序写入点，随升级包整体替换 | 无 | 🚫 手改 `code` 会让在线升级比对错位；改 `app/admin/controller/Update.php` 不重算 `update_hash` 会让后台直接白页（哈希闸门见 09 §6） |
+| `captcha.php` | 🔒 | ❌ | 无 | 无 | 🚫 框架默认参数，改错验证码失效；有头部注释（安全，因为无回写点） |
+| `queue.php` | 🖥️ | ❌ | 无 | 无 | ⚠️ 默认同步执行；只有接 Redis 等队列中间件才改；有头部注释 |
+| `resource_sites_custom.php` | ⚙️ | ✅ 按需生成 | [`ResourceHub.php:149,159`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/ResourceHub.php#L149)（保存自定义资源站时创建） | 采集 → 自定义接口 | ✅ 出厂不存在，属正常 |
 
-### 🔒 固定/系统级（文件最后面，不建议手动改，改错容易导致前台 404 或路由错乱）
+## 五、`maccms.php` 的 29 个顶层分区
 
-| 顶层 key | 内容 |
-|---|---|
-| `view` / `path` / `rewrite` | 伪静态路由规则本体，属于程序底层路由定义，只有做深度二次开发时才需要碰，普通运营不应修改 |
-| `plugin_cloud.registry_url` / `cache_ttl` | 插件市场服务地址，官方维护，站长一般不用改 |
+当前物理顺序就是「三段 + 末尾追加」，从上到下（`php -r` 读 `array_keys` 实测，2026-10-27）：
 
-### 重排是怎么做的、为什么安全
+| 段 | 顶层键（顺序即文件顺序） | 级别 |
+|---|---|---|
+| 前段 | `db`(12) / `meilisearch`(8) / `email`(6) | 🖥️ |
+| 中段 | `site`(30) / `app`(72) / `user`(25) / `gbook`(6) / `comment`(6) / `upload`(15) / `interface`(6) / `pay`(7) / `collect`(7) / `api`(7) / `connect`(2) / `weixin`(25) / `play`(15) / `sms`(7) / `seo`(6) / `urlsend`(2) / `extra`(0) | ⚙️ |
+| 后段 | `view`(23) / `path`(19) / `rewrite`(13) | 🔒 路由与页面底层定义，普通运营不要碰 |
+| 末尾追加 | `ai_search`(33) / `trusted_proxies`(字符串，非数组) / `analytics`(6) / `ai_content`(10) / `monitor`(34) / `push`(4) | 分别属 ⚙️ / 🖥️ / ⚙️ / ⚙️ / ⚙️ / ⚙️ |
 
-没有手工编辑 767 行文件，而是写了一个一次性脚本（逻辑如下），跑在服务器本地：
+- 括号里是子键个数（`count()`）。`db` 与 `config/database.php` 是**两份**：真正生效的连接配置是后者，`maccms.db` 主要给备份功能展示用，改库要两处一起看。
+- 「末尾追加」这一段不是排错了：后台保存都是 `array_merge($old, $new)` 后整体回写，`array_merge` 保留 `$old` 里已有键的位置，
+  **只有升级/安装脚本新注入的键才追加到末尾**。这批键由 [`install/Index.php:205-341`](file:///D:/wwwroot/maccms/maccms12/app/install/controller/Index.php#L205) 的「只补缺失键」逻辑写入。
+  要归位只能再跑一次一次性重排（历史做法见 [90-变更记录.md §3.3](file:///D:/wwwroot/maccms/maccms12/说明文档/90-变更记录.md)），不是 bug。
+- `template_cloud` / `addon_cloud` **不在这个文件里**，是 `Init` 每次请求内存注入的（第二节），所以在这里找不到它们不代表功能没开。
 
-1. `include` 原文件拿到 `$old` 数组；
-2. 按上面三个分组定义新的顶层 key 顺序 `$order`；
-3. 先断言 `$order` 和 `array_keys($old)` 是同一组 key（一个不多一个不少）才继续；
-4. 按 `$order` 重新组装 `$new`，每个 key 的值直接引用 `$old[$key]`，不做任何转换；
-5. 逐 key 用 `===` 严格比较 `$new[$k] === $old[$k]`，确保值和嵌套结构完全没变；
-6. 写盘前先备份原文件；写盘格式沿用 `mac_arr2file()` 同款的 `"<?php\nreturn " . var_export($new, true) . ";"`，
-   保证和后台保存产生的文件字节格式一致；
-7. 写盘后重新 `include` 一遍，再逐 key 严格比较一次，确认落盘结果和写之前完全一致，任何一步失败就用备份还原。
+## 六、三条必须守住的不变量
 
-**为什么这个顺序以后能保持住**：后台保存设置时的写法统一是先 `$old = config('maccms')`（读到的就是刚重排过的顺序），
-再 `array_merge($old, $new_partial)` 或直接对 `$old` 的子键赋值，最后整体 `mac_arr2file()`。PHP 的 `array_merge()`
-对已存在的 key 保留第一个数组（即 `$old`）里的位置，只有全新的 key 才会追加到末尾。也就是说：
-**站长以后正常在后台保存设置，不会打乱这次排好的顺序；只有升级脚本新注入的、当前还不存在的 key
-（比如 `ai_search`/`push`/`monitor` 这些），会被追加在文件最后，需要等下次跑本节的重排脚本才会归位到对应分组。**
-这是可以接受的、符合预期的行为，不是 bug。
+1. **幂等补写**：给 `maccms.php` 加键一律「读旧值 → 只补缺失键 → 整体回写」（`isset()`/`array_key_exists()` + `$changed` 标志），
+   不能无条件覆盖——那是站长的数据。现成写法见 [`install/Index.php:205-341`](file:///D:/wwwroot/maccms/maccms12/app/install/controller/Index.php#L205) 与
+   [`Init.php:18-64`](file:///D:/wwwroot/maccms/maccms12/app/common/middleware/Init.php#L18)。
+2. **升级包不打包运行期用户数据**：在线升级靠「包里压根没有这些文件」来保护站长配置，不是靠代码黑名单。
+   [`Update::step1()`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Update.php#L19) 用 `PCLZIP_OPT_REPLACE_NEWER` 解压到 docroot，这个选项**不会跳过任何文件**；
+   `version.php` 是唯一例外，它**必须**进包，否则 `config('version.code')` 永远不前进。
+   所以任何目录/文件层面的重构都要同步改打包流程，否则这条约定会被无声破坏。
+3. **本仓库有三个文件不入库**：`.gitignore` 把 `app/extra/maccms.php`、`app/extra/translate.php`（明文凭据）和 `app/extra/timming.php`（每 tick 回写时间戳）排除了。
+   代价是**从 Git 克隆出来的树里没有 `maccms.php`**，而 [`install/Index.php:196`](file:///D:/wwwroot/maccms/maccms12/app/install/controller/Index.php#L196) 是
+   `$config_new = config('maccms')` 起步的——文件不存在时它拿到 `null`，PHP 会静默把后续赋值自动转成数组（实测无 warning），于是安装只写出**十个分区**
+   （`app / site / api / interface / trusted_proxies / analytics / ai_search / ai_content / monitor / push`，见 `:196-341` 里被赋值的顶层键），
+   `db`、`email`、`user`、`upload`、`pay`、`collect`、`weixin`、`play`、`sms`、`seo`、`urlsend`、`view`、`path`、`rewrite` 等 19 个分区全部缺失。
+   换新环境要么带上一份出厂 `maccms.php`，要么补一个默认值注入脚本；`.gitignore` 里「install.php 会重新生成 maccms.php」那句注释并不成立。
+   改动这三个文件前，先复制到 docroot 之外备份。
 
-## 六、必须保留的两条不变量
+## 七、新增配置的操作规范
 
-重构/任何后续改动都**不能破坏**以下两点，这是本次评估的核心约束：
-
-1. **"读取 → 检查缺失键 → 只补缺失键 → 整文件回写"的幂等补写机制**
-   实现分布在三处，写法完全一致（`isset()`/`array_key_exists()` 判断 + `$changed` 标志 + 条件性
-   `mac_arr2file()`）：
-   - [`app/data/update/database.php`](../../data/update/database.php)（在线升级脚本，注释原文："幂等：只补缺失键，绝不覆盖站长已设值 —— extra/maccms.php 是运行期数据"）
-   - [`app/install/controller/Index.php`](../../install/controller/Index.php)（安装器路径，与升级路径逻辑对齐）
-   - [`app/common/middleware/Init.php`](../common/middleware/Init.php)（每次请求时的**内存级**默认值兜底，不落盘，防止新版本代码读到旧配置文件里不存在的 key 时报错）
-   - 各 admin 控制器保存表单时同样先 `array_merge($old, $new)` 再整体回写，例如
-     [`app/admin/controller/System.php`](../../admin/controller/System.php)、`Timming.php` 里对单条任务的 `array_merge($old, $param)`。
-
-2. **在线升级不覆盖用户配置的约定**
-   这不是代码里的黑白名单校验出来的，而是**打包约定**：升级包（`step1()` 下载解压的 zip）本身
-   不包含**运行期用户数据文件**（第三节表格里 11 个"✅ 是"的文件 + `captcha.php`/`queue.php`/`type_synonyms.php`
-   这 3 个框架默认值文件），新增的配置 key 一律通过上面第 1 点的补写脚本注入。
-   `PclZip` 解压时用的是 `PCLZIP_OPT_REPLACE_NEWER`，这个选项本身并不会跳过任何文件——真正起保护作用的是
-   "官方升级包里压根不打包这些文件"这个人工约定。**这意味着任何目录/文件层面的重构，都必须同步更新打包脚本/流程，
-   否则这条约定会在下一次打包时被无声破坏而不会有代码报错提醒。**
-
-   **`version.php` 是唯一的例外，不受这条约定保护，也不需要保护**：它不是用户数据，而是随每次官方发布
-   正常提交进代码库、和其他源码文件一样打进升级包整体覆盖的版本元数据——例如 `94b1ea0`
-   （`升级版本至 2026.1000.4055`）就是一次普通的源码提交，直接把 `code`/`update_hash` 改到新值，
-   没有走任何"读取 → 补缺失键"的合并逻辑。升级包**必须**包含它，否则在线升级后 `config('version.code')`
-   永远不会前进，升级校验会失效。第三节表格里把它标为"❌ 否，非站长数据"就是在强调这一点：它虽然物理上
-   放在 `extra/` 目录，但不属于上面"包内容排除"的那批文件。
-
-## 七、后续新增配置的操作规范
-
-给后面维护 `maccms.php` 或新增文件的人的checklist：
-
-1. 新增配置项一律走第六节的"幂等补写"模式（`isset` 判断 + 只在缺失时填默认值 + `$changed` 标志），
-   不要用无条件覆盖的写法，否则会覆盖站长已经改过的值。
-2. 新增顶层 key 时，判断它属于第一节的哪一级（服务器/运营/固定），同步更新本文档第四、五节的表格。
-3. 不要往这些"运行期用户数据"文件里加头部注释——会在下次表单保存时被 `mac_arr2file()` 静默清空，
-   注释写了等于没写。
-4. 如果新增的是一个全新文件（不是往 `maccms.php` 加 key），文件必须直接放在 `app/extra/` 
-   一层目录下（不能建子目录，见第二节的加载限制），并在本文档补一行分类。
-
-## 八、非本次范围的后续可选建议（仅供参考，不在本 issue 内实施）
-
-- 可以考虑在后台"系统设置"页面按本文档的三级分类做 Tab/分组展示（纯前端/UI 层面的改动，
-  不涉及配置文件本身的读写方式，风险很低，可以单独立一个前端 issue）。
-- 官方打包流程建议加一条自动化检查：升级 zip 里如果意外包含了 `app/extra/*.php` 中除 `version.php`
-  外的文件，构建脚本报错阻断，把第六节第 2 点的"人工约定"变成可执行的硬保证。
+1. 新增配置项走第六节第 1 条的幂等补写模式；不要无条件覆盖。
+2. 新增顶层键时先判断它属于 🖥️ / ⚙️ / 🔒 哪一级，并更新本文第五节的分段表；逐项作用写进 02，别在这里重复。
+3. 不要往「运行期用户数据」文件加头部注释——只有第四节标 ❌ 的 4 个文件（`type_synonyms`/`version`/`captcha`/`queue`）没有回写点，注释才留得住；本 README 不被加载器读取（第一节），同样安全。
+4. 新增文件必须直接放在 `app/extra/` 一层（不能建子目录，见第一节），并在本文第四节补一行；文件名即配置组名，改名等于改所有 `config('旧名.*')` 调用点。
+5. 任何文档、提交信息、截图都不写密钥值——只写键名和填它的那个后台页面。

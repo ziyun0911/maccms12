@@ -1,6 +1,6 @@
 # Knowledge base index / 知识库总目
 
-This folder powers the **admin assistant** (floating `?`). Answers should cite these files mentally; **not every line of the codebase** is duplicated here—only stable **admin workflows**, **menu names**, and **configuration areas** for MacCMS10-style admin.
+This folder powers the **admin assistant** (floating `?`). Answers should cite these files mentally; **not every line of the codebase** is duplicated here—only stable **admin workflows**, **menu names**, and **configuration areas** for the **MacCMS v12** admin (ThinkPHP 8 / PHP ≥ 8.0.2). The menu authority is **app/admin/common/auth.php** (16 top-bar groups, 362 nodes; 19 of them under **网站参数**). Longer end-user manuals live in the repo's **`说明文档/`** folder and are readable in-page at **网站参数 → 说明文档** (`doc/index`).
 
 **Suggestion:** On **网站参数 → 后台助手设置**, set **检索知识片段数** to **8–10** if you keep many files below.
 
