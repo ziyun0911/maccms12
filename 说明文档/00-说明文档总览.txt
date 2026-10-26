@@ -131,8 +131,11 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
      index() 列清单，info() 出正文。
    - 视图 app/admin/view/doc/index.html、app/admin/view/doc/info.html（按目录分组的
      卡片列表 + <pre> 原文，正文经 htmlspecialchars 转义；页面不含任何写操作）。
-     两个页面的外壳与「API 文档」共用 static/css/admin_doc_shell.css（.doc-page 浅灰
-     底 + .doc-bar 粘性工具条 + 白卡），列表顶部可按文件名筛选。
+     两个页面的外壳与「API 文档」共用同一套规则（.doc-page 浅灰底 + .doc-bar 粘性
+     工具条 + 白卡），源文件 static/css/admin_doc_shell.css；它只是 php think
+     front:bundle 的输入，页面实际加载 static/css/admin.bundle.css。这套配色写的是
+     var(--shell-*)，令牌定义在 admin_index_shell.css 的 :root 里，两张表必须留在
+     同一个包内，不能把 doc_shell 拆回独立 <link>。列表顶部可按文件名筛选。
    - 菜单与权限点 app/admin/common/auth.php 第 23 组「文档与手册」下 673=doc/index
      （show=1，出现在左侧菜单）、67301=doc/info（show=0，只出现在管理员权限列表；
      子管理员两项都要勾选才能从列表点进正文）。
@@ -187,8 +190,9 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
      9 / 11 / 12 / 14 / 17 / 18 / 20 / 21 / 22，即 站点设置、AI 能力、互动、营销与交易、
      运营统计、静态生成、通知与推送、扩展与权限、安全与风控、监控与告警、日志与审计），
      由 app/admin/controller/Index.php::index() 折进第 1 组的 sections 数组，
-     在「系统设置」左侧面板里以小标题分节显示（.side-panel__section，
-     static/css/admin_index_shell.css）。分节项的 data-id 仍用自己的组键（如 16-213），
+     在「系统设置」左侧面板里以小标题分节显示（.side-panel__section，规则源文件
+     static/css/admin_index_shell.css，与其余后台表一起打进 admin.bundle.css）。
+     分节项的 data-id 仍用自己的组键（如 16-213），
      不会与父组节点撞号；父组被权限过滤掉时子组退回普通顶栏组，宁可多一项也不丢入口。
    - 组名/节点名（app/lang/*.php 的 menu/* 键，6 份一致）：首页 → 系统设置
      （新键 menu/system_settings）、基础资料 → 分类管理、主题与模板 → 主题设置、
@@ -376,6 +380,37 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
     - 已实测（:8080 后台）：24 个设置链接全部 200；左栏搜索「AI」只留 AI 与 SEO
       分组的 7 项；卡片与 AI SEO 体检链接均打开对应标签并同步左栏高亮；移动端
       抽屉内左栏可用、点击后自动收起；控制台无本站脚本报错。
+
+15. 【2026-10-26 前后台 CSS 与后台图表 JS 合包，bundle 一律是派生产物】
+    新增 php think front:bundle（app/command/FrontBundleBuild.php），一条命令重建
+    全部五张派生表；--check 是漂移守卫，源文件与 bundle 不一致时退出码 1。
+    - 前台：template/default/asset/css/ 下 iconfont-alicdn + public-head-early 合成
+      front-head.bundle.css，notify-bell + user-profile-card + public-head-main +
+      mac-pop-sheets + social-unread 合成 front-tail.bundle.css，引用数从 8 减到 4。
+      black.css 不入包（与 public-head-main.css 有 13 处同选择器同属性不同值，且整表
+      靠 disabled 开关）；auth-ui.css 不入包（它有意排在管理员自定义 head 注入块之后）；
+      head.css / foot.css 不入包（在 <body> 内加载，提到 <head> 会反转层叠）。
+    - 后台 CSS：admin_style + tailwindcssOutput + admin_index_shell + admin_doc_shell
+      + theme_config_ux + update + admin_publish_config 七张表按原先 <link> 的次序
+      合成 static/css/admin.bundle.css，后台各页只引这一张。
+    - 后台 JS：static/js/ 下 uplot.min + monitor-charts 合成 admin-monitor.bundle.js，
+      apexcharts.min + hs-apexcharts-helpers 合成 admin-welcome.bundle.js，各减一次请求。
+      layui.js 不合包（靠 document.currentScript 反推 lay/modules 基路径）；
+      playerconfig.js / tj.js 由后台回写、addons.js 是插件合并目标、
+      analytics_beacon.js 由 All.php 注入，四者都不入包。
+    - 版本号：mac_asset_ver()（static/ 根）与 mac_tpl_asset_ver()（template/default/
+      asset/ 根）按文件 mtime 生成查询串，改样式即时破缓存，不必再手动调 MAC_VERSION。
+    - 源文件全部保留原位，清单顺序即层叠/执行顺序；改样式改源文件再重建，
+      直接编辑 bundle 会被 --check 抓到。
+    - 同轮修掉 config/console.php 的命令注册：TP8 的 Console::addCommand() 只在键非
+      数字时才拿键当命令名，写成 '类名' => '类名' 会让 setName() 整体失效，
+      必须用数字键（列表式）。此前语言包里写的 php think seo:generate 一直是调不通的。
+    - 已实测（:8080）：五张 bundle --check 全 ok；后台首页顶栏/侧栏 grid 与 iframe 正常，
+      doc / apidoc 页 .doc-page 取到 var(--shell-*) 的浅灰底与墨色，theme 页 Tab 条
+      取值未受合包影响；前台首页 head/tail 两张 bundle 各 200；system/config 少一次
+      请求后 Tab 条与发布页面板取值与合包前逐项相同。
+      注：七张后台源表仍留在 static/css/ 作构建输入，直接访问返回 200，但已经没有任何
+      视图 <link> 它们；「文件还在」不等于「页面还在加载它」，排查样式时以 bundle 为准。
 
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）
