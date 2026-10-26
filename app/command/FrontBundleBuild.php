@@ -43,8 +43,12 @@ use think\console\Output;
  *     否则说明文档/API 文档页的 var() 解析不到值。
  *   - admin_style.css 里有 url(../images/signin_bg.png)，是相对自身解析的，所以 bundle
  *     和源文件必须同在 static/css/ 下。
- *   - admin_publish_config.css 暂不入包：它由 system/config.html 在 bundle 之后单独加载，
- *     层叠位置在六张表之外，收进包要另做冲突核查。
+ *   - admin_publish_config.css 排最后：它原先由 system/config.html 在 bundle 之后单独
+ *     <link>，接在末段等于保持原次序。全表只有两条不带 #configPublishPane 前缀
+ *     （.page-container > .layui-tab[lay-filter="tb1"] > .layui-tab-title 及其 li），
+ *     实测八个用 tb1 的页面里只有 config.html 的 Tab 是 page-container 的直接子元素，
+ *     configapi/configemail/configpay/configseo/urlsend/theme 的 Tab 都嵌在 <form> 里，
+ *     直接子选择器匹配不上，所以并进全局包不会改动其它页的 Tab 条。
  *
  * 不能进包的 static/js：
  *   - layui.js 靠 document.currentScript 反推 lay/modules 基路径，改名合包后动态模块全 404；
@@ -90,6 +94,7 @@ class FrontBundleBuild extends Command
             'admin_doc_shell.css',
             'theme_config_ux.css',
             'update.css',
+            'admin_publish_config.css',
         ],
     ];
 
