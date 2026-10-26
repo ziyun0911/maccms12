@@ -19,12 +19,6 @@ class Update extends Base
         $this->_save_path = APP_PATH . 'data/update/';
     }
 
-    public function index()
-    {
-        $this->assign('title', lang('admin/update/title'));
-        return $this->fetch('admin@test/index');
-    }
-
     public function step1($file='')
     {
         if(empty($file)){
