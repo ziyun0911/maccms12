@@ -54,7 +54,9 @@ class Admin extends Base {
         else{
             $data['admin_auth'] = '';
         }
-        $validate = validate('app\\common\\validate\\Admin');
+        // 第 4 参 failException=false：默认 true 时 check() 直接抛 ValidateException，
+        // 下面两个返回 code 1001/1002 的分支是死代码，用户名留空只会看到 500 调试页。
+        $validate = validate('app\\common\\validate\\Admin', [], false, false);
         if(!empty($data['admin_id'])){
             if(!$validate->scene('edit')->check($data)){
                 return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];

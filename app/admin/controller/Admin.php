@@ -42,16 +42,20 @@ class Admin extends Base
     {
         if (Request()->isPost()) {
             $param = input('post.');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
+            if(!$validate->check($param)){
+                return $this->error($validate->getError());
+            }
+            // 权限复选框一个都没勾时浏览器不提交 admin_auth，模型侧按空数组写 ''
+            if (!isset($param['admin_auth']) || !is_array($param['admin_auth'])) {
+                $param['admin_auth'] = [];
+            }
             if(!in_array('index/welcome',$param['admin_auth'])){
                 $param['admin_auth'][] = 'index/welcome';
             }
             if (in_array('safety/checkup', $param['admin_auth'], true)
                 && !in_array('safety/fix', $param['admin_auth'], true)) {
                 $param['admin_auth'][] = 'safety/fix';
-            }
-            $validate = validate('app\\common\\validate\\Token', [], false, false);
-            if(!$validate->check($param)){
-                return $this->error($validate->getError());
             }
             $res = (new \app\common\model\Admin())->saveData($param);
             if($res['code']>1){

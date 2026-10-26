@@ -18,6 +18,14 @@ class Base extends All
     {
         parent::__construct();
 
+        // Base 只给子控制器复用的工具方法，本身没有 action。TP8 只看 is_callable 判 action
+        // （vendor/topthink/framework/src/think/route/Dispatch.php:169，因为有 __call 恒为 true），
+        // 直连 /admin.php/Base/* 会真的执行这些工具方法：带必填参数的在进方法体前就抛
+        // 「方法参数错误」500，_cache_clear 这类还会把清缓存跑一遍，所以整条路由挡掉。
+        if ($this->_cl === 'Base') {
+            throw new \think\exception\HttpResponseException($this->error(lang('illegal_request')));
+        }
+
         // 校验Update.php文件完整性；放行 Update 控制器自身，避免 hash 失配时升级 UI 也被锁死
         if ($this->_cl != 'Update') {
             $update_file = APP_PATH . 'admin/controller/Update.php';

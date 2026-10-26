@@ -540,11 +540,54 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
     - 两个形状校验排在令牌校验之前的端点也是 200 JSON，只是文案不同：Template/info 报
       「参数错误1」、Addon/config 报「参数错误」；System/configupload 报「提交数据不完整」。
     - php -l 全过；php think front:bundle --check 五张全 ok。
-    遗留（本轮未动，都是「参数缺失」而不是「令牌失效」）：Admin/info 缺 admin_auth 时，
-    令牌校验之前的 in_array() 先抛 500（Admin.php:45）；Base/base_import 需要路由参数
-    table，缺参时框架在进方法体之前就报「方法参数错误:table」。
+    遗留两条已由说明 20 修掉：Admin/info 缺 admin_auth 时，令牌校验之前的 in_array() 先抛
+    500（Admin.php:45）；Base/base_import 需要路由参数 table，缺参时框架在进方法体之前就报
+    「方法参数错误:table」。
     app_debug 与 show_error_msg 仍为 true（config/app.php:14,73），让上面这类 500 直接
-    把调试页吐给浏览器，也仍属另一件事。
+    把调试页吐给浏览器，仍属另一件事。
+
+20. 【2026-10-26 补掉说明 19 遗留的两处 500：参数改写挪到令牌校验之后，Base 的工具方法不再当 action】
+    ① Admin::info（app/admin/controller/Admin.php:43）原先在令牌校验之前就用 in_array()
+      读写 $param['admin_auth']。后台权限复选框一个都没勾时浏览器根本不提交这个字段，
+      PHP 8 于是抛「in_array(): Argument #2 ($haystack) must be of type array, null given」，
+      任何不带 admin_auth 的 POST 都是 500 调试页。改法是令牌校验先跑（没验过的请求不该
+      碰参数），再把 admin_auth 归一成数组。模型侧 Admin::saveData 本来就把空数组写成 ''，
+      所以「全不勾」这回想存就存得下来。
+    ② 顺着这条路径又挖出同类的第三处：app/common/model/Admin.php 的
+      validate('app\common\validate\Admin') 也是默认 failException=true，返回 code
+      1001/1002 的两个分支同样是死代码——用户名留空时看不到「参数错误：名称必须」，
+      只看到 500。一并改成 validate(..., [], false, false)。
+    ③ Base 控制器里的 check_auth / _cache_clear / batch_replace / base_export /
+      base_import 是给子控制器复用的工具方法，但它们是 public，于是也能当 action 直连：
+      /admin.php/Base/base_import.html 缺 table 报「方法参数错误:table」，
+      /admin.php/Base/_cache_clear.html 则真的把 runtime 缓存清一遍。
+      先把它们改成 protected 试过——没用：TP8 只用 is_callable 判 action
+      （vendor/topthink/framework/src/think/route/Dispatch.php:169），而控制器链上挂着
+      __call，is_callable 对任何名字都是 true；PHP 8.1 起反射调用非 public 方法也不需要
+      setAccessible。所以改成在 Base::__construct 里按控制器名挡：$this->_cl === 'Base'
+      就抛 HttpResponseException($this->error(lang('illegal_request')))，整条
+      /admin.php/Base/* 统一回「非法请求」；子控制器里 $this->base_import('vod')
+      这类调用不经过路由，不受影响。
+    实测（:8080 带登录态）：
+    - Admin/info 缺 admin_auth + 坏令牌 → 200 {"code":0,"msg":"请不要重复提交表单"}；
+      不带令牌 → 200「非法请求」；带稳定头、用户名留空 → 200
+      {"code":0,"msg":"参数错误：名称必须"}。最后这条是在管理员编辑页把用户名清空点真保存
+      按钮走出来的，复查 admin_id=1 的 admin_name 仍是 admin，没写坏数据。
+    - Base/base_import、base_export、batch_replace、check_auth、_cache_clear 以及压根不存在的
+      Base/zzz 六种直连，全部 200「非法请求」，不再出现 500 调试页；GET Admin/index 照常渲染。
+    - 网站参数页原值重提仍「保存成功!」，app/extra/maccms.php 与保存前逐字节相同
+      （md5 172e15fb…），说明构造函数里新加的这道闸没有拦到正常后台请求。
+    - php -l 全过；php think front:bundle --check 五张全 ok。
+    新发现两处既有缺陷（本轮只记录，没动）：
+    - Vod / Art / Manga 的 importData 写成 $this->base_import('vod'); 少了 return，工具方法
+      返回的 Response 被丢掉，所以后台批量导入无论成功失败都只回一个空 body 的 200；
+      本轮没碰这三个文件，改动前就是这样。
+    - */exportData 直连必 500：BulkTableIo::exportCsvDownload() 第 3 参声明成 array，
+      而 ->select() 交来的是 think\Collection，PHP 8 直接类型错误。
+    - 同一类「validate() 默认抛异常」的死分支还有一大片：app/common/model/ 下 26 处
+      （26 个模型各一处）加 app/admin/controller/Template.php:182 一处仍用默认值，本轮只
+      修了走「管理员保存」这条链路上的 app/common/model/Admin.php。
+    这几条与令牌无关，属于各自功能本身坏着，要不要一起修请另行决定。
 
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）
