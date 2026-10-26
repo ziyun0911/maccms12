@@ -412,6 +412,31 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
       注：七张后台源表仍留在 static/css/ 作构建输入，直接访问返回 200，但已经没有任何
       视图 <link> 它们；「文件还在」不等于「页面还在加载它」，排查样式时以 bundle 为准。
 
+16. 【2026-10-26 删除三处不可达模板与 Update::index 死动作】
+    清理「文件在、路由到不了」的残留，共 19 个文件 / 944 行，全部先备份到仓库外再删。
+    - app/admin/view/mycj/（5 份视图）与 static/mycj/（10 个文件、1.1 MB）：萌芽Pro
+      采集插件的残留。全树没有 Mycj 控制器，addons/ 下没有这个插件，库里没有 mac_addon
+      表，auth.php 也没有节点；插件视图的实际落点是 addons/<插件>/view/，不是
+      app/admin/view/<插件>/。static/mycj 只被那张死视图引用，留在 docroot 等于对外
+      多提供一批可下载的第三方 layui 与脚本。
+    - app/admin/view/index/update.html：更新弹窗的过期副本。同一份 skin_updae_from
+      标记已经在 app/admin/view/index/index.html 的 showUpdate() 里内联，Index 控制器
+      也没有 update 动作，/admin.php/index/update.html 实测 404。
+    - app/index/view/index/index.html：前台首页的 shadowed 副本。Init 中间件把
+      template.view_path 指向 template/<主题>/html/，renderFetch 的回退链只在主题目录
+      与 public/404 之间，从不回落到 app/index/view/；实测 /index.php/ 渲染的是主题首页。
+    - Update::index() 渲染 admin@test/index，即 app/admin/view/test/index.html，该目录
+      官方包里也不存在。登录后台访问 /admin.php/update.html 因此报 500，并把 docroot
+      绝对路径回显在错误页上（app_debug 与 show_error_msg 同时为 true 才会显示详情）。
+      此动作零引用（无链接、无 auth 节点、无路由），删除后同一 URL 走「页面不存在」跳转页。
+    - 改 Update.php 必须同步重算 app/extra/version.php 的 update_hash：Base.php 对除
+      Update 自身之外的每个后台控制器都校验 md5_file(Update.php)，失配直接 exit，
+      整个后台一起锁死。本轮新值 086014dc1dad6faef8b8baeed6ce07c3。
+    - 已实测（:8080 登录态）：/admin.php/update.html 与 /admin.php/update/index.html
+      均返回「页面不存在」跳转页且页面源码不含 wwwroot 路径；后台首页与视频管理页照常
+      渲染（说明 hash 校验通过），首页仍带 showUpdate / update/step1 / skin_updae_from；
+      /static/mycj/ 下文件 404，前台首页 200，php think front:bundle --check 五张全 ok。
+
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）
 --------------------------------------------------------------------------------
