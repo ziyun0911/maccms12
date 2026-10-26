@@ -2,11 +2,6 @@
 
 namespace addons\aicontent\service\models;
 
-/**
- * DeepSeek integration.
- * API is OpenAI-compatible.
- * API docs: https://platform.deepseek.com/api-docs
- */
 class DeepSeekModel extends BaseModel
 {
     const API_URL = 'https://api.deepseek.com/chat/completions';

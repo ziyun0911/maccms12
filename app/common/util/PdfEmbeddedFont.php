@@ -1,66 +1,27 @@
 <?php
 namespace app\common\util;
 
-/**
- * 手写 PDF 报表用的 TrueType 内嵌字体（Type0 / Identity-H）。
- *
- * 为什么需要它：报表原先只认 PDF 的 14 个标准字体和 Adobe 预定义 CMap 两套方案。
- * Helvetica 是 WinAnsi 编码，没有西里尔字形；而俄文走「退回中文」的老路等于把
- * 俄文字母送去 Adobe-GB1 的 CMap 查表，能不能显形完全取决于阅读器的替换字体，
- * 属于不可复现的行为。要让俄文报表稳定可读，只能把带西里尔覆盖的 TTF 本身塞进 PDF。
- *
- * 中日韩仍然走 Adobe 预定义 CMap（本文件不负责）：那需要一套覆盖 CJK 的字体，
- * 常见发行版里并不存在，换成内嵌方案反而会让中日报表从「大概率能看」退化成「一定缺字」。
- *
- * 字体文件从哪来：先找项目自带的 static/font/（部署方自己放一份，行为可复现），
- * 再退回系统字体目录里已装好的 DejaVu / Liberation / Noto。候选必须真的覆盖
- * А 和 а 才算合格——Windows 下很多 .ttf 后缀的文件其实是 TTC 集合，
- * 而 FontFile2 只接受单个 sfnt，所以这类文件在探测阶段就被排除，不会写坏 PDF。
- *
- * 只做整文件嵌入，不做子集化：子集化要重算 loca/glyf 的复合字形引用，代码量翻倍，
- * 而一份几百 KB 的后台报表对 300KB 的字体不敏感。流用 FlateDecode 压缩。
- */
 class PdfEmbeddedFont
 {
-    /** 判定字体可用性所用的码位：拉丁大写 + 俄文大写 + 俄文小写 + ё */
     const PROBE_CODEPOINTS = [0x0041, 0x0410, 0x0430, 0x0451];
 
-    /** @var string */
     private $postScriptName = '';
-    /** @var string */
     private $fontFile = '';
-    /** @var int */
     private $unitsPerEm = 1000;
-    /** @var int[] */
     private $bbox = [0, 0, 0, 0];
-    /** @var int */
     private $ascent = 800;
-    /** @var int */
     private $descent = -200;
-    /** @var array */
     private $cmap = [];
-    /** @var int */
     private $numGlyphs = 0;
-    /** @var int */
     private $hmtxCount = 0;
-    /** @var array */
     private $advanceWidths = [];
-    /** @var int */
     private $lastAdvanceWidth = 0;
-    /** @var array */
     private $gidCache = [];
-    /** @var array */
     private $usedGids = [];
 
-    /** @var self|null */
     private static $instance = null;
-    /** @var bool */
     private static $resolved = false;
 
-    /**
-     * 解析并加载一个可用的内嵌字体；找不到返回 null（调用方负责降级）。
-     * 同一次请求内复用，避免每页报表重新解析字体文件。
-     */
     public static function resolve()
     {
         if (self::$resolved) {
@@ -80,9 +41,6 @@ class PdfEmbeddedFont
         return null;
     }
 
-    /**
-     * 候选字体路径。项目自带优先，其次是常见发行版的字体目录。
-     */
     private static function candidatePaths()
     {
         $paths = [];
@@ -122,9 +80,6 @@ class PdfEmbeddedFont
         return $paths;
     }
 
-    /**
-     * 读取一个 sfnt 字体。TTC 集合（ttcf）直接拒绝：FontFile2 只能装单个字体。
-     */
     public static function load($path)
     {
         $data = @file_get_contents($path);
@@ -183,9 +138,6 @@ class PdfEmbeddedFont
         return $font;
     }
 
-    /**
-     * 收集 fmt4（BMP）与 fmt12（全码位）两张子表；后者优先。
-     */
     private function parseCmap($data, $offset)
     {
         $numSubtables = self::u16($data, $offset + 2);
@@ -234,9 +186,6 @@ class PdfEmbeddedFont
         }
     }
 
-    /**
-     * 码位 → 字形号。未收录返回 0（.notdef），由调用方决定丢弃还是留白。
-     */
     public function glyphIndex($codepoint)
     {
         $codepoint = (int)$codepoint;
@@ -274,7 +223,6 @@ class PdfEmbeddedFont
                 }
                 $delta = self::u16($data, $c['delta'] + $s * 2);
                 $rangeOffset = self::u16($data, $c['range'] + $s * 2);
-                // idRangeOffset 是相对本条 idRangeOffset[s] 自身的字节偏移，且 0 表示 delta 直算。
                 if ($rangeOffset === 0) {
                     $gid = ($codepoint + $delta) & 0xFFFF;
                 } else {
@@ -294,9 +242,6 @@ class PdfEmbeddedFont
         return $gid;
     }
 
-    /**
-     * 字形宽度换算到 PDF 的 1000 单位坐标系。
-     */
     public function width1000($gid)
     {
         $gid = (int)$gid;
@@ -307,9 +252,6 @@ class PdfEmbeddedFont
         return (int)round($units * 1000 / $this->unitsPerEm);
     }
 
-    /**
-     * 把一段 UTF-8 文本编码成 Identity-H 的十六进制串，并登记用到的字形。
-     */
     public function encode($text)
     {
         $hex = '';
@@ -342,12 +284,6 @@ class PdfEmbeddedFont
         return $this->postScriptName;
     }
 
-    /**
-     * 生成 Type0 / CIDFontType0 / FontDescriptor / FontFile2 / ToUnicode 五个对象。
-     *
-     * @param int $firstObjNum Type0 字体对象的编号，后续对象依次占用
-     * @return array [objNum => 对象内容字符串]，并返回最大编号供调用方续排
-     */
     public function buildObjects($firstObjNum)
     {
         $type0 = (int)$firstObjNum;
@@ -357,7 +293,6 @@ class PdfEmbeddedFont
         $toUnicode = $type0 + 4;
         $name = $this->postScriptName;
 
-        // 宽度：全部等宽（等宽字体）时只用 /DW，否则按连续等宽区间输出 /W。
         $widths = [];
         foreach (array_keys($this->usedGids) as $gid) {
             $widths[$gid] = $this->width1000($gid);
@@ -422,9 +357,6 @@ class PdfEmbeddedFont
         return [$objects, $toUnicode];
     }
 
-    /**
-     * ToUnicode 让阅读器能选中、复制、检索真实文字，而不是只剩字形号。
-     */
     private function buildToUnicodeCMap()
     {
         $pairs = [];

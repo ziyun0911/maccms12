@@ -21,13 +21,9 @@ class Timming extends Base
         $param = input('get.','','trim,urldecode');
         $name = $param['name'];
         if(empty($name)){
-            //return $this->error('参数错误!');
         }
 
         $list = config('timming');
-        // enforce=1 会跳过时间窗口立即执行，属高权限操作（可被用于反复触发烧金鑰的 AI 任务）。
-        // 仅在后台已登录管理员发起时才放行（后台“测试”按钮会带上管理员会话）；匿名请求忽略 enforce，
-        // 任务只按自身调度窗口执行并受 runtime 节流，无法被匿名刷。
         $enforce = false;
         if (isset($param['enforce']) && $param['enforce'] == '1') {
             $adminChk = ((new \app\common\model\Admin()))->checkLogin();
@@ -45,11 +41,6 @@ class Timming extends Base
             $last = (!empty($v['runtime']) ? date('Y-m-d H:i:s',$v['runtime']) : lang('api/never'));
             $status = $v['status'] == '1' ?  lang('open'): lang('close');
 
-            //测试
-            //$v['runtime']=0;
-
-            // 分钟/秒级任务支持：任务可选配置 interval（秒）。设置后按「距上次执行的时间间隔」判断，
-            // 突破默认的小时级粒度（如 push_broadcast 需每分钟派发一次队列）。未配置则维持原小时级逻辑。
             $interval = isset($v['interval']) ? intval($v['interval']) : 0;
             $weekOk = strpos($v['weeks'],$curweek)!==false;
             $shouldRun = false;
@@ -66,7 +57,6 @@ class Timming extends Base
             }
 
             if( $shouldRun ) {
-
                 mac_echo( lang('api/task_tip_exec',[$v['name'] ,$status,$last]));
                 $list[$k]['runtime'] = time();
 
@@ -76,11 +66,9 @@ class Timming extends Base
                 }
                 $this->reset();
 
-                // 兼容旧数据：早期资源站中心写入的任务使用 type/url 字段
                 $file  = isset($v['file']) && $v['file'] !== '' ? $v['file'] : (isset($v['type']) ? $v['type'] : '');
                 $param = isset($v['param']) ? $v['param'] : '';
                 if ($param === '' && !empty($v['url'])) {
-                    // 旧数据的 url 形如 .../collect/api?ac=cj&...，取 query string 作为 param
                     $query = parse_url($v['url'], PHP_URL_QUERY);
                     $param = $query !== null ? $query : '';
                 }
@@ -92,7 +80,6 @@ class Timming extends Base
 
                 $this->$file($param);
                 die;
-
             }
             else{
                 mac_echo(lang('api/task_tip_jump',[$v['name'] ,$status,$last]));
@@ -167,15 +154,6 @@ class Timming extends Base
         $runner->runDueJobs($extCfg, $provider);
     }
 
-    /**
-     * AI 内容标注批量任务。
-     *
-     * 方法名刻意不叫 aicontent —— 与既有的 addons/aicontent 插件毫无关系，同名会误导。
-     *
-     * runner 每次调用只跑一个任务、跑完就 die，且每任务每小时至多一次，
-     * 所以这里只能分块：每次挑 limit 条还没标注过的，做完就走。
-     * ContentAnnotator 内部有 source_hash 变更检测，重复触发不会重复烧 token。
-     */
     protected function annotate($param)
     {
         @parse_str($param, $output);
@@ -209,19 +187,6 @@ class Timming extends Base
         mac_echo('[annotate] mid=' . $mid . ' ok=' . $ok . ' fail=' . $fail);
     }
 
-    /**
-     * 内容质量分批量计算（离线打分，供 view 看板展示）。
-     *
-     * 纯打分逻辑见 ContentQualityScorer::scoreRow（无 LLM）。每次只处理
-     * 一个 mid 的一批内容（limit 条），可重复调度、幂等落表（saveByObject
-     * 按 mid+content_id upsert，不产重复行）。
-     *
-     * 选取顺序按打分新鲜度自转：LEFT JOIN mac_content_quality 后按
-     * q_time_update asc 排序 —— 从未打过分的内容 quality 行为 NULL，
-     * MySQL 对 NULL 升序排最前，因此优先补齐从未打分的内容，其次是打分
-     * 时间最旧的内容，多次调度即可遍历全量内容，而不是永远只打最新的
-     * limit 条。
-     */
     protected function content_quality($param)
     {
         @parse_str($param, $output);
@@ -345,8 +310,6 @@ class Timming extends Base
         $now = time();
         $pre = Db::getConfig('connections.mysql.prefix');
 
-        // 候选用户：mac_ulog 中出现过行为(user_id>0)的用户，去重后 LEFT JOIN mac_user_profile
-        // 按 time_update 升序（NULL 即从未算过画像的排最前）+ user_id 升序做轮转，取 $limit 个。
         $rows = Db::name('Ulog')
             ->alias('u')
             ->join($pre . 'user_profile p', 'p.user_id = u.user_id', 'left')
@@ -404,10 +367,6 @@ class Timming extends Base
         }
     }
 
-    /**
-     * Web Push 全员广播队列派发：管理员广播只入队，逐条 HTTPS POST 在此异步分批发送。
-     * 参数：batch=单批订阅数（默认100），max=单次运行订阅处理上限（默认500）。
-     */
     protected function pushbroadcast($param)
     {
         @parse_str($param, $output);
@@ -417,23 +376,15 @@ class Timming extends Base
         mac_echo('[pushbroadcast] ' . (isset($res['msg']) ? $res['msg'] : '') . ' processed=' . (isset($res['processed']) ? intval($res['processed']) : 0));
     }
 
-    /**
-     * 用户访问风控日志（issue #149）到期清理 + 匿名化。
-     * 保留期/匿名化天数读 monitor 配置：retain_user_access_days / user_access_anonymize_days。
-     * 参数：max=单次处理行数上限（默认5000；任务每小时执行，摊平逐行匿名化压力）。
-     */
     protected function user_access_purge($param)
     {
         @parse_str($param, $output);
         $cfg = config('maccms');
         $mon = isset($cfg['monitor']) && is_array($cfg['monitor']) ? $cfg['monitor'] : [];
-        // 读取配置后再正规化：形成「后台保存→定时读取→模型 purge」三层一致的边界防御。
-        // 配置文件可能被手动改、旧版升级或外部部署流程写坏，故不单独信任其内容。
         $retain = intval(isset($mon['retain_user_access_days']) ? $mon['retain_user_access_days'] : 90);
         $retain = max(1, min(365, $retain));
         $anon = intval(isset($mon['user_access_anonymize_days']) ? $mon['user_access_anonymize_days'] : 30);
         $anon = max(0, min(365, $anon));
-        // 不变量：匿名化期限必须早于删除期限，否则匿名化窗口恒为空集，资料在去识别化前被整行删除。
         if ($anon > 0 && $anon >= $retain) {
             $anon = $retain - 1;
         }

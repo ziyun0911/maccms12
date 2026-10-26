@@ -1,7 +1,6 @@
 <?php
 namespace app\api\controller;
 
-
 class Receive extends Base
 {
     var $_param;
@@ -10,7 +9,6 @@ class Receive extends Base
     {
         parent::__construct();
         $this->_param = input('','','trim,urldecode');
-
 
         if($GLOBALS['config']['interface']['status'] != 1){
             echo json_encode(['code'=>3001,'msg'=>lang('api/close_err')],JSON_UNESCAPED_UNICODE);
@@ -24,12 +22,10 @@ class Receive extends Base
             echo json_encode(['code'=>3003,'msg'=>lang('api/pass_safe_err')],JSON_UNESCAPED_UNICODE);
             exit;
         }
-
     }
 
     public function index()
     {
-
     }
 
     public function vod()
@@ -189,7 +185,6 @@ class Receive extends Base
             echo json_encode(['code'=>2003,'msg'=>lang('api/require_rel_name')],JSON_UNESCAPED_UNICODE);
             exit;
         }
-
 
         $data['data'][] = $info;
         $res = (new \app\common\model\Collect())->comment_data([],$data,0);

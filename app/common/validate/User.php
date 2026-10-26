@@ -20,19 +20,13 @@ class User extends Validate
         'edit'  =>  ['user_name'],
     ];
 
-    /**
-     * 校验邮箱
-     * @param $email
-     */
     public static function validateEmail($email)
     {
         list(, $email_host) = explode('@', $email, 2);
-        // 不在白名单内，报错
         $email_white_host_sets = self::formatEmailHostSets('white');
         if (!empty($email_white_host_sets) && !isset($email_white_host_sets[$email_host])) {
             return ['code' => 1001, 'msg' => lang('model/user/email_host_not_allowed')];
         }
-        // 在黑名单内，报错
         $email_black_host_sets = self::formatEmailHostSets('black');
         if (isset($email_black_host_sets[$email_host])) {
             return ['code' => 1002, 'msg' => lang('model/user/email_host_not_allowed')];

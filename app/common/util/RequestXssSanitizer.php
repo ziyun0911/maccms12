@@ -1,16 +1,8 @@
 <?php
 namespace app\common\util;
 
-/**
- * 请求参数 XSS 清洗（在路由与 Request 懒加载 GET 之前处理超全局变量）。
- * 设计为保守规则：去空字节、剥离 script 片段、弱化常见事件与伪协议，不替代输出编码与 CSP。
- */
 class RequestXssSanitizer
 {
-    /**
-     * @param mixed $data
-     * @return mixed
-     */
     public static function sanitizeDeep($data)
     {
         if (is_string($data)) {

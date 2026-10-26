@@ -473,7 +473,7 @@
                         var players_arr_len = {$vod_play_list|count};
                         var downers_arr_len = {$vod_down_list|count};
                         var plot_arr_len = {$vod_plot_list|count};
-                    </script>
+</script>
 
                     <div id="player_list" class="contents">
                         {volist name="$vod_play_list" id="vo"}
@@ -798,7 +798,7 @@
                         var players_arr_len = {$vod_play_list|count};
                         var downers_arr_len = {$vod_down_list|count};
                         var plot_arr_len = {$vod_plot_list|count};
-                    </script>
+</script>
 
                     <div id="player_list" class="contents">
                         {volist name="$vod_play_list" id="vo"}
@@ -1001,13 +1001,11 @@
     var UPLOAD_IMG_KEY="{$GLOBALS['config']['upload']['img_key']}";UPLOAD_IMG_API="{$GLOBALS['config']['upload']['img_api']}";
 
     layui.use(['form','upload', 'layer'], function () {
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer
                 , $ = layui.jquery
                 , upload = layui.upload;;
 
-        // 验证
         form.verify({
             vod_name: function (value) {
                 if (value == "") {
@@ -1123,7 +1121,6 @@
             getExtend(data.value);
         });
 
-        //多图片上传
         upload.render({
             elem: '.screenshot'
             ,url: "{:url('upload/upload')}?flag=vod_screenshot"
@@ -1146,7 +1143,6 @@
             }
         });
 
-        //监听文本框
         $('#vod_pic_screenshot').keyup(function(e){
             let html = ``;
             var textArr = $(this).val().split(/[(\r\n)\r\n]+/);

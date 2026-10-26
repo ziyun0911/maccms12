@@ -39,7 +39,6 @@ class VodPlayer extends Base
             if (strpos($param['from'], '.') !== false || strpos($param['from'], '/') !== false || strpos($param['from'], '\\') !== false) {
                 return $this->error(lang('param_err'));
             }
-            //默认语言以条目自身字段为准，content_lang 只保存非默认语言的译文（见 mac_config_lang_overlay 注释）
             if (!isset($param['content_lang']) || !is_array($param['content_lang'])) {
                 $param['content_lang'] = [];
             }
@@ -71,7 +70,6 @@ class VodPlayer extends Base
             $info['code'] = $code;
         }
 
-        //线路配置不落库，译文就近存在条目自身的 content_lang[lang_code] 里（见 mac_config_lang_overlay）
         $content_lang_default = mac_content_lang_default();
         $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
         $content_lang_data = (!empty($info['content_lang']) && is_array($info['content_lang'])) ? $info['content_lang'] : [];
@@ -85,9 +83,6 @@ class VodPlayer extends Base
         return $this->fetch('admin@vodplayer/info');
     }
 
-    /**
-     * 调用已安装的翻译插件（若有）翻译单个字段；没有插件注册时返回空字符串，前端据此禁用按钮。
-     */
     public function contentLangTranslate()
     {
         $text = (string)input('post.text', '');
@@ -138,7 +133,6 @@ class VodPlayer extends Base
             if($res===false){
                 return $this->error(lang('save_err'));
             }
-            // playerconfig.js 只在清缓存时重建，批量改状态后必须提示管理员缓存已过期
             cache('cache_data','1');
             return $this->success(lang('save_ok'));
         }
@@ -201,7 +195,6 @@ class VodPlayer extends Base
                 return $this->error(lang('write_err_config'));
             }
 
-            // PHP8 下 fopen() 失败返回 false，直接喂给 fwrite() 是 TypeError 而不是 false 判断
             $js_file = ROOT_PATH . 'static/player/' . $data['from'] . '.js';
             $fp = @fopen($js_file, 'wb');
             if ($fp === false) {
@@ -217,5 +210,4 @@ class VodPlayer extends Base
             return $this->fetch('admin@vodplayer/import');
         }
     }
-
 }

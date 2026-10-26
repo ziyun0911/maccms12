@@ -1,8 +1,6 @@
 {include file="../../../app/admin/view/public/head" /}
 
 <style>
-/* ===== Theme Design Wizard ===== */
-/* pipeline = horizontal stepper across the top */
 .td-wrap { display:block; }
 .td-nav { display:flex; gap:4px; background:#fff; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,.08); padding:8px 10px; margin-bottom:15px; overflow-x:auto; }
 .td-nav .td-nav-item { flex:1 1 0; min-width:118px; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px 10px; cursor:pointer; color:#666; font-size:14px; border-bottom:3px solid transparent; border-radius:6px 6px 0 0; transition:all .15s; white-space:nowrap; }
@@ -20,13 +18,11 @@
 .td-footer-bar { display:flex; justify-content:space-between; align-items:center; margin-top:10px; flex-wrap:wrap; gap:8px; }
 .td-footer-bar .layui-btn { white-space:nowrap; }
 
-/* form labels: comfortably wide, single-line (fixes char-by-char wrapping of CN labels) */
 .td-content .layui-form-label,
 #td-app .layui-form-label,
 .td-main .layui-form-label { width:auto; min-width:96px; max-width:160px; white-space:nowrap; text-align:right; padding:9px 12px; box-sizing:border-box; }
 .td-main .layui-form-item .layui-input-block { margin-left:120px; }
 
-/* preset swatch cards */
 .td-scheme-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin-bottom:18px; }
 .td-scheme-card { border:2px solid #e6e6e6; border-radius:8px; padding:10px; cursor:pointer; transition:all .15s; background:#fff; }
 .td-scheme-card:hover { border-color:#40CC92; box-shadow:0 2px 8px rgba(64,204,146,.15); }
@@ -35,13 +31,11 @@
 .td-scheme-card .td-scheme-bar { display:flex; height:26px; border-radius:4px; overflow:hidden; }
 .td-scheme-card .td-scheme-bar span { flex:1; }
 
-/* color grid (custom) */
 .td-color-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
 .td-color-item { display:flex; align-items:center; gap:10px; }
 .td-color-item label { width:96px; font-size:13px; color:#555; flex:0 0 96px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .td-color-item .td-color-hex { width:90px; flex:0 0 90px; }
 
-/* image upload — use <img> so logo keeps its aspect at a fixed height */
 .td-img-uploader { display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; }
 .td-img-ctrls { display:flex; flex-direction:column; gap:8px; min-width:0; }
 .td-img-ctrls-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
@@ -53,7 +47,6 @@
 .td-img-airow .td-img-aigen:hover { filter:brightness(1.05); }
 .td-img-airow .td-img-aigen.is-loading { opacity:.6; pointer-events:none; }
 
-/* section list */
 .td-section-list { list-style:none; margin:0; padding:0; }
 .td-section-list li.td-sec-item { display:block; padding:0; border:1px solid #ececec; border-radius:8px; margin-bottom:8px; background:#fff; transition:box-shadow .12s; }
 .td-section-list li.td-sec-item.td-dragging { opacity:.45; }
@@ -84,7 +77,6 @@
 .td-link-row .layui-input { flex:1; min-width:0; }
 .td-link-row .layui-btn { flex:0 0 auto; }
 
-/* preview iframe & history */
 .td-preview { width:100%; height:74vh; min-height:600px; border:1px solid #e6e6e6; border-radius:6px; background:#fff; }
 .td-history-list { list-style:none; margin:0; padding:0; }
 .td-history-list li { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border-bottom:1px solid #f0f0f0; }
@@ -94,13 +86,11 @@
 .td-badge-pub.yes { background:#e6f7ec; color:#2a9e54; }
 .td-badge-pub.no { background:#fdeceb; color:#d9534f; }
 
-/* ===== green accent (match admin #40CC92) ===== */
 .td-card h3 { border-bottom-color:#eef5f1; }
 .td-field { margin-bottom:18px; }
 .td-field:last-child { margin-bottom:0; }
 .td-field-label { font-size:13px; color:#555; font-weight:600; margin-bottom:8px; }
 
-/* theme picker (overview step) */
 .td-theme-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-bottom:8px; }
 .td-theme-card { position:relative; display:flex; align-items:center; gap:12px; border:2px solid #e6e6e6; border-radius:10px; padding:14px 16px; cursor:pointer; background:#fff; transition:all .15s; }
 .td-theme-card:hover { border-color:#40CC92; box-shadow:0 4px 14px rgba(64,204,146,.14); transform:translateY(-1px); }
@@ -117,7 +107,6 @@
 .td-theme-check { font-size:18px; color:#40CC92; opacity:0; flex:0 0 auto; transition:opacity .15s; }
 .td-theme-card.active .td-theme-check { opacity:1; }
 
-/* refined footer-bar buttons */
 .td-footer-bar .td-next {
   background:linear-gradient(135deg,#54d6a1,#40CC92); border:none; color:#fff;
   height:40px; line-height:40px; padding:0 24px; border-radius:8px;
@@ -140,7 +129,6 @@
 }
 .td-footer-bar .td-save:hover { background:#40CC92; color:#fff; }
 
-/* native color swatch + range (layui 2.2.5 has no colorpicker/slider module) */
 .td-color-item .td-cp { width:36px; height:28px; padding:0; border:1px solid #ddd; border-radius:4px; background:#fff; cursor:pointer; flex:0 0 36px; }
 .td-color-item .td-cp::-webkit-color-swatch-wrapper { padding:2px; }
 .td-color-item .td-cp::-webkit-color-swatch { border:none; border-radius:2px; }
@@ -149,7 +137,6 @@
 .td-range::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%; background:#40CC92; cursor:pointer; box-shadow:0 1px 3px rgba(64,204,146,.5); border:2px solid #fff; }
 .td-range::-moz-range-thumb { width:18px; height:18px; border-radius:50%; background:#40CC92; cursor:pointer; border:2px solid #fff; }
 
-/* ===== category selector (navbar / footer) ===== */
 .td-tree-tools { margin-bottom:12px; display:flex; gap:14px; }
 .td-tree-act { font-size:12px; color:#40CC92; cursor:pointer; }
 .td-tree-act:hover { color:#1f9d6e; text-decoration:underline; }
@@ -158,10 +145,9 @@
 .td-pick-group { padding:11px 0; border-bottom:1px solid #f4f6f5; }
 .td-pick-group:last-child { border-bottom:none; }
 .td-pick-children { padding-left:30px; margin-top:10px; display:flex; flex-wrap:wrap; gap:9px 20px; }
-/* tint the green of layui primary checkboxes to match the admin accent */
+
 .td-catpick .layui-form-checked[lay-skin=primary] i { border-color:#40CC92 !important; background-color:#40CC92 !important; }
 
-/* selected order: drag-sortable chips */
 .td-order-wrap { margin-top:16px; }
 .td-order-label { font-size:13px; color:#555; font-weight:600; margin-bottom:8px; }
 .td-order { display:flex; flex-wrap:wrap; gap:8px; min-height:46px; padding:10px; border:1px dashed #d8e0df; border-radius:8px; background:#fafdfb; }
@@ -172,24 +158,22 @@
 .td-chip-x { cursor:pointer; color:#8bb6a6; font-style:normal; font-weight:bold; font-size:15px; line-height:1; padding:0 2px; }
 .td-chip-x:hover { color:#d9534f; }
 
-/* ===== real-site iframe preview (steps 2-5) ===== */
 .td-live-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
 .td-livecard .td-live-refresh { background:linear-gradient(135deg,#54d6a1,#40CC92); border:none; color:#fff; font-weight:600; }
 .td-livecard .td-live-refresh:hover { filter:brightness(1.05); }
 .td-live-frame { width:100%; height:74vh; min-height:600px; border:1px solid #e6e6e6; border-radius:8px; background:#fff; display:block; }
-/* desktop/mobile view toggle */
+
 .td-view-toggle { display:inline-flex; border:1px solid #d8e0df; border-radius:6px; overflow:hidden; margin-left:auto; }
 .td-view-btn { border:none; background:#fff; color:#6a7a76; font-size:12px; padding:6px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
 .td-view-btn + .td-view-btn { border-left:1px solid #e6ebe9; }
 .td-view-btn.active { background:#40CC92; color:#fff; }
 .td-view-ico { flex:0 0 auto; }
 .td-live-toolbar { align-items:center; }
-/* mobile preview: phone-width centered frame */
+
 .td-card.td-mobile .td-live-frame,
 .td-card.td-mobile .td-preview { width:390px; max-width:100%; height:780px; min-height:0; margin-left:auto; margin-right:auto; box-shadow:0 6px 24px rgba(0,0,0,.14); border-radius:18px; }
 .td-live-status { font-size:12px; color:#9aa; }
 
-/* ===== publish mode (step 6) ===== */
 .td-pubmode { display:flex; gap:12px; flex-wrap:wrap; margin:6px 0 14px; }
 .td-pubopt { flex:1; min-width:240px; display:flex; align-items:flex-start; gap:10px; border:2px solid #e6e6e6; border-radius:10px; padding:12px 14px; cursor:pointer; transition:all .15s; }
 .td-pubopt:hover { border-color:#40CC92; }
@@ -201,7 +185,6 @@
 .td-pubopt-body code { background:#eef4f1; color:#1f9d6e; padding:0 6px; border-radius:4px; }
 .td-newfields { border:1px dashed #d8e0df; border-radius:8px; padding:14px 14px 2px; margin-bottom:14px; background:#fafdfb; }
 
-/* ===== AI generator (overview step) ===== */
 .td-ai-card { border-top:3px solid #40CC92; }
 .td-ai-card textarea.layui-textarea { min-height:120px; resize:vertical; }
 .td-ai-toolbar { display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap; }
@@ -266,7 +249,7 @@
     </div>
 
     <div class="td-wrap">
-        <!-- left step nav -->
+        
         <div class="td-nav" id="tdNav">
             <div class="td-nav-item active" data-step="0"><span class="td-no">1</span> {:lang('admin/themedesign/step_overview')}</div>
             <div class="td-nav-item" data-step="1"><span class="td-no">2</span> {:lang('admin/themedesign/step_appearance')}</div>
@@ -276,11 +259,11 @@
             <div class="td-nav-item" data-step="5"><span class="td-no">6</span> {:lang('admin/themedesign/step_publish')}</div>
         </div>
 
-        <!-- right content -->
+        
         <div class="td-main td-content">
             <form class="layui-form" lay-filter="tdForm">
 
-            <!-- STEP 1: Overview -->
+            
             <div class="td-step-panel active" data-step="0">
                 <div class="td-card">
                     <h3>{:lang('admin/themedesign/overview')}</h3>
@@ -380,7 +363,7 @@
                 </div>
             </div>
 
-            <!-- STEP 2: Appearance -->
+            
             <div class="td-step-panel" data-step="1">
                 <div class="td-card">
                     <h3>{:lang('admin/themedesign/color_scheme')}</h3>
@@ -513,7 +496,7 @@
                 </div>
             </div>
 
-            <!-- STEP 3: Navbar -->
+            
             <div class="td-step-panel" data-step="2">
                 <div class="td-card">
                     <h3>{:lang('admin/themedesign/navbar_cats')}</h3>
@@ -567,7 +550,7 @@
                 </div>
             </div>
 
-            <!-- STEP 4: Footer -->
+            
             <div class="td-step-panel" data-step="3">
                 <div class="td-card">
                     <h3>{:lang('admin/themedesign/footer_cats')}</h3>
@@ -624,7 +607,7 @@
                 </div>
             </div>
 
-            <!-- STEP 5: Homepage -->
+            
             <div class="td-step-panel" data-step="4">
                 <div class="td-card">
                     <h3>{:lang('admin/themedesign/homepage_sections')}</h3>
@@ -654,7 +637,7 @@
                 </div>
             </div>
 
-            <!-- STEP 6: Preview & Publish -->
+            
             <div class="td-step-panel" data-step="5">
                 <div class="td-card">
                     <h3>{:lang('admin/themedesign/preview')}</h3>
@@ -720,7 +703,6 @@
 
 {include file="../../../app/admin/view/public/foot" /}
 <script type="text/javascript">
-// ====== injected server state ======
 var CFG = {:json_encode($cfg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)};
 var TD_DEFAULTS = {:json_encode($defaults, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)};
 var TD_SCHEMES  = {:json_encode($schemes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)};
@@ -747,7 +729,6 @@ var TD_TOKEN = "{:token()}";
 var TD_PREVIEW_URL = "{$preview_url}";
 var TD_DEFAULT_AVATAR = "{$default_avatar_url}";
 var TD_THEME_LOGO = "{$theme_logo_url}";
-// ====== i18n strings for JS ======
 var LANG = {
     uploading:        "{:lang('admin/themedesign/uploading')}",
     upload_ok:        "{:lang('admin/themedesign/upload_ok')}",
@@ -841,7 +822,6 @@ var LANG = {
 };
 </script>
 <script type="text/javascript">
-// ===== AI generator (overview step): prompt/file -> generate -> status -> coverage -> regenerate =====
 layui.use(['jquery', 'layer'], function () {
     var $ = layui.jquery, layer = layui.layer;
     var aiFileText = '';
@@ -938,7 +918,6 @@ layui.use(['jquery', 'layer'], function () {
     $('#tdAiGen').on('click', runGenerate);
     $('#tdAiResult').on('click', '#tdAiRegen', runGenerate);
 
-    // ===== Detect from screenshot / URL -> review elements -> create theme =====
     var aiMode = 'text', aiImageData = '', aiImageType = '';
 
     function setMode(mode) {
@@ -957,8 +936,6 @@ layui.use(['jquery', 'layer'], function () {
     }
     $('#tdAiModes').on('click', '.td-ai-mode', function () { setMode(String($(this).data('mode'))); });
 
-    // screenshot -> downscale (max 1280px, white matte) -> base64 for a vision call.
-    // Accepts a File (upload) OR a Blob (clipboard paste / drag-drop).
     function processImageFile(f) {
         aiImageData = ''; aiImageType = '';
         $('#tdAiImageName').text(''); $('#tdAiImagePrev').hide().find('img').attr('src', '');
@@ -974,7 +951,7 @@ layui.use(['jquery', 'layer'], function () {
                 var cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
                 var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
                 var ctx = cv.getContext('2d');
-                ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cw, ch); // opaque matte for transparent PNGs
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cw, ch);
                 ctx.drawImage(img, 0, 0, cw, ch);
                 var dataUrl;
                 try { dataUrl = cv.toDataURL('image/jpeg', 0.85); aiImageType = 'image/jpeg'; }
@@ -990,7 +967,6 @@ layui.use(['jquery', 'layer'], function () {
     }
     $('#tdAiImage').on('change', function () { processImageFile(this.files && this.files[0]); });
 
-    // pull the first image out of a clipboard/drag DataTransfer
     function imageFromTransfer(dt) {
         if (!dt) { return null; }
         if (dt.items) {
@@ -1006,7 +982,6 @@ layui.use(['jquery', 'layer'], function () {
         return null;
     }
 
-    // paste a screenshot from the clipboard (Ctrl+V) — only while in screenshot mode
     $(document).on('paste', function (ev) {
         if (aiMode !== 'image') { return; }
         var cd = (ev.originalEvent && ev.originalEvent.clipboardData) ? ev.originalEvent.clipboardData : (window.clipboardData || null);
@@ -1014,7 +989,6 @@ layui.use(['jquery', 'layer'], function () {
         if (img) { ev.preventDefault(); processImageFile(img); }
     });
 
-    // drag & drop an image onto the paste zone
     var $pz = $('#tdAiPasteZone');
     $pz.on('dragover dragenter', function (ev) { ev.preventDefault(); ev.stopPropagation(); $pz.addClass('is-hover'); })
        .on('dragleave dragend drop', function () { $pz.removeClass('is-hover'); })
@@ -1088,7 +1062,6 @@ layui.use(['jquery', 'layer'], function () {
         if (d.theme_name && !String($('#tdAiName').val() || '').trim()) { $('#tdAiName').val(d.theme_name); }
     }
 
-    // keep the color picker and the hex text field in sync
     $('#tdAiDetected').on('input', '.td-ai-sw-color', function () {
         var k = $(this).data('k');
         $('#tdAiDetected .td-ai-sw-hex[data-k="' + k + '"]').val($(this).val());
@@ -1133,10 +1106,7 @@ layui.use(['jquery', 'layer'], function () {
 layui.use(['form','layer','upload','element'], function () {
     var $ = layui.jquery, form = layui.form, layer = layui.layer,
         upload = layui.upload, element = layui.element;
-    // NOTE: layui 2.2.5 (the build loaded here) has no `colorpicker`/`slider`
-    // modules, so we use native <input type="color"> / <input type="range">.
 
-    // ---- normalize CFG shape (defensive) ----
     CFG = CFG || {};
     CFG.theme = CFG.theme || 'prism';
     CFG.attributes = CFG.attributes || {};
@@ -1149,9 +1119,6 @@ layui.use(['form','layer','upload','element'], function () {
     CFG.homepage = CFG.homepage || {};
     CFG.homepage.sections = CFG.homepage.sections || [];
 
-    /* =========================================================
-       Step navigation
-    ========================================================= */
     var totalSteps = 6;
     var curStep = 0;
     function gotoStep(n) {
@@ -1166,7 +1133,6 @@ layui.use(['form','layer','upload','element'], function () {
         $('.td-step-panel[data-step="' + n + '"]').addClass('active');
         if (n === 5) {
             loadHistory();
-            // auto-load the step-6 preview iframe (no click needed)
             var s6 = previewSrc();
             $('#previewFrame').attr('src', s6);
             $('#openPreviewNew').attr('href', s6);
@@ -1180,15 +1146,9 @@ layui.use(['form','layer','upload','element'], function () {
     $(document).on('click', '.td-next', function () { gotoStep(parseInt($(this).data('go'), 10)); });
     $(document).on('click', '.td-prev', function () { gotoStep(parseInt($(this).data('go'), 10)); });
 
-    /* =========================================================
-       Live preview — real front site in an iframe (steps 2-5)
-       Each step's "Refresh" saves that step to draft, then reloads
-       the iframe with ?td_preview=1 so the draft CSS/JSON is applied.
-    ========================================================= */
     var previewSeq = 0;
     function previewSrc() {
         previewSeq++;
-        // timestamp + counter => always-unique URL (maccms full-page-caches by URL)
         return TD_PREVIEW_URL + (TD_PREVIEW_URL.indexOf('?') >= 0 ? '&' : '?') + '_=' + (Date.now() + '' + previewSeq);
     }
     function loadPreviewInto($card) {
@@ -1197,26 +1157,22 @@ layui.use(['form','layer','upload','element'], function () {
         $card.find('.td-live-frame').attr('src', src);
         $card.find('.td-live-open').attr('href', src);
     }
-    // AUTO preview: on any change, debounce-save the step to DRAFT (live site
-    // untouched until Publish) then reload the active step's iframe — no click needed.
     var uiReady = false, autoTimer = null;
     function autoPreview(step) {
-        if (!uiReady) return;            // ignore programmatic changes during init
+        if (!uiReady) return;
         if (autoTimer) clearTimeout(autoTimer);
         autoTimer = setTimeout(function () {
             saveStep(step, function (ok) {
                 if (ok !== false) { loadPreviewInto($('.td-step-panel.active .td-livecard')); }
-            }, true); // quiet save
+            }, true);
         }, 650);
     }
-    // first time a step with a preview becomes active, load it (shows last saved draft)
     function lazyLoadPreview(n) {
         var $card = $('.td-step-panel[data-step="' + n + '"] .td-livecard');
         if (!$card.length) return;
         var cur = $card.find('.td-live-frame').attr('src');
         if (!cur || cur === 'about:blank') { loadPreviewInto($card); }
     }
-    // Desktop / Mobile preview toggle (per preview card)
     $(document).on('click', '.td-view-btn', function () {
         var $card = $(this).closest('.td-card');
         $card.toggleClass('td-mobile', $(this).data('view') === 'mobile');
@@ -1224,7 +1180,6 @@ layui.use(['form','layer','upload','element'], function () {
         $(this).addClass('active');
     });
 
-    // Refresh button: save this step to draft, then reload its iframe
     $(document).on('click', '.td-live-refresh', function () {
         var step = $(this).data('step');
         var $card = $(this).closest('.td-livecard');
@@ -1233,10 +1188,6 @@ layui.use(['form','layer','upload','element'], function () {
         }, true);
     });
 
-    /* =========================================================
-       STEP 1 — Theme selection (overview)
-       Switching reloads the wizard for the chosen theme's draft.
-    ========================================================= */
     $('#td-app').on('click', '.td-theme-card', function () {
         var t = $(this).data('theme');
         if (!t || $(this).hasClass('active')) return;
@@ -1245,23 +1196,16 @@ layui.use(['form','layer','upload','element'], function () {
         location.href = u;
     });
 
-    /* =========================================================
-       STEP 2 — Appearance
-    ========================================================= */
     var a = CFG.attributes;
 
-    // any appearance/homepage change auto-saves to draft + reloads the real-site preview.
-    // (kept as the old render* names so all existing call sites just work.)
     function renderAppearancePreview() { autoPreview('attributes'); }
 
-    // native <input type="color"> only accepts #rrggbb; keep a safe value for it
     function hex6(v) {
         v = String(v == null ? '' : v).trim();
         if (/^#[0-9a-fA-F]{6}$/.test(v)) return v;
         if (/^#[0-9a-fA-F]{3}$/.test(v)) { return '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3]; }
         return '#000000';
     }
-    // write one color key into both the swatch + the hex text field
     function applyColor(k, v) {
         a.colors[k] = v;
         $('.td-color-hex[data-color="' + k + '"]').val(v);
@@ -1273,14 +1217,12 @@ layui.use(['form','layer','upload','element'], function () {
             applyColor(k, v);
         });
     }
-    // native swatch picked -> sync hex text + mark custom
     $(document).on('input change', '.td-cp', function () {
         var k = $(this).data('color'), v = $(this).val();
         applyColor(k, v);
         markSchemeActive('custom');
         renderAppearancePreview();
     });
-    // manual hex typing -> sync swatch + mark custom
     $(document).on('change', '.td-color-hex', function () {
         var k = $(this).data('color'), v = $(this).val().trim();
         if (!v) return;
@@ -1297,7 +1239,6 @@ layui.use(['form','layer','upload','element'], function () {
         a.color_scheme = key;
     }
 
-    // clicking a preset fills all 8 colors
     $('#schemeGrid').on('click', '.td-scheme-card', function () {
         var $c = $(this), key = $c.data('key');
         TD_COLOR_KEYS.forEach(function (k) {
@@ -1307,11 +1248,9 @@ layui.use(['form','layer','upload','element'], function () {
         renderAppearancePreview();
     });
 
-    // font family select
     if (a.font_family) { $('#fontFamily').val(a.font_family); }
     form.on('select(fontFamily)', function (data) { a.font_family = data.value; renderAppearancePreview(); });
 
-    // font size 12-22 (native range input)
     var initSize = parseInt(a.font_size, 10) || 16;
     if (initSize < 12) initSize = 12; if (initSize > 22) initSize = 22;
     a.font_size = initSize;
@@ -1323,12 +1262,8 @@ layui.use(['form','layer','upload','element'], function () {
         renderAppearancePreview();
     });
 
-    // logo / avatar text inputs <-> CFG + preview
     function rootedSrc(p) {
         if (!p) return '';
-        // Already absolute — full URL, data URI, or a root-relative site path (starts with "/",
-        // e.g. "/yu/maccms10/upload/...") — use as-is. Only truly relative paths get ROOT_PATH
-        // prepended, otherwise the install subdir gets doubled ("/yu/maccms10/yu/maccms10/...").
         if (p.indexOf('://') >= 0 || p.indexOf('data:') === 0 || p.charAt(0) === '/') return p;
         return ROOT_PATH + '/' + p;
     }
@@ -1339,14 +1274,12 @@ layui.use(['form','layer','upload','element'], function () {
     function setLogo(p) {
         a.logo = p || '';
         $('#logoPath').val(a.logo);
-        // empty = use the selected theme's own built-in logo (shown as a hint)
         showImg($('#logoPreview'), a.logo ? rootedSrc(a.logo) : TD_THEME_LOGO);
         renderAppearancePreview();
     }
     function setAvatar(p) {
         a.default_avatar = p || '';
         $('#avatarPath').val(a.default_avatar);
-        // empty = use the theme's built-in default avatar (so the circle isn't blank)
         showImg($('#avatarPreview'), a.default_avatar ? rootedSrc(a.default_avatar) : TD_DEFAULT_AVATAR);
         autoPreview('attributes');
     }
@@ -1356,7 +1289,6 @@ layui.use(['form','layer','upload','element'], function () {
     $('#avatarClear').on('click', function () { setAvatar(''); });
     $('#footerCopyright').on('change', function () { a.footer_copyright = $(this).val(); autoPreview('attributes'); });
 
-    // upload (contract: returns {code:1, file:"<path>"})
     function bindUpload(elemId, cb) {
         upload.render({
             elem: '#' + elemId, url: TD_URLS.upload, method: 'post', field: 'file', data: { theme: TD_THEME },
@@ -1372,7 +1304,6 @@ layui.use(['form','layer','upload','element'], function () {
     bindUpload('logoUpload', setLogo);
     bindUpload('avatarUpload', setAvatar);
 
-    // AI-generate logo / avatar with an optional extra prompt (same {code,file} contract as upload)
     function bindImgAi(kind, msgId, btnId, cb) {
         $('#' + btnId).on('click', function () {
             var $btn = $(this);
@@ -1397,7 +1328,6 @@ layui.use(['form','layer','upload','element'], function () {
     bindImgAi('logo', 'logoAiMsg', 'logoAiGen', setLogo);
     bindImgAi('avatar', 'avatarAiMsg', 'avatarAiGen', setAvatar);
 
-    // init appearance widgets from CFG
     setColorInputs(a.colors);
     markSchemeActive(a.color_scheme || 'custom');
     setLogo(a.logo || '');
@@ -1405,10 +1335,6 @@ layui.use(['form','layer','upload','element'], function () {
     $('#footerCopyright').val(a.footer_copyright || '');
     renderAppearancePreview();
 
-    /* =========================================================
-       Category selector (maccms-style layui checkboxes) with a
-       drag-sortable "selected order" chip list. Used by navbar + footer.
-    ========================================================= */
     function setupCatSelector(o) {
         var $pick = $(o.pick), $order = $(o.order), nameSel = 'input[name="' + o.name + '"]';
         var labels = {};
@@ -1435,15 +1361,12 @@ layui.use(['form','layer','upload','element'], function () {
             });
             render(kept);
         }
-        // init: tick saved ids, render chips in saved order
         var saved = (o.getIds() || []).map(Number), sset = {};
         saved.forEach(function (id) { sset[String(id)] = 1; });
         $pick.find(nameSel).each(function () { if (sset[String($(this).val())]) { $(this).prop('checked', true); } });
         form.render('checkbox');
         render(saved);
-        // layui checkbox toggle (lay-skin checkboxes don't fire native change)
         form.on('checkbox(' + o.filter + ')', function () { sync(); o.change(); });
-        // chip remove -> untick + drop chip
         $order.on('click', '.td-chip-x', function (e) {
             e.stopPropagation();
             var id = $(this).closest('.td-chip').data('id');
@@ -1453,7 +1376,6 @@ layui.use(['form','layer','upload','element'], function () {
             if (!$order.find('.td-chip').length) { render([]); }
             o.change();
         });
-        // chip drag reorder
         var dc = null;
         $order.on('dragstart', '.td-chip', function () { dc = this; $(this).addClass('td-chip-drag'); });
         $order.on('dragend', '.td-chip', function () { $(this).removeClass('td-chip-drag'); dc = null; o.change(); });
@@ -1463,7 +1385,6 @@ layui.use(['form','layer','upload','element'], function () {
             var r = this.getBoundingClientRect();
             (e.originalEvent.clientX - r.left) > r.width / 2 ? $(this).after(dc) : $(this).before(dc);
         });
-        // expose helpers for the tool buttons
         return {
             order: order, sync: sync,
             checkAll: function () { $pick.find(nameSel).prop('checked', true); form.render('checkbox'); sync(); o.change(); },
@@ -1472,7 +1393,6 @@ layui.use(['form','layer','upload','element'], function () {
         };
     }
 
-    /* ===== STEP 3 — Navbar ===== */
     var navSel = setupCatSelector({
         pick: '#navPick', order: '#navOrder', name: 'td_nav_type', filter: 'navType',
         getIds: function () { return CFG.navbar.type_ids; },
@@ -1483,9 +1403,6 @@ layui.use(['form','layer','upload','element'], function () {
     $('#navCheckNone').on('click', navSel.checkNone);
     $('#navCheckTops').on('click', navSel.checkTops);
 
-    /* =========================================================
-       STEP 4 — Footer links
-    ========================================================= */
     function footerRowHtml(text, url) {
         return '<div class="td-link-row">' +
             '<input type="text" class="layui-input td-link-text" placeholder="' + escAttr(LANG.link_text_ph) + '" value="' + escAttr(text) + '">' +
@@ -1502,13 +1419,11 @@ layui.use(['form','layer','upload','element'], function () {
     $('#addFooterLink').on('click', function () { $('#footerLinks').append(footerRowHtml('', '')); });
     $('#footerLinks').on('click', '.td-link-del', function () { $(this).closest('.td-link-row').remove(); autoPreview('footer'); });
     $('#footerLinks').on('input change', '.td-link-text, .td-link-url', function () { autoPreview('footer'); });
-    // footer category selector (maccms-style checkboxes + drag-order chips)
     var ftSel = setupCatSelector({
         pick: '#footerPick', order: '#footerOrder', name: 'td_ft_type', filter: 'ftType',
         getIds: function () {
             var ids = CFG.footer.type_ids || [];
             if (ids.length) { return ids; }
-            // not configured -> mirror the footer's default (all top-level categories)
             var tops = [];
             $('#footerPick input[name="td_ft_type"][data-pid="0"]').each(function () { tops.push(parseInt($(this).val(), 10)); });
             return tops;
@@ -1531,14 +1446,10 @@ layui.use(['form','layer','upload','element'], function () {
         return { type_ids: type_ids, links: links };
     }
 
-    /* =========================================================
-       STEP 5 — Homepage sections
-    ========================================================= */
     function sectionLabel(key) {
         for (var i = 0; i < TD_SECTIONS.length; i++) { if (TD_SECTIONS[i].key === key) return TD_SECTIONS[i].label; }
         return key;
     }
-    // predefined sections whose category/count/method are editable (wired in the front components)
     var LAYOUT_SECTIONS = { vod_hot: 1, vod_latest: 1, art_list: 1, manga_list: 1 };
     var LAYOUT_OPTS = ['slider', 'grid', 'list'];
     var CONTENT_TYPES = ['vod', 'art', 'manga', 'rank'];
@@ -1548,7 +1459,6 @@ layui.use(['form','layer','upload','element'], function () {
     function ctypeLabel(t) { return t === 'art' ? LANG.ct_art : t === 'manga' ? LANG.ct_manga : (t === 'rank' ? LANG.ct_rank : LANG.ct_vod); }
     function sortLabel(o) { return o === 'time' ? LANG.sort_time : o === 'score' ? LANG.sort_score : LANG.sort_hits; }
     function periodLabel(o) { return o === 'day' ? LANG.period_day : o === 'month' ? LANG.period_month : (o === 'all' ? LANG.period_all : LANG.period_week); }
-    // editable "kind": null = not editable, 'hero' (sort), 'list' (layout), 'rank' (period)
     function sectionKind(s) {
         if (s.custom) { return s.content_type === 'rank' ? 'rank' : 'list'; }
         if (s.key === 'hero') { return 'hero'; }
@@ -1559,18 +1469,16 @@ layui.use(['form','layer','upload','element'], function () {
         for (var i = 0; i < TD_CATS.length; i++) { if (String(TD_CATS[i].id) === String(id)) { return TD_CATS[i].name.replace(/^[\s　├]+/, ''); } }
         return id;
     }
-    // content mid for a section (so the category list only shows matching-type categories):
-    // vod / rank -> 1, art -> 2, manga -> 12.
     function sectionMid(s) {
         if (s.custom) { return s.content_type === 'art' ? 2 : (s.content_type === 'manga' ? 12 : 1); }
         if (s.key === 'art_list') { return 2; }
         if (s.key === 'manga_list') { return 12; }
-        return 1; // hero / vod_hot / vod_latest
+        return 1;
     }
     function catOptions(sel, mid) {
         var h = '<option value="">' + escAttr(LANG.cat_all) + '</option>';
         TD_CATS.forEach(function (c) {
-            if (mid && c.mid && c.mid !== mid) { return; } // only categories of the block's content type
+            if (mid && c.mid && c.mid !== mid) { return; }
             h += '<option value="' + c.id + '"' + (String(sel) === String(c.id) ? ' selected' : '') + '>' + escAttr(c.name) + '</option>';
         });
         return h;
@@ -1644,13 +1552,11 @@ layui.use(['form','layer','upload','element'], function () {
     function renderHomePreview() { autoPreview('homepage'); }
     renderSections();
 
-    // unique counter for custom blocks
     var customSeq = 0;
     (CFG.homepage.sections || []).forEach(function (s) {
         var m = s && s.key ? String(s.key).match(/^custom_(\d+)$/) : null;
         if (m) { customSeq = Math.max(customSeq, parseInt(m[1], 10)); }
     });
-    // add a custom block
     $('#addBlock').on('click', function () {
         customSeq++;
         var s = { key: 'custom_' + customSeq, enabled: true, custom: true, content_type: 'vod', type_id: null, num: null, layout: 'grid', title: '' };
@@ -1659,15 +1565,11 @@ layui.use(['form','layer','upload','element'], function () {
         $('#sectionList li[data-key="custom_' + customSeq + '"] .td-sec-props').show();
         autoPreview('homepage');
     });
-    // remove a custom block
     $('#sectionList').on('click', '.td-sec-del', function () { $(this).closest('li').remove(); autoPreview('homepage'); });
-    // expand/collapse a block's property panel
     $('#sectionList').on('click', '.td-sec-label.has-props', function () { $(this).closest('li').find('.td-sec-props').slideToggle(120); });
-    // edit any property -> update label/meta + preview
     $('#sectionList').on('change input', '.td-sec-num, .td-sec-layout, .td-sec-cat, .td-sec-ctype, .td-sec-title, .td-sec-by, .td-sec-period', function () {
         var $li = $(this).closest('li');
         if ($(this).hasClass('td-sec-title')) { $li.find('.td-sec-name').text($(this).val() || LANG.custom_block); }
-        // content_type change on a custom block -> swap the kind-specific field (layout<->period)
         if ($(this).hasClass('td-sec-ctype')) {
             var s2 = { custom: true, content_type: $(this).val(),
                 title: $li.find('.td-sec-title').val(), type_id: $li.find('.td-sec-cat').val(),
@@ -1680,10 +1582,8 @@ layui.use(['form','layer','upload','element'], function () {
             layout: $li.find('.td-sec-layout').val(), by: $li.find('.td-sec-by').val(), period: $li.find('.td-sec-period').val() }));
         autoPreview('homepage');
     });
-    // switch on/off
     form.on('switch(tdSecSwitch)', function () { renderHomePreview(); });
 
-    // drag-and-drop reorder (HTML5)
     var dragEl = null;
     $('#sectionList').on('dragstart', 'li', function (e) {
         dragEl = this;
@@ -1735,9 +1635,6 @@ layui.use(['form','layer','upload','element'], function () {
         return { sections: sections };
     }
 
-    /* =========================================================
-       SAVE a step slice
-    ========================================================= */
     function collectStep(step) {
         if (step === 'attributes') { return a; }
         if (step === 'navbar') { return collectNavbar(); }
@@ -1764,9 +1661,6 @@ layui.use(['form','layer','upload','element'], function () {
     }
     $(document).on('click', '.td-save', function () { saveStep($(this).data('step')); });
 
-    /* =========================================================
-       STEP 6 — Preview / Publish / History
-    ========================================================= */
     $('#btnRefreshPreview').on('click', function () {
         var load = layer.load(1);
         $.get(TD_URLS.preview, { theme: TD_THEME }, function (res) {
@@ -1780,7 +1674,6 @@ layui.use(['form','layer','upload','element'], function () {
         }, 'json').fail(function () { layer.close(load); layer.msg(LANG.preview_err, { icon: 2 }); });
     });
 
-    // publish-mode: toggle the "new theme" fields + active styling
     $(document).on('change', 'input[name="pub_mode"]', function () {
         var mode = $('input[name="pub_mode"]:checked').val();
         $('#newThemeFields').toggle(mode === 'new');
@@ -1809,7 +1702,6 @@ layui.use(['form','layer','upload','element'], function () {
                 if (res && res.code == 1) {
                     loadHistory();
                     if (mode === 'new' && res.new_theme) {
-                        // switch the wizard to the newly created theme
                         setTimeout(function () {
                             var u = TD_URLS.design + (TD_URLS.design.indexOf('?') >= 0 ? '&' : '?') + 'theme=' + encodeURIComponent(res.new_theme);
                             location.href = u;
@@ -1853,10 +1745,8 @@ layui.use(['form','layer','upload','element'], function () {
         });
     });
 
-    // render any layui form widgets present
     form.render();
 
-    // init done — from here, user changes trigger auto-preview
     uiReady = true;
 });
 </script>

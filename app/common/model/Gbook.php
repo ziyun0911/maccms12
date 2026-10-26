@@ -3,14 +3,11 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Gbook extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'gbook';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -110,14 +107,12 @@ class Gbook extends Base {
         }
         $order= 'gbook_'.$by .' ' . $order;
 
-
         $cach_name = $GLOBALS['config']['app']['cache_flag']. '_' .md5('gbook_listcache_'.join('&',$where).'_'.$order.'_'.$page.'_'.$num.'_'.$start);
 
         $res = $this->listData($where,$order,$page,$num,$start);
         $res['pageurl'] = $pageurl;
         $res['half'] = $half;
         return $res;
-
     }
 
     public function infoData($where,$field='*')
@@ -142,7 +137,6 @@ class Gbook extends Base {
             return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];
         }
 
-        // xss过滤
         $filter_fields = [
             'gbook_name',
             'gbook_content',
@@ -196,6 +190,4 @@ class Gbook extends Base {
         }
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
-
 }

@@ -16,5 +16,4 @@ class Annex extends Validate
         'add'  =>  ['annex_file'],
         'edit'  =>  ['annex_file'],
     ];
-
 }

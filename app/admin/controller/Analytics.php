@@ -7,7 +7,6 @@ use think\facade\Db;
 
 class Analytics extends Base
 {
-    /** 中日韩区段：这些字符交给 Adobe 预定义 CMap，其余交给内嵌 TrueType */
     const PDF_CJK_RUNS = '/([\x{2E80}-\x{303F}\x{3041}-\x{33FF}\x{3400}-\x{4DBF}\x{4E00}-\x{9FFF}\x{AC00}-\x{D7A3}\x{F900}-\x{FAFF}\x{FE30}-\x{FE4F}\x{FF00}-\x{FF60}])/u';
 
     public function __construct()
@@ -19,7 +18,6 @@ class Analytics extends Base
     public function index()
     {
         $param = input();
-        // 这几个参数会回显到页面，先校验格式防止反射型 XSS，非法值回退默认。
         $endDate = (!empty($param['end_date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $param['end_date'])) ? $param['end_date'] : date('Y-m-d');
         $startDate = (!empty($param['start_date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $param['start_date'])) ? $param['start_date'] : date('Y-m-d', strtotime('-6 day'));
         $allowDims = ['device', 'region', 'category', 'channel', 'os', 'browser'];
@@ -151,9 +149,6 @@ class Analytics extends Base
         $startTs = strtotime($startDate . ' 00:00:00');
         $endTs = strtotime($endDate . ' 23:59:59');
 
-        // 路径漏斗/热门路径为「近期行为」小部件，且 group by path/prev_path 在 pageview 大表上
-        // 无对应索引，长范围会触发大量行的临时表+filesort。将其扫描窗口封顶为最近 31 天，
-        // 保护数据库；概览等其它指标仍使用管理员选择的完整范围。
         $funnelStartTs = max($startTs, $endTs - 31 * 86400);
 
         $behaviorPathRows = Db::name('AnalyticsPageview')
@@ -356,8 +351,6 @@ class Analytics extends Base
         return $items;
     }
 
-    // 零曝光内容：在 [startDate,endDate] 内 mac_analytics_content_day 无任何行的已审内容（vod/art/manga）。
-    // 每个来源表各自 limit $limit（下推到 DB），合并后按 time_add desc 再截断到 $limit，确保整体有界。
     private function buildZeroExposureItems($startDate, $endDate, $limit)
     {
         $sources = [
@@ -476,8 +469,6 @@ class Analytics extends Base
             $chunks = [[]];
         }
 
-        // Object numbering: 1=Catalog, 2=Pages, 3=F1（复合字体的 Type0，其 CIDFont 为 4；西文则为 Helvetica）,
-        // 5..9=F2 内嵌 TrueType（仅当找到带西里尔覆盖的字体时），之后是 页/内容 成对对象。
         $fontObjNum = 3;
         $descendantObjNum = 0;
         $nextObjNum = 4;
@@ -521,7 +512,6 @@ class Analytics extends Base
             $objects[$fontObjNum] = $fontObjNum . " 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n";
         }
         if ($embed !== null) {
-            // 内嵌字体的对象依赖内容流阶段登记下来的字形集合，必须放在页面循环之后。
             list($embedObjects) = $embed->buildObjects($embedObjNum);
             foreach ($embedObjects as $num => $obj) {
                 $objects[$num] = $obj;
@@ -576,19 +566,12 @@ class Analytics extends Base
             'en-us' => ['composite' => false],
         ];
 
-        // 俄文两头都不沾：标准 14 字体没有西里尔字形，Adobe 预定义 CMap 又只管中日韩。
-        // 唯一可靠的办法是内嵌一个带西里尔的 TrueType；CMap 字体仍要保留，因为报表里的
-        // 内容名（影片/文章标题）多半还是中文。找不到合适字体时置 null，
-        // 由 ?? 退回原来的 zh-cn 规格 —— 显示不好看，但导出不会因此抛异常。
         $embed = PdfEmbeddedFont::resolve();
         $fontMap['ru-ru'] = $embed === null ? null : $fontMap['zh-cn'] + ['embedded' => $embed];
 
         return $fontMap[$lang] ?? $fontMap['zh-cn'];
     }
 
-    /**
-     * 一行文本 → 内容流里的绘制指令（不含行尾 T*）。
-     */
     private function pdfTextOps($line, $fontSpec)
     {
         $line = (string)$line;
@@ -605,7 +588,6 @@ class Analytics extends Base
 
         $parts = preg_split(self::PDF_CJK_RUNS, $line, -1, PREG_SPLIT_DELIM_CAPTURE);
         if (!is_array($parts)) {
-            // 非法 UTF-8：整行按内嵌字体处理，无法映射的字符留白，不能让报表导出失败。
             $parts = [$line];
         }
         $ops = '';
@@ -634,8 +616,6 @@ class Analytics extends Base
 
     private function resolveCurrentAdminLang()
     {
-        // ?lang[]=x 这类数组脏参数不能直接 (string) 转换；站点语言兜底走 mac_site_lang()，
-        // 因为 TP8 下 config('default_lang') 恒为空数组。
         $candidates = [input('lang', ''), cookie('admin_lang'), cookie('think_var')];
         foreach ($candidates as $value) {
             if (!is_scalar($value)) {

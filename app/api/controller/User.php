@@ -15,21 +15,12 @@ class User extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     * 获取当前登录用户的邀请码及邀请信息
-     * 需要用户已登录（通过Cookie）
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_my_invite(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -61,14 +52,6 @@ class User extends Base
         ]);
     }
 
-    /**
-     * 获取当前登录用户的邀请下线列表（含二级下线）
-     * - 必须已登录；数据以会话用户为准
-     * - 可选传入 user_id，须与会话用户一致（用于与 URL ?uid= 对齐）
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_invite_list(Request $request)
     {
         $param = $request->param();
@@ -159,15 +142,8 @@ class User extends Base
         ]);
     }
 
-    /**
-     *  获取用户列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -180,7 +156,6 @@ class User extends Base
         $offset = isset($param['offset']) ? (int)$param['offset'] : 0;
         $limit = isset($param['limit']) ? (int)$param['limit'] : 20;
 
-        // 查询条件组装
         $where = [];
 
         if (isset($param['id'])) {
@@ -219,11 +194,9 @@ class User extends Base
             $where['user_name'] = ['like', '%' . $this->format_sql_string($param['name']) . '%'];
         }
 
-        // 数据获取
         $total = (new \app\common\model\User())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
-            // 排序
             $order = "user_reg_time DESC";
             $field = 'user_id,user_name,user_nick_name,user_phone,user_reg_time';
             if (strlen($param['orderby']) > 0) {
@@ -231,7 +204,6 @@ class User extends Base
             }
             $list = (new \app\common\model\User())->getListByCond($offset, $limit, $where, $order, $field, []);
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => lang('obtain_ok'),
@@ -244,18 +216,8 @@ class User extends Base
         ]);
     }
 
-    /**
-     * 用户详细信息
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
     public function get_detail(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -279,27 +241,15 @@ class User extends Base
         $result['user_portrait'] = mac_get_user_portrait($userId);
         $result = (new \app\common\model\User())->stripSensitiveFields($result);
 
-        // 返回
         return json([
             'code' => 1,
             'msg'  => lang('obtain_ok'),
             'info' => $result
         ]);
-
     }
 
-    /**
-     * 登录/注册一体化
-     * POST api.php/user/login_or_register
-     * 参数: user_name, user_pwd, [invite_code]
-     *
-     * - 帐号存在 → 校验密码 → 登录
-     * - 帐号不存在 → 自动创建帐号 → 登录
-     * - 返回 action 字段标识本次操作是 "login" 还是 "register"
-     */
     public function login_or_register(Request $request)
     {
-        // IP 速率限制：防止暴力破解
         $rlCheck = $this->_checkLoginRateLimit();
         if ($rlCheck !== true) {
             return $rlCheck;
@@ -320,7 +270,7 @@ class User extends Base
         return json([
             'code'   => 1,
             'msg'    => $res['msg'],
-            'action' => $res['action'],  // "login" 或 "register"
+            'action' => $res['action'],
             'info'   => [
                 'user_id'        => $info['user_id'],
                 'user_name'      => $info['user_name'],
@@ -337,14 +287,8 @@ class User extends Base
         ]);
     }
 
-    /**
-     * 用户登录
-     * api.php/user/login (POST)
-     * 参数: user_name, user_pwd, [type=name|email|phone]
-     */
     public function login(Request $request)
     {
-        // IP 速率限制：防止暴力破解
         $rlCheck = $this->_checkLoginRateLimit();
         if ($rlCheck !== true) {
             return $rlCheck;
@@ -371,11 +315,6 @@ class User extends Base
         ]]);
     }
 
-    /**
-     * 用户注册
-     * api.php/user/register (POST)
-     * 参数: user_name, user_pwd, user_pwd2, [user_email, user_phone, invite_code]
-     */
     public function register(Request $request)
     {
         $param = $request->param();
@@ -386,10 +325,6 @@ class User extends Base
         return json($res);
     }
 
-    /**
-     * 用户登出
-     * api.php/user/logout
-     */
     public function logout(Request $request)
     {
         cookie('user_id', null);
@@ -400,10 +335,6 @@ class User extends Base
         return json(['code' => 1, 'msg' => lang('api/logged_out')]);
     }
 
-    /**
-     * 获取当前登录用户信息
-     * api.php/user/get_info
-     */
     public function get_info(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -417,11 +348,6 @@ class User extends Base
         return json(['code' => 1, 'msg' => lang('obtain_ok'), 'info' => $info]);
     }
 
-    /**
-     * 获取 Web Push 公钥与开关状态（前端订阅前调用）
-     * api.php/user/push_vapid (GET)
-     * 返回 enabled 与 vapid_public，供 PushManager.subscribe 使用。
-     */
     public function push_vapid(Request $request)
     {
         $cfg = config('maccms.push');
@@ -436,11 +362,6 @@ class User extends Base
         ]);
     }
 
-    /**
-     * 保存 Web Push 订阅（需登录）
-     * api.php/user/push_subscribe (POST)
-     * 参数：endpoint, keys[p256dh], keys[auth]（或平铺 p256dh/auth）
-     */
     public function push_subscribe(Request $request)
     {
         $cfg = config('maccms.push');
@@ -454,11 +375,9 @@ class User extends Base
         if ($check['code'] > 1) return json(['code' => 1401, 'msg' => lang('api/please_login_first')]);
         $uid = intval($check['info']['user_id']);
 
-        // 与其他写接口一致：登录态写操作需校验 CSRF，防止跨站伪造订阅
         $csrfErr = $this->checkCsrf();
         if ($csrfErr !== null) return json($csrfErr);
 
-        // 限流：抑制刷订阅写库（每分钟 20 次）
         $limited = $this->apiRateLimit('push_subscribe', $uid, 20, 60);
         if ($limited !== true) {
             return $limited;
@@ -488,11 +407,6 @@ class User extends Base
         return json(['code' => 1, 'msg' => $res['msg']]);
     }
 
-    /**
-     * 取消 Web Push 订阅（需登录）
-     * api.php/user/push_unsubscribe (POST)
-     * 参数：endpoint
-     */
     public function push_unsubscribe(Request $request)
     {
         if (!$request->isPost()) {
@@ -502,7 +416,6 @@ class User extends Base
         if ($check['code'] > 1) return json(['code' => 1401, 'msg' => lang('api/please_login_first')]);
         $uid = intval($check['info']['user_id']);
 
-        // 与其他写接口一致：登录态写操作需校验 CSRF
         $csrfErr = $this->checkCsrf();
         if ($csrfErr !== null) return json($csrfErr);
 
@@ -510,17 +423,10 @@ class User extends Base
         if ($endpoint === '') {
             return json(['code' => 1001, 'msg' => lang('param_err')]);
         }
-        // 显式传入 $uid：仅退订当前登录用户自己的订阅，避免越权删除他人订阅
         $res = (new \app\common\model\PushSubscription())->deleteByEndpoint($endpoint, $uid);
         return json(['code' => 1, 'msg' => $res['msg']]);
     }
 
-
-    /**
-     * 更新用户资料
-     * api.php/user/update_info (POST)
-     * 参数: [user_nick_name, user_email, user_phone, user_qq, user_old_pwd, user_new_pwd]
-     */
     public function update_info(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -532,7 +438,6 @@ class User extends Base
         if (!empty($param['user_email'])) $update['user_email'] = htmlspecialchars(trim($param['user_email']));
         if (!empty($param['user_phone'])) $update['user_phone'] = htmlspecialchars(trim($param['user_phone']));
         if (!empty($param['user_qq'])) $update['user_qq'] = htmlspecialchars(trim($param['user_qq']));
-        // 修改密码（使用 bcrypt，与 model 层 User::saveData / login / register 保持一致）
         if (!empty($param['user_new_pwd']) && !empty($param['user_old_pwd'])) {
             $userInfo = Db::name('User')->field('user_pwd')->where('user_id', $uid)->find();
             if (!mac_verify_password($param['user_old_pwd'], $userInfo['user_pwd'])) {
@@ -545,11 +450,6 @@ class User extends Base
         return json(['code' => 1, 'msg' => lang('update_ok')]);
     }
 
-    /**
-     * 获取用户行为日志（收藏/历史/想看/播放/下载）
-     * api.php/user/get_ulog?type=2&page=1&limit=20
-     * type: 1=浏览 2=收藏 3=想看 4=播放 5=下载
-     */
     public function get_ulog(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -566,10 +466,6 @@ class User extends Base
         return json(['code' => 1, 'msg' => lang('obtain_ok'), 'info' => $res]);
     }
 
-    /**
-     * 获取单一小说/漫画作品实际读过的章节。
-     * api.php/user/get_read_chapters?mid=2&rid=123&sid=1
-     */
     public function get_read_chapters(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -583,23 +479,13 @@ class User extends Base
         ));
     }
 
-    /**
-     * 添加/更新用户行为日志（收藏/播放记录等）
-     * api.php/user/add_ulog (POST)
-     * 参数: mid, rid, type, [sid=0, nid=0]
-     */
     public function add_ulog(Request $request)
     {
         if (!$request->isPost()) {
             return json(['code' => 1001, 'msg' => lang('param_err')]);
         }
-        // 先验证登录态（Bearer JWT 或 Cookie 会话），再按认证方式决定是否做会话型 CSRF。
         $check = (new \app\common\model\User())->checkLogin();
         if ($check['code'] > 1) return json(['code' => 1401, 'msg' => lang('api/please_login_first')]);
-        // 认证方式区分 CSRF：
-        // - Cookie 会话：写操作必须通过 CSRF 校验，防止第三方页面借登录 Cookie 跨站写入。
-        // - Bearer JWT（原生 App / uni-app / 第三方客户端）：凭证在 Authorization 头、不依赖 Cookie，
-        //   天然免疫 CSRF；此处 checkLogin 已验签通过，跳过会话型 CSRF，避免逼客户端伪装 jQuery XHR。
         $viaBearer = JwtService::bearerFromRequest() !== '' && JwtService::isEnabled();
         if (!$viaBearer) {
             $csrfErr = $this->checkCsrf();
@@ -630,7 +516,6 @@ class User extends Base
             ));
         }
         $data['ulog_points'] = 0;
-        // 视频播放/下载：按真实定价核算，禁止伪造 0 分购买记录
         if ($data['ulog_mid'] == 1 && $data['ulog_type'] > 3) {
             $where2 = [];
             $where2['vod_id'] = $data['ulog_rid'];
@@ -643,13 +528,10 @@ class User extends Base
         }
         $data['ulog_points'] = intval($data['ulog_points']);
         $__ualMap = [2 => 'fav', 3 => 'want', 4 => 'play', 5 => 'down'];
-        // 已存在则更新时间
         $existing = (new \app\common\model\Ulog())->infoData($data);
         if ($existing['code'] == 1) {
             $updated = (new \app\common\model\Ulog())->where($data)->update(['ulog_time' => time()]);
-            // update() 返回 false 才是写库失败；受影响行数为 0（时间戳值未变）仍算成功。失败不埋点。
             if ($updated !== false && isset($__ualMap[$data['ulog_type']])) {
-                // 只有原有行为日志更新成功后才记录对应风控行为。
                 \app\common\model\UserAccessLog::record($__ualMap[$data['ulog_type']], [
                     'user_id' => $uid,
                     'mid'     => $data['ulog_mid'],
@@ -663,7 +545,6 @@ class User extends Base
         }
         $res = (new \app\common\model\Ulog())->saveData($data);
         if (isset($res['code']) && intval($res['code']) === 1 && isset($__ualMap[$data['ulog_type']])) {
-            // 付费播放/下载在上方已被拦截；走到这里代表行为日志确实写入成功。
             \app\common\model\UserAccessLog::record($__ualMap[$data['ulog_type']], [
                 'user_id' => $uid,
                 'mid'     => $data['ulog_mid'],
@@ -673,18 +554,12 @@ class User extends Base
         return json($res);
     }
 
-    /**
-     * 删除用户行为日志（取消收藏/删除历史等）
-     * api.php/user/del_ulog (POST)
-     * 参数: ids=1,2,3 或 ulog_id=1
-     */
     public function del_ulog(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
         if ($check['code'] > 1) return json(['code' => 1401, 'msg' => lang('api/please_login_first')]);
         $uid = intval($check['info']['user_id']);
         $param = $request->param();
-        // 清空某类日志：all=1 且 type=1..5（与 index user/ulog_del 一致）
         if (!empty($param['all']) && (string)$param['all'] === '1') {
             $type = isset($param['type']) ? (string)$param['type'] : '';
             if (!in_array($type, ['1', '2', '3', '4', '5'], true)) {
@@ -707,10 +582,6 @@ class User extends Base
         return json(['code' => 1, 'msg' => lang('del_ok')]);
     }
 
-    /**
-     * 获取积分日志
-     * api.php/user/get_plog?page=1&limit=20&filter=income|expense（可选，与 index user/plog 一致）
-     */
     public function get_plog(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -749,10 +620,6 @@ class User extends Base
         ]]);
     }
 
-    /**
-     * 删除积分日志
-     * api.php/user/del_plog (POST) 参数同 index user/plog_del：ids、all=1 清空
-     */
     public function del_plog(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -782,10 +649,6 @@ class User extends Base
         return json($return);
     }
 
-    /**
-     * 当前用户充值订单列表（与 index user/orders 数据源一致）
-     * api.php/user/get_orders?page=1&limit=20
-     */
     public function get_orders(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -800,11 +663,6 @@ class User extends Base
         return json(['code' => 1, 'msg' => lang('obtain_ok'), 'info' => $res]);
     }
 
-    /**
-     * 找回密码 - 发送验证码
-     * api.php/user/find_password (POST)
-     * 参数: user_email 或 user_phone
-     */
     public function find_password(Request $request)
     {
         $param = $request->param();
@@ -815,21 +673,8 @@ class User extends Base
         return json($res);
     }
 
-    /**
-     * 批量检查用户收藏状态
-     * 对应首页 Banner 区的收藏按钮，判断用户是否已收藏某些影片
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   vod_ids  - 必须，影片ID列表，多个用逗号分隔，如 "1,2,3"
-     *   mid      - 可选，模型ID，默认1(视频)，2=文章，3=专题，8=明星
-     *   ulog_type - 可选，日志类型，默认2(收藏)
-     */
     public function get_favorites_status(Request $request)
     {
-        // 需要用户登录
         $check = (new \app\common\model\User())->checkLogin();
         if ($check['code'] > 1) {
             return json([
@@ -849,7 +694,6 @@ class User extends Base
         $mid = isset($param['mid']) ? (int)$param['mid'] : 1;
         $ulogType = isset($param['ulog_type']) ? (int)$param['ulog_type'] : 2;
 
-        // 查询该用户对应 mid 和 type 的收藏记录
         $where = [
             'user_id'   => $user_id,
             'ulog_mid'  => $mid,
@@ -862,13 +706,11 @@ class User extends Base
             ->where($where)
             ->select();
 
-        // 构建 rid => ulog_id 的映射
         $favMap = [];
         foreach ($favorites as $fav) {
             $favMap[$fav['ulog_rid']] = $fav['ulog_id'];
         }
 
-        // 返回每个 vod_id 的收藏状态
         $result = [];
         foreach ($vodIds as $id) {
             $result[] = [
@@ -888,15 +730,6 @@ class User extends Base
         ]);
     }
 
-    /**
-     * 获取分销推广下线列表
-     * GET api.php/user/get_reward_list?level=1&page=1&limit=20
-     *
-     * @param  level  int  可选，下线层级：1=一级(默认), 2=二级, 3=三级
-     * @param  page   int  可选，页码，默认1
-     * @param  limit  int  可选，每页条数，默认20，最大100
-     * @return JSON   {code:1, msg:'获取成功', info:{page, pagecount, limit, total, list:[...]}}
-     */
     public function get_reward_list(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -929,10 +762,6 @@ class User extends Base
         ]);
     }
 
-    /**
-     * 充值/升级合并页：升级区数据 JSON（会员信息 + 可购套餐）
-     * GET api.php/user/ajax_upgrade_data
-     */
     public function ajax_upgrade_data(Request $request)
     {
         if ($request->isPost()) {
@@ -960,7 +789,6 @@ class User extends Base
                 $effPoints = intval($plan['effective_points']);
                 $row['group_points_' . $pl] = $effPoints;
                 $row['price_' . $pl] = round($effPoints / $scale, 2);
-                // 活动倒计时：活动有效时返回剩余秒数，否则 0
                 $countdown = 0;
                 $startKey = 'group_activity_start_time_' . $pl;
                 $endKey = 'group_activity_end_time_' . $pl;
@@ -1013,10 +841,6 @@ class User extends Base
         ]);
     }
 
-    /**
-     * 会员现金升级：创建 UPG 订单
-     * POST api.php/user/upgrade_order_create  参数 group_id, long
-     */
     public function upgrade_order_create(Request $request)
     {
         if (!$request->isPost()) {
@@ -1051,7 +875,6 @@ class User extends Base
             return json(['code' => 1004, 'msg' => lang('model/user/group_not_found')]);
         }
 
-        // 活动价优先：active 时覆盖正常套餐积分
         $plan = (new \app\common\model\Group())->vipPlanPrice($group_info, $long);
         $point = intval($plan['effective_points']);
         $isActivity = intval($plan['is_activity']);
@@ -1062,7 +885,6 @@ class User extends Base
         $price = round($point / $scale, 2);
         $normalPoint = intval($group_info['group_points_' . $long]);
 
-        // 优惠券抵扣（可选）
         $couponUserId = intval($param['coupon_user_id'] ?? 0);
         $priced = (new \app\common\model\Coupon())->calculateOrderPrice('vip', $price, [
             'user_id'        => intval($GLOBALS['user']['user_id']),
@@ -1104,12 +926,10 @@ class User extends Base
             return json($res);
         }
 
-        // 预占券到本订单
         if ($couponUserId > 0) {
             $orderId = intval(\think\facade\Db::name('Order')->where('order_code', $data['order_code'])->value('order_id'));
             $resv = (new \app\common\model\CouponUser())->reserveForOrder($couponUserId, intval($GLOBALS['user']['user_id']), $orderId, $data['order_code']);
             if ($resv['code'] > 1) {
-                // 预占失败：清理刚创建的废弃订单，避免污染用户订单列表
                 \think\facade\Db::name('Order')->where('order_code', $data['order_code'])->delete();
                 return json($resv);
             }
@@ -1136,18 +956,12 @@ class User extends Base
         ]);
     }
 
-    /**
-     * 登录接口 IP 速率限制：每个 IP 每 60 秒最多 10 次登录尝试
-     * 使用 cache() 实现，与 UEditor AI 限流方案一致
-     *
-     * @return true|\think\response\Json  通过返回 true，被限制返回 JSON 响应
-     */
     private function _checkLoginRateLimit()
     {
         $ip = mac_get_ip_long();
         $key = 'api_login_rl_' . $ip;
-        $limit = 10;   // 每窗口最大尝试次数
-        $window = 60;  // 窗口时间（秒）
+        $limit = 10;
+        $window = 60;
 
         $count = (int) cache($key);
         if ($count >= $limit) {
@@ -1161,10 +975,6 @@ class User extends Base
         return true;
     }
 
-    /**
-     * 获取站内通知列表
-     * api.php/user/get_notify_list?page=1&limit=20&type=order|vip|...
-     */
     public function get_notify_list(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -1190,10 +1000,6 @@ class User extends Base
         ]]);
     }
 
-    /**
-     * 获取未读通知数
-     * api.php/user/get_notify_unread
-     */
     public function get_notify_unread(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -1202,10 +1008,6 @@ class User extends Base
         return json(['code' => 1, 'msg' => lang('obtain_ok'), 'info' => ['unread' => intval($count)]]);
     }
 
-    /**
-     * 标记通知已读
-     * api.php/user/read_notify (POST) ids=1,2,3 或 all=1 全部已读
-     */
     public function read_notify(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -1228,10 +1030,6 @@ class User extends Base
         return json((new \app\common\model\Notify())->markRead($uid, array_values($ids)));
     }
 
-    /**
-     * 删除站内通知
-     * api.php/user/del_notify (POST) ids=1,2,3
-     */
     public function del_notify(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();

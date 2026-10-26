@@ -41,8 +41,6 @@ class Index extends Base
     {
         $menus = @include MAC_ADMIN_COMM . 'auth.php';
         $version = config('version');
-        // 组 1 的名称/图标要在它被剔除前留一份：快捷菜单固定挂在组 1，子管理员没有任何
-        // 组 1 可见节点时要把这个组补回来，否则视图会渲染出一个没有名字和 gid 的顶栏项。
         $rootGroup = isset($menus[1]) ? ['name' => $menus[1]['name'], 'icon' => $menus[1]['icon']] : null;
 
         foreach ($menus as $k1 => $v1) {
@@ -82,11 +80,8 @@ class Index extends Base
         }
         if (!empty($quickmenu)) {
             if (!isset($menus[1]) && $rootGroup) {
-                // 补出来的组 1 要排在顶栏第一位，直接赋值会掉到数组末尾
                 $menus = [1 => ['name' => $rootGroup['name'], 'icon' => $rootGroup['icon'], 'sub' => [], 'gid' => 1]] + $menus;
             }
-            // 快捷菜单项用 900000+ 的键：auth.php 的菜单节点键都是 5~6 位业务编号，
-            // 沿用过去的 13 / 14+k 会在首页组增删节点时撞上真实菜单项。
             $menus[1]['sub'][900000] = ['name' => lang('admin/index/quick_tit'), 'url' => 'javascript:void(0);return false;', 'controller' => '', 'action' => ''];
 
             foreach ($quickmenu as $k => $v) {
@@ -100,7 +95,6 @@ class Index extends Base
                 } else {
                     $one[1] = url($one[1]);
                 }
-                // 快捷菜单名：若为 lang key（不含中文）则翻译，否则原样显示（用户自定义文字）
                 $qmName = trim($one[0]);
                 if (!preg_match('/[\x{4e00}-\x{9fff}]/u', $qmName)) {
                     $translated = lang($qmName);
@@ -109,12 +103,9 @@ class Index extends Base
                 $menus[1]['sub'][900001 + $k] = ['name' => $qmName, 'url' => $one[1], 'controller' => '', 'action' => ''];
             }
         }
-        // 语言切换器直接吃语言包自述的注册表：增删一个 app/lang/<code>.php，下拉和 ADMIN_LANG_META 跟着变
         $langs = array_values(mac_lang_registry());
         $config = config('maccms');
 
-        // 系统信息模块的子导航直接挂在左侧栏：设置项与 system/index 概览卡片同源，
-        // 这里按 system/* 权限过滤后交给框架页渲染。
         $settingsGroups = [];
         if (isset($menus[16])) {
             $settingsItems = SystemSettingsMenu::build($config, function ($action) {
@@ -145,7 +136,6 @@ class Index extends Base
             $country_code = "其它";
         }
         $this->assign('ip_location', $country_code);
-        // MAC_LANG 输出在 index 框架页里，赋值必须留在 index()，welcome() 用的是另一个模板
         $this->assign('mac_lang', mac_site_lang());
         return $this->fetch('admin@index/index');
     }
@@ -226,11 +216,9 @@ class Index extends Base
     public function clear()
     {
         $res = $this->_cache_clear();
-        //运行缓存
         if (!$res) {
             return $this->error(lang('admin/index/clear_err'));
         }
-        // 搜索缓存结果清理
         (new \app\common\model\VodSearch())->clearOldResult(true);
         return $this->success(lang('admin/index/clear_ok'));
     }
@@ -329,13 +317,11 @@ class Index extends Base
 
     private function systemStatusData()
     {
-        //判斷系統
         $os_name = PHP_OS;
         $os_data = [];
         $os_data['os_name'] = $os_name;
         
         if (strtoupper(substr($os_name, 0, 3)) === 'WIN') {
-            // Windows系统
             $os_data['os_name'] = 'WINDOWS';
             $os_data['disk_datas'] = $this->get_spec_disk('all');
             $os_data['cpu_usage'] = $this->getCpuUsage();
@@ -344,10 +330,8 @@ class Index extends Base
             $os_data['mem_total'] = round($mem_arr['TotalVisibleMemorySize'] / 1024, 2);
             $os_data['mem_used'] = $os_data['mem_total'] - round($mem_arr['FreePhysicalMemory'] / 1024, 2);
         } else {
-            // Linux和FreeBSD的处理逻辑
             $os_data['os_name'] = strtoupper($os_name);
             
-            // 获取磁盘信息
             $totalSpace = 0;
             $freeSpace = 0;
             
@@ -370,7 +354,6 @@ class Index extends Base
                 $os_data['disk_datas']['/'] = [0, 0, 0];
             }
             
-            // 获取内存和CPU信息
             $mem_arr = $this->get_unix_server_memory_usage();
             $os_data['cpu_usage'] = $this->get_unix_server_cpu_usage();
             
@@ -398,24 +381,21 @@ class Index extends Base
 
     private function get_disk_space($letter)
     {
-        // 添加函数存在性检查
         if (!function_exists('disk_total_space') || !function_exists('disk_free_space')) {
             return [];
         }
 
-        // 获取磁盘信息
         $diskct = 0;
         $disk = array();
 
-        $diskz = 0; //磁盘总容量
-        $diskk = 0; //磁盘剩余容量
+        $diskz = 0;
+        $diskk = 0;
         $is_disk = $letter . ':';
         if (@\disk_total_space($is_disk) != NULL) {
             $diskct++;
             $total_space = @\disk_total_space($is_disk);
             $free_space = @\disk_free_space($is_disk);
             
-            // 转换为GB并保留两位小数
             $total_space_gb = round($total_space / (1024 * 1024 * 1024), 2);
             $free_space_gb = round($free_space / (1024 * 1024 * 1024), 2);
             
@@ -439,7 +419,6 @@ class Index extends Base
         $disk = array();
         switch ($type) {
             case 'system':
-                //strrev(array_pop(explode(':',strrev(getenv_info('SystemRoot')))));//取得系统盘符
                 $disk = $this->get_disk_space(strrev(array_pop(explode(':', strrev(getenv('SystemRoot'))))));
                 break;
             case 'all':
@@ -617,7 +596,6 @@ class Index extends Base
 
     private function get_unix_server_memory_usage()
     {
-        // 首先尝试使用通用的 sysinfo 方法
         if (function_exists('sysinfo')) {
             $si = sysinfo();
             if ($si) {
@@ -634,9 +612,7 @@ class Index extends Base
             }
         }
 
-        // 尝试不同的内存信息获取方法
         $methods = [
-            // Linux free 命令
             'free' => function() {
                 if (!function_exists('shell_exec')) {
                     return null;
@@ -660,7 +636,6 @@ class Index extends Base
                 return null;
             },
             
-            // FreeBSD/Unix sysctl 命令
             'sysctl' => function() {
                 if (!function_exists('shell_exec')) {
                     return null;
@@ -686,7 +661,6 @@ class Index extends Base
                 return null;
             },
             
-            // /proc/meminfo 文件读取
             'proc' => function() {
                 if (!is_readable('/proc/meminfo')) {
                     return null;
@@ -715,7 +689,6 @@ class Index extends Base
             }
         ];
         
-        // 依次尝试各种方法
         foreach ($methods as $method) {
             $result = $method();
             if ($result !== null) {
@@ -723,7 +696,6 @@ class Index extends Base
             }
         }
         
-        // 如果所有方法都失败，返回默认值
         return [
             'total' => 0,
             'used' => 0,
@@ -733,9 +705,7 @@ class Index extends Base
 
     private function get_unix_server_cpu_usage()
     {
-        // 首先尝试使用通用的方法
         $methods = [
-            // top 命令 (Linux)
             'top_linux' => function() {
                 if (!function_exists('shell_exec')) {
                     return null;
@@ -749,7 +719,6 @@ class Index extends Base
                 return null;
             },
             
-            // top 命令 (FreeBSD)
             'top_bsd' => function() {
                 if (!function_exists('shell_exec')) {
                     return null;
@@ -763,7 +732,6 @@ class Index extends Base
                 return null;
             },
             
-            // sysctl (FreeBSD/Unix)
             'sysctl' => function() {
                 if (!function_exists('shell_exec')) {
                     return null;
@@ -780,11 +748,10 @@ class Index extends Base
                 return null;
             },
             
-            // /proc/stat 文件读取
             'proc' => function() {
                 if (is_readable('/proc/stat')) {
                     $stats1 = file_get_contents('/proc/stat');
-                    usleep(100000); // 等待100ms
+                    usleep(100000);
                     $stats2 = file_get_contents('/proc/stat');
                     
                     if ($stats1 && $stats2) {
@@ -810,7 +777,6 @@ class Index extends Base
             }
         ];
         
-        // 依次尝试各种方法
         foreach ($methods as $method) {
             $result = $method();
             if ($result !== null) {
@@ -827,18 +793,14 @@ class Index extends Base
             $stats = @file_get_contents("/proc/stat");
 
             if ($stats !== false) {
-                // Remove double spaces to make it easier to extract values with explode()
                 $stats = preg_replace("/[[:blank:]]+/", " ", $stats);
 
-                // Separate lines
                 $stats = str_replace(array("\r\n", "\n\r", "\r"), "\n", $stats);
                 $stats = explode("\n", $stats);
 
-                // Separate values and find line for main CPU load
                 foreach ($stats as $statLine) {
                     $statLineData = explode(" ", trim($statLine));
 
-                    // Found!
                     if (
                         (count($statLineData) >= 5) &&
                         ($statLineData[0] == "cpu")
@@ -860,37 +822,28 @@ class Index extends Base
     private function getAdminDashboardData()
     {
         $result = [];
-        //已注册总用户数量
         $result['user_count'] = (new \app\common\model\User())->count();
         $result['user_count'] = number_format($result['user_count'], 0, '.', ',');
-        //已审核用户数量
         $result['user_active_count'] = (new \app\common\model\User())->where('user_status', 1)->count();
         $result['user_active_count'] = number_format($result['user_active_count'], 0, '.', ',');
 
         $today_start = strtotime(date('Y-m-d 00:00:00'));
         $today_end = $today_start + 86399;
-        //本日总入金
         $result['today_money_get'] = (new \app\common\model\Order())->where('order_time', 'between', $today_start . ',' . $today_end)->where('order_status', 1)->sum('order_price');
         $result['today_money_get'] = number_format($result['today_money_get'], 2, '.', ',');
 
-        // 访问统计（本日 + 近七日）：口径是埋点表 mac_analytics_pageview 的每日独立访客。
-        // 旧实现读 mac_visit，而那张表只有推广/邀请链接来访会写（User::visit、Website::visit），
-        // 普通浏览和登录都不写，所以「本日用户访问」永远是 0。
         $result['analytics_enabled'] = AnalyticsServerTracker::isEnabled() ? 1 : 0;
         $result['analytics_table_missing'] = 0;
         $visit_buckets = self::cachedDailyUv(date('Y-m-d', strtotime('-6 day')), date('Y-m-d'), $failed);
         if ($failed) {
-            // 老站升级脚本还没跑到埋点表时不能让首页 500
             $result['analytics_table_missing'] = 1;
         }
 
         $result['seven_day_visit_day'] = $visit_buckets['days'];
         $result['seven_day_visit_count'] = $visit_buckets['count'];
-        //本日来客量
         $today_visit_count = empty($visit_buckets['count']) ? 0 : intval(end($visit_buckets['count']));
         $result['today_visit_count'] = number_format($today_visit_count, 0, '.', ',');
 
-        //比較前一天的訪問量漲幅
         $result['raise_visit_user_today'] = 0;
         $bucket_cnt = count($visit_buckets['count']);
         if ($bucket_cnt > 1) {
@@ -900,12 +853,9 @@ class Index extends Base
             }
         }
 
-        //近七日用户访问总量
         $result['seven_day_visit_total_count'] = number_format($visit_buckets['sum'], 0, '.', ',');
-        //前七天 每日用户注册数
         $result['seven_day_reg_data'] = Db::query("select FROM_UNIXTIME(user_reg_time, '%Y-%c-%d' ) days,count(*) count from (SELECT * from ".config('database.connections.mysql.prefix')."user where user_reg_time >= (unix_timestamp(CURDATE())-604800)) as tmp group by days");
 
-        //近七日用户注册总量
         $result['seven_day_reg_total_count'] = 0;
         $result['seven_day_reg_day'] = [];
         $result['seven_day_reg_count'] = [];
@@ -915,7 +865,6 @@ class Index extends Base
             $result['seven_day_reg_total_count'] = $result['seven_day_reg_total_count'] + $value['count'];
         }
 
-        //比較前一天的註冊量漲幅
         $result['raise_reg_user_today'] = 0;
         if (is_array($result['seven_day_reg_data']) && count($result['seven_day_reg_data']) > 1 && (strtotime(end($result['seven_day_reg_data'])['days']) == strtotime(date('Y-m-d')))) {
             $yesterday_reg_count = $result['seven_day_reg_data'][count($result['seven_day_reg_data']) - 2]['count'];
@@ -933,38 +882,16 @@ class Index extends Base
 
     public function rangeDateDailyVisit()
     {
-
         $startTs = strtotime(isset($_POST['startDate']) ? $_POST['startDate'] : '');
         $endTs = strtotime(isset($_POST['endDate']) ? $_POST['endDate'] : '');
         if ($startTs === false || $endTs === false || $startTs <= 0 || $endTs <= 0) {
             return json_encode(['days' => [], 'count' => [], 'sum' => 0]);
         }
-        // 与首页同一口径：埋点表的每日独立访客，零填充
         $result = self::cachedDailyUv(date('Y-m-d', $startTs), date('Y-m-d', $endTs), $failed);
-        // 埋点表不存在（老站还没跑升级脚本）时要让前端说得出原因，否则图表只是画一条 0 线，
-        // 与首页那句红字提示口径不一致，站长会以为是「真没访问」。
         $result['table_missing'] = $failed ? 1 : 0;
-        // 前端 welcome.html 自己 JSON.parse 取 days/count/sum，不吃 code/msg 信封，形状不能改，
-        // 这里只做加键，不动既有三个字段
         return json_encode($result);
     }
 
-    /**
-     * 带短 TTL 缓存的每日 UV 取数。
-     *
-     * 聚合表没覆盖的日子（正常只有「今天」，站长没配定时任务时则是整个区间）会回退到
-     * mac_analytics_pageview 明细做 count(distinct visitor_id)，那张表只有 idx_stat_date，
-     * 大站单日就是百万行级的临时表 + filesort。后台首页每打开一次就查一次扛不住，
-     * 这里按区间做 60 秒缓存：统计看板不需要秒级实时，但要挡住刷新风暴。
-     *
-     * 取数失败（老站还没跑升级脚本、埋点表不存在）不写缓存，让调用方拿到 $failed 去提示，
-     * 也避免把「表不存在」这个瞬时状态缓存住。
-     *
-     * @param string $start_date Y-m-d
-     * @param string $end_date   Y-m-d
-     * @param bool   $failed     出参：取数是否失败
-     * @return array ['days'=>[],'count'=>[],'sum'=>0]
-     */
     private static function cachedDailyUv($start_date, $end_date, &$failed)
     {
         $failed = false;
@@ -991,7 +918,6 @@ class Index extends Base
     private function botListData()
     {
         $day_arr = [];
-        //列出最近10天的日期
         for ($i = 0; $i < 7; $i++) {
             $day_arr[$i] = date('Y-m-d', time() - $i * 60 * 60 * 24);
         }

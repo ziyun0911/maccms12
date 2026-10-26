@@ -3,14 +3,11 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Comment extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'comment';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -130,7 +127,6 @@ class Comment extends Base {
             $start--;
         }
         if (!in_array($mid, ['1','2','3','8','9'])) {
-            //$mid = 1;
         }
 
         if(!in_array($paging, ['yes', 'no'])) {
@@ -200,7 +196,6 @@ class Comment extends Base {
         $res['pageurl'] = $pageurl;
         $res['half'] = $half;
         return $res;
-
     }
 
     public function infoData($where,$field='*')
@@ -225,7 +220,6 @@ class Comment extends Base {
             return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];
         }
 
-        // xss过滤
         $filter_fields = [
             'comment_name',
             'comment_content',
@@ -250,7 +244,6 @@ class Comment extends Base {
             return ['code'=>1002,'msg'=>lang('save_err').'：'.$this->getError() ];
         }
 
-        // 新评论/回复写动态
         if (empty($data['comment_id'])) {
             try {
                 $is_reply = intval($data['comment_pid']) > 0;
@@ -265,7 +258,6 @@ class Comment extends Base {
                     'dyn_text'      => mb_substr($data['comment_content'], 0, 200, 'UTF-8'),
                 ]);
             } catch (\Exception $e) {
-                // 评论本身已入库，动态镜像失败不阻断，但要留痕
                 \think\facade\Log::error('Comment dynamics mirror failed user=' . intval($data['user_id'])
                     . ' mid=' . intval($data['comment_mid']) . ' rid=' . intval($data['comment_rid'])
                     . ' err=' . $e->getMessage());
@@ -298,5 +290,4 @@ class Comment extends Base {
         }
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
 }

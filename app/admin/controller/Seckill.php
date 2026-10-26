@@ -75,7 +75,6 @@ class Seckill extends Base
             unset($param['seckill_end_time_input']);
         }
         $param['seckill_per_user'] = 1;
-        // 开通时长白名单校验
         if (!in_array($param['seckill_target_long'] ?? '', ['day', 'week', 'month', 'year'], true)) {
             $param['seckill_target_long'] = 'month';
         }

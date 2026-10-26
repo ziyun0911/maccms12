@@ -1,16 +1,8 @@
 <?php
 namespace app\common\util;
 
-/**
- * Sliding-window request limiter per client IP for AI chat (file + flock).
- */
 class AiChatRateLimit
 {
-    /**
-     * @param string $ip
-     * @param array $cfg maccms.ai_search subset
-     * @return array{allowed:bool,retry_after:int}
-     */
     public static function checkHit($ip, array $cfg)
     {
         $enabled = isset($cfg['rate_limit_enabled']) ? (string)$cfg['rate_limit_enabled'] : '1';
@@ -26,7 +18,6 @@ class AiChatRateLimit
             @mkdir($dir, 0755, true);
         }
 
-        // 低概率触发过期文件回收，避免 per-IP/per-session 窗口文件无限堆积。
         if (mt_rand(1, 100) === 1) {
             self::gc(max(3600, $window * 20));
         }
@@ -91,16 +82,6 @@ class AiChatRateLimit
         return $dir;
     }
 
-    /**
-     * Atomically read-modify-write a JSON state file under an exclusive lock.
-     * The mutator receives the decoded array (or [] when absent) and returns
-     * the new array to persist. Returns whatever the mutator yields as its
-     * second element, or null when the lock/file could not be acquired.
-     *
-     * @param string   $path
-     * @param callable $mutator  function(array $data): array{0:array,1:mixed}
-     * @return mixed|null
-     */
     private static function atomicUpdate($path, $mutator)
     {
         $fp = @fopen($path, 'c+');
@@ -132,12 +113,6 @@ class AiChatRateLimit
         return isset($result[1]) ? $result[1] : null;
     }
 
-    /**
-     * IP-agnostic global daily call budget. When exceeded, reject all
-     * AI chat requests until the next calendar day. Atomic under flock.
-     *
-     * @return array{allowed:bool,used:int,limit:int,date:string}
-     */
     public static function checkDailyBudget(array $cfg)
     {
         $limit = intval(isset($cfg['daily_budget']) ? $cfg['daily_budget'] : 500);
@@ -163,14 +138,6 @@ class AiChatRateLimit
         return $result;
     }
 
-    /**
-     * Per-session sliding window counter for anonymous captcha gating.
-     * Atomic under flock.
-     *
-     * @param string $sessionId
-     * @param array  $cfg
-     * @return array{allowed:bool,count:int,limit:int,retry_after:int}
-     */
     public static function checkSession($sessionId, array $cfg)
     {
         $limit = max(1, intval(isset($cfg['anon_captcha_after']) ? $cfg['anon_captcha_after'] : 10));
@@ -200,12 +167,6 @@ class AiChatRateLimit
         return $result;
     }
 
-    /**
-     * Reset the per-session counter after a successful captcha verification,
-     * so legitimate anonymous users get a fresh quota.
-     *
-     * @param string $sessionId
-     */
     public static function resetSession($sessionId)
     {
         $key = trim((string)$sessionId);
@@ -218,12 +179,6 @@ class AiChatRateLimit
         }
     }
 
-    /**
-     * Circuit breaker: open after consecutive LLM failures, hold for a
-     * configured period, then half-open (allow one probe). Atomic under flock.
-     *
-     * @return array{closed:bool,reason:string}
-     */
     public static function checkCircuit(array $cfg)
     {
         $threshold = max(1, intval(isset($cfg['circuit_fail_threshold']) ? $cfg['circuit_fail_threshold'] : 8));
@@ -248,14 +203,6 @@ class AiChatRateLimit
         return $result;
     }
 
-    /**
-     * Record the result of a single billable LLM HTTP call to drive the
-     * circuit breaker. Success resets the fail streak; failure increments
-     * it and opens the circuit when the threshold is reached. Atomic under flock.
-     *
-     * @param bool  $ok
-     * @param array $cfg
-     */
     public static function recordLlmCall($ok, array $cfg)
     {
         $threshold = max(1, intval(isset($cfg['circuit_fail_threshold']) ? $cfg['circuit_fail_threshold'] : 8));
@@ -279,14 +226,6 @@ class AiChatRateLimit
         });
     }
 
-    /**
-     * Probabilistic garbage collection: remove stale per-IP / per-session
-     * window files whose last modification is older than the retention
-     * window (all their in-window hits have long expired). The long-lived
-     * state files daily.json and circuit.json are never collected here.
-     *
-     * @param int $maxAge retention seconds
-     */
     public static function gc($maxAge = 86400)
     {
         $dir = self::dir();
@@ -312,9 +251,6 @@ class AiChatRateLimit
         closedir($handle);
     }
 
-    /**
-     * Clear the circuit breaker state. Intended for tests / admin reset.
-     */
     public static function resetCircuit()
     {
         $path = self::dir() . DIRECTORY_SEPARATOR . 'circuit.json';

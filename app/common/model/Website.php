@@ -8,14 +8,11 @@ use app\common\util\MeilisearchListBridge;
 use app\common\util\MeilisearchSync;
 
 class Website extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'website';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -52,9 +49,7 @@ class Website extends Base {
             $total = $this->where($where)->count();
         }
         $list = Db::name('Website')->field($field)->where($where)->where($where2)->orderRaw($order)->limit($limit_str)->select();
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
 
         foreach($list as $k=>$v){
@@ -94,11 +89,7 @@ class Website extends Base {
             ->limit($limit_str)
             ->select();
 
-        //dump($where);die;
-        //echo $this->getLastSql();die;
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
 
         foreach($list as $k=>$v){
@@ -112,7 +103,6 @@ class Website extends Base {
                 }
             }
         }
-
 
         return ['code'=>1,'msg'=>lang('data_list'),'page'=>$page,'pagecount'=>ceil($total/$limit),'limit'=>$limit,'total'=>$total,'list'=>$list];
     }
@@ -173,7 +163,6 @@ class Website extends Base {
             $param = mac_search_len_check($param);
             $totalshow = 1;
             if(!empty($param['id'])) {
-                //$type = intval($param['id']);
             }
             if(!empty($param['ids'])){
                 $ids = $param['ids'];
@@ -480,7 +469,6 @@ class Website extends Base {
             if(!empty($info['website_pic_screenshot'])){
                 $info['website_pic_screenshot_list'] = mac_screenshot_list($info['website_pic_screenshot']);
             }
-            //分类
             if (!empty($info['type_id'])) {
                 $type_list = (new \app\common\model\Type())->getCache('type_list');
                 $info['type'] = $type_list[$info['type_id']];
@@ -531,7 +519,6 @@ class Website extends Base {
         unset($data['uptime']);
         unset($data['uptag']);
 
-        // xss过滤
         $filter_fields = [
             'website_name',
             'website_sub',
@@ -677,5 +664,4 @@ class Website extends Base {
 
         return ['code'=>1,'msg'=>lang('model/website/visit_ok')];
     }
-
 }

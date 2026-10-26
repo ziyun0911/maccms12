@@ -1,5 +1,4 @@
 <?php
-// 由后台“URL 配置”自动生成（ThinkPHP 8 路由定义）；手工修改会在下次保存时被覆盖。
 use think\facade\Route;
 
 Route::pattern(array (

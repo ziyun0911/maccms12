@@ -12,23 +12,14 @@ class Link extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     *  获取列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -37,7 +28,6 @@ class Link extends Base
                 'msg'  => '参数错误: ' . $validate->getError(),
             ]);
         }
-        // 查询条件组装
         $where = [];
 
         $offset = isset($param['offset']) ? (int)$param['offset'] : 0;
@@ -67,11 +57,9 @@ class Link extends Base
             $where['link_time'] = ['>=', (int)$param['time_start']];
         }
 
-        // 数据获取
         $total = (new \app\common\model\Link())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
-            // 排序
             $order = "link_time DESC";
             $field = '*';
             if (strlen($param['orderby']) > 0) {
@@ -84,7 +72,6 @@ class Link extends Base
                 $item['link_url'] = htmlspecialchars($item['link_url'], ENT_QUOTES, 'UTF-8');
             }
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',

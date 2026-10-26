@@ -4,28 +4,18 @@ namespace app\admin\controller;
 
 use app\common\util\TemplateCloudService;
 
-/**
- * AI 模板市场（完整主题包）
- * 与 ResourceHub 资源站采集无关，独立云端目录与安装流程。
- */
 class TemplateMarket extends Base
 {
-    /** @var TemplateCloudService */
     protected $cloud;
 
     public function __construct()
     {
         parent::__construct();
-        // admin 模块统一使用新版后台模板目录 view/。
-        // Init 会把 template.view_path 指向前台模板目录，模块相对 fetch 需显式指定，否则会白屏。
         $this->view->config(['view_path' => APP_PATH . 'admin/view/']);
 
         $this->cloud = new TemplateCloudService();
     }
 
-    /**
-     * 模板市场首页
-     */
     public function index()
     {
         $result = $this->cloud->fetchCatalog(false);
@@ -68,9 +58,6 @@ class TemplateMarket extends Base
         return $this->fetch('template_market/index');
     }
 
-    /**
-     * 刷新云端目录（AJAX）
-     */
     public function refresh()
     {
         if ($err = $this->guardWriteRequest()) {
@@ -94,9 +81,6 @@ class TemplateMarket extends Base
         ]);
     }
 
-    /**
-     * 安装主题包（AJAX）
-     */
     public function install()
     {
         if ($err = $this->guardWriteRequest()) {
@@ -128,9 +112,6 @@ class TemplateMarket extends Base
         ]);
     }
 
-    /**
-     * 启用已安装模板（AJAX）
-     */
     public function activate()
     {
         if ($err = $this->guardWriteRequest()) {
@@ -145,10 +126,6 @@ class TemplateMarket extends Base
         ]);
     }
 
-    /**
-     * 写操作：仅 POST + CSRF token
-     * @return array|null 失败时返回 json 数组，成功返回 null
-     */
     protected function guardWriteRequest()
     {
         if (!request()->isPost()) {

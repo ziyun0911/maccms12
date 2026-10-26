@@ -82,9 +82,6 @@ class SignMilestone extends Base {
         return ['code' => 1, 'msg' => lang('set_ok')];
     }
 
-    /**
-     * 获取所有启用的里程碑，按天数升序
-     */
     public function getActiveMilestones()
     {
         return Db::name('SignMilestone')
@@ -93,17 +90,10 @@ class SignMilestone extends Base {
             ->select();
     }
 
-    /**
-     * 获取用户的里程碑达成状态
-     * @param int $user_id
-     * @param int $serial_days 当前连续签到天数
-     * @return array 里程碑列表（含 status: 0=未达成, 1=可领取, 2=已领取）
-     */
     public function getMilestonesWithStatus($user_id, $serial_days)
     {
         $milestones = $this->getActiveMilestones();
 
-        // 获取用户已领取的里程碑
         $claimed = Db::name('SignMilestoneLog')
             ->where('user_id', $user_id)
             ->column('milestone_id');
@@ -113,11 +103,11 @@ class SignMilestone extends Base {
         $next_milestone = null;
         foreach ($milestones as $m) {
             if (isset($claimed_map[$m['milestone_id']])) {
-                $m['status'] = 2; // 已领取
+                $m['status'] = 2;
             } elseif ($serial_days >= $m['milestone_days']) {
-                $m['status'] = 1; // 可领取
+                $m['status'] = 1;
             } else {
-                $m['status'] = 0; // 未达成
+                $m['status'] = 0;
                 if ($next_milestone === null) {
                     $next_milestone = [
                         'days' => (int)$m['milestone_days'],
@@ -134,9 +124,6 @@ class SignMilestone extends Base {
         ];
     }
 
-    /**
-     * 领取里程碑奖励
-     */
     public function claimMilestone($user_id, $milestone_id, $serial_days)
     {
         $milestone = Db::name('SignMilestone')
@@ -147,12 +134,10 @@ class SignMilestone extends Base {
             return ['code' => 1001, 'msg' => lang('milestone/not_found')];
         }
 
-        // 检查连续天数是否达标
         if ($serial_days < $milestone['milestone_days']) {
             return ['code' => 1002, 'msg' => lang('milestone/not_reached')];
         }
 
-        // 检查是否已领取
         $exists = Db::name('SignMilestoneLog')->where([
             'user_id' => $user_id,
             'milestone_id' => $milestone_id,

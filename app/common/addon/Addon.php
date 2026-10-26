@@ -1,18 +1,12 @@
 <?php
 namespace app\common\addon;
 
-/**
- * 插件基类：提供插件信息、配置与目录定位。
- */
 abstract class Addon
 {
-    /** @var array 插件信息（info.ini） */
     public $info = [];
 
-    /** @var string 插件目录（含末尾分隔符） */
     public $addon_path = '';
 
-    /** @var string 插件目录别名 */
     public $addon_dir = '';
 
     public function __construct()
@@ -33,10 +27,6 @@ abstract class Addon
         return isset($parts[1]) ? strtolower($parts[1]) : '';
     }
 
-    /**
-     * @param string|null $name 为空时返回全部信息
-     * @return mixed
-     */
     public function getInfo($name = null)
     {
         if ($name === null) {
@@ -45,10 +35,6 @@ abstract class Addon
         return $this->info[$name] ?? null;
     }
 
-    /**
-     * @param string|null $name 为空时返回全部配置项的值
-     * @return mixed
-     */
     public function getConfig($name = null, $default = null)
     {
         $config = addon_config($this->getName());

@@ -3,23 +3,14 @@ namespace app\admin\controller;
 use think\facade\Db;
 use think\facade\Cache;
 
-/**
- * 批量播放器设定控制器
- */
 class BatchPlayer extends Base
 {
     public function __construct()
     {
         parent::__construct();
-        // admin 模块统一使用新版后台模板目录 view/。
-        // Init 会把 template.view_path 指向前台模板目录，模块相对 fetch 需显式指定，否则会白屏。
         $this->view->config(['view_path' => APP_PATH . 'admin/view/']);
-
     }
 
-    /**
-     * 批量播放器管理首页
-     */
     public function index()
     {
         $vodplayer = config('vodplayer') ?: [];
@@ -31,9 +22,6 @@ class BatchPlayer extends Base
         return $this->fetch('batchplayer/index');
     }
 
-    /**
-     * 批量启用/禁用播放器
-     */
     public function batchStatus()
     {
         $param = input('post.');
@@ -64,9 +52,6 @@ class BatchPlayer extends Base
         return json(['code' => 1, 'msg' => sprintf(lang('admin/batchplayer/batch_status_ok'), $changed)]);
     }
 
-    /**
-     * 批量设定排序
-     */
     public function batchSort()
     {
         $param = input('post.');
@@ -92,9 +77,6 @@ class BatchPlayer extends Base
         return json(['code' => 1, 'msg' => lang('admin/batchplayer/batch_sort_ok')]);
     }
 
-    /**
-     * 批量设定解析接口
-     */
     public function batchParse()
     {
         $param = input('post.');
@@ -125,9 +107,6 @@ class BatchPlayer extends Base
         return json(['code' => 1, 'msg' => sprintf(lang('admin/batchplayer/batch_parse_ok'), $changed)]);
     }
 
-    /**
-     * 批量删除播放器
-     */
     public function batchDel()
     {
         $param = input('post.');
@@ -157,9 +136,6 @@ class BatchPlayer extends Base
         return json(['code' => 1, 'msg' => sprintf(lang('admin/batchplayer/batch_del_ok'), $deleted)]);
     }
 
-    /**
-     * 批量替换播放来源名称（在视频数据中）
-     */
     public function replaceFrom()
     {
         $param = input('post.');
@@ -172,13 +148,11 @@ class BatchPlayer extends Base
 
         $prefix = config('database.connections.mysql.prefix');
 
-        // 替换 vod_play_from（参数化查询防止 SQL 注入）
         $count = Db::execute(
             "UPDATE `{$prefix}vod` SET `vod_play_from` = REPLACE(`vod_play_from`, ?, ?) WHERE `vod_play_from` LIKE ?",
             [$old_from, $new_from, '%' . $old_from . '%']
         );
 
-        // 替换 vod_down_from（参数化查询防止 SQL 注入）
         Db::execute(
             "UPDATE `{$prefix}vod` SET `vod_down_from` = REPLACE(`vod_down_from`, ?, ?) WHERE `vod_down_from` LIKE ?",
             [$old_from, $new_from, '%' . $old_from . '%']

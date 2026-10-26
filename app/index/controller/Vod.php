@@ -45,9 +45,6 @@ class Vod extends Base
         return $this->label_fetch('vod/search');
     }
 
-    /**
-     * 移动端独立搜索落地页（无检索条件，不触发 search 频次/验证码）
-     */
     public function search_hub()
     {
         if ($GLOBALS['config']['app']['search'] == 0) {
@@ -147,9 +144,6 @@ class Vod extends Base
         return $this->label_fetch('vod/plot');
     }
 
-    /**
-     * 最近更新列表页（全部分类按更新时间排序）
-     */
     public function last_vod()
     {
         $param = mac_param_url();
@@ -158,5 +152,4 @@ class Vod extends Base
         $this->assign('obj', $obj);
         return $this->label_fetch('vod/last_vod');
     }
-
 }

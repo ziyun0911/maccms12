@@ -97,7 +97,6 @@ class Actor extends Base
         $type_tree = (new \app\common\model\Type())->getCache('type_tree');
         $this->assign('type_tree', $type_tree);
 
-        //内容级多语言
         $content_lang_default = mac_content_lang_default();
         $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
         $content_lang_data = [];
@@ -116,9 +115,6 @@ class Actor extends Base
         return $this->fetch('admin@actor/info');
     }
 
-    /**
-     * 调用已安装的翻译插件（若有）翻译单个字段。
-     */
     public function contentLangTranslate()
     {
         $text = (string)input('post.text', '');
@@ -163,7 +159,6 @@ class Actor extends Base
         $start = $param['start'];
         $end = $param['end'];
 
-
         if(!empty($ids) && in_array($col,['actor_status','actor_lock','actor_level','type_id','actor_hits'])){
             $where=[];
             $update = [];
@@ -194,5 +189,4 @@ class Actor extends Base
         }
         return $this->error(lang('param_err'));
     }
-
 }

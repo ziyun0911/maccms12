@@ -1,24 +1,8 @@
 <?php
 namespace app\common\util;
 
-/**
- * OpenAPI 3.0 规范生成器
- *
- * 依据《说明文档/API接口说明.txt》将 api.php 的纯文本接口说明转换为 OpenAPI 3.0 规范，
- * 供后台「API 文档」页面内嵌的 Swagger UI 在线浏览与调试使用。
- *
- * 设计要点：
- * - 纯数据生成，无数据库 / 全局状态依赖，方便回归测试与缓存
- * - servers[].url 由调用方注入实际站点的 api.php 入口，保证「Try it out」直连本站
- * - 端点按文档章节分组（tags），GET 用 query 参数，POST 用 x-www-form-urlencoded 表单
- */
 class OpenApiSpec
 {
-    /**
-     * 构建完整 OpenAPI 规范数组
-     * @param string $baseUrl api.php 入口地址，例如 /api.php 或 https://demo.com/api.php
-     * @return array
-     */
     public function build($baseUrl = '/api.php')
     {
         if (!is_string($baseUrl) || $baseUrl === '') {
@@ -43,10 +27,6 @@ class OpenApiSpec
         );
     }
 
-    /**
-     * 标签（与文档章节对应）
-     * @return array
-     */
     private function tags()
     {
         $list = array(
@@ -86,10 +66,6 @@ class OpenApiSpec
         return $tags;
     }
 
-    /**
-     * 汇总所有路径
-     * @return array
-     */
     private function paths()
     {
         $groups = array(
@@ -131,12 +107,6 @@ class OpenApiSpec
         return $paths;
     }
 
-    /* ---------------- 通用复用结构 ---------------- */
-
-    /**
-     * 复用组件
-     * @return array
-     */
     private function components()
     {
         return array(
@@ -165,10 +135,6 @@ class OpenApiSpec
         );
     }
 
-    /**
-     * 默认 200 响应
-     * @return array
-     */
     private function responses()
     {
         return array(
@@ -176,14 +142,6 @@ class OpenApiSpec
         );
     }
 
-    /**
-     * 构建一个 query 参数
-     * @param string $name
-     * @param string $type integer|string|number|boolean
-     * @param bool $required
-     * @param string $desc
-     * @return array
-     */
     private function q($name, $type, $required, $desc)
     {
         return array(
@@ -195,14 +153,6 @@ class OpenApiSpec
         );
     }
 
-    /**
-     * 构建 GET 操作
-     * @param string $tag
-     * @param string $summary
-     * @param string $desc
-     * @param array $params q() 数组
-     * @return array
-     */
     private function get($tag, $summary, $desc, $params)
     {
         return array(
@@ -216,14 +166,6 @@ class OpenApiSpec
         );
     }
 
-    /**
-     * 构建 POST 操作（x-www-form-urlencoded 表单）
-     * @param string $tag
-     * @param string $summary
-     * @param string $desc
-     * @param array $fields 每项 array(name, type, required, desc)
-     * @return array
-     */
     private function post($tag, $summary, $desc, $fields)
     {
         $op = array(
@@ -254,8 +196,6 @@ class OpenApiSpec
         }
         return array('post' => $op);
     }
-
-    /* ---------------- 各模块路径 ---------------- */
 
     private function pathsSearch()
     {

@@ -49,7 +49,6 @@ class S3
                 'Key'    => $key,
                 'Body'   => fopen($filePath, 'r'),
             ];
-            // acl=false/'' 时不写 ACL（适合备份私有桶 / MinIO）；未传时保持图片场景 public-read
             if (array_key_exists('acl', $this->config)) {
                 if ($this->config['acl'] !== false && $this->config['acl'] !== null && $this->config['acl'] !== '') {
                     $put['ACL'] = $this->config['acl'];

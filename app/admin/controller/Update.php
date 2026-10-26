@@ -1,6 +1,4 @@
 <?php
-// 注意：修改此文件后，需同步更新 app/extra/version.php 中的 update_hash 值
-// update_hash = md5_file('app/admin/controller/Update.php')
 namespace app\admin\controller;
 use think\facade\Db;
 use app\common\util\PclZip;
@@ -13,7 +11,6 @@ class Update extends Base
     public function __construct()
     {
         parent::__construct();
-        //header('X-Accel-Buffering: no');
 
         $this->_url = base64_decode("aHR0cHM6Ly91cGRhdGUubWFjY21zLmxhLw==")."v10/";
         $this->_save_path = APP_PATH . 'data/update/';
@@ -24,7 +21,6 @@ class Update extends Base
         if(empty($file)){
             return $this->error(lang('param_err'));
         }
-        // 白名单：$file 经基址拼接为下载 URL，禁止路径/查询段注入。
         if(!preg_match('/^[a-zA-Z0-9._-]+$/',$file)){
             return $this->error(lang('param_err'));
         }
@@ -41,7 +37,6 @@ class Update extends Base
         
         $html = mac_curl_get($url, [], '', true);
         if($html === false){
-            // TLS 校验失败或拉取失败：拒绝继续，防止 MITM 替换升级包（漏洞 7）。
             echo lang('admin/update/download_err')."\n";
             exit;
         }
@@ -57,7 +52,6 @@ class Update extends Base
             exit;
         }
 
-        // SHA1校验：.sha1文件进行比对防篡改。经同一强制校验通道获取。
         $sha1_url = $this->_url . $file . '.zip.sha1?t=' . time();
         $remote_sha1_raw = mac_curl_get($sha1_url, [], '', true);
         if($remote_sha1_raw === false){
@@ -87,7 +81,6 @@ class Update extends Base
             exit;
         }
         else{
-
         }
         @unlink($this->_save_path.$save_file);
         echo '</textarea></div>';
@@ -107,7 +100,6 @@ class Update extends Base
         sleep(1);
 
         $res=true;
-        // 导入SQL
         $sql_file = $this->_save_path .$save_file;
 
         if (is_file($sql_file)) {
@@ -121,13 +113,7 @@ class Update extends Base
                 $col_list[$v['TABLE_NAME']][$v['COLUMN_NAME']] = $v;
             }
             @include $sql_file;
-            //dump($sql);die;
 
-            /*
-            //$html =  @file_get_contents($sql_file);
-            //$sql = mac_get_body($html,'--'.$version.'-start--','--'.$version.'-end--');
-            $sql = @file_get_contents($sql_file);
-            */
             if(!empty($sql)) {
                 $sql_list = mac_parse_sql($sql, 0, ['mac_' => $pre]);
 
@@ -146,7 +132,6 @@ class Update extends Base
                 }
             }
             else{
-
             }
             @unlink($sql_file);
         }

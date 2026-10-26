@@ -86,7 +86,6 @@ class UserPm extends Base {
             return ['code' => 1003, 'msg' => lang('pm/content_empty')];
         }
 
-        // XSS 过滤 + 长度截断（先处理，再用处理后的值做 validate）
         $content = mac_filter_xss($content);
         if (mb_strlen($content, 'UTF-8') > 500) {
             $content = mb_substr($content, 0, 500, 'UTF-8');
@@ -97,19 +96,16 @@ class UserPm extends Base {
             return ['code' => 1001, 'msg' => $validate->getError()];
         }
 
-        // 互关校验
         $is_mutual = (new \app\common\model\Follow())->isMutual($from_uid, $to_uid);
         if (!$is_mutual) {
             return ['code' => 1004, 'msg' => lang('pm/mutual_required')];
         }
 
-        // 目标用户存在性
         $target = Db::name('user')->where('user_id', $to_uid)->field('user_id')->find();
         if (empty($target)) {
             return ['code' => 1005, 'msg' => lang('pm/user_not_found')];
         }
 
-        // 黑名单关键字
         $blacks = config('blacks');
         if (!empty($blacks['black_keyword_list']) && is_array($blacks['black_keyword_list'])) {
             foreach ($blacks['black_keyword_list'] as $keyword) {
@@ -132,7 +128,6 @@ class UserPm extends Base {
             return ['code' => 1007, 'msg' => lang('save_err')];
         }
 
-        // 通知收信人
         try {
             $from_user = Db::name('user')->where('user_id', $from_uid)->field('user_name,user_nick_name')->find();
             $nick = !empty($from_user['user_nick_name']) ? $from_user['user_nick_name'] : $from_user['user_name'];
@@ -183,9 +178,6 @@ class UserPm extends Base {
         return ['code' => 1, 'msg' => lang('set_ok')];
     }
 
-    /**
-     * 获取两个用户之间的会话消息
-     */
     public function conversation($uid_a, $uid_b, $page = 1, $limit = 50)
     {
         $uid_a = intval($uid_a);
@@ -200,10 +192,6 @@ class UserPm extends Base {
         $map1 = ['from_uid' => $uid_a, 'to_uid' => $uid_b];
         $map2 = ['from_uid' => $uid_b, 'to_uid' => $uid_a];
 
-        // 双向会话条件：必须把每个方向各自包成一个 AND 组再 OR。
-        // whereOr(数组) 在 TP5 里是把数组内各字段之间用 OR 连接（见 Builder::buildWhere），
-        // 会退化成 (a→b) OR from_uid=b OR to_uid=a，从而串入与第三方的私信。
-        // 两个方向都显式包一层闭包，不依赖 AND/OR 优先级，后续再加方向时不易写错。
         $cond = function ($query) use ($map1, $map2) {
             $query->where(function ($q) use ($map1) {
                 $q->where($map1);
@@ -239,9 +227,6 @@ class UserPm extends Base {
         return ['code' => 1, 'msg' => lang('data_list'), 'page' => $page, 'pagecount' => ceil($total / $limit), 'limit' => $limit, 'total' => $total, 'list' => $list];
     }
 
-    /**
-     * 标记会话中对方发来的消息为已读
-     */
     public function markRead($uid, $from_uid)
     {
         $uid = intval($uid);
@@ -259,9 +244,6 @@ class UserPm extends Base {
         return ['code' => 1, 'msg' => lang('pm/mark_read')];
     }
 
-    /**
-     * 未读消息数
-     */
     public function unreadCount($uid)
     {
         $uid = intval($uid);
@@ -271,10 +253,6 @@ class UserPm extends Base {
         return (int)$this->where(['to_uid' => $uid, 'pm_read' => 0, 'pm_status' => 1])->count();
     }
 
-    /**
-     * 会话列表：与当前用户有过私信往来的用户去重列表
-     * 使用查询构造器生成 UNION 子查询 + SQL 层分页，避免全量加载后 PHP array_slice
-     */
     public function conversationList($uid, $page = 1, $limit = 20)
     {
         $uid = intval($uid);
@@ -289,7 +267,6 @@ class UserPm extends Base {
         $tbl = $pre . 'user_pm';
         $offset = $limit * ($page - 1);
 
-        // 用参数绑定避免拼接，SQL 层分页
         $inner = "SELECT to_uid AS peer_uid, pm_id FROM `{$tbl}` WHERE from_uid = ? AND pm_status = 1
                   UNION ALL
                   SELECT from_uid AS peer_uid, pm_id FROM `{$tbl}` WHERE to_uid = ? AND pm_status = 1";

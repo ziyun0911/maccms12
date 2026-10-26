@@ -4,7 +4,6 @@ use think\facade\Db;
 
 class Safety extends Base
 {
-
     var $_files;
     public function __construct()
     {
@@ -13,12 +12,8 @@ class Safety extends Base
 
     public function index()
     {
-
     }
 
-    /**
-     * 安全体检：开关状态、cache_flag、crypto_secret、site_url 等。
-     */
     public function checkup()
     {
         $report = \app\common\util\SecurityHealthCheck::run(config('maccms'));
@@ -27,9 +22,6 @@ class Safety extends Base
         return $this->fetch('admin@safety/checkup');
     }
 
-    /**
-     * 一键修复（POST action=enable_csrf|enable_all_security|fix_all_recommended|…）
-     */
     public function fix()
     {
         if (!Request()->isPost()) {
@@ -101,7 +93,6 @@ class Safety extends Base
                     $msg = lang('admin/safety/file_msg4');
                 }
                 if($color!='') {
-                    //$this->_files[$k]['jc'] = $color;
                     mac_echo($k . '---' . "<font color=$color>" . $msg . '</font>');
                 }
             }
@@ -147,7 +138,6 @@ class Safety extends Base
                 ]
             ];
             mac_echo('<style type="text/css">body{font-size:12px;color: #333333;line-height:21px;}span{font-weight:bold;color:#FF0000}</style>');
-
 
             foreach ($col_list as $k1 => $v1) {
                 $pre_tb = str_replace($pre, '', $k1);

@@ -47,9 +47,6 @@ class Follow extends Base {
                 foreach ($users as $u) {
                     $user_map[$u['user_id']] = $u;
                 }
-                // $name_field 决定列表展示哪一侧的用户：
-                // following 列表( where user_id=当前用户 )展示被关注者 -> follow_uid
-                // fans 列表( where follow_uid=当前用户 )展示关注者 -> user_id
                 $col = in_array($name_field, ['user_id', 'follow_uid'], true) ? $name_field : 'follow_uid';
                 foreach ($list as $k => $v) {
                     $uid = (int)$v[$col];
@@ -99,12 +96,8 @@ class Follow extends Base {
         $is_new_follow = false;
         Db::startTrans();
         try {
-            // 自身行同样在事务内加锁读取：并发的两次「关注」只有一次能看到 follow_status!=1，
-            // 由它承担写动态/发通知，另一次判定为重复点击而跳过
             $exist = $this->where(['user_id' => $user_id, 'follow_uid' => $follow_uid])->lock(true)->find();
             $is_new_follow = empty($exist) || (int)$exist['follow_status'] !== 1;
-            // reverse 行必须在事务内加锁读取：借助 uk_user_follow 唯一索引的间隙锁，
-            // 阻塞 A→B 与 B→A 并发关注时对方 reverse 行的并发插入，避免双向 mutual 都写成 0
             $reverse = $this->where(['user_id' => $follow_uid, 'follow_uid' => $user_id, 'follow_status' => 1])->lock(true)->find();
             $mutual = $reverse ? 1 : 0;
             if ($exist) {
@@ -130,15 +123,11 @@ class Follow extends Base {
             Db::rollback();
             return ['code' => 1004, 'msg' => lang('save_err')];
         }
-        // 广播不设闸：推的是当前互关状态，前端靠它刷新按钮，重复推送是幂等的状态同步
         $this->_fireBroadcast($user_id, $follow_uid, $mutual);
 
-        // 通知与动态是持久化的用户可见记录，只在真实发生「未关注→已关注」的状态转换时写一次。
-        // 已在关注中再点一次不得刷屏；取关后重新关注仍算一次新的转换，照常写。
         if ($is_new_follow) {
             $this->_notifyFollow($user_id, $follow_uid);
 
-            // 写动态
             try {
                 $from_user = Db::name('user')->where('user_id', $user_id)->field('user_name,user_nick_name')->find();
                 $nick = !empty($from_user['user_nick_name']) ? $from_user['user_nick_name'] : $from_user['user_name'];
@@ -246,10 +235,6 @@ class Follow extends Base {
         return (int)$this->where(['user_id' => intval($user_id), 'follow_status' => 1])->count();
     }
 
-    /**
-     * 粉丝ID列表：谁关注了 $user_id（follow_uid = $user_id 且 follow_status=1）。
-     * 用于动态实时推送时向每个粉丝自己的 user_<fid> 房间扇出。
-     */
     public function getFansIds($user_id)
     {
         $user_id = intval($user_id);
@@ -265,14 +250,6 @@ class Follow extends Base {
         return (int)$this->where(['follow_uid' => intval($user_id), 'follow_status' => 1])->count();
     }
 
-    /**
-     * 公开用户资料：供资料弹层使用。
-     * 只返回公开字段，不含 email / 手机号 / IP 等隐私信息。
-     *
-     * @param int $uid       被查看的用户
-     * @param int $viewer_id 观察者用户ID，0 表示游客
-     * @return array
-     */
     public function profileData($uid, $viewer_id = 0)
     {
         $uid = intval($uid);
@@ -281,7 +258,6 @@ class Follow extends Base {
             return ['code' => 1001, 'msg' => lang('param_err')];
         }
 
-        // 字段白名单：绝不 select 隐私列
         $user = Db::name('user')
             ->field('user_id,user_name,user_nick_name,user_reg_time,user_status')
             ->where('user_id', $uid)
@@ -301,8 +277,6 @@ class Follow extends Base {
             $mutual = $this->isMutual($viewer_id, $uid) ? 1 : 0;
         }
 
-        // 与好友动态同一套类型白名单；userData 内部已按同一条件统计过 total，
-        // 直接复用避免重复 COUNT，也让白名单只有一个出处
         $recent = (new \app\common\model\Dynamics())->userData($uid, 1, 3);
         $dynamics_count = isset($recent['total']) ? (int)$recent['total'] : 0;
 

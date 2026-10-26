@@ -1,6 +1,4 @@
-/**
- * 模板主题配置：分类弹窗 + 指针拖拽排序
- */
+
 (function (window) {
     'use strict';
 
@@ -665,9 +663,6 @@
         });
     }
 
-    /**
-     * 更新列表行标题（保留左侧拖拽手柄在 label 内）
-     */
     function updateRowLabels($list, itemSelector, labelFn) {
         $list.find(itemSelector).each(function (index) {
             var title = typeof labelFn === 'function' ? labelFn(index) : (labelFn + (index + 1));
@@ -685,10 +680,6 @@
         });
     }
 
-    /**
-     * layui select 下拉挂在行内 absolute 层；仅抬 dl z-index 会被下一行卡片盖住，展开时抬升整行。
-     * CSS :has(.layui-form-selected) 为主；此处为不支持 :has 时的兜底。
-     */
     function initSelectRowZIndex() {
         var root = '.theme-config-ux';
         $(document)
@@ -723,9 +714,6 @@
         return ctx.measureText(text).width;
     }
 
-    /**
-     * 主题配置表单项：按最长 label 文案设置统一列宽，空 label 续行仍能对齐。
-     */
     function syncFormLabelColumn($root) {
         $root = $root || $('.theme-config-ux');
         if (!$root.length) {

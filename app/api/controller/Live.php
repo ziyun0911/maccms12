@@ -17,12 +17,8 @@ class Live extends Base
 
     public function index()
     {
-
     }
 
-    /**
-     * 获取直播分类列表
-     */
     public function get_category(Request $request)
     {
         $cate_list = (new \app\common\model\Live())->categoryList(['cate_status' => 1]);
@@ -43,10 +39,6 @@ class Live extends Base
         ]);
     }
 
-    /**
-     * 获取直播频道列表
-     * 支持按分类筛选、分页
-     */
     public function get_list(Request $request)
     {
         $param = $request->param();
@@ -76,7 +68,6 @@ class Live extends Base
             $where['live_level'] = ['egt', (int)$param['level']];
         }
 
-        // 排序
         $orderby = isset($param['orderby']) ? $param['orderby'] : 'sort';
         $orderMap = [
             'sort'      => 'live_sort desc, live_id asc',
@@ -90,7 +81,6 @@ class Live extends Base
 
         $res = (new \app\common\model\Live())->listData($where, $order, 1, $limit, $offset);
 
-        // 附加分类信息和解析播放地址
         $cateMap = [];
         $cateRows = (new \app\common\model\Live())->categoryList(['cate_status' => 1]);
         foreach ($cateRows as $c) {
@@ -116,9 +106,6 @@ class Live extends Base
         ]);
     }
 
-    /**
-     * 获取直播频道详情
-     */
     public function get_detail(Request $request)
     {
         $param = $request->param();
@@ -142,7 +129,6 @@ class Live extends Base
         $info['live_url_list'] = (new \app\common\model\Live())->parseUrlList($info['live_url'] ?? '');
         unset($info['live_url']);
 
-        // 附加分类信息
         if (!empty($info['cate_id'])) {
             $cate = Db::name('live_category')->where('cate_id', $info['cate_id'])->find();
             $info['cate_name'] = $cate ? mac_tpl_text($cate['cate_name']) : '';
@@ -150,7 +136,6 @@ class Live extends Base
             $info['cate_name'] = '';
         }
 
-        // 增加点击量
         Db::name('live')->where('live_id', $live_id)->setInc('live_hits');
         Db::name('live')->where('live_id', $live_id)->setInc('live_hits_day');
         Db::name('live')->where('live_id', $live_id)->setInc('live_hits_week');

@@ -68,7 +68,6 @@ class Template extends Base
             $farr = glob($filters);
             if ($farr) {
                 foreach ($farr as $f) {
-
                     if(is_dir($f)) {
                             $num_path++;
                             $tmp_path = str_replace('./template/', '.@template/', $f);
@@ -219,7 +218,6 @@ class Template extends Base
                 $a = str_replace('\\','/',$a);
 
                 if( (substr($a,0,10) != "./template") || count( explode("./",$a) ) > 2) {
-
                 }
                 else{
                     $a = mac_convert_encoding($a,"UTF-8","GB2312");
@@ -235,5 +233,4 @@ class Template extends Base
         $this->assign('title',lang('admin/template/wizard/title'));
         return $this->fetch('admin@template/wizard');
     }
-
 }

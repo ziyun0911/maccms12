@@ -5,22 +5,11 @@ use think\facade\Cache;
 use think\facade\Db;
 use think\facade\Log;
 
-/**
- * AI-generated poster / cover for VOD (OpenAI Images API).
- * Defaults target GPT Image models (gpt-image-1, etc.); legacy dall-e-* may still work on some gateways.
- */
 class VodAiCover
 {
-    /** @var int */
     const RATE_LIMIT_PER_MINUTE = 5;
-    /** @var int */
     const RATE_LIMIT_PER_HOUR = 50;
 
-    /**
-     * Per-admin rate limit for expensive image generation (see AdminAssistantService::consumeRateLimit).
-     *
-     * @return bool true if request may proceed, false if limit exceeded
-     */
     public static function consumeGenerateRateLimit($adminId)
     {
         $adminId = (int) $adminId;
@@ -45,9 +34,6 @@ class VodAiCover
         return true;
     }
 
-    /**
-     * @return array{code:int,msg:string,data?:array}
-     */
     public static function generateByVodId($vodId, $extraPrompt = '')
     {
         $vodId = intval($vodId);
@@ -89,8 +75,6 @@ class VodAiCover
             $extraPrompt
         );
         $url = $apiBase . '/images/generations';
-        // Omit response_format: many OpenAI-compatible proxies error with
-        // "unknown format: response_format"; official API defaults to URL anyway.
         $post = [
             'model' => $model,
             'prompt' => $prompt,
@@ -153,9 +137,6 @@ class VodAiCover
         return self::finalizeAndUpdateVod($vod, $saveRel);
     }
 
-    /**
-     * @return array{code:int,msg:string,data?:array}
-     */
     public static function revertByVodId($vodId)
     {
         $vodId = intval($vodId);
@@ -315,9 +296,6 @@ class VodAiCover
         return substr($s, 0, $max);
     }
 
-    /**
-     * GPT Image models use 1024x1536 / 1536x1024 (not DALL·E 1792). Map legacy saved sizes.
-     */
     private static function sanitizeSize($size)
     {
         $size = strtolower(trim((string) $size));
@@ -346,9 +324,6 @@ class VodAiCover
         return false;
     }
 
-    /**
-     * dall-e-3: standard | hd. GPT Image: low | medium | high | auto.
-     */
     private static function sanitizeQualityForModel($model, $qRaw)
     {
         $m = strtolower((string) $model);
@@ -374,9 +349,6 @@ class VodAiCover
         return $qRaw !== '' ? $qRaw : 'medium';
     }
 
-    /**
-     * Prevent SSRF when downloading image URLs returned by the API (must be https + public IP).
-     */
     private static function isSafePublicHttpsImageUrl($url)
     {
         $url = trim((string) $url);
@@ -510,9 +482,6 @@ class VodAiCover
         return $out;
     }
 
-    /**
-     * @return string|null
-     */
     private static function curlGetBinary($url, $timeout)
     {
         $ch = curl_init();

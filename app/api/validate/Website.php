@@ -26,7 +26,7 @@ class Website extends Validate
     ];
 
     protected $message = [
-        
+
     ];
 
     protected $scene = [

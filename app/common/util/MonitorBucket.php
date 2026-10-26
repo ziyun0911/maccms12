@@ -1,45 +1,12 @@
 <?php
 namespace app\common\util;
 
-/**
- * 请求级指标的分钟桶累加器。
- *
- * ★ 为什么不用 \think\facade\Cache 的通用 API 做计数 ★
- * Cache::get() + Cache::set() 是 read-modify-write，在 file / memcache / memcached
- * 驱动下不是原子操作。20 个 FPM worker 并发 +1，最终可能只加了 3；
- * 而且偏低的程度随 QPS 上升而恶化 —— 越忙越不准，正好在最需要准的时候。
- * 所以计数必须走真正原子的路径：
- *
- *   路径 A（Redis，首选）：hIncrBy，服务端原子操作，pipeline 一次 RTT
- *   路径 B（其余后端）  ：flock 分片文件，与 SlidingWindowIpLimiter / AiChatRateLimit
- *                        是同一个已在本仓库验证过的模式
- *
- * 正确性 > 统一性。这是刻意的取舍，不是偷懒。
- *
- * 本类的所有写入方法都必须永不抛异常：监控绝不能弄坏网站。
- */
 class MonitorBucket
 {
-    /**
-     * 文件分片数。用 pid 分片而非随机：同一个 worker 永远写同一个文件，
-     * OS page cache 常驻，且只要分片数明显多于 worker 数就几乎没有锁竞争。
-     *
-     * 取 64 而不是 16：实测在 ab -c 20（Apache 会拉起 20+ 个 worker）下，
-     * 16 个分片会出现 pid 撞片，add() 从单进程的 0.05ms 涨到 0.44ms。
-     * 典型的 PHP-FPM 池是 20-50 个 worker，64 个分片能让撞片变成小概率事件。
-     * 代价只有 drain 时每分钟多读几十个几百字节的小文件 —— 可以忽略。
-     */
     const SHARDS = 64;
 
-    /** Redis 桶的存活时间，足够 cron 回补 30 分钟 */
     const REDIS_TTL = 900;
 
-    /**
-     * 对当前分钟桶做原子累加。永不抛异常。
-     *
-     * @param array $delta ['http.req'=>1,'http.2xx'=>1,'http.lat.sum'=>123,'http.lat.b3'=>1]
-     * @return void
-     */
     public static function add(array $delta)
     {
         if (empty($delta)) {
@@ -54,28 +21,9 @@ class MonitorBucket
             }
             self::addFile($minute, $delta);
         } catch (\Throwable $e) {
-            // 监控永远不能弄坏网站。这里连 Log 都不写（Log 本身可能就是故障源）。
         }
     }
 
-    /**
-     * 对当前分钟的「按 IP」桶做累加。永不抛异常。
-     *
-     * ★ IP 基数上限是本类最重要的一道防护 ★
-     * 桶是一个 JSON 对象，key 是 IP。如果不限制 key 的数量，
-     * 一次随机源 IP 的洪水（几万个不同 IP）就能把这个 JSON 撑到几十 MB，
-     * 于是每一个请求的 flock 读-改-写都要 parse 几十 MB ——
-     * 监控本身变成了 DoS 放大器，攻击者反而借它把站点打死。
-     *
-     * 所以：单个分片文件最多追踪 access_track_max_ip 个 IP，
-     * 超出后只累加已存在的 IP，新 IP 并入 __overflow 计数
-     * （数量仍然可见，只是失去了逐 IP 的明细 —— 这正是洪水场景下的正确取舍）。
-     *
-     * @param string $ip
-     * @param array  $delta ['h'=>1,'e4'=>1,'scan'=>1,'bad_ua'=>1,'blk'=>1]
-     * @param array  $meta  ['ua'=>..,'path'=>..]
-     * @return void
-     */
     public static function addIp($ip, array $delta, array $meta = [])
     {
         if (empty($delta)) {
@@ -88,15 +36,9 @@ class MonitorBucket
         try {
             self::addIpFile(self::currentMinute(), $ip, $delta, $meta);
         } catch (\Throwable $e) {
-            // 监控永远不能弄坏网站。
         }
     }
 
-    /**
-     * @param int $now
-     * @param int $maxMinutes
-     * @return array [statMin => [ip => ['h'=>N,'e4'=>N,...,'ua'=>..,'path'=>..]]]
-     */
     public static function drainClosedIp($now = 0, $maxMinutes = 30)
     {
         $now = $now > 0 ? intval($now) : time();
@@ -110,16 +52,6 @@ class MonitorBucket
         }
     }
 
-    /**
-     * 读取并移除所有「已封闭」分钟的桶。
-     *
-     * 只 drain stat_min < floor(now/60)*60 的分钟：
-     * 当前分钟还在被 worker 写入，绝不碰。
-     *
-     * @param int $now
-     * @param int $maxMinutes 最多回补多少分钟（cron 停机一天后恢复，不会一次拉 1440 个 key）
-     * @return array [statMin => [field => value]]
-     */
     public static function drainClosed($now = 0, $maxMinutes = 30)
     {
         $now = $now > 0 ? intval($now) : time();
@@ -137,12 +69,6 @@ class MonitorBucket
         }
     }
 
-    /**
-     * 清理孤儿桶文件（cron 长期停跑时会堆积）。
-     *
-     * @param int $maxAgeSec
-     * @return int 删除的文件数
-     */
     public static function gc($maxAgeSec = 3600)
     {
         try {
@@ -169,13 +95,6 @@ class MonitorBucket
         }
     }
 
-    // ------------------------------------------------------------------
-    // Redis 路径
-    // ------------------------------------------------------------------
-
-    /**
-     * @return \Redis|null
-     */
     private static function redis()
     {
         try {
@@ -184,19 +103,10 @@ class MonitorBucket
                 return $handler;
             }
         } catch (\Exception $e) {
-            // handler 不可用，回退文件路径
         }
         return null;
     }
 
-    /**
-     * pipeline 保证：不论 delta 有几个字段，都只有一次网络往返。
-     *
-     * @param \Redis $redis
-     * @param int    $minute
-     * @param array  $delta
-     * @return void
-     */
     private static function addRedis($redis, $minute, array $delta)
     {
         $key = self::redisKey($minute);
@@ -212,15 +122,6 @@ class MonitorBucket
         $pipe->exec();
     }
 
-    /**
-     * 不用 SCAN：分钟号是可推导的，直接从已封闭分钟往回扫固定的窗口。
-     * 无状态，不需要额外维护「上次 flush 到哪一分钟」。
-     *
-     * @param \Redis $redis
-     * @param int    $closed
-     * @param int    $maxMinutes
-     * @return array
-     */
     private static function drainRedis($redis, $closed, $maxMinutes)
     {
         $out = [];
@@ -241,10 +142,6 @@ class MonitorBucket
         return $out;
     }
 
-    /**
-     * @param int $minute
-     * @return string
-     */
     private static function redisKey($minute)
     {
         $flag = isset($GLOBALS['config']['app']['cache_flag'])
@@ -252,20 +149,6 @@ class MonitorBucket
         return $flag . '_mon_req_' . intval($minute);
     }
 
-    // ------------------------------------------------------------------
-    // 文件路径（flock 分片）
-    // ------------------------------------------------------------------
-
-    /**
-     * 临界区 = flock(LOCK_EX) -> 读 ~500B -> json_decode -> 加 -> 写回，约 100-200μs。
-     *
-     * 不用「append 明细行」：10k QPS × 60s = 60 万行 × 24B = 14MB/分钟，
-     * flush 时要 parse 60 万行。聚合式 RMW 的文件永远只有 ~500B。
-     *
-     * @param int   $minute
-     * @param array $delta
-     * @return void
-     */
     private static function addFile($minute, array $delta)
     {
         $dir = self::dir();
@@ -317,15 +200,6 @@ class MonitorBucket
         fclose($fp);
     }
 
-    /**
-     * 先 rename 成 .flushing（POSIX 原子），再读，再 unlink。
-     * 避免读到一半有人又写进来（已封闭分钟理论上不会再被写，
-     * 但时钟漂移 / 慢请求跨分钟结束时会）。
-     *
-     * @param int $closed
-     * @param int $maxMinutes
-     * @return array
-     */
     private static function drainFile($closed, $maxMinutes)
     {
         $dir = self::dir();
@@ -348,10 +222,10 @@ class MonitorBucket
             }
             $minute = intval($parts[0]);
             if ($minute >= $closed) {
-                continue; // 当前分钟仍在被写，不碰
+                continue;
             }
             if ($minute < $oldest) {
-                @unlink($path); // 超出回补窗口，丢弃（监控数据不是业务数据）
+                @unlink($path);
                 continue;
             }
 
@@ -381,21 +255,6 @@ class MonitorBucket
         return $out;
     }
 
-    // ------------------------------------------------------------------
-    // 按 IP 的分钟桶（P3 异常访问）
-    //
-    // 只走文件路径，不做 Redis 分支：真正决定安全性的是 IP 基数上限，
-    // 而不是后端是什么。多写一条 Redis 路径只会多一份要维护的代码，
-    // 却挡不住高基数带来的内存问题。
-    // ------------------------------------------------------------------
-
-    /**
-     * @param int    $minute
-     * @param string $ip
-     * @param array  $delta
-     * @param array  $meta
-     * @return void
-     */
     private static function addIpFile($minute, $ip, array $delta, array $meta)
     {
         $dir = self::ipDir();
@@ -428,9 +287,6 @@ class MonitorBucket
 
         $maxIp = self::maxTrackedIp();
         if (!isset($data[$ip]) && count($data) >= $maxIp) {
-            // 基数已满：新 IP 只并入溢出计数，不再单独建 key。
-            // 数量仍然看得到（后台可据此判断「正在被大量不同 IP 打」），
-            // 只是失去逐 IP 明细 —— 洪水场景下这正是我们要的取舍。
             $ip = '__overflow';
         }
 
@@ -466,11 +322,6 @@ class MonitorBucket
         fclose($fp);
     }
 
-    /**
-     * @param int $closed
-     * @param int $maxMinutes
-     * @return array
-     */
     private static function drainIpFile($closed, $maxMinutes)
     {
         $dir = self::ipDir();
@@ -537,9 +388,6 @@ class MonitorBucket
         return $out;
     }
 
-    /**
-     * @return int
-     */
     private static function maxTrackedIp()
     {
         $cfg = isset($GLOBALS['config']['monitor']) && is_array($GLOBALS['config']['monitor'])
@@ -548,28 +396,16 @@ class MonitorBucket
         return min(2000, max(50, $n));
     }
 
-    /**
-     * @return string
-     */
     private static function ipDir()
     {
         return rtrim(runtime_path(), '/\\') . DIRECTORY_SEPARATOR . 'monitor' . DIRECTORY_SEPARATOR . 'ip';
     }
 
-    /**
-     * @return string
-     */
     private static function dir()
     {
         return rtrim(runtime_path(), '/\\') . DIRECTORY_SEPARATOR . 'monitor' . DIRECTORY_SEPARATOR . 'req';
     }
 
-    /**
-     * 用 pid 分片：同一个 FPM worker 永远写同一个文件。
-     * crc32 在 32 位 PHP 上可能返回负数，先掩掉符号位。
-     *
-     * @return int
-     */
     private static function shard()
     {
         $pid = function_exists('getmypid') ? getmypid() : 0;
@@ -579,9 +415,6 @@ class MonitorBucket
         return (crc32((string)$pid) & 0x7fffffff) % self::SHARDS;
     }
 
-    /**
-     * @return int
-     */
     private static function currentMinute()
     {
         return intval(floor(time() / 60) * 60);

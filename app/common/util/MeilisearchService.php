@@ -2,12 +2,8 @@
 
 namespace app\common\util;
 
-/**
- * Meilisearch：索引维护与搜索。
- */
 class MeilisearchService
 {
-    /** @var array<string, array{ok:bool,hits:array,estimatedTotalHits:int}> 单次请求内相同参数去重，避免列表与 AI 联想等对 Meili 重复打网 */
     private static $searchMemo = [];
 
     public static function cfg()
@@ -56,10 +52,6 @@ class MeilisearchService
         return !isset($c['sync_on_save']) || (string)$c['sync_on_save'] !== '0';
     }
 
-    /**
-     * 已发布内容统一过滤（与索引文档字段 kind / recycle / status 一致）。
-     * 供 AI 搜索、AI 聊天、内部联想等与 Meilisearch 共用。
-     */
     public static function filterPublishedKind($kind)
     {
         $k = strtolower((string)$kind);
@@ -98,11 +90,6 @@ class MeilisearchService
         return ['ok' => !empty($create['ok']), 'created' => true, 'response' => $create['data'] ?? null];
     }
 
-    /**
-     * 索引 settings PATCH 请求体（searchable / filterable / sortable 等）。
-     *
-     * @return array<string, mixed>
-     */
     public static function indexSettingsPayload()
     {
         return [
@@ -160,10 +147,6 @@ class MeilisearchService
         return ['ok' => !empty($r['ok']), 'status' => $r['status'] ?? 0, 'data' => $r['data'] ?? null, 'error' => (string)($r['error'] ?? '')];
     }
 
-    /**
-     * @param array<string, mixed> $settings GET /settings 响应
-     * @return array{ok:bool,missing_filterable:array,missing_searchable:array,filterableAttributes:array,searchableAttributes:array}
-     */
     public static function verifyIndexSettings(array $settings)
     {
         $requiredFilter = ['kind', 'recycle', 'status'];
@@ -182,11 +165,6 @@ class MeilisearchService
         ];
     }
 
-    /**
-     * 等待 Meilisearch 异步任务完成（settings PATCH 等）。
-     *
-     * @return array{ok:bool,status:string,skipped?:bool,data?:mixed}
-     */
     public static function waitForTask($taskUid, $maxWaitSec = 30)
     {
         $taskUid = (int)$taskUid;
@@ -222,12 +200,6 @@ class MeilisearchService
         return ['ok' => false, 'status' => 'timeout', 'data' => is_array($last) ? ($last['data'] ?? null) : null];
     }
 
-    /**
-     * 一键初始化：建索引 + PATCH settings + 等待任务 + 校验 filterable/searchable。
-     *
-     * @param array{wait_sec?:int,filter_test?:bool} $options
-     * @return array{ok:bool,msg:string,steps:array}
-     */
     public static function bootstrapIndex(array $options = [])
     {
         if (!self::enabled()) {
@@ -306,9 +278,6 @@ class MeilisearchService
         return ['ok' => !empty($r['ok']) || ($r['status'] ?? 0) === 404, 'status' => $r['status'] ?? 0];
     }
 
-    /**
-     * @return array{ok:bool,hits:array<int,array>,estimatedTotalHits:int}
-     */
     public static function search($q, $filter, $limit, $offset)
     {
         if (!self::enabled()) {
@@ -330,7 +299,6 @@ class MeilisearchService
             $baseBody['filter'] = $filter;
         }
 
-        // 索引侧 title_t2s/title_s2t + 查询侧 OpenCC 变体，双端保证繁简互通。
         $queries = OpenccConverter::searchVariants((string)$q);
         if (empty($queries)) {
             $queries = [(string)$q];

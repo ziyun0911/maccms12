@@ -8,6 +8,6 @@ return array (
     'url' => '//github.com/magicblack',
     'code' => '2026.1025.0109',
     'license' => '开源版',
-    'update_hash' => '086014dc1dad6faef8b8baeed6ce07c3',
+    'update_hash' => '1d1647fd24a8f2d0a1e5d0e6fa6bd681',
 );
 ?>

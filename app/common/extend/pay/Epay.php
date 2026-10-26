@@ -2,7 +2,6 @@
 namespace app\common\extend\pay;
 
 class Epay {
-
     public $name = '易支付';
     public $ver = '1.0';
 
@@ -13,39 +12,37 @@ class Epay {
         if(!empty($param['paytype']) && isset($pay_type_map[$param['paytype']])){
             $pay_type = $pay_type_map[$param['paytype']];
         }
-        //组装参数
         $epay_config = $GLOBALS['config']['pay']['epay'];
         $data = array(
-            "pid"          => trim($epay_config['appid']),//你的商户ID
-            "type"         => $pay_type,//1支付宝支付 3微信支付 2QQ钱包
-            "notify_url"   => $GLOBALS['http_type'] . $_SERVER['HTTP_HOST'] . '/index.php/payment/notify/pay_type/epay',//通知地址
-            "return_url"   => $GLOBALS['http_type'] . $_SERVER['HTTP_HOST'] . '/index.php/payment/notify/pay_type/epay',//跳转地址
-            "out_trade_no" => $order['order_code'], //唯一标识 可以是用户ID,用户名,session_id(),订单ID,ip 付款后返回
+            "pid"          => trim($epay_config['appid']),
+            "type"         => $pay_type,
+            "notify_url"   => $GLOBALS['http_type'] . $_SERVER['HTTP_HOST'] . '/index.php/payment/notify/pay_type/epay',
+            "return_url"   => $GLOBALS['http_type'] . $_SERVER['HTTP_HOST'] . '/index.php/payment/notify/pay_type/epay',
+            "out_trade_no" => $order['order_code'],
             "name"         => '积分充值（UID：'.$user['user_id'].'）',
-            "money"        => (float)$order['order_price'],//金额100元
+            "money"        => (float)$order['order_price'],
         );
-        // 跳转至收银台，选择其他方式
         if (empty($data['type'])) {
             unset($data['type']);
         }
-        ksort($data); //重新排序$data数组
-        reset($data); //内部指针指向数组中的第一个元素
+        ksort($data);
+        reset($data);
 
-        $sign = ''; //初始化需要签名的字符为空
-        $urls = ''; //初始化URL参数为空
+        $sign = '';
+        $urls = '';
 
-        foreach ($data as $key => $val) { //遍历需要传递的参数
-            if ($val == ''||$key == 'sign') continue; //跳过这些不参数签名
-            if ($sign != '') { //后面追加&拼接URL
+        foreach ($data as $key => $val) {
+            if ($val == ''||$key == 'sign') continue;
+            if ($sign != '') {
                 $sign .= "&";
                 $urls .= "&";
             }
-            $sign .= "$key=$val"; //拼接为url参数形式
-            $urls .= "$key=" . urlencode($val); //拼接为url参数形式并URL编码参数值
+            $sign .= "$key=$val";
+            $urls .= "$key=" . urlencode($val);
         }
 
-        $query = $urls . '&sign='.md5($sign.trim( $epay_config['appkey'] )); //创建订单所需的参数
-        $url = $epay_config['api_url'] . "submit.php?{$query}"; //支付页面
+        $query = $urls . '&sign='.md5($sign.trim( $epay_config['appkey'] ));
+        $url = $epay_config['api_url'] . "submit.php?{$query}";
         if ($return_only) {
             return '<script>location.href="' . $url . '";</script>';
         }
@@ -55,21 +52,18 @@ class Epay {
     public function notify()
     {
         $param = $_REQUEST;
-        // $param['trade_no'] 这是付款人的唯一身份标识或订单ID
-        // $param['out_trade_no'] 这是流水号 没有则表示没有付款成功 流水号不同则为不同订单
-        // $param['money'] 这是付款金额
 
         unset($param['/payment/notify/pay_type/epay']);
         unset($param['paytype']);
         unset($param['s']);
 
-        ksort($param); //排序post参数
-        reset($param); //内部指针指向数组中的第一个元素
+        ksort($param);
+        reset($param);
         $sign = '';
         foreach ($param as $key => $val) {
-            if ($val == '') continue; //跳过空值
-            if ($key != 'sign' && $key != 'sign_type') { //跳过sign
-                $sign .= "$key=$val&"; //拼接为url参数形式
+            if ($val == '') continue;
+            if ($key != 'sign' && $key != 'sign_type') {
+                $sign .= "$key=$val&";
             }
         }
 

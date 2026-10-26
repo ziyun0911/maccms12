@@ -6,10 +6,6 @@ use app\common\util\RequestXssSanitizer;
 use think\Request;
 use think\Response;
 
-/**
- * 苹果CMS v12 —— 请求 XSS 清洗中间件
- * （由 TP5 的 common\behavior\RequestSecurity 迁移）
- */
 class RequestSecurity
 {
     public function handle(Request $request, Closure $next)

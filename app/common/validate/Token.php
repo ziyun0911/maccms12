@@ -14,13 +14,6 @@ class Token extends Validate
         '__token__.token'   => 'token_err'
     ];
 
-    /**
-     * 优先认会话级稳定令牌（mac_admin_csrf_token 写入的 Session['admin_csrf']），认不出才退回框架的一次性令牌。
-     *
-     * 框架的 checkToken 验证通过即销毁 Session 里的 __token__，同页第二次保存会拿已消费的旧值重发；
-     * 而 validate() 助手默认 failException=true，check() 直接抛 ValidateException，后台 AJAX 收到 500 调试页。
-     * 稳定令牌不消耗，连续保存与多标签页不会互相失效。
-     */
     public function token($value, string $rule, array $data): bool
     {
         $stable = Session::get('admin_csrf');
@@ -38,5 +31,4 @@ class Token extends Validate
 
         return parent::token($value, $rule, $data);
     }
-
 }

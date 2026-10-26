@@ -2,9 +2,6 @@
 
 namespace app\common\util;
 
-/**
- * 最小 Meilisearch REST 客户端（无 Composer 依赖）。
- */
 class MeilisearchHttp
 {
     public static function request($baseUrl, $method, $path, $apiKey, $body = null, $timeout = 8, $sslVerify = true)
@@ -61,12 +58,6 @@ class MeilisearchHttp
         return ['ok' => $code >= 200 && $code < 300, 'status' => $code, 'error' => '', 'data' => $data];
     }
 
-    /**
-     * 并发执行多条同 host 的请求（顺序与 $jobs 一致），用于 Meilisearch 多查询搜索等场景。
-     *
-     * @param array<int,array{method:string,path:string,body?:mixed}> $jobs
-     * @return array<int,array{ok:bool,status:int,error:string,data:mixed}>
-     */
     public static function requestParallel($baseUrl, array $jobs, $apiKey, $timeout, $sslVerify = true)
     {
         if ($jobs === []) {

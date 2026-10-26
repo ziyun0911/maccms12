@@ -76,14 +76,14 @@
 			if(event.keyCode==13){ $('#btnLogin').click(); }
 		});
 		$('#btn_send').click(function() {
-			
-			if ($('#to').val()  == '') { 
+
+			if ($('#to').val()  == '') {
 				$(".show-toast").html(macI18n('{$param["ac_text"]}'.indexOf('邮箱') >= 0 ? 'user_place_email' : 'user_place_phone', '请输入{$param["ac_text"]}！'));
 				$(".show-toast").css("display",'block');
 				setTimeout(()=>{
 					$(".show-toast").css("display",'none');
 				}, 2000);
-				$("#to").focus(); return false; 
+				$("#to").focus(); return false;
 			}
 
 			$.ajax({
@@ -112,38 +112,37 @@
 					setTimeout(()=>{
 						$(".show-toast").css("display",'none');
 					}, 2000);
-					
+
 				},
 				complete: function () {
 					$('#verify').click();
 					$("#btn_send").css("background","#40CC92").val(MAC.GetLang('string_find_fsyj'));
 				}
 			});
-			
-			
+
 		});
 
 		$('#btn_submit').click(function() {
 			if ($('#to').val()  == '') { MAC.alert(macI18n('{$param["ac_text"]}'.indexOf('邮箱') >= 0 ? 'user_place_email' : 'user_place_phone', '请输入{$param["ac_text"]}')); $("#to").focus(); return false; }
-			if ($('#code').val()  == '') { 
-				MAC.alert(MAC.GetLang('string_login_sryzm')); 
-				$("#code").focus(); 
-				return false; 
+			if ($('#code').val()  == '') {
+				MAC.alert(MAC.GetLang('string_login_sryzm'));
+				$("#code").focus();
+				return false;
 			}
-			if ($('#user_pwd').val()  == '') { 
+			if ($('#user_pwd').val()  == '') {
 				MAC.alert(MAC.GetLang('string_find_srxmm'));
-				 $("#user_pwd").focus(); 
-				 return false; 
+				 $("#user_pwd").focus();
+				 return false;
 			}
-			if ($('#user_pwd2').val()  == '') { 
+			if ($('#user_pwd2').val()  == '') {
 				MAC.alert(MAC.GetLang('string_login_qrmm1'));
-				$("#user_pwd2").focus(); 
-				return false; 
+				$("#user_pwd2").focus();
+				return false;
 			}
-			if ($('#user_pwd').val()  != $('#user_pwd2').val() ) { 
+			if ($('#user_pwd').val()  != $('#user_pwd2').val() ) {
 				MAC.alert(MAC.GetLang('string_login_mmbyz'));
-				$("#user_pwd2").focus(); 
-				return false; 
+				$("#user_pwd2").focus();
+				return false;
 			}
 
 			var data= {ac:'{$param["ac"]}',to:$('#to').val(),code:$('#code').val(),user_pwd:$('#user_pwd').val(),user_pwd2:$('#user_pwd2').val()};
@@ -164,7 +163,6 @@
 			});
 		});
 	});
-
 </script>
 
 </body>

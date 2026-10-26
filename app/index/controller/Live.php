@@ -8,17 +8,11 @@ class Live extends Base
         parent::__construct();
     }
 
-    /**
-     * 直播筛选 / 选台列表页
-     */
     public function show()
     {
         return $this->label_fetch('live/show');
     }
 
-    /**
-     * 直播播放页
-     */
     public function play()
     {
         $param = mac_param_url();

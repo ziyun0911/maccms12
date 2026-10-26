@@ -45,7 +45,6 @@ class Role extends Base
             }
         }
 
-
         $order='role_time desc';
         $res = (new \app\common\model\Role())->listData($where,$order,$param['page'],$param['limit']);
 
@@ -123,7 +122,6 @@ class Role extends Base
         $start = $param['start'];
         $end = $param['end'];
 
-
         if(!empty($ids) && in_array($col,['role_status','role_lock','role_level','role_hits'])){
             $where=[];
             $where['role_id'] = ['in',$ids];
@@ -146,5 +144,4 @@ class Role extends Base
         }
         return $this->error(lang('param_err'));
     }
-
 }

@@ -84,7 +84,6 @@ layui.use(['layer', 'form'], function(){
         empty_value: '{:lang("admin/datareplace/empty_value")}'
     };
 
-    // 选择数据表后加载字段
     form.on('select(tableSelect)', function(data){
         if(!data.value){ return; }
         $.get('{:url("data_replace/getFields")}', {table: data.value}, function(res){
@@ -98,13 +97,11 @@ layui.use(['layer', 'form'], function(){
         });
     });
 
-    // 快速填入
     $('.quick-fill').on('click', function(){
         var table = $(this).data('table');
         var field = $(this).data('field');
         $('select[name="table"]').val(table);
         form.render('select');
-        // 触发字段加载
         $.get('{:url("data_replace/getFields")}', {table: table}, function(res){
             if(res.code != 1) return;
             var html = '<option value="">{:lang("admin/datareplace/select_field_first")}</option>';
@@ -116,7 +113,6 @@ layui.use(['layer', 'form'], function(){
         });
     });
 
-    // 执行替换
     $('#doReplace').on('click', function(){
         var table = $('select[name="table"]').val();
         var field = $('select[name="field"]').val();

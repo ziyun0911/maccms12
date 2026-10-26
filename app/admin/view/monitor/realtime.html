@@ -3,20 +3,16 @@
 <div class="page-container p10">
 
     <style>
-        /* 数据列用等宽数字：KPI 每 5 秒刷新一次，
-           比例数字会让 "9" 和 "1" 宽度不同，数值一跳一跳地抖，读数很累 */
         .mon-kpi { font-variant-numeric: tabular-nums; font-size:26px; font-weight:600; color:#222; }
         .mon-kpi-unit { font-size:14px; font-weight:400; color:#666; margin-left:2px; }
-        /* 尊重系统的「减弱动态效果」设置 */
+
         @media (prefers-reduced-motion: reduce) {
             .mon-kpi { transition: none !important; }
         }
-    </style>
+</style>
 
     <div class="my-toolbar-box mb-2">
         <div class="flex gap-5" style="align-items:center;flex-wrap:wrap;">
-            <!-- 状态不能只靠颜色：色觉障碍用户看不出绿点和红点的区别，
-                 所以圆点旁边永远跟着一段文字状态 -->
             <span id="liveState" role="status" aria-live="polite"
                   style="display:inline-flex;align-items:center;gap:6px;">
                 <span id="liveDot" aria-hidden="true"
@@ -24,8 +20,6 @@
                 <span id="liveStateText" style="color:#222;font-weight:500;">{:lang('admin/monitor/live_running')}</span>
             </span>
 
-            <!-- 实时刷新必须可暂停：站长要复制一个数值、要截图、
-                 或者只是想盯住某一刻的读数，不能被 5 秒一次的刷新抢走 -->
             <button class="layui-btn layui-btn-sm layui-btn-primary" id="pauseBtn"
                     aria-pressed="false">{:lang('admin/monitor/pause')}</button>
 
@@ -133,10 +127,6 @@
         if (el) { el.textContent = (v === null || v === undefined) ? '--' : v; }
     }
 
-    /**
-     * 状态永远由「颜色 + 文字」共同表达。
-     * 只用一个绿点/红点的话，色觉障碍用户根本看不出区别。
-     */
     function setState(kind) {
         var dot = document.getElementById('liveDot');
         var text = document.getElementById('liveStateText');
@@ -171,8 +161,6 @@
                 txt('kpiLoad', d.load1);
                 txt('kpiMem', d.mem_pct + ' %');
 
-                // 埋点未部署时在线人数是从请求数估算的，必须标出来，
-                // 不能让站长误以为那是真实的独立访客数
                 var est = document.getElementById('onlineEst');
                 if (est) { est.style.display = d.online_est ? '' : 'none'; }
 
@@ -189,21 +177,13 @@
                 }
             })
             .catch(function () {
-                // 轮询失败必须说出来。原本这里是空的 catch ——
-                // 网络断了、后台挂了，站长只会看到数字凝固在那里，
-                // 还以为「一切正常，只是没有变化」。这是最危险的误导。
                 setState('offline');
             });
     }
 
-    // ★ 实时刷新必须可暂停 ★
-    // 站长要复制一个数值、要截图、或者只是想盯住某一刻的读数 ——
-    // 不能被 5 秒一次的刷新一直抢走。
     var paused = false;
     var timer = null;
 
-    // 尊重系统的「减弱动态效果」设置：开了这个设置的用户对频繁变动的内容
-    // 会感到不适，此时默认不自动刷新，改由用户手动开启。
     var reduceMotion = window.matchMedia
         && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -227,7 +207,6 @@
         applyPaused();
     });
 
-    // 页面切到后台标签页时停止轮询：没人在看，不必每 5 秒打一次服务器
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) { stop(); }
         else if (!paused) { start(); tick(); }

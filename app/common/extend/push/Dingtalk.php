@@ -1,13 +1,6 @@
 <?php
 namespace app\common\extend\push;
 
-/**
- * 钉钉自定义机器人推送。
- *
- * 钉钉要求机器人至少启用「自定义关键词 / 加签 / IP 白名单」三者之一，
- * 否则会拒收。这里实现加签（最安全，也不依赖消息内容里必须出现某个词）。
- * 后台需要提示站长这一点，否则配好了却收不到消息会一头雾水。
- */
 class Dingtalk
 {
     public $name = 'DingTalk';
@@ -23,7 +16,6 @@ class Dingtalk
 
         $url = 'https://oapi.dingtalk.com/robot/send?access_token=' . urlencode($token);
         if ($secret !== '') {
-            // 钉钉的时间戳是毫秒
             $timestamp = (string)(time() * 1000);
             $url .= '&timestamp=' . $timestamp . '&sign=' . urlencode(self::sign($timestamp, $secret));
         }
@@ -41,7 +33,6 @@ class Dingtalk
 
         $res = PushHttp::post($url, $body, PushHttp::jsonHeaders());
         if ($res['code'] === 1) {
-            // 钉钉即使拒收也可能返回 HTTP 200，真正的结果在 body 的 errcode 里
             $json = json_decode($res['body'], true);
             if (is_array($json) && isset($json['errcode']) && intval($json['errcode']) !== 0) {
                 return ['code' => intval($json['errcode']), 'msg' => isset($json['errmsg']) ? (string)$json['errmsg'] : 'dingtalk error'];
@@ -50,15 +41,6 @@ class Dingtalk
         return ['code' => $res['code'], 'msg' => $res['msg']];
     }
 
-    /**
-     * 钉钉加签：base64(HMAC-SHA256("{timestamp}\n{secret}", secret))
-     *
-     * 纯函数，供测试对照已知向量。
-     *
-     * @param string $timestamp 毫秒时间戳
-     * @param string $secret
-     * @return string
-     */
     public static function sign($timestamp, $secret)
     {
         $stringToSign = (string)$timestamp . "\n" . (string)$secret;

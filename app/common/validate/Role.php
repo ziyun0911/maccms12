@@ -18,5 +18,4 @@ class Role extends Validate
         'add'  =>  ['role_name','role_actor'],
         'edit'  =>  ['role_name','role_actor'],
     ];
-
 }

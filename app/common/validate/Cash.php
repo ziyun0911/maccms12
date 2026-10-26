@@ -27,5 +27,4 @@ class Cash extends Validate
         'add'  =>  ['user_id','cash_money','cash_points','cash_bank_name','cash_payee_name','cash_bank_no'],
         'edit'  => ['user_id','cash_money','cash_points'],
     ];
-
 }

@@ -5,21 +5,13 @@ namespace app\common\util;
 use think\facade\Cache;
 use think\facade\Db;
 
-/**
- * 视频草稿 / 定时发布：vod_status 3=草稿 4=待发布，vod_publish_time 为 Unix 上架时间。
- * 注：vod_pubdate 仍为影片「上映日期」元数据，定时上架使用 vod_publish_time。
- */
 class VodPublishService
 {
     const STATUS_DRAFT = 3;
     const STATUS_SCHEDULED = 4;
 
-    /** 到点可由调度自动上架的状态（不含待审 0，避免绕过人工审核） */
     const AUTO_PUBLISH_STATUSES = [3, 4];
 
-    /**
-     * 保存前规范化定时字段与状态。
-     */
     public static function normalizeOnSave(array &$data)
     {
         $status = intval($data['vod_status'] ?? 0);
@@ -54,15 +46,9 @@ class VodPublishService
             return;
         }
 
-        // 待审等未升级为定时发布：丢弃无效/过期定时戳，避免原始字符串写入 int 列
         $data['vod_publish_time'] = 0;
     }
 
-    /**
-     * 定时任务：到点将草稿/待发布转为已审上架。
-     *
-     * @return array{code:int,msg:string,published:int,ids:array}
-     */
     public static function publishDue($limit = 200)
     {
         $limit = max(1, min(500, (int)$limit));

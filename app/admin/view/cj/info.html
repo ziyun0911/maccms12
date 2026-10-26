@@ -1,5 +1,5 @@
 {include file="../../../app/admin/view/public/head" /}
-    <!--添加采集点 start-->
+    
 <form class="layui-form" name="myform" method="post" id="myform">
     <input type="hidden" name="data[nodeid]" value="{$data.nodeid}">
     <div class="layui-tab" style="min-height: 430px;">
@@ -10,7 +10,7 @@
             <li>{:lang('admin/cj/adv_config')}</li>
         </ul>
         <div class="layui-tab-content" id="movementTable">
-            <!--网址规则 start-->
+            
             <div class="layui-tab-item layui-show" >
                 <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
                     <legend>{:lang('base_info')}</legend>
@@ -77,7 +77,7 @@
                         </div>
                     </div>
                 </div>
-                <!--多个网址-->
+                
                 <div id="url_type_2" class="layui-form-item" {if condition="$data['sourcetype'] neq 2"}style="display:none"{/if}>
                     <label class="layui-form-label">{:lang('admin/cj/cj_url')}：</label>
                     <div class="layui-input-inline" style="width: 60%;">
@@ -87,7 +87,7 @@
                         </div>
                     </div>
                 </div>
-                <!--单一网址-->
+                
                 <div id="url_type_3" class="layui-form-item" {if condition="$data['sourcetype'] neq 3"}style="display:none"{/if}>
                     <label class="layui-form-label">{:lang('admin/cj/cj_url')}：</label>
                     <div class="layui-input-inline" style="width: 60%;">
@@ -118,8 +118,8 @@
                 </div>
             </div>
 
-            <!--网址规则 end-->
-                <!--内容规则 start-->
+            
+                
             <div class="layui-tab-item" >
                 <blockquote class="layui-elem-quote layui-text" style="margin:20px 0;border-left-color: #ff5722;">
                         {:lang('admin/cj/wildcard_prompt')}
@@ -220,8 +220,8 @@
                 </div>
             </div>
 
-            <!--内容规则 end-->
-            <!--自定义规则 start-->
+            
+            
             <div class="layui-tab-item" id="customize_config">
 
                 <div class="layui-form-item">
@@ -253,8 +253,8 @@
                 {/volist}
 
             </div>
-            <!--自定义规则 end-->
-            <!--高级配置 start-->
+            
+            
             <div class="layui-tab-item">
 
                 <div class="layui-form-item">
@@ -289,7 +289,7 @@
                     </div>
                 </div>
             </div>
-            <!--高级配置 end-->
+            
         </div>
     </div>
     <div class="layui-form-item">
@@ -298,7 +298,7 @@
         </div>
     </div>
 </form>
-    <!--添加采集点 end-->
+    
 <style>
     .ib{display: inline-block;}
 </style>
@@ -316,7 +316,7 @@
     <label class="ib" style="width:120px"><input type="checkbox" name="html_rule" id="_11" value="<param([^>]*)>(.*)</param>[|]"> &lt;param&gt;</label>
     <label class="ib" style="width:120px"><input type="checkbox" name="html_rule" id="_12" value="<div([^>]*)>[|]"> &lt;div&gt;</label>
     <label class="ib" style="width:120px"><input type="checkbox" name="html_rule" id="_13" value="</div>[|]"> &lt;/div&gt;</label>
-    <label class="ib" style="width:120px"><input type="checkbox" name="html_rule" id="_14" value="<!--([^>]*)-->[|]"> &lt;!-- --&gt;</label>
+    <label class="ib" style="width:120px"><input type="checkbox" name="html_rule" id="_14" value="[|]"> &lt;!-- --&gt;</label>
     <br>
     <div class="bk15"></div>
     <center><input type="button" value="{:lang('check_all')}" class="button" onclick="selectall('html_rule')"> <input type="button" class="button" value="{:lang('check_other')}" onclick="anti_selectall('html_rule')"></center>
@@ -325,7 +325,6 @@
 {include file="../../../app/admin/view/public/foot" /}
 <script type="text/javascript">
     layui.use(['element','form','upload','layer'],function () {
-        // 操作对象
         var element = layui.element;
         form = layui.form
                 , layer = layui.layer
@@ -349,11 +348,7 @@
             }
         });
 
-
-
-        //监听折叠
         element.on('collapse(lay_state)', function(data){
-            //layer.msg('展开状态：'+ data.show);
         });
     });
 
@@ -370,7 +365,6 @@
                 this.checked = true;
             }});
     }
-    //折叠面板
     function showAll(_this) {
         $(_this).parents(".layui-btn-group").siblings(".layui-collapse").children(".layui-colla-item").children(".layui-colla-content").addClass("layui-show");
     }
@@ -378,7 +372,6 @@
         $(_this).parents(".layui-btn-group").siblings(".layui-collapse").children(".layui-colla-item").children(".layui-colla-content").removeClass("layui-show");
     }
 
-    //  包含内容
     function insertText(id, text) {
         $('#' + id).focus();
         var str = document.selection.createRange();
@@ -388,13 +381,13 @@
     function add_tag(id) {
         var index = layer.open({
             type: 1
-            ,title: "{:lang('admin/cj/filter_rule')}" //不显示标题栏
+            ,title: "{:lang('admin/cj/filter_rule')}"
             ,closeBtn: 1
             ,shade: 0.8
-            ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+            ,id: 'LAY_layuipro'
             ,btn: ["{:lang('add')}", "{:lang('cancel')}"]
             ,btnAlign: 'c'
-            ,moveType: 1 //拖拽模式，0或者1
+            ,moveType: 1
             ,content: $('#html_rule_show')
             ,yes: function(layero){
                 var str = '';
@@ -424,15 +417,13 @@
             ,closeBtn: 1
             ,area: ['500px;','400px']
             ,shade: 0.8
-            ,id: 'LAY_testUrl' //设定一个id，防止重复弹出
+            ,id: 'LAY_testUrl'
             ,btn: ["{:lang('close')}"]
             ,btnAlign: 'c'
-            ,moveType: 1 //拖拽模式，0或者1
+            ,moveType: 1
             ,content: '{:url('show_url')}?call=1&' +data
         });
     }
-
-
 </script>
 </body>
 </html>

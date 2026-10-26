@@ -8,14 +8,11 @@ use app\common\util\MeilisearchListBridge;
 use app\common\util\MeilisearchSync;
 
 class Role extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'role';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -61,7 +58,6 @@ class Role extends Base {
             $where2=[];
             $where2['vod_id'] = ['in', array_values(array_map('intval', $vod_ids))];
             $tmp_list = (new \app\common\model\Vod())->listData($where2,'vod_id desc',1,999,0);
-            //$tmp_list = Db::name('Vod')->field('vod_id,vod_name,vod_en,type_id,type_id_1')->where($where2)->select();
             foreach($tmp_list['list'] as $k=>$v){
                 $vod_list[$v['vod_id']] = $v;
             }
@@ -154,7 +150,6 @@ class Role extends Base {
             }
             $param['page'] = 'PAGELINK';
             $pageurl = mac_url($pageurl,$param);
-
         }
 
         $where['role_status'] = ['eq',1];
@@ -240,7 +235,6 @@ class Role extends Base {
             $where['role_name|role_en'] = ['like', '%' . $wd . '%'];
         }
         $use_rnd_order = ($by == 'rnd');
-        // https://github.com/magicblack/maccms10/issues/1050
         if (!$use_rnd_order) {
             if (!in_array($by, ['id', 'time', 'time_add', 'score', 'hits', 'hits_day', 'hits_week', 'hits_month', 'up', 'down', 'level', 'rnd', 'sort'])) {
                 $by = 'time';
@@ -351,7 +345,6 @@ class Role extends Base {
         $key = 'role_detail_'.$data['role_id'].'_'.$data['role_en'];
         Cache::delete($key);
 
-
         if(empty($data['role_en'])){
             $data['role_en'] = Pinyin::get($data['role_name']);
         }
@@ -445,5 +438,4 @@ class Role extends Base {
 
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
 }

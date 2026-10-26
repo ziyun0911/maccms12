@@ -18,5 +18,4 @@ class Manga extends Validate
         'add'  =>  ['manga_name','type_id'],
         'edit'  =>  ['manga_name','type_id'],
     ];
-
 }

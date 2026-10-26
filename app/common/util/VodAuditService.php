@@ -2,18 +2,12 @@
 
 namespace app\common\util;
 
-/**
- * 视频 UGC 自动审核：按规则表命中后自动待审/通过/驳回。
- */
 class VodAuditService
 {
     const STATUS_PENDING = 0;
     const STATUS_APPROVED = 1;
     const STATUS_REJECTED = 2;
 
-    /**
-     * 人工驳回时校验备注；通过返回空字符串，失败返回错误文案。
-     */
     public static function rejectRemarkError($remark)
     {
         if (trim((string)$remark) === '') {
@@ -22,10 +16,6 @@ class VodAuditService
         return '';
     }
 
-    /**
-     * @param array $vodData 待保存的视频字段
-     * @return array|null ['status'=>int,'remark'=>string] 未命中任何规则时返回 null
-     */
     public static function evaluate(array $vodData)
     {
         $rules = (new \app\common\model\VodAuditRule())->getEnabledRules();
@@ -57,12 +47,6 @@ class VodAuditService
         return null;
     }
 
-    /**
-     * 保存前写入自动审核结果（已显式设为已审则跳过）。
-     *
-     * @param array $data 引用传递
-     * @param bool  $isNew
-     */
     public static function applyOnSave(array &$data, $isNew)
     {
         if (!empty($data['_skip_auto_audit'])) {
@@ -77,7 +61,6 @@ class VodAuditService
         if (in_array(intval($data['vod_status'] ?? 0), [VodPublishService::STATUS_DRAFT, VodPublishService::STATUS_SCHEDULED], true)) {
             return;
         }
-        // 已驳回且未改回待审：保留人工/历史审核结论，避免编辑时再次被规则覆盖
         if (!$isNew && intval($data['vod_status'] ?? 0) === self::STATUS_REJECTED) {
             return;
         }

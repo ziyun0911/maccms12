@@ -6,15 +6,8 @@ use think\facade\Log;
 
 class AiSearch
 {
-    // 注：不写 private —— 类常量可见性是 PHP 7.1+ 语法，本项目须兼容 PHP 7.0
     const DEFAULT_INTERNAL_RESULT_LIMIT = 8;
 
-    /**
-     * Meili 内联资源：表名、主键、展示字段、详情 URL；与 Meilisearch 文档 id 前缀一致。
-     * return_null_when_empty：true 时无任何 DB 命中返回 null（走 MySQL 回退）；vod/art/manga 保持原样返回数组（可为空）。
-     *
-     * @var array<string, array<string, mixed>>
-     */
     private static $meiliResourceMeta = [
         'vod' => [
             'table' => 'Vod',
@@ -88,53 +81,25 @@ class AiSearch
         ],
     ];
 
-    /** @var array<string, array> 单次请求内相同 module+wd 只构建一次，避免 AI 聊天等场景重复 expand / Meili */
     private static $buildForSearchMemo = [];
 
-    /** @var callable|null gate callback returning bool (allowed) for billable LLM calls */
     private static $llmGate = null;
 
-    /** @var callable|null recorder callback(bool $ok) for LLM call results */
     private static $llmRecorder = null;
 
-    /**
-     * Install a billable-LLM-call gate + recorder so that term expansion
-     * performed inside AiSearch is counted against the same per-request cap
-     * and circuit breaker as AiChatService's direct calls.
-     *
-     * @param callable|null $gate     returns bool (true = allowed)
-     * @param callable|null $recorder accepts bool $ok
-     */
     public static function setLlmGate($gate, $recorder)
     {
         self::$llmGate = is_callable($gate) ? $gate : null;
         self::$llmRecorder = is_callable($recorder) ? $recorder : null;
     }
 
-    /** @var callable|null fn($mid, array $contentIds): array 返回 [content_id => score_total]；注入用于测试解耦 */
     private static $qualityScorer = null;
 
-    /**
-     * Install a quality-score provider for the optional DB-fallback re-ranking
-     * seam. Mirrors setLlmGate. Pass null to clear the injected scorer and
-     * fall back to the default ContentQuality lookup.
-     *
-     * @param callable|null $fn fn($mid, array $contentIds): array [content_id => score_total]
-     */
     public static function setQualityScorer($fn)
     {
         self::$qualityScorer = is_callable($fn) ? $fn : null;
     }
 
-    /**
-     * Mixed-mode (mid=0) search: run a single LLM term expansion (treated as
-     * the vod module for enabled/length checks) and reuse the resulting terms
-     * across vod/art/manga DB/Meili lookups. This avoids one expandTerms call
-     * per module (3 independent LLM requests) on the anonymous AI chat path.
-     *
-     * @param array $param
-     * @return array
-     */
     public static function buildForSearchMixed(array $param = [])
     {
         $cfg = self::getConfig();
@@ -214,9 +179,6 @@ class AiSearch
             return self::$buildForSearchMemo[$memoKey];
         }
 
-        // 注意：expandTerms 会在前台搜索请求内同步发起一次 LLM 调用，给搜索加一次外网 RTT。
-        // 已由 HttpClient 的 max(3,timeout) 秒硬超时兜底、同请求 memo 去重，且仅在 ai_search 开启时触发；
-        // 如需彻底移除搜索路径延迟，可改为离线预扩展或异步补全。
         $expansion = self::expandTerms($cfg, $module, $wd);
         $queryMerged = self::mergeQuery($wd, $expansion);
         $internal = self::buildInternalResources($wd, $module, $queryMerged);
@@ -320,16 +282,6 @@ class AiSearch
         return implode(' ', $all);
     }
 
-    /**
-     * 语义重排内联资源（semantic_* 生效点）：以条目 title 作为 embedding 文本，
-     * 复用与 AiChatService 同一套 AiEmbeddingService（含缓存 + 超时）。
-     * 未开启 semantic_enabled 或无资源时零成本原样返回。
-     *
-     * @param array  $cfg      经 getConfig 归一后的 ai_search 配置
-     * @param string $wd       原始查询词
-     * @param array  $internal buildInternalResources 结果（title/url/pic/type）
-     * @return array
-     */
     private static function applySemanticRerank(array $cfg, $wd, array $internal)
     {
         if (empty($internal) || !AiEmbeddingService::semanticEnabled($cfg)) {
@@ -447,8 +399,6 @@ class AiSearch
 
     private static function buildExternalResources($cfg, $wd)
     {
-        // Legacy helper used to emit Google site: links titled "Search \"…\" on domain".
-        // Those are low-value in the AI chat UI; real externals come from federation (TMDB, etc.).
         return [];
     }
 
@@ -464,7 +414,7 @@ class AiSearch
                 ->where('vod_status', 1)
                 ->where('vod_name|vod_sub|vod_actor|vod_tag', 'like', $kw)
                 ->order('vod_hits desc,vod_id desc')
-                ->limit(30) // 质量重排候选池，大于最终返回的 8 条，给重排留空间
+                ->limit(30)
                 ->select();
             $rows = self::applyQualityRank(1, $rows, 'vod_id');
         } else {
@@ -500,7 +450,7 @@ class AiSearch
                 ->where('art_status', 1)
                 ->where('art_name|art_sub|art_tag', 'like', $kw)
                 ->order('art_hits desc,art_id desc')
-                ->limit(30) // 质量重排候选池，大于最终返回的 8 条，给重排留空间
+                ->limit(30)
                 ->select();
             $rows = self::applyQualityRank(2, $rows, 'art_id');
         } else {
@@ -524,23 +474,12 @@ class AiSearch
         return $result;
     }
 
-    /**
-     * 是否开启按内容质量分重排（后台 analytics.quality_rank_enabled=='1'）。
-     * 默认关，读取失败/未配置一律视为关闭，不影响现状。
-     */
     private static function qualityRankEnabled()
     {
         $cfg = config('maccms.analytics');
         return is_array($cfg) && isset($cfg['quality_rank_enabled']) && (string)$cfg['quality_rank_enabled'] === '1';
     }
 
-    /**
-     * 取质量分：优先用注入的 setQualityScorer 假分器（测试解耦），否则查 mac_content_quality（软依赖，仅启用路径触发）。
-     *
-     * @param int   $mid
-     * @param int[] $ids
-     * @return array<int, float> [content_id => score_total]
-     */
     private static function qualityScores($mid, array $ids)
     {
         if (empty($ids)) {
@@ -557,15 +496,6 @@ class AiSearch
         return is_array($rows) ? $rows : [];
     }
 
-    /**
-     * 稳定重排：按 score_total 降序，缺分视为最低（-1），score 相同/缺失时保持原 hits 顺序；截前 8。
-     * PHP usort 非稳定，携带原索引作 tiebreak 以保住 hits 序。
-     *
-     * @param int    $mid
-     * @param array  $rows  已按 hits desc 取的候选行
-     * @param string $pkKey 行主键字段名（vod_id / art_id）
-     * @return array 截前 8 条后的行
-     */
     private static function applyQualityRank($mid, array $rows, $pkKey)
     {
         $ids = [];
@@ -595,15 +525,6 @@ class AiSearch
         return $out;
     }
 
-    /**
-     * Meilisearch 内联资源：统一 filter、解析 id、DB 回填、构造 title/url/pic/type。
-     *
-     * @param string      $kind          与 Meilisearch 文档 id 前缀一致：vod|art|manga|topic|actor|role|website
-     * @param string      $kw            LIKE 包壳或明文（经 extractKeywordFromLike）
-     * @param string|null $typeOverride  返回项的 type；null 则等于 $kind（如 plot 走 vod 数据但 type=plot）
-     *
-     * @return array<int, array{title:string,url:string,pic:string,type:string}>|null
-     */
     private static function queryResourcesByMeilisearch($kind, $kw, $typeOverride = null)
     {
         $k = strtolower((string)$kind);
@@ -686,10 +607,6 @@ class AiSearch
         return $result;
     }
 
-    /**
-     * @param string               $kind Meilisearch / 表逻辑 kind（非 type 覆盖值）
-     * @param array<string, mixed> $row
-     */
     private static function resourceDetailUrl($kind, array $row)
     {
         switch ($kind) {

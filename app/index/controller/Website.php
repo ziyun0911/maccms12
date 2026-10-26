@@ -73,5 +73,4 @@ class Website extends Base
         $info = $this->label_website_detail();
         return response($this->label_fetch('website/rss'), 200, ['Content-Type' => 'text/xml; charset=utf-8']);
     }
-
 }

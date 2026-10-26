@@ -83,20 +83,14 @@
 {include file="../../../app/admin/view/public/foot" /}
 
 <script type="text/javascript">
-    // 关联封禁：复用 monitor 的 access_ban / access_unban 同款交互，
-    // 后端转发到 IpBanRepository，白名单/自身 IP/私网保护都在库里统一兜底。
     var BAN_URL = "{:url('ban')}";
     var UNBAN_URL = "{:url('unban')}";
 
-    // 后台稳定 CSRF 令牌（会话级）。原生 fetch 不经过 jQuery 的全局 ajax 拦截，
-    // 不会自动带上 X-CSRF-Token，故这里手动读取 meta 并随请求提交；
-    // 开启 security_csrf_admin 时封禁/解封才不会被全局 CsrfGuard 判 403。
     function macAdminCsrf() {
         var m = document.querySelector('meta[name="mac-admin-csrf"]');
         return m ? (m.getAttribute('content') || '') : '';
     }
     function macEscHtml(s) {
-        // 用 charCode 组装实体，避免源码中的 & 等被 HTML 反解析成裸字符导致转义失效。
         var amp = String.fromCharCode(38);
         var map = {};
         map[String.fromCharCode(38)] = amp + 'amp;';
@@ -107,12 +101,10 @@
         return String(s).replace(/[&<>"']/g, function (c) { return map[c]; });
     }
 
-
     layui.use(['layer'], function () {
         var layer = layui.layer;
 
         function post(url, ip, confirmMsg) {
-            // IP 来自服务端渲染的 data-ip，理论上已过滤；此处仍做转义，防止注入到 confirm 的 HTML。
             layer.confirm(confirmMsg + '<br><code>' + macEscHtml(ip) + '</code>', function (idx) {
                 layer.close(idx);
                 var csrf = macAdminCsrf();

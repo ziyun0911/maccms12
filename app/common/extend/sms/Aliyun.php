@@ -2,21 +2,9 @@
 namespace app\common\extend\sms;
 
 class Aliyun {
-
     public $name = '阿里云短信';
     public $ver = '2.0';
 
-    /**
-     * 生成签名并发起请求
-     *
-     * @param $accessKeyId string AccessKeyId (https://ak-console.aliyun.com/)
-     * @param $accessKeySecret string AccessKeySecret
-     * @param $domain string API接口所在域名
-     * @param $params array API具体参数
-     * @param $security boolean 使用https
-     * @param $method boolean 使用GET或POST方法请求，VPC仅支持POST
-     * @return bool|\stdClass 返回API接口调用结果，当发生错误时返回false
-     */
     public function request($accessKeyId, $accessKeySecret, $domain, $params, $security=false, $method='POST') {
         $apiParams = array_merge(array (
             "SignatureMethod" => "HMAC-SHA1",
@@ -62,7 +50,7 @@ class Aliyun {
         $ch = curl_init();
 
         if($method == 'POST') {
-            curl_setopt($ch, CURLOPT_POST, 1);//post提交方式
+            curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         } else {
             $url .= '?'.$body;
@@ -83,8 +71,6 @@ class Aliyun {
         $rtn = curl_exec($ch);
 
         if($rtn === false) {
-            // 大多由设置等原因引起，一般无法保障后续逻辑正常执行，
-            // 所以这里触发的是E_USER_ERROR，会终止脚本执行，无法被try...catch捕获，需要用户排查环境、网络等故障
             trigger_error("[CURL_" . curl_errno($ch) . "]: " . curl_error($ch), E_USER_ERROR);
         }
         curl_close($ch);

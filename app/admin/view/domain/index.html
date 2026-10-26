@@ -20,7 +20,7 @@
 
                     <script>
                         var arr_len = {$domain_list|count};
-                    </script>
+</script>
                     {php}
                     $n=0;
                     {/php}
@@ -73,12 +73,10 @@
     var template_select='{volist name="templates" id="vo"}<option value="{$vo}">{$vo}</option>{/volist}';
 
     layui.use(['form','layer','upload'], function () {
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer
                 , $ = layui.jquery
             , upload = layui.upload;
-
 
         upload.render({
             elem: '.layui-upload'
@@ -109,7 +107,6 @@
             $('.j-player-add').click();
         }
     });
-    
 </script>
 
 </body>

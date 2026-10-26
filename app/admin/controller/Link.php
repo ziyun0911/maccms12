@@ -63,7 +63,6 @@ class Link extends Base
         $where['link_id'] = ['eq',$id];
         $res = (new \app\common\model\Link())->infoData($where);
 
-        //内容级多语言
         $content_lang_default = mac_content_lang_default();
         $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
         $content_lang_data = [];
@@ -83,9 +82,6 @@ class Link extends Base
         return $this->fetch('admin@link/info');
     }
 
-    /**
-     * 调用已安装的翻译插件（若有）翻译单个字段。
-     */
     public function contentLangTranslate()
     {
         $text = (string)input('post.text', '');
@@ -144,5 +140,4 @@ class Link extends Base
         }
         return $this->success($res['msg']);
     }
-
 }

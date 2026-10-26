@@ -28,7 +28,7 @@ class Art extends Validate
     ];
 
     protected $message = [
-        
+
     ];
 
     protected $scene = [

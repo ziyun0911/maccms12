@@ -14,17 +14,12 @@ class Base extends All
         
         $this->check_ip_limit();
         $this->check_site_status();
-        // 先解析内容语言，label_maccms 里按语言输出的站点文案才能拿到本次请求的语言
         $this->init_content_lang();
         $this->label_maccms();
         $this->check_browser_jump();
         $this->label_user();
     }
 
-    /**
-     * 内容级多语言：解析本次请求的内容语言（GET lang -> cookie -> Accept-Language -> 默认语言），
-     * 存到 ContentLang::currentLang 供各模块 infoData() 读取，并派给模板方便渲染切换器。
-     */
     protected function init_content_lang()
     {
         $lang = mac_get_content_lang();
@@ -34,7 +29,6 @@ class Base extends All
         $this->assign('content_lang_list', mac_content_lang_allow_list());
         $items = mac_front_lang_list();
         $this->assign('content_lang_items', $items);
-        // 前台界面字符串包（asset/language/strings_*.properties）该按哪个后缀加载
         $ui = '';
         foreach ($items as $item) {
             if (!empty($item['active'])) {
@@ -47,40 +41,30 @@ class Base extends All
 
     protected function check_ip_limit()
     {
-       
-        // 获取IP限制配置
         $mainland_ip_limit = $GLOBALS['config']['site']['mainland_ip_limit'] ?? "0";
 
-        // 如果为0，不限制，直接通过
         if ($mainland_ip_limit == "0") {
             return;
         }
         
-        // 获取用户真实IP
         $user_ip = mac_get_client_ip();
         try {
             $ipQuery = new IpLocationQuery();
             $country_code = $ipQuery->queryProvince($user_ip);
-            // 根据配置进行限制
             if ($mainland_ip_limit == "1") {
-                // 只允许中国大陆IP
                 if ($country_code === "") {
                     echo $this->fetch('public/close');
                     die;
                 }
             } elseif ($mainland_ip_limit == "2") {
-                // 不允许中国大陆IP
                 if ($country_code !== "") {
                     echo $this->fetch('public/close');
                     die;
                 }
             }
-            
         } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
-            // 局域网IP或无效IP，直接通过
             return;
         } catch (\Exception $e) {
-            // 其他异常
             return;
         }
     }

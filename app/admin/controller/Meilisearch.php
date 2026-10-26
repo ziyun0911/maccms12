@@ -13,7 +13,6 @@ class Meilisearch extends Base
     {
         parent::__construct();
         if ((string)$this->_admin['admin_id'] !== '1') {
-            // 构造函数里的 return/error 不会中断 TP8 调度，必须抛出响应异常
             $res = $this->error(lang('admin/meilisearch/super_admin_only'));
             throw new \think\exception\HttpResponseException($res instanceof \think\Response ? $res : response($res));
         }
@@ -68,7 +67,6 @@ class Meilisearch extends Base
         $this->assign('cfg', $cfg);
         $this->assign('meili_key_saved', trim((string)$cfg['api_key']) !== '' ? 1 : 0);
         $this->assign('meili_key_tail', trim((string)$cfg['api_key']) !== '' ? substr((string)$cfg['api_key'], -6) : '');
-        // head.html 用 {$title} 拼浏览器标签页标题，缺赋值会让标签页只剩站点名
         $this->assign('title', lang('menu/meilisearch'));
         return $this->fetch('admin@meilisearch/index');
     }
@@ -78,9 +76,6 @@ class Meilisearch extends Base
         return json(MeilisearchService::health());
     }
 
-    /**
-     * 保存 Meilisearch 配置到 maccms.php。
-     */
     public function save()
     {
         if (!request()->isPost()) {
@@ -124,9 +119,6 @@ class Meilisearch extends Base
         return json(['code' => 1, 'msg' => lang('save_ok')]);
     }
 
-    /**
-     * 一键自检：Meilisearch 健康、索引统计、OpenCC 可用性、示例查询。
-     */
     public function selfcheck()
     {
         $cfg = MeilisearchService::cfg();
@@ -218,9 +210,6 @@ class Meilisearch extends Base
         ]);
     }
 
-    /**
-     * 一键初始化索引：建索引 + PATCH filterable/searchable 等 settings（无需全量同步）。
-     */
     public function setup()
     {
         if (!request()->isPost() && !request()->isAjax()) {
@@ -237,9 +226,6 @@ class Meilisearch extends Base
         ]);
     }
 
-    /**
-     * 全量重建索引（视频、文章、漫画、专题、演员、角色、网址等已发布且未进回收站；含回收站字段的模块按字段过滤）。
-     */
     public function sync()
     {
         if (request()->isPost() || request()->isAjax()) {

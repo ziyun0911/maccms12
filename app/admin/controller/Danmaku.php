@@ -14,7 +14,6 @@ class Danmaku extends Base
         $param = input();
         $param['page'] = intval($param['page']) < 1 ? 1 : $param['page'];
         $param['limit'] = intval($param['limit']) < 1 ? $this->_pagesize : $param['limit'];
-        // 分页硬上限，防止单次查询返回过多数据
         $param['limit'] = min(intval($param['limit']), 100);
 
         $where = [];
@@ -36,11 +35,8 @@ class Danmaku extends Base
         }
         if (!empty($param['wd'])) {
             $param['wd'] = htmlspecialchars(urldecode($param['wd']));
-            // 限制搜索关键字长度，防止超长字符串造成性能问题
             $param['wd'] = mb_substr($param['wd'], 0, 30);
-            // LIKE '%xx%' 无法使用索引，需搭配 vod_id 或 user_id 前置过滤以缩小扫描范围
             if (empty($where['vod_id']) && empty($where['user_id'])) {
-                // 无前置过滤时仅搜索 danmaku_text（单字段减轻负担）
                 $where['danmaku_text'] = ['like', '%' . $param['wd'] . '%'];
             } else {
                 $where['user_name|danmaku_text'] = ['like', '%' . $param['wd'] . '%'];

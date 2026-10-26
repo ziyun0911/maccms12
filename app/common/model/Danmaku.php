@@ -3,14 +3,11 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Danmaku extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'danmaku';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto   = [];
     protected $insert = [];
     protected $update = [];
@@ -38,14 +35,6 @@ class Danmaku extends Base {
         return ['code' => 1, 'msg' => lang('data_list'), 'page' => $page, 'pagecount' => ceil($total / $limit), 'limit' => $limit, 'total' => $total, 'list' => $list];
     }
 
-    /**
-     * 获取某影片某集的所有弹幕（一次性加载）
-     * @param int $vod_id 影片ID
-     * @param int $sid 播放源ID
-     * @param int $nid 集数ID
-     * @param int $limit 数量限制
-     * @return array
-     */
     public function getEpisodeDanmaku($vod_id, $sid, $nid, $limit = 1000)
     {
         $cache_key = $GLOBALS['config']['app']['cache_flag'] . '_danmaku_' . $vod_id . '_' . $sid . '_' . $nid;
@@ -72,26 +61,16 @@ class Danmaku extends Base {
             'rows'  => $list,
         ]];
 
-        // 缓存5分钟
         \think\facade\Cache::set($cache_key, $result, 300);
 
         return $result;
     }
 
-    /**
-     * 获取DPlayer格式弹幕数据（复用 getEpisodeDanmaku 缓存，保持两个接口行为一致）
-     * @param int $vod_id
-     * @param int $sid
-     * @param int $nid
-     * @return array DPlayer标准格式
-     */
     public function getDplayerDanmaku($vod_id, $sid, $nid)
     {
-        // 复用 getEpisodeDanmaku 的 5 分钟缓存，避免同一份数据两个接口缓存行为不一致
         $res = $this->getEpisodeDanmaku($vod_id, $sid, $nid, 1000);
         $rows = isset($res['info']['rows']) ? $res['info']['rows'] : [];
 
-        // DPlayer标准格式: [time, type, color, author, text]
         $data = [];
         foreach ($rows as $v) {
             $data[] = [
@@ -123,16 +102,13 @@ class Danmaku extends Base {
 
     public function saveData($data)
     {
-        // xss过滤
         if (isset($data['danmaku_text'])) {
             $data['danmaku_text'] = mac_filter_xss($data['danmaku_text']);
-            // 长度保险：DB 限制 varchar(200)，XSS 过滤后可能变长
             if (mb_strlen($data['danmaku_text'], 'UTF-8') > 200) {
                 $data['danmaku_text'] = mb_substr($data['danmaku_text'], 0, 200, 'UTF-8');
             }
         }
 
-        // 弹幕颜色白名单校验，仅允许 #hex 格式，防止 CSS 注入
         if (isset($data['danmaku_color'])) {
             $color = trim($data['danmaku_color']);
             if (!preg_match('/^#[0-9a-fA-F]{3,8}$/', $color)) {
@@ -141,7 +117,6 @@ class Danmaku extends Base {
             $data['danmaku_color'] = $color;
         }
 
-        // 黑名单关键字过滤
         $blacks = config('blacks');
         $content = isset($data['danmaku_text']) ? $data['danmaku_text'] : '';
         if (!empty($blacks['black_keyword_list']) && is_array($blacks['black_keyword_list'])) {
@@ -157,14 +132,12 @@ class Danmaku extends Base {
             $where = [];
             $where['danmaku_id'] = ['eq', $data['danmaku_id']];
             $res = $this->allowField([])->where($where)->update($data);
-            // 更新时也清除缓存（编辑弹幕内容后前台立即生效）
             $this->_clearEpisodeCache($where);
         } else {
             $data['danmaku_send_time'] = time();
             $data['danmaku_ip'] = mac_get_ip_long();
             $res = $this->allowField([])->insertGetId($data);
 
-            // 清除该集弹幕缓存
             $cache_key = $GLOBALS['config']['app']['cache_flag'] . '_danmaku_' . $data['vod_id'] . '_' . $data['vod_sid'] . '_' . $data['vod_nid'];
             \think\facade\Cache::delete($cache_key);
 
@@ -184,7 +157,6 @@ class Danmaku extends Base {
                     ],
                 ]);
 
-                // 写动态
                 if (!empty($data['user_id'])) {
                     try {
                         (new \app\common\model\Dynamics())->saveData([
@@ -195,7 +167,6 @@ class Danmaku extends Base {
                             'dyn_text'      => mb_substr($data['danmaku_text'], 0, 200, 'UTF-8'),
                         ]);
                     } catch (\Exception $e) {
-                        // 弹幕已入库，动态镜像失败不阻断，但要留痕
                         \think\facade\Log::error('Danmaku dynamics mirror failed user=' . intval($data['user_id'])
                             . ' vod=' . intval($data['vod_id']) . ' err=' . $e->getMessage());
                     }
@@ -211,7 +182,6 @@ class Danmaku extends Base {
 
     public function delData($where)
     {
-        // 删除前先查出受影响的集数，用于清缓存
         $this->_clearEpisodeCache($where);
         $res = $this->where($where)->delete();
         if ($res === false) {
@@ -231,18 +201,12 @@ class Danmaku extends Base {
         if ($res === false) {
             return ['code' => 1001, 'msg' => lang('set_err') . '：' . $this->getError()];
         }
-        // status 变更时清缓存（管理员禁用/启用弹幕后前台立即生效）
         if ($col === 'danmaku_status') {
             $this->_clearEpisodeCache($where);
         }
         return ['code' => 1, 'msg' => lang('set_ok')];
     }
 
-    /**
-     * 清除受影响弹幕所在集数的缓存
-     * 查询 where 命中的弹幕，取出所有不重复的 (vod_id, vod_sid, vod_nid) 并逐一清缓存
-     * @param array $where
-     */
     private function _clearEpisodeCache($where)
     {
         $flag = isset($GLOBALS['config']['app']['cache_flag']) ? $GLOBALS['config']['app']['cache_flag'] : 'mac';
@@ -255,28 +219,17 @@ class Danmaku extends Base {
         }
     }
 
-    /**
-     * 检查发送频率限制（尽量原子化，防止并发 TOCTOU 漏检）
-     * Redis 后端使用 SETNX 原子操作；文件缓存回退到 has+set（窗口更小）
-     * @param int $user_id
-     * @param int $interval 最小间隔秒数
-     * @return bool true=允许发送
-     */
     public function checkSendRate($user_id, $interval = 5)
     {
         $cache_key = 'danmaku_rate_' . $user_id;
-        // 尝试原子 SETNX（仅 Redis 后端）
         try {
             $handler = \think\facade\Cache::store()->handler();
             if ($handler instanceof \Redis) {
-                // SET key 1 EX interval NX — 仅当 key 不存在时才设置，原子操作
                 $ok = $handler->set($cache_key, 1, ['NX', 'EX' => $interval]);
-                return (bool)$ok; // true=设置成功(允许), false=key已存在(限流)
+                return (bool)$ok;
             }
         } catch (\Exception $e) {
-            // handler 不可用，回退到通用方案
         }
-        // 通用方案：has+set（窗口比 get+compare+set 更小）
         if (\think\facade\Cache::has($cache_key)) {
             return false;
         }

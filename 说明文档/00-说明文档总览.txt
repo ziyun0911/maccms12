@@ -648,6 +648,57 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
     runtime/log/ 删过，此后今天这几条 500 都没落盘，拿不到异常原文。没有证据指向本轮
     三处改动，倾向是跳转页自动重定向窗口里的上传竞态，留此记录备查。
 
+22. 【2026-10-26 全仓注释剥离 + PHP 缩进重排：一次性动作，口径与例外都记在这里】
+    做了什么：按「PHP + html + js + css 全删、关键注释也一并删光、只靠本说明文档承载」的
+    要求，把仓库里自有代码的注释全部清除，并对 PHP 文件按 PSR-12 风格重排整文件缩进。
+    改动量：PHP 扫 462 个文件、改 391 个、拒 0 个，净删约 12860 行；js 扫 17 改 14；
+    css 扫 24 改 24；html 扫 478 改 136。合计 git 里 567 个文件变化，单个提交落地。
+    工具与不变量（不是正则替换，逐条可复核）：
+    ① PHP 走 token_get_all，只删真 T_COMMENT / T_DOC_COMMENT；安全门是「把
+      T_COMMENT/T_DOC_COMMENT/T_WHITESPACE 丢掉之后的 token 签名前后必须逐字节相等」，
+      不等就把整个文件原样留下并报名；跨行字符串、T_INLINE_HTML、heredoc/nowdoc 的
+      起止标记行都按原文保护（改这些空白会真的改变输出）。
+    ② js/css/HTML 内联块用同一个原子扫描器（字符串 / 正则字面量 / 模板串 / 注释），
+      门是「注释全部剔除后的原子流与原文一致」；HTML 还要再过一遍幂等（产物重跑等于自身）。
+      行注释独占一行时连行一起删，否则只删注释保留换行，绝不把两条语句并进同一行（ASI 陷阱）。
+    ③ 缩进重排只在 PHP 侧做，用真正的括号帧栈 + case/替代语法的伪帧；括号不配对就直接放弃，
+      原样返回。390 个 PHP 改动文件里 63 个只动了缩进——它们本来就没有注释，多是
+      var_export 直接生成的 app/lang/*.php（六个语言包共约 4900 行是纯缩进差异）和
+      app/common/validate/*.php；git diff -w 对这 63 个文件为空，可据此复核。
+    刻意保留与排除（与「全删」字面不一致的地方，全部集中在这里）：
+    ① 每个 PHP 文件开头的 MacCMS Apache-2.0 头（苹果CMS 源码库 / Licensed ( apache.org ) /
+      遵循Apache2开源协议发布）按原文保留——协议本身要求保留版权声明，删掉是违规的。
+    ② 第三方与派生产物整目录不进扫描：vendor/、extend/（PHPMailer、七牛、又拍云、AWS、
+      ThinkOauth、ip_limit 等自带版权头的 SDK）、static/{layui,ueditor,player,addons,swagger}/、
+      app/extra/（本机配置，且被 .gitignore 保护）、app/data/install/、runtime/、upload/、
+      *.min.*、*.bundle.*（front:bundle 产物）、根目录 index.html/wap_index.html/map.html
+      （文档根产物）、template/*/pack/、static/task/。
+    ③ 「压成一行」的文件按大小/行数比值 >120 判出并跳过：js 101 个、css 94 个。逐个查过，
+      这些文件本身一个注释标记都没有（grep 不到 /* 和 //），跳过不损失任何东西。
+      唯一的例外是 template/default/asset/css/theme-tokens.css（309 字节/行，首行一条
+      「主题令牌独立层」说明）——它是本仓手写的，被比值规则误伤，注释留在文件里。
+    ④ 带 ThinkPHP 标签的 HTML 注释原样保留（12 处，注释体里含 { 或 <? 或 IE 条件注释），
+      例如 app/admin/view/system/configcollect.html:177 那条被注释掉的 {if} 控件；
+      它们已经不再起注释作用，删之前要先解标签，风险大于收益。
+    ⑤ app/admin/view/public/select_vod_status.html 因混用 CRLF/LF 被跳过：整文件行尾
+      换算会改变字节，宁可不改。三个 0 字节的 index.html 占位（app/data/backup/ 两处、
+      app/admin/view/public/pages.html）也拒收——它们是目录列表拦截文件，不能变。
+    ⑥ 文件末尾的 ?> 一律不动（PSR-12 建议去掉，但那会真的改变输出字节），本仓历史上
+      app/common/util/Dir.php、Ftp.php 这类结尾无换行的形态也按原样保留。
+    验证（:8080 带登录态）：php -l 391 个改动文件全过；php think front:bundle 重建五张，
+    --check 全 ok；浏览器里 fetch + new Function 解析 14 个改动 js 全通过、13 个 css 花括号
+    配平全对；后台 142 个链接（排除 logout）全部 200 且无错误帧、无登录跳转；前台首页 DOM
+    抽 40 个链接同样干净（/user/invite.html 的 404 与本仓无关，改前即如此）；vod/detail、
+    vod/play、vod/show、monitor/index、themedesign/design、index/index 逐页加载 console
+    无 error；vod/art/manga 的 exportData 仍回 200 text/csv。
+    本轮踩到的最重要一条耦合，单独立刻：app/admin/controller/Base.php:28 会对
+    app/admin/controller/Update.php 做 md5_file() 与 app/extra/version.php 的 update_hash
+    比对，不一致时后台整站在构造函数里 exit(「系统核心功能异常，请恢复文件」)——本轮
+    Update.php 被重排后 md5 变了，后台直接变白页。已把 app/extra/version.php 的
+    update_hash 同步为新的 1d1647fd24a8f2d0a1e5d0e6fa6bd681（旧值 086014dc1dad6faef8b8baeed6ce07c3）。
+    以后凡是改动 Update.php（包括只改注释），都必须同时重算这枚哈希；除 Base.php 这一处
+    读取外，全仓没有任何代码会写它，官方包升级才会覆盖。
+
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）
 --------------------------------------------------------------------------------

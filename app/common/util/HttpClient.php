@@ -30,11 +30,6 @@ class HttpClient
         return $response;
     }
 
-    /**
-     * 安全 GET：**不跟随重定向**（CURLOPT_FOLLOWLOCATION=0）。
-     * 供 URL 主题探测使用——调用方已对首跳主机做过 SSRF 校验，
-     * 关闭重定向可避免公网 URL 被 302 到内网/云元数据地址而绕过校验。
-     */
     public static function curlGetNoRedirect($url, $timeout, $heads = array())
     {
         $ch = @curl_init();

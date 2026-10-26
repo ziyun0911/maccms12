@@ -4,14 +4,11 @@ use think\facade\Cache;
 use think\facade\Db;
 
 class Group extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'group';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -164,12 +161,6 @@ class Group extends Base {
         return $cache;
     }
 
-    /**
-     * VIP 套餐活动价计算
-     * 活动有效（活动价 > 0 且当前时间在 start/end 窗口内）时用 group_activity_points_*
-     * 覆盖正常套餐积分，否则回退正常价。
-     * 返回 ['effective_points' => int, 'is_activity' => 0|1]
-     */
     public function vipPlanPrice($group_info, $long)
     {
         $long = trim($long);
@@ -186,5 +177,4 @@ class Group extends Base {
         }
         return ['effective_points' => $normal, 'is_activity' => 0];
     }
-
 }

@@ -10,7 +10,6 @@ class Make extends Base
 
     public function __construct()
     {
-        //header('X-Accel-Buffering: no');
         $this->_param = input();
         $GLOBALS['ismake'] = '1';
 
@@ -65,7 +64,6 @@ class Make extends Base
 
     public function opt()
     {
-        //分类列表
         $type_list = (new \app\common\model\Type())->getCache('type_list');
         $this->assign('type_list',$type_list);
 
@@ -90,18 +88,12 @@ class Make extends Base
         $this->assign('vod_type_ids',join(',',$vod_type_ids));
         $this->assign('art_type_ids',join(',',$art_type_ids));
 
-
-
-        //当日视频分类ids
         $res = (new \app\common\model\Vod())->updateToday('type');
         $this->assign('vod_type_ids_today',$res['data']);
 
-        //当日文章分类ids
         $res = (new \app\common\model\Art())->updateToday('type');
         $this->assign('art_type_ids_today',$res['data']);
 
-
-        //专题列表
         $where = [];
         $where['topic_status'] = ['eq',1];
         $order = 'topic_id desc';
@@ -111,7 +103,6 @@ class Make extends Base
         $topic_ids = join(',',array_keys($topic_list_rows));
         $this->assign('topic_ids',$topic_ids);
 
-        //自定义页面
         $label_list = [];
         $path = $GLOBALS['MAC_ROOT_TEMPLATE'] .'label';
         if(is_dir($path)){
@@ -143,7 +134,6 @@ class Make extends Base
 
         $this->assign('title',lang('admin/make/title'));
         return $this->fetch('admin@make/opt');
-
     }
 
     public function make($pp=[])
@@ -372,7 +362,6 @@ class Make extends Base
             $this->_param['page_size'] = $page_size;
 
             if($type_info['type_pid'] == 0){
-                //$this->_param['page_count'] = 1;
             }
         }
 
@@ -395,7 +384,6 @@ class Make extends Base
         $sec = ceil($start / $GLOBALS['config']['app']['makesize']);
         $this->echoLink(lang('admin/make/type_tip',[$type_info['type_name'],$this->_param['page_count'],$sec_count,$sec]));
         $this->label_maccms();
-
 
         $n=1;
         for($i=$start;$i<=$page_count;$i++){
@@ -554,7 +542,6 @@ class Make extends Base
             exit;
         }
 
-
         $data_count = count($ids);
         $this->echoLink(lang('admin/make/topic_tip',[$data_count]));
         $this->label_maccms();
@@ -594,7 +581,6 @@ class Make extends Base
         }
     }
 
-
     public function info()
     {
         $where = [];
@@ -609,7 +595,6 @@ class Make extends Base
                 mac_echo(lang('admin/make/view_model_static_err'));
                 exit;
             }
-
         }
         else{
             $type_ids = $this->_param['vodtype'];
@@ -620,7 +605,6 @@ class Make extends Base
                 mac_echo(lang('admin/make/view_model_static_err'));
                 exit;
             }
-
         }
 
         $num = intval($this->_param['num']);
@@ -640,14 +624,12 @@ class Make extends Base
         }
         $type_name ='';
 
-
         if(!empty($type_ids)){
             if(!is_array($type_ids)){
                 $type_ids = explode(',',$type_ids);
             }
 
             if ($num>=count($type_ids)){
-
                 if(empty($this->_param['jump'])){
                     $this->echoLink(lang('admin/make/info_make_complete').'1');
                     if(ENTRANCE=='admin'){
@@ -680,19 +662,13 @@ class Make extends Base
             $where[$this->_param['tab'].'_id'] = ['in',$ids];
         }
 
-
         if($this->_param['ac2'] =='day'){
             $type_name .=lang('today_data');
             $where[$this->_param['tab'].'_time'] = ['gt', strtotime(date('Y-m-d'))];
 
-
             if ($num>=count($type_ids)){
-
             }
             if($start > $page_count){
-                //$this->echoLink('内容页生成完毕3');
-                //mac_jump( url('make/opt') ,3);
-                //exit;
             }
         }
         elseif($this->_param['ac2'] =='nomake'){
@@ -721,7 +697,6 @@ class Make extends Base
                 $data_count = (new \app\common\model\Vod())->countData($where);
             }
 
-
             $page_count = ceil($data_count / $GLOBALS['config']['app']['makesize']);
             $page_size = $GLOBALS['config']['app']['makesize'];
 
@@ -731,7 +706,6 @@ class Make extends Base
         }
 
         if($start > $page_count){
-
             $this->echoLink('【'.$type_name.'】'.lang('admin/make/info_make_complete_later'));
 
             if($this->_param['ac2'] =='nomake' ){
@@ -741,7 +715,6 @@ class Make extends Base
                 die;
             }
             else{
-
             }
 
             $this->_param['start'] = 1;
@@ -751,13 +724,11 @@ class Make extends Base
             $this->_param['page_size'] = 0;
             $url = url('make/make') .'?'. http_build_query($this->_param);
 
-
             if(ENTRANCE=='admin'){
                 mac_jump( $url ,3);
             }
             exit;
         }
-
 
         $this->echoLink(lang('admin/make/info_tip',[$type_name,$this->_param['data_count'],$this->_param['page_count'],$this->_param['page_size'],$start]));
 
@@ -768,12 +739,9 @@ class Make extends Base
             $res = (new \app\common\model\Vod())->listData($where, $order, $start, $GLOBALS['config']['app']['makesize']);
         }
 
-
         $update_ids=[];
         foreach($res['list'] as $k=>$v){
-
             if(!empty($v['art_id'])) {
-
                 $GLOBALS['type_id'] =$v['type_id'];
                 $GLOBALS['type_pid'] = $v['type']['type_pid'];
 
@@ -805,7 +773,6 @@ class Make extends Base
                 $update_ids[] = $v['art_id'];
             }
             else{
-
                 $GLOBALS['type_id'] =$v['type_id'];
                 $GLOBALS['type_pid'] = $v['type']['type_pid'];
 
@@ -842,9 +809,7 @@ class Make extends Base
                     $GLOBALS['aid'] = mac_get_aid('vod',$f);
 
                     $this->label_maccms();
-                    //播放页 和 下载页
                     if ($GLOBALS['config']['view']['vod_'.$f] < 2) {
-
                     }
                     else{
                         if ($GLOBALS['config']['view']['vod_'.$f] == 2) {
@@ -942,13 +907,9 @@ class Make extends Base
             $this->_param['page_size'] = 0;
             $this->echoLink('【'.$type_name.'】'.lang('admin/make/info_make_complete_later'));
 
-
             if($this->_param['ac2'] !=''){
-                //mac_jump( url('make/opt') ,3);
-                //die;
             }
             else{
-
             }
         }
         else{
@@ -961,7 +922,6 @@ class Make extends Base
             mac_jump( $url ,3);
         }
     }
-
 
     public function label()
     {
@@ -991,7 +951,6 @@ class Make extends Base
             $link = mac_url_label($fullname);
             $this->buildHtml($link ,'./', $tpl );
             $this->echoLink($fullname, $link);
-
         }
 
         $this->echoLink(lang('admin/make/label_complete'));
@@ -1491,6 +1450,4 @@ class Make extends Base
             mac_jump($url, 3);
         }
     }
-
-
 }

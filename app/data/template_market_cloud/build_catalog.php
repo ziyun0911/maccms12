@@ -1,15 +1,4 @@
 <?php
-/**
- * 模板市场云端目录构建（RS256 签名，与 ResourceHub 独立）
- *
- * 用法：
- *   php application/data/template_market_cloud/build_catalog.php
- *   php application/data/template_market_cloud/build_catalog.php --source=./catalog.source.json --out=./dist/catalog.json
- *   php application/data/template_market_cloud/build_catalog.php --private-key=./keys/catalog_private.pem
- *
- * 认证：服务端私钥对 {"items":[...]} 做 RS256 签名；CMS 内置公钥验签。
- * 对称加密仅作传输混淆时可选，不承担完整性认证职责。
- */
 
 if (PHP_SAPI !== 'cli') {
     fwrite(STDERR, "CLI only\n");

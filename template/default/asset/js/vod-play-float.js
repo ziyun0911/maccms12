@@ -1,5 +1,4 @@
-/* 悬浮原播放器：滚动越过播放器后，把同一个播放器 DOM 固定成角落小窗继续播放。
-   不复制、不重载 iframe，因此播放进度与音量状态都保持连续。 */
+
 (function (w, d) {
     'use strict';
 
@@ -50,7 +49,6 @@
         return !!(d.fullscreenElement || d.webkitFullscreenElement || d.mozFullScreenElement || d.msFullscreenElement);
     }
 
-    // 祖先带 transform/filter 等会改写 fixed 的包含块，小窗会贴到错误位置，此时直接放弃悬浮
     function fixedSafe(el) {
         var node = el.parentNode;
         while (node && node.nodeType === 1) {
@@ -76,7 +74,6 @@
 
     function start(el) {
         var ratio = readRatio();
-        // 占位块常驻流内：不悬浮时高度为 0，悬浮时补足播放器原本腾出的空间，页面不跳动
         var anchor = d.createElement('div');
         anchor.className = ANCHOR_CLS;
         el.parentNode.insertBefore(anchor, el);
@@ -90,8 +87,6 @@
             var size = floatSize(ratio);
             el.style.width = size.width + 'px';
             el.style.height = size.height + 'px';
-            // 右下角的固定挂件（快捷菜单等）要顶到小窗之上，交给 CSS 用这个变量避让
-            // 上限保证挂件整体留在视口内：ratio 配到 200 时小窗可能高出视口
             var vh = viewportHeight();
             var top = Math.round(vh - el.getBoundingClientRect().top);
             if (top > vh - 100) {
@@ -103,7 +98,6 @@
         function engage() {
             floating = true;
             anchor.style.height = flowHeight + 'px';
-            // class 必须先加上：fixed 生效后才能量到小窗的真实位置
             el.classList.add(FLOAT_CLS);
             applyBox();
             d.documentElement.classList.add(PAGE_FLOAT_CLS);
@@ -120,7 +114,6 @@
         }
 
         function slotBottom() {
-            // 悬浮后播放器脱离文档流，原始位置只能靠占位块还原
             if (floating) {
                 return anchor.getBoundingClientRect().bottom;
             }
@@ -150,7 +143,6 @@
             }
         }
 
-        // 用 setTimeout 而非 rAF 节流：后台标签页里 rAF 不执行，切回页面时悬浮状态会滞后
         var pending = 0;
         function schedule() {
             if (pending) {

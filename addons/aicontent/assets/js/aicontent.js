@@ -1,20 +1,6 @@
-/**
- * AI Content Assistant — Frontend JS
- *
- * Strategy:
- *   PHP (viewFilter) injects ✨ AI button HTML next to every eligible field.
- *   This script loads after page render and binds click handlers to those buttons.
- *   If for any reason a button was not injected by PHP, a fallback creates it.
- *
- *   All user-facing strings are resolved from window.AI_LANG (injected by PHP)
- *   with English hard-coded fallbacks so the script works even if AI_LANG is absent.
- */
+
 (function (window) {
     'use strict';
-
-    // -----------------------------------------------------------------------
-    // i18n helper — always call t() instead of using string literals
-    // -----------------------------------------------------------------------
 
     var L = window.AI_LANG || {};
 
@@ -22,12 +8,7 @@
         return (L[key] !== undefined) ? L[key] : fallback;
     }
 
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
-
     function post(url, data, callback) {
-        // Attach CSRF token to every POST request
         if (window.AI_CSRF_TOKEN) {
             data._csrf_token = window.AI_CSRF_TOKEN;
         }
@@ -54,7 +35,6 @@
         }
     }
 
-    // Read value from a field (plain or UEditor)
     function readField(el) {
         var id = el.id;
         if (id && window.ue && window.ue.id === id) {
@@ -70,7 +50,6 @@
         return el.value;
     }
 
-    // Write value back to a field (plain or UEditor)
     function writeField(el, text) {
         var id = el.id;
         if (id && window.ue && window.ue.id === id) {
@@ -86,7 +65,6 @@
         el.value = text;
     }
 
-    // Fields to skip — non-content technical fields
     var SKIP_PATTERNS = [
         'pic', 'img', 'thumb', 'screenshot', 'poster',
         'url', 'play', 'down', 'from', 'server',
@@ -101,7 +79,6 @@
         return SKIP_PATTERNS.some(function (p) { return nameId.indexOf(p) !== -1; });
     }
 
-    // Build the click handler for an AI button
     function makeClickHandler(el, btn, opts) {
         return function () {
             var draft = readField(el);
@@ -140,7 +117,6 @@
         };
     }
 
-    // Create a new ✨ AI button for a field (fallback when PHP didn't inject one)
     function createBtn(el, opts) {
         var btn = document.createElement('button');
         btn.type      = 'button';
@@ -152,13 +128,8 @@
         return btn;
     }
 
-    // -----------------------------------------------------------------------
-    // Main: bind handlers to PHP-injected buttons; fallback-inject any missed
-    // -----------------------------------------------------------------------
-
     function initEnhance(opts) {
         function run() {
-            // 1) Bind handlers to buttons PHP already injected
             var injected = document.querySelectorAll('.ai-enhance-btn[data-target]');
             injected.forEach(function (btn) {
                 if (btn._aiBound) return;
@@ -171,11 +142,9 @@
                 }
             });
 
-            // 2) Fallback: inject button for any eligible field that has no button yet
             var allFields = document.querySelectorAll('input[type="text"], textarea');
             allFields.forEach(function (el) {
                 if (shouldSkip(el)) return;
-                // Skip if the immediately following sibling is already an AI button
                 var sib = el.nextElementSibling;
                 if (sib && sib.classList && sib.classList.contains('ai-enhance-btn')) return;
                 var btn = createBtn(el, opts);
@@ -187,14 +156,9 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', run);
         } else {
-            // Delay so UEditor instances are fully initialised
             setTimeout(run, 800);
         }
     }
-
-    // -----------------------------------------------------------------------
-    // Config page
-    // -----------------------------------------------------------------------
 
     function initConfigPage(opts) {
         var MODELS = {
@@ -244,10 +208,6 @@
         });
     }
 
-    // -----------------------------------------------------------------------
-    // Generate page
-    // -----------------------------------------------------------------------
-
     function initGeneratePage(opts) {
         var form        = document.getElementById('ai-generate-form');
         var contentType = document.getElementById('content_type');
@@ -261,7 +221,6 @@
         var resultPanel = document.getElementById('result-panel');
         var copyBtn     = document.getElementById('btn-copy-all');
 
-        // 1. Populate model dropdown for the given provider
         function updateModels(provider) {
             if (!modelSel) return;
             var models = (window.AI_MODELS_MAP && window.AI_MODELS_MAP[provider]) || {};
@@ -280,14 +239,12 @@
             providerSel.addEventListener('change', function () { updateModels(this.value); });
         }
 
-        // 2. Toggle video-only fields based on content type
         if (contentType && videoFields) {
             contentType.addEventListener('change', function () {
                 videoFields.style.display = (this.value === 'video') ? '' : 'none';
             });
         }
 
-        // 3. Test Key button
         if (testBtn) {
             testBtn.addEventListener('click', function () {
                 var provider = providerSel ? providerSel.value : '';
@@ -307,7 +264,6 @@
             });
         }
 
-        // 4. Form submission → generate API
         if (form) {
             var generateLabel = generateBtn ? generateBtn.innerHTML : '';
             form.addEventListener('submit', function (e) {
@@ -318,8 +274,6 @@
                 alertDiv.style.display = 'none';
                 resultPanel.style.display = 'none';
 
-                // Collect all form fields; FormData preserves data[title] keys as-is,
-                // which ThinkPHP's input('data/a') will parse correctly.
                 var data = {};
                 new FormData(form).forEach(function (v, k) { data[k] = v; });
 
@@ -342,7 +296,6 @@
             });
         }
 
-        // 5. Copy All button
         if (copyBtn) {
             copyBtn.addEventListener('click', function () {
                 var text = t('seo_title_label', 'SEO Title: ')   + document.getElementById('result-seo-title').value  + '\n'
@@ -351,16 +304,11 @@
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(text).then(function () { toast(t('copied', 'Copied!'), 'success'); });
                 } else {
-                    // Fallback for non-HTTPS contexts where clipboard API is unavailable
                     window.prompt('Copy the text below:', text);
                 }
             });
         }
     }
-
-    // -----------------------------------------------------------------------
-    // Public API
-    // -----------------------------------------------------------------------
 
     window.AiContent = {
         initEnhance      : initEnhance,

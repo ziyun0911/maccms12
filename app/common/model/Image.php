@@ -5,7 +5,6 @@ use think\facade\Log;
 use app\common\util\Image as Gd;
 
 class Image extends Base {
-
     public function down_load($url, $config, $flag = 'vod')
     {
         if (substr($url, 0, 4) == 'http') {
@@ -22,15 +21,12 @@ class Image extends Base {
         if (!in_array($ext, explode(',', $upload_image_ext))) {
             $ext = 'jpg';
         }
-        // 远程图片来自采集源等第三方主机，可能自签/过期/域名不匹配，显式关闭校验以保兼容。
         $img = mac_curl_get($url, [], '', false);
         if (empty($img) || strlen($img) < 10) {
             return $url . '#err';
         }
         $file_name = md5(uniqid()) .'.' . $ext;
-        // 上传附件路径
         $_upload_path = ROOT_PATH . 'upload' . '/' . $flag . '/';
-        // 附件访问路径
         $_save_path = 'upload'. '/' . $flag . '/' ;
         $ymd = date('Ymd');
         $n_dir = $ymd;
@@ -60,15 +56,12 @@ class Image extends Base {
         $_upload_path .= $n_dir . '/';
         $_save_path .= $n_dir . '/';
 
-        //附件访问地址
         $_file_path = $_save_path.$file_name;
-        //写入文件
         $saved_img_path = $_upload_path . $file_name;
         $r = mac_write_file($saved_img_path, $img);
         if(!$r){
             return $url;
         }
-        // 重新获取文件类型，不满足时，返回老链接
         $image_info = getimagesize($saved_img_path);
         $extension_hash = [
             '1'  => 'gif',
@@ -80,15 +73,12 @@ class Image extends Base {
             return $url . '#err';
         }
         $file_size = filesize($_upload_path.$file_name);
-        // 水印
         if ($config['watermark'] == 1) {
             $this->watermark($_file_path,$config,$flag);
         }
-        // 缩略图
         if ($config['thumb'] == 1) {
             $this->makethumb($_file_path,$config,$flag);
         }
-        //上传到远程
         $_file_path = (new \app\common\model\Upload())->api($_file_path, $config);
 
         $tmp = $_file_path;
@@ -121,7 +111,6 @@ class Image extends Base {
                 ->save('./' . $file_path);
         }
         catch(\Throwable $e){
-            // 原图已被上传成功，水印失败只降级不中断，但必须留痕
             Log::error('Image::watermark failed file=' . $file_path . ' err=' . $e->getMessage());
         }
     }
@@ -131,7 +120,6 @@ class Image extends Base {
         $thumb_type = (int)($config['thumb_type'] ?? 1);
         $data['thumb'] = [];
         if (!empty($config['thumb_size'])) {
-            // 支持多种尺寸的缩略图
             $thumbs = explode(',', $config['thumb_size']);
             foreach ($thumbs as $v) {
                 $t_size = explode('x', strtolower(trim($v)));
@@ -144,8 +132,6 @@ class Image extends Base {
                 if($new==0){
                     $new_thumb = $file_path;
                 }
-                // 每个尺寸都重新打开原图：thumb() 会就地改掉画布，复用同一个对象会让后面的
-                // 尺寸基于上一级的缩略图再生成，越缩越糊。
                 try {
                     $target = Gd::locate('./' . $new_thumb);
                     Gd::open('./' . $file_path)->thumb($w, $h, $thumb_type)->save($target);
@@ -164,7 +150,7 @@ class Image extends Base {
                     continue;
                 }
 
-                if (($config['watermark'] ?? 0) == 1 && !empty($config['watermark_content'])) {// 开启文字水印
+                if (($config['watermark'] ?? 0) == 1 && !empty($config['watermark_content'])) {
                     try {
                         Gd::open($target)
                             ->text((string)$config['watermark_content'], $config['watermark_font'] ?? './static/font/test.ttf',
@@ -179,8 +165,4 @@ class Image extends Base {
         }
         return $data;
     }
-
-
-
-
 }

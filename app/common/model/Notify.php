@@ -4,18 +4,14 @@ use think\facade\Db;
 use think\facade\Log;
 
 class Notify extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'notify';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
-
 
     public function listData($where,$order,$page=1,$limit=20,$start=0)
     {
@@ -107,10 +103,6 @@ class Notify extends Base {
         return $this->saveData($data);
     }
 
-    /**
-     * 给被回复的评论作者发通知。已对回复者与原作者同人、原作者未登录等情况做静默跳过。
-     * 通知失败不影响评论主流程，仅写日志。
-     */
     public function sendReplyNotify($parentId, $replyUserId)
     {
         $parentId = intval($parentId);
@@ -347,7 +339,6 @@ class Notify extends Base {
 
         $sent = 0;
         foreach ($users as $u) {
-            // group_id 为逗号分隔的会员组串，与系统其它处一致按最大组号判定是否 VIP（>2）
             $maxGroup = 0;
             foreach (explode(',', (string)$u['group_id']) as $gid) {
                 $gid = intval($gid);
@@ -385,5 +376,4 @@ class Notify extends Base {
 
         return ['code'=>1,'msg'=>lang('save_ok'),'info'=>['sent'=>$sent]];
     }
-
 }

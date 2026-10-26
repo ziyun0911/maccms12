@@ -6,18 +6,6 @@
 '遵循Apache2开源协议发布，并提供免费使用。
 '--------------------------------------------------------
 */
-/**
- * 外链图片代理：后台编辑器里命中 upload.img_key 关键字的外链图会被改写成
- * <img src="/img.php?url=原地址">（见 static/js/admin_common.js::mac_url_img），
- * 由本机代为取图，绕开对方的防盗链。
- *
- * 本文件不引导框架，是独立入口，因此 SSRF 防护必须自带：
- *   1. 只接受 http/https，且只允许 80/443 标准端口（堵内网端口探测与 user:pass@ 凭据外带）；
- *   2. 主机名解析出的每一个地址都必须是公网地址，解析失败一律拒绝（fail-closed）；
- *   3. 域名请求经 CURLOPT_RESOLVE 固定到已校验的 IP，关死「校验后再解析」的 DNS 重绑定窗口；
- *   4. 不交给 curl 自动跳转，逐跳重新走 1~3，最多 3 跳；
- *   5. 响应体必须嗅出真实图片魔数才回给浏览器，上限 5MB。
- */
 
 error_reporting(E_ERROR | E_PARSE);
 @ini_set('max_execution_time', '30');
@@ -34,7 +22,6 @@ function macImgStop($code, $msg)
     exit;
 }
 
-/** 校验单个 URL，通过则返回拆好的目标信息，否则 null。 */
 function macImgTarget($url)
 {
     $parts = parse_url((string)$url);
@@ -60,7 +47,6 @@ function macImgTarget($url)
     return ['scheme' => $scheme, 'host' => $host, 'port' => $port, 'ips' => $ips];
 }
 
-/** 主机 → 全部解析地址；只要有一个落在内网/保留段就整体拒绝。 */
 function macImgPublicIps($host)
 {
     if ($host === '' || $host === 'localhost' || substr($host, -6) === '.local') {
@@ -110,7 +96,6 @@ function macImgIpPublic($ip)
             FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
             return false;
         }
-        // PHP 的 NO_RES_RANGE 不覆盖这两段，实测 100.64.0.1 能穿过上面的检查
         foreach (['100.64.0.0/10', '198.18.0.0/15'] as $cidr) {
             if (macImgInCidr($ip, $cidr)) {
                 return false;
@@ -142,7 +127,6 @@ function macImgInCidr($ip, $cidr)
     return ($long & $mask) === ($base & $mask);
 }
 
-/** 把响应里的 Location 归一化成绝对地址。 */
 function macImgNextUrl($base, $location)
 {
     $location = trim((string)$location);
@@ -162,7 +146,6 @@ function macImgNextUrl($base, $location)
     return $root . $dir . '/' . $location;
 }
 
-/** 有 CA 根证书才开启校验：本机 php.ini 未配 curl.cainfo 时强开会让所有 https 图取不到。 */
 function macImgCaReady()
 {
     static $ready = null;
@@ -173,7 +156,6 @@ function macImgCaReady()
     return $ready;
 }
 
-/** 发一次请求（不自动跳转），返回状态码/响应体/Location。 */
 function macImgRequest($url, $target, $maxBytes)
 {
     $body = '';
@@ -181,8 +163,6 @@ function macImgRequest($url, $target, $maxBytes)
     $location = '';
     $tooBig = false;
 
-    // 主机名本身就是 IP 字面量时没有 DNS 环节可劫，写 RESOLVE 反而会被 libcurl 判为
-    // 非法条目（[ipv6]:port:addr 解析不了）并直接中断请求，所以只在真域名时固定。
     $resolve = [];
     if (!filter_var($target['host'], FILTER_VALIDATE_IP)) {
         $addrs = [];

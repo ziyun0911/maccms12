@@ -3,18 +3,6 @@ namespace app\common\util;
 
 use think\facade\Db;
 
-/**
- * 内容 AI 标注：一次 LLM 调用同时产出 标签 + 摘要 + 建议分类。
- *
- * 为什么三项合一次：三者用的是同一段源文本。拆成三次调用等于同一段文本送三遍，
- * 成本 ×3 而质量不变。这是把这三个需求合并成一个 PR 的全部理由。
- *
- * 为什么摘要不复用 SeoAi 的 description：SeoAi 的 prompt 明确要求
- * 「description 120-160 chars」，那是给搜索引擎 meta 用的；
- * 这里要的是前台展示的剧情简介，语气和长度都不同。
- *
- * 落库只落到 mac_content_ai_annotation（待采纳队列）。写主表是 AnnotationAdopter 的事。
- */
 class ContentAnnotator
 {
     const SUMMARY_MAX = 1000;
@@ -56,9 +44,6 @@ class ContentAnnotator
         return sha1(json_encode($payload, JSON_UNESCAPED_UNICODE));
     }
 
-    /**
-     * 候选分类。必须按 type_mid 过滤 —— 视频的内容不能被建议成文章分类。
-     */
     public static function typeCandidates($mid)
     {
         $mid = intval($mid);
@@ -118,11 +103,6 @@ class ContentAnnotator
             . "Return JSON only.";
     }
 
-    /**
-     * 解析并校验 LLM 输出。
-     * type_id 必须落在候选集合内 —— 模型编一个不存在的分类 id 出来，
-     * 会把内容归到一个不存在的分类里，这是不可接受的。
-     */
     public static function parseResult($text, $candidates)
     {
         $empty = ['tags' => '', 'summary' => '', 'type_id' => 0, 'confidence' => 0.0, 'error' => ''];
@@ -132,7 +112,6 @@ class ContentAnnotator
             $empty['error'] = 'empty ai response';
             return $empty;
         }
-        // 模型很爱把 JSON 包在 ```json 围栏里
         $text = preg_replace('/^```[a-zA-Z]*\s*/', '', $text);
         $text = preg_replace('/\s*```$/', '', $text);
 
@@ -186,9 +165,6 @@ class ContentAnnotator
         ];
     }
 
-    /**
-     * 对一条内容做标注。源文本没变（source_hash 命中）且非强制时直接跳过，不烧 token。
-     */
     public static function annotate($mid, $contentId, $force = false)
     {
         $mid = intval($mid);
@@ -249,8 +225,6 @@ class ContentAnnotator
             'model' => $cfg['model'],
             'error_msg' => '',
         ];
-        // 写库失败要反映到返回码：后台批量与定时任务都按 code 统计成败，
-        // 这里继续报成功等于把这批标注记成「已完成」，而结果其实已经丢了。
         try {
             $model->saveByObject($mid, $contentId, $data);
         } catch (\Throwable $e) {

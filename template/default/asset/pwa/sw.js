@@ -1,6 +1,5 @@
 'use strict';
 
-/** 构建/部署时可 bump；PHP 输出前会替换 __MAC_PATH__ */
 var CACHE_VERSION = 'mac-pwa-v202607211';
 var MAC_PATH = '__MAC_PATH__';
 
@@ -21,10 +20,6 @@ var PRECACHE_URLS = [
 
 var VIDEO_EXT = /\.(m3u8|mp4|ts|webm|flv|mkv)(\?|$)/i;
 
-/**
- * 后台请求：完全不介入（避免离线壳干扰超级控制台）
- * 覆盖常见入口 admin.php 与 /admin/；若入口改名需同步补充。
- */
 function isAdminRequest(url) {
   var p = (url.pathname || '').toLowerCase();
   if (p.indexOf('admin.php') !== -1) {
@@ -50,7 +45,6 @@ self.addEventListener('install', function (event) {
     caches
       .open(CACHE_VERSION)
       .then(function (cache) {
-        // 逐一预缓存并容错：任一资源失败不阻断 SW 安装/激活
         return Promise.all(
           PRECACHE_URLS.map(function (url) {
             return cache.add(url).catch(function () {
@@ -115,7 +109,6 @@ self.addEventListener('fetch', function (event) {
   }
 });
 
-/** 主库 PushDispatcher 载荷：{ title, body, url, icon }（扁平）；兼容嵌套 data.url */
 function resolvePushUrl(data) {
   var url = '';
   if (data && data.data && data.data.url) {
@@ -127,7 +120,6 @@ function resolvePushUrl(data) {
   if (!url) {
     return withMacPath('/');
   }
-  // 仅 http(s) 或站内相对路径（拒绝 //host、javascript: 等）
   if (/^https?:\/\//i.test(url)) {
     return url;
   }

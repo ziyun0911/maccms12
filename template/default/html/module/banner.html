@@ -13,7 +13,7 @@
         if(!isM)try{isM=document.documentElement.clientWidth<=820}catch(e2){}
         var active=isM?h5:pc;
         r.classList.add('banstem-style-active-'+active);
-        /* 样式一：首页 body 顶距交给轮播区处理（见 home-banner.css .home-banner-style-1） */
+
         if(active==='1'){
             try{
                 var b=document.body;
@@ -23,7 +23,7 @@
             }catch(e3){}
         }
     }();
-    </script>
+</script>
     {include file="ads/ads_banner_swiper"}
     <div class="bgi_box">
         <span class="bgi banstem-bgimage" {if condition="!empty($tplconfig['theme']['banner']['bgstyle'])"}style="background-image:{$tplconfig.theme.banner.bgstyle};"{/if}></span>

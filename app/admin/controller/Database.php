@@ -16,7 +16,6 @@ class Database extends Base
     {
         $group = input('group');
         if($group=='import'){
-            //列出备份文件列表
             $path = trim( $GLOBALS['config']['db']['backup_path'], '/').DS;
             if (!is_dir($path)) {
                 Dir::create($path);
@@ -87,7 +86,6 @@ class Database extends Base
                 $tables[] = $admin_table;
             }
 
-            //读取备份配置
             $config = array(
                 'path'     => $GLOBALS['config']['db']['backup_path'] .DS,
                 'part'     => $GLOBALS['config']['db']['part_size'] ,
@@ -95,7 +93,6 @@ class Database extends Base
                 'level'    => $GLOBALS['config']['db']['compress_level'] ,
             );
 
-            //检查是否有正在执行的任务
             $lock = "{$config['path']}backup.lock";
             if(is_file($lock)){
                 return $this->error(lang('admin/database/lock_check'));
@@ -103,11 +100,9 @@ class Database extends Base
                 if (!is_dir($config['path'])) {
                     Dir::create($config['path'], 0755, true);
                 }
-                //创建锁文件
                 file_put_contents($lock, $this->request->time());
             }
 
-            //生成备份文件信息
             $file = [
                 'name' => date('Ymd-His', $this->request->time()),
                 'part' => 1,
@@ -115,10 +110,8 @@ class Database extends Base
 
             $uploadStorage = input('upload_storage/d', 0);
 
-            // 创建备份文件
             $database = new dbOper($file, $config);
             if($database->create() !== false) {
-                // 备份指定表
                 foreach ($tables as $table) {
                     $start = $database->backup($table, $start);
                     while (0 !== $start) {
@@ -129,7 +122,6 @@ class Database extends Base
                         $start = $database->backup($table, $start[0]);
                     }
                 }
-                // 备份完成，删除锁定文件
                 unlink($lock);
             } else {
                 @unlink($lock);
@@ -139,7 +131,6 @@ class Database extends Base
             if ($uploadStorage) {
                 $uploadRes = $this->uploadBackupByName($file['name']);
                 if ($uploadRes['code'] !== 1) {
-                    // msg 已是脱敏后的完整文案，避免再套一层泄露细节
                     return $this->success(lang('admin/database/backup_ok') . ' ' . $uploadRes['msg']);
                 }
                 return $this->success(lang('admin/database/backup_ok_uploaded'));
@@ -149,9 +140,6 @@ class Database extends Base
         return $this->error(lang('admin/database/backup_err'));
     }
 
-    /**
-     * 将已有本地备份上传到当前配置的对象存储
-     */
     public function uploadStorage($id = '')
     {
         $id = intval($id);
@@ -169,13 +157,6 @@ class Database extends Base
         return $this->success(lang('admin/database/upload_storage_ok'));
     }
 
-    /**
-     * 恢复数据库 [参考原作者 麦当苗儿 <zuojiazi@vip.qq.com>]
-     * @param string|array $ids 表名
-     * @param integer $start 起始行数
-     * @author 橘子俊 <364666827@qq.com>
-     * @return mixed
-     */
     public function import($id = '')
     {
         if (empty($id)) {
@@ -194,7 +175,6 @@ class Database extends Base
         }
         ksort($list);
 
-        // 检测文件正确性
         $last = end($list);
         if(count($list) === $last[0]){
             foreach ($list as $item) {
@@ -204,7 +184,6 @@ class Database extends Base
                 ];
                 $database = new dbOper($item, $config);
                 $start = $database->import(0);
-                // 导入所有数据
                 while (0 !== $start) {
                     if (false === $start) {
                         return $this->error(lang('admin/database/import_err'));
@@ -303,12 +282,10 @@ class Database extends Base
                     }
                 }
                 $sql = str_replace('{pre}',config('database.connections.mysql.prefix'),$sql);
-                //查询语句返回结果集
                 if(
                     strtolower(substr($sql,0,6))=="select" || 
                     stripos($sql, ' outfile') !== false
                 ){
-
                 }
                 else{
                     Db::execute($sql);
@@ -383,9 +360,6 @@ class Database extends Base
         return false;
     }
 
-    /**
-     * 备份容灾仅走 S3 兼容接口（含 MinIO / OSS），避免公开图床桶误传 SQL
-     */
     private function getUploadStorageInfo()
     {
         $config = (array)config('maccms.upload');
@@ -403,10 +377,6 @@ class Database extends Base
         ];
     }
 
-    /**
-     * @param string $backupName 形如 20260714-102600（不含卷号与扩展名）
-     * @return array
-     */
     private function uploadBackupByName($backupName)
     {
         if (!is_string($backupName) || !preg_match('/^\d{8}-\d{6}$/', $backupName)) {
@@ -426,7 +396,6 @@ class Database extends Base
 
         $uploadConfig = $storage['config'];
         $uploadConfig['mode'] = 's3';
-        // 本地必须保留；备份不写 public-read ACL
         $uploadConfig['keep_local'] = 1;
         $uploadConfig['acl'] = false;
 
@@ -450,22 +419,17 @@ class Database extends Base
                 if (!$this->isRemoteUploadResult($url, $rel)) {
                     return ['code' => 0, 'msg' => lang('admin/database/upload_storage_fail')];
                 }
-                // 容灾场景必须保留本地副本
                 if (!is_file($absFile) && !is_file(ROOT_PATH . $rel)) {
                     return ['code' => 0, 'msg' => lang('admin/database/upload_storage_fail')];
                 }
             }
         } catch (\Throwable $e) {
-            // 不把 SDK/路径等细节回传前端
             return ['code' => 0, 'msg' => lang('admin/database/upload_storage_fail')];
         }
 
         return ['code' => 1, 'msg' => 'ok'];
     }
 
-    /**
-     * 上传驱动成功时应返回 http(s) 远端地址，本地相对路径视为失败
-     */
     private function isRemoteUploadResult($url, $rel)
     {
         if (!is_string($url) || $url === '' || $url === $rel) {
@@ -474,9 +438,6 @@ class Database extends Base
         return (strpos($url, 'http://') === 0 || strpos($url, 'https://') === 0);
     }
 
-    /**
-     * 转为相对 ROOT_PATH 的路径，供上传驱动使用
-     */
     private function toUploadRelativePath($file)
     {
         $file = str_replace('\\', '/', $file);
@@ -496,9 +457,6 @@ class Database extends Base
         return '';
     }
 
-    /**
-     * @param string $table 已通过 isValidTable 校验的表名
-     */
     private function isValidField($table, $field)
     {
         if (!is_string($field) || !preg_match('/^[a-zA-Z0-9_]+$/', $field)) {
@@ -516,12 +474,6 @@ class Database extends Base
         return false;
     }
 
-    /**
-     * 附加 WHERE 仅允许 AND 开头的简单片段；无法安全绑定的表达式一律拒绝。
-     *
-     * @param string $where
-     * @return string|false 返回可拼接到 SQL 的片段（含前导空格），或 false
-     */
     private function sanitizeRepWhereClause($where)
     {
         $where = trim((string)$where);

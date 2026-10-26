@@ -7,10 +7,6 @@ use app\common\util\SensitiveDataCrypto;
 use think\Request;
 use think\Response;
 
-/**
- * 苹果CMS v12 —— 后台操作审计中间件
- * （由 TP5 的 common\behavior\AdminAudit 迁移，改为在响应返回后落库）
- */
 class AdminAudit
 {
     public function handle(Request $request, Closure $next)
@@ -96,7 +92,6 @@ class AdminAudit
                 'audit_payload'   => $json,
             ]);
         } catch (\Throwable $e) {
-            // 审计失败不影响业务
         }
 
         return $response;

@@ -4,6 +4,4 @@ use think\Validate;
 
 class System extends Validate
 {
-
-
 }

@@ -10,7 +10,6 @@ use app\common\util\MeilisearchSync;
 class Art extends Base {
     use RecycleBinTrait;
 
-    // 设置数据表（不含前缀）
     protected $name = 'art';
 
     protected function getRecycleTimeField(): string
@@ -18,11 +17,9 @@ class Art extends Base {
         return 'art_recycle_time';
     }
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -72,11 +69,7 @@ class Art extends Base {
             $total = $this->where($where)->count();
         }
         $list = Db::name('Art')->field($field)->where($where)->where($where2)->order($order)->limit($limit_str)->select();
-        //dump($where);die;
-        //echo $this->getLastSql();die;
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
 
         $vip_exclusive = mac_get_vip_exclusive_type_ids();
@@ -120,11 +113,7 @@ class Art extends Base {
             ->limit($limit_str)
             ->select();
 
-        //dump($where);die;
-        //echo $this->getLastSql();die;
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
 
         $vip_exclusive = mac_get_vip_exclusive_type_ids();
@@ -140,7 +129,6 @@ class Art extends Base {
                 }
             }
         }
-
 
         return ['code'=>1,'msg'=>lang('data_list'),'page'=>$page,'pagecount'=>ceil($total/$limit),'limit'=>$limit,'total'=>$total,'list'=>$list];
     }
@@ -195,7 +183,6 @@ class Art extends Base {
             $param = mac_search_len_check($param);
             $totalshow = 1;
             if(!empty($param['id'])) {
-                //$type = intval($param['id']);
             }
             if(!empty($param['ids'])){
                 $ids = $param['ids'];
@@ -253,7 +240,6 @@ class Art extends Base {
             else{
                 $pageurl = mac_url($pageurl,$param);
             }
-
         }
 
         $where['art_status'] = ['eq',1];
@@ -468,7 +454,6 @@ class Art extends Base {
                 return ['code' => 1002, 'msg' => lang('obtain_err')];
             }
             $info = $info->toArray();
-            //内容
             if (!empty($info['art_content'])) {
                 $info['art_page_list'] = mac_art_list($info['art_title'], $info['art_note'], $info['art_content']);
                 $info['art_page_total'] = count($info['art_page_list']);
@@ -476,14 +461,12 @@ class Art extends Base {
             if(!empty($info['art_pic_screenshot'])){
                 $info['art_pic_screenshot_list'] = mac_screenshot_list($info['art_pic_screenshot']);
             }
-            //分类
             if (!empty($info['type_id'])) {
                 $type_list = (new \app\common\model\Type())->getCache('type_list');
                 $info['type'] = $type_list[$info['type_id']];
                 $info['type_1'] = $type_list[$info['type']['type_pid']];
             }
 
-            //用户组
             if (!empty($info['group_id'])) {
                 $group_list = (new \app\common\model\Group())->getCache('group_list');
                 $info['group'] = $group_list[$info['group_id']];
@@ -511,7 +494,6 @@ class Art extends Base {
         Cache::delete($key);
         $key = 'art_detail_'.$data['art_id'].'_'.$data['art_en'];
         Cache::delete($key);
-
 
         $type_list = (new \app\common\model\Type())->getCache('type_list');
         $type_info = $type_list[$data['type_id']];
@@ -558,7 +540,6 @@ class Art extends Base {
         unset($data['uptime']);
         unset($data['uptag']);
 
-        // xss过滤
         $filter_fields = [
             'art_name',
             'art_sub',
@@ -704,5 +685,4 @@ class Art extends Base {
         }
         return ['code'=>1,'msg'=>lang('obtain_ok'),'data'=> join(',',$ids) ];
     }
-
 }

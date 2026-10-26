@@ -8,7 +8,6 @@ class Collect extends Base
     public function __construct()
     {
         parent::__construct();
-        //header('X-Accel-Buffering: no');
     }
 
     public function index()
@@ -63,7 +62,6 @@ class Collect extends Base
         $collect_break_website = Cache::get($key);
         $key = $GLOBALS['config']['app']['cache_flag']. '_'. 'collect_break_manga';
         $collect_break_manga = Cache::get($key);
-
 
         $this->assign('collect_break_vod', $collect_break_vod);
         $this->assign('collect_break_art', $collect_break_art);
@@ -171,7 +169,6 @@ class Collect extends Base
             $param = $pp;
         }
 
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
         $this->assign('type_list', $type_list);
 
@@ -203,7 +200,6 @@ class Collect extends Base
 
     public function timing()
     {
-        //当日视频分类ids
         $res = (new \app\common\model\Vod())->updateToday('type');
         $this->assign('vod_type_ids_today', $res['data']);
 
@@ -211,10 +207,6 @@ class Collect extends Base
         return $this->fetch('admin@collect/timing');
     }
 
-    /**
-     * 即时读取分类绑定配置（直接读文件，绕过 config 缓存 / 多进程 opcache 旧值）
-     * 避免在保存/清理绑定时基于过期数据写回，覆盖其他进程刚写入的绑定。
-     */
     private function loadBindConfig()
     {
         $file = APP_PATH . 'extra/bind.php';
@@ -278,9 +270,6 @@ class Collect extends Base
         return $this->error(lang('param_err'));
     }
 
-    /**
-     * 归一化采集参数：直接访问 collect/vod 等地址时，路由绑定到的 $param 可能缺失或是字符串
-     */
     private function normalizeCollectParam($param): array
     {
         if (!is_array($param) || empty($param)) {
@@ -305,7 +294,6 @@ class Collect extends Base
         }
 
         if(($param['ac'] ?? '') == 'list'){
-
             $bind_list = config('bind');
             $type_list = (new \app\common\model\Type())->getCache('type_list');
 
@@ -345,7 +333,6 @@ class Collect extends Base
         mac_echo('<title>' . $page_now . '/' . (int)$res['page']['pagecount'] . ' collecting..</title>');
         mac_echo('<style type="text/css">body{font-size:12px;color: #333333;line-height:21px;}span{font-weight:bold;color:#FF0000}</style>');
         (new \app\common\model\Collect())->vod_data($param,$res );
-
     }
 
     public function art($param = [])
@@ -364,7 +351,6 @@ class Collect extends Base
         }
 
         if(($param['ac'] ?? '') == 'list'){
-
             $bind_list = config('bind');
             $type_list = (new \app\common\model\Type())->getCache('type_list');
 
@@ -421,7 +407,6 @@ class Collect extends Base
         }
 
         if(($param['ac'] ?? '') == 'list'){
-
             $bind_list = config('bind');
             $type_list = (new \app\common\model\Type())->getCache('type_list');
 
@@ -478,7 +463,6 @@ class Collect extends Base
         }
 
         if (($param['ac'] ?? '') == 'list') {
-
             $bind_list = config('bind');
             $type_list = (new \app\common\model\Type())->getCache('type_list');
 
@@ -535,7 +519,6 @@ class Collect extends Base
         }
 
         if (($param['ac'] ?? '') == 'list') {
-
             $bind_list = config('bind');
             $type_list = (new \app\common\model\Type())->getCache('type_list');
 
@@ -592,7 +575,6 @@ class Collect extends Base
         }
 
         if(($param['ac'] ?? '') == 'list'){
-
             $bind_list = config('bind');
             $type_list = (new \app\common\model\Type())->getCache('type_list');
             $manga_type_list = [];

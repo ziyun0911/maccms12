@@ -133,16 +133,11 @@ class Comment extends Base
         return $this->error(lang('param_err'));
     }
 
-    /**
-     * 黑名单关键字配置
-     */
     public function blacklist()
     {
         if ($this->request->isPost()) {
             $keywords = $this->request->post('keywords');
-            // 按行分割关键字
             $keywords_array = array_filter(explode("\n", $keywords));
-            // 过滤空行
             $keywords_array = array_map('trim', $keywords_array);
             $blcaks = config('blacks');
             $blcaks['black_keyword_list'] = $keywords_array;
@@ -158,18 +153,12 @@ class Comment extends Base
         $this->assign('title', lang('blacklist_keywords'));
         return $this->fetch('admin@comment/blacklist');
     }
-    /**
-     * 黑名单IP配置
-     */
     public function blacklist_ip()
     {
         if ($this->request->isPost()) {
             $keywords = $this->request->post('ip');
-            // 按行分割关键字
             $keywords_array = array_filter(explode("\n", $keywords));
-            // 过滤空行
             $keywords_array = array_map('trim', $keywords_array);
-            //使用mac_string_is_ip方法过滤掉非ip的内容
             $keywords_array = array_filter($keywords_array, function ($value) {
                 return mac_string_is_ip($value);
             });
@@ -187,5 +176,4 @@ class Comment extends Base
         $this->assign('title', lang('blacklist_ip'));
         return $this->fetch('admin@comment/blacklist_ip');
     }
-
 }

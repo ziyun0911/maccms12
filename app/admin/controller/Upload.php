@@ -5,8 +5,6 @@ use think\facade\Log;
 use app\common\util\UeditorAiCsrf;
 use app\common\util\UeditorAiProxy;
 
-
-
 class Upload extends Base
 {
     public function __construct()
@@ -40,12 +38,8 @@ class Upload extends Base
 		return (new \app\common\model\Upload())->upload($p);
     }
 
-    /**
-     * UEditorPlus AI dialog proxy (JSON). Key and api_base only from ai_seo server-side.
-     */
     public function ueditorAi()
     {
-        /* 对话框与后台可能不同 iframe/静态域，读不到 UE_AI_CSRF；用同源 GET + Cookie 取 session 内令牌再 POST */
         if ($this->request->isGet() && (string) input('fetch_csrf', '') === '1') {
             return json(['code' => 0, 'msg' => 'ok', 'data' => ['token' => UeditorAiCsrf::token()]]);
         }
@@ -128,6 +122,4 @@ class Upload extends Base
 
         return true;
     }
-
-
 }

@@ -24,7 +24,6 @@ class Payment extends Base
         $pay_config = $GLOBALS['config']['pay'];
         $cfg = (isset($pay_config[$pay_type]) && is_array($pay_config[$pay_type])) ? $pay_config[$pay_type] : [];
 
-        // 使用统一的通道完整性校验（与 api 入口逻辑一致）
         if (!ApiPayment::isPayChannelReady($pay_type, $cfg)) {
             echo lang('index/payment_status');
             exit;

@@ -26,7 +26,7 @@ class Actor extends Validate
     ];
 
     protected $message = [
-        
+
     ];
 
     protected $scene = [

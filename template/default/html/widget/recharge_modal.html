@@ -35,7 +35,6 @@
             <input type="text" maxlength="8" id="rcPriceInput" class="rc-input" data-placeholder="string_recharge_amount_ph" placeholder="请输入金额" data-placeholder="string_recharge_amount_ph" inputmode="decimal" autocomplete="off">
           </div>
           <div class="rc-tips" id="rcTips"></div>
-          <!-- 券面板挂载：tips 下、确认充值上（弹窗 scene=recharge） -->
           <div id="mac-user-coupon-panel-modal" class="mac-user-coupon-panel" data-scene="recharge" data-mount="recharge-modal" hidden></div>
           <button type="button" class="rc-submit" id="rcSubmitBtn" data-lang="string_confirm_pay">确认充值</button>
         </div>
@@ -612,7 +611,6 @@
         } else {
           $('#rcInitLoading').text(r.msg || rcGetLang('string_recharge_order_fail_retry', '创建订单失败，请重试', 'Failed to create order. Please try again.'));
           if (window.MacUserCoupon && MacUserCoupon.handleOrderError) {
-            // 错误文案已写在 loading 区，silent 避免再弹一层 toast
             MacUserCoupon.handleOrderError(r, window.MacUserCoupon.getByMount('buy-upgrade'), {
               silent: true
             });

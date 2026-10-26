@@ -35,7 +35,7 @@ class Alibaba
         $httpheader[] = "Accept-Encoding:gzip,deflate,sdch";
         $httpheader[] = "Accept-Language:zh-CN,zh;q=0.8";
         $httpheader[] = "Connection:close";
-        $ip = mt_rand(48, 140) . "." . mt_rand(10, 240) . "." . mt_rand(10, 240) . "." . mt_rand(10, 240); //随机 ip
+        $ip = mt_rand(48, 140) . "." . mt_rand(10, 240) . "." . mt_rand(10, 240) . "." . mt_rand(10, 240);
         $httpheader[] = 'CLIENT-IP:' . $ip;
         $httpheader[] = 'X-FORWARDED-FOR:' . $ip;
         curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);

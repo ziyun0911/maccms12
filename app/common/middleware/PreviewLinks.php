@@ -5,13 +5,6 @@ use Closure;
 use think\Request;
 use think\Response;
 
-/**
- * 苹果CMS v12 —— 主题设计预览中间件
- * （由 TP5 的 common\behavior\PreviewLinks 迁移）
- *
- * 仅在前台（ENTRANCE=index）且带 td_preview 时，向响应体注入内联脚本，
- * 使预览 iframe 内的站内链接保持 td_preview/td_theme 参数。
- */
 class PreviewLinks
 {
     public function handle(Request $request, Closure $next)

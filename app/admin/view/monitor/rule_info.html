@@ -190,11 +190,6 @@
         form.on('select(agg)', togglePctHint);
         togglePctHint();
 
-        // 数据源切换：
-        //  - metric   规则按「聚合(窗口) 比较 阈值」判定，需要聚合方式/窗口/持续时长
-        //  - analytics 规则由 AnalyticsAnomaly 用统计方法判定，这些字段没有意义。
-        //    尤其是「持续时长」：analytics 规则每小时才评估一次，
-        //    留着这个字段只会误导站长以为它有用。
         function toggleSource() {
             var isAnalytics = document.querySelector('select[name=rule_source]').value === 'analytics';
             document.querySelectorAll('.metric-only').forEach(function (el) {
@@ -209,9 +204,6 @@
             toggleDetectMode();
         }
 
-        // 偏差阈值只有同比/环比用得上。
-        // zscore 的灵敏度来自 detect_param 里的 k，zerodrop 压根不需要阈值 ——
-        // 把这个字段一直摆在那里只会让站长以为自己调的数字生效了，其实没有。
         function toggleDetectMode() {
             var isAnalytics = document.querySelector('select[name=rule_source]').value === 'analytics';
             var mode = document.querySelector('select[name=rule_detect_mode]').value;

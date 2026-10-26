@@ -1,35 +1,12 @@
 <?php
 namespace app\common\util;
 
-/**
- * 推送渠道的熔断器。
- *
- * ★ 存在的理由 ★
- * 告警推送是在每分钟一次的 cron 里同步发起的。一个挂掉的 webhook
- * 每次都会耗掉 PushHttp::TIMEOUT（5 秒）；如果一轮要发 5 条，
- * 那就是 25 秒 —— 每分钟的 cron 被一个失效的接收端拖垮，
- * 采集、聚合、清理全部跟着延迟。
- *
- * 所以：某个渠道连续失败 N 次就熔断一段时间，期间直接跳过、
- * 一次 curl 都不发起。冷却结束后放行一次探测（半开），
- * 成功则完全恢复，失败则重新熔断。
- *
- * 实现照抄 AiChatRateLimit::{checkCircuit,recordLlmCall,atomicUpdate}
- * 的 flock 模式 —— 那是本仓库已经验证过的同类设施。
- */
 class PushCircuit
 {
     const FAIL_THRESHOLD = 5;
     const HOLD_SECONDS = 1800;
     const SUBDIR = 'monitor_push';
 
-    /**
-     * 渠道当前是否可用。
-     *
-     * @param string $channel
-     * @param int    $now
-     * @return array ['closed'=>bool, 'reason'=>string]  closed=true 表示可以发
-     */
     public static function isClosed($channel, $now = 0)
     {
         $now = $now > 0 ? intval($now) : time();
@@ -46,17 +23,6 @@ class PushCircuit
         return ['closed' => true, 'reason' => ''];
     }
 
-    /**
-     * 记录一次推送结果。
-     *
-     * 成功 -> 清零失败计数并解除熔断（半开探测成功即完全恢复）。
-     * 失败 -> 累加；达到阈值就熔断 HOLD_SECONDS。
-     *
-     * @param string $channel
-     * @param bool   $ok
-     * @param int    $now
-     * @return void
-     */
     public static function record($channel, $ok, $now = 0)
     {
         $now = $now > 0 ? intval($now) : time();
@@ -70,20 +36,12 @@ class PushCircuit
         });
     }
 
-    /**
-     * @param string $channel
-     * @return void
-     */
     public static function reset($channel)
     {
         $path = self::path($channel);
         @unlink($path);
     }
 
-    /**
-     * @param string $channel
-     * @return array
-     */
     public static function read($channel)
     {
         $path = self::path($channel);
@@ -98,13 +56,6 @@ class PushCircuit
         return is_array($data) ? $data : [];
     }
 
-    /**
-     * flock 保护下的读-改-写。
-     *
-     * @param string   $channel
-     * @param callable $mutator
-     * @return void
-     */
     private static function update($channel, $mutator)
     {
         $path = self::path($channel);
@@ -133,10 +84,6 @@ class PushCircuit
         fclose($fp);
     }
 
-    /**
-     * @param string $channel
-     * @return string
-     */
     private static function path($channel)
     {
         $channel = strtolower(preg_replace('/[^a-z0-9_]+/i', '_', (string)$channel));

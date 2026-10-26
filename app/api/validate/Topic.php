@@ -16,7 +16,7 @@ class Topic extends Validate
     ];
 
     protected $message = [
-        
+
     ];
 
     protected $scene = [

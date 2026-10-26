@@ -97,9 +97,6 @@ class ShareLog extends Base {
         $data['share_platform'] = mac_filter_xss($platform);
         $data['share_day'] = (int)date('Ymd', $data['share_time']);
 
-        // 按(用户,内容,当天)去重，防刷爆 vod_share_count 与 share_log 表。
-        // 权威保证是表上的 uk_user_content_day 唯一键，缓存只是省一次 DB 往返的快路径：
-        // Cache::has + Cache::set 之间有窗口，并发请求会同时穿过，此时靠唯一键兜底。
         $dedup_key = 'share_dedup_' . $user_id . '_' . $mid . '_' . $rid;
         $today_key = $dedup_key . '_' . date('Ymd', $data['share_time']);
         if (\think\facade\Cache::has($today_key)) {
@@ -120,11 +117,6 @@ class ShareLog extends Base {
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
-            // 写入失败后回查一次：当天该用户对该内容已有记录 = 撞了 uk_user_content_day，
-            // 与缓存命中同义，幂等返回成功（不递增计数、不写动态）。
-            // 这里不靠匹配异常文案判断错误类型：TP5 把 SQLSTATE 收进 getData()，
-            // getCode() 返回的是框架自己的 10501，仅凭 message 里出现 "1062"
-            // 判定重复会把回显了该数值的其它错误误判成去重，静默吞掉真实失败。
             $dup = $this->where([
                 'user_id'   => $user_id,
                 'share_mid' => $mid,
@@ -139,7 +131,6 @@ class ShareLog extends Base {
             return ['code' => 1005, 'msg' => lang('save_err')];
         }
 
-        // 计数自增成功后标记当日去重，TTL 略大于一天
         \think\facade\Cache::set($today_key, 1, 86400 + 3600);
 
         if (function_exists('hook')) {
@@ -156,7 +147,6 @@ class ShareLog extends Base {
             ]);
         }
 
-        // 写动态
         try {
             $content_name = '';
             $table_map = [1 => 'vod', 2 => 'art', 3 => 'topic', 8 => 'actor', 12 => 'manga'];

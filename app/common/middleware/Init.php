@@ -7,25 +7,12 @@ use think\facade\Config;
 use think\Request;
 use think\Response;
 
-/**
- * 苹果CMS v12 —— 站点初始化中间件
- *
- * 由 TP5 的 common\behavior\Init 迁移而来。负责：
- *  - 同步主题配置到 $GLOBALS['mctheme']
- *  - 解析站群（多域名）/手机端，选定模板目录
- *  - 定义 MAC_* 常量
- *  - 设置视图路径、缓存、默认语言、静态资源替换串等 TP8 运行期配置
- */
 class Init
 {
     public function handle(Request $request, Closure $next)
     {
-        // TP8 迁移兼容：maccms 为 PHP7 遗留代码，PHP8 的 Undefined array key/variable 等
-        // E_WARNING/E_NOTICE 会被 TP8 Error 初始化器转为异常中断页面。这里按 TP5/PHP7 语义
-        // 关闭这类良性告警的异常化，保留 E_ERROR/E_PARSE 等真实错误。
         error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
 
-        // 主题配置已在入口通过 app/extra 扫描加载，同步到 $GLOBALS 供模板与 mac_tpl_* 直接读取
         $GLOBALS['mctheme'] = config('mctheme') ?: ['theme' => []];
 
         $config = config('maccms');
@@ -124,7 +111,6 @@ class Init
             ], 'app');
         }
 
-        // TP8：模板路径统一挂在 view 配置组
         $viewPath = 'template/' . $TMP_TEMPLATEDIR . '/' . $TMP_HTMLDIR . '/';
         $viewConfig = ['view_path' => $viewPath];
 
@@ -132,8 +118,6 @@ class Init
             if (!is_dir(ROOT_PATH . $viewPath)) {
                 $viewConfig['view_path'] = '';
             }
-            // 后台模板目录统一为 view：跨应用 fetch（如 fetch('admin@index/index')）
-            // 在 think-view 中按 view_dir_name 解析，须显式指到 view
             $viewConfig['view_dir_name'] = 'view';
         }
         Config::set($viewConfig, 'view');
@@ -155,11 +139,9 @@ class Init
         if (!empty($config['app']['lang'])) {
             Config::set(['default_lang' => $config['app']['lang']], 'app');
             Config::set(['default_lang' => $config['app']['lang']], 'lang');
-            // Lang 服务在应用初始化阶段就已按旧配置构造，仅改 Config 不会切换语言包
             \think\facade\Lang::setLangSet($config['app']['lang']);
         }
 
-        // TP8：缓存采用 stores 结构，按 cache_type 切换 default 驱动并填充对应 store 参数
         $ct = $config['app']['cache_type'];
         $cacheConfig = config('cache');
         if (!is_array($cacheConfig)) {
@@ -195,7 +177,6 @@ class Init
         $cacheConfig['stores'] = $stores;
         Config::set($cacheConfig, 'cache');
 
-        // 应用层修正静态资源替换串（TP8 使用 view.tpl_replace_string）
         $req = request();
         $base = $req->root();
         $root = strpos($base, '.') ? ltrim(dirname($base), DS) : $base;
@@ -220,9 +201,6 @@ class Init
         return $next($request);
     }
 
-    /**
-     * 站群（多域名）匹配。
-     */
     public static function matchDomain($domain_list, $host, $mob_status)
     {
         if (!is_array($domain_list) || empty($domain_list) || empty($host)) {
@@ -245,9 +223,6 @@ class Init
         return null;
     }
 
-    /**
-     * 取站群条目自己配置的手机模板目录。
-     */
     public static function domainMobTemplate($entry)
     {
         if (!is_array($entry) || !isset($entry['mob_template_dir'])) {
@@ -260,9 +235,6 @@ class Init
         return $dir;
     }
 
-    /**
-     * 选定本次请求使用的模板目录。
-     */
     public static function pickTemplate($site, $is_mobile, $is_domain, $is_wap_domain, $domain_mob_tpl, $host)
     {
         $is_wap = 0;
@@ -299,9 +271,6 @@ class Init
         ];
     }
 
-    /**
-     * 合并站群条目并选定模板目录。
-     */
     public static function resolveSite($site, $domain_list, $host, $is_mobile)
     {
         $is_domain = 0;

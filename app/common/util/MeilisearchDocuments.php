@@ -2,9 +2,6 @@
 
 namespace app\common\util;
 
-/**
- * 将 vod / art / manga / topic / actor / role / website 行转为 Meilisearch 文档（统一字段便于单索引检索）。
- */
 class MeilisearchDocuments
 {
     private static function plain($html, $max = 4000)
@@ -18,11 +15,6 @@ class MeilisearchDocuments
         return $t;
     }
 
-    /**
-     * 生成拼音检索字段（全拼 + 首字母），用于拼音搜索和模糊匹配。
-     *
-     * @return array{py:string,initials:string}
-     */
     private static function pinyinFields($text)
     {
         $text = trim((string)$text);
@@ -39,11 +31,6 @@ class MeilisearchDocuments
         return ['py' => $py, 'initials' => $initials];
     }
 
-    /**
-     * 生成繁简体检索字段，支持繁简互通搜索。
-     *
-     * @return array{t2s:string,s2t:string}
-     */
     private static function zhFields($text)
     {
         $text = trim((string)$text);

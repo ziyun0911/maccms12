@@ -2,11 +2,6 @@
 
 namespace addons\aicontent\service\models;
 
-/**
- * Zhipu AI GLM (智谱AI) integration.
- * API is OpenAI-compatible.
- * API docs: https://open.bigmodel.cn/dev/api
- */
 class GlmModel extends BaseModel
 {
     const API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';

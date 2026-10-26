@@ -1,11 +1,4 @@
 <?php
-/**
- * 插件市场云端目录构建（RS256）
- *
- * 用法：
- *   php application/data/addon_market_cloud/build_catalog.php
- *   php application/data/addon_market_cloud/build_catalog.php --source=./catalog.source.json --out=./dist/catalog.json
- */
 
 if (PHP_SAPI !== 'cli') {
     fwrite(STDERR, "CLI only\n");

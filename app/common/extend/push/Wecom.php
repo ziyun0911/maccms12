@@ -1,9 +1,6 @@
 <?php
 namespace app\common\extend\push;
 
-/**
- * 企业微信群机器人推送。
- */
 class Wecom
 {
     public $name = 'WeCom';
@@ -27,7 +24,6 @@ class Wecom
 
         $res = PushHttp::post($url, $body, PushHttp::jsonHeaders());
         if ($res['code'] === 1) {
-            // 企微拒收时也返回 HTTP 200，真正的结果在 body 的 errcode 里
             $json = json_decode($res['body'], true);
             if (is_array($json) && isset($json['errcode']) && intval($json['errcode']) !== 0) {
                 return ['code' => intval($json['errcode']), 'msg' => isset($json['errmsg']) ? (string)$json['errmsg'] : 'wecom error'];

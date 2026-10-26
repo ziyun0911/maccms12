@@ -73,7 +73,6 @@
 {include file="../../../app/admin/view/public/foot" /}
 <script type="text/javascript">
     layui.use(['form', 'layer'], function(){
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer,
                 $ = layui.jquery;
@@ -86,7 +85,6 @@
                         $.each(res.data,function(index,row){
                             $(".fields").append('<a class="layui-btn layui-btn-sm" href="javascript:setfield(\''+row.Field+'\')">'+row.Field+'</a>&nbsp;&nbsp;');
                             if(index>0 && index%5==0){
-                                //$(".fields").append('<br>');
                             }
 
                         });
@@ -96,8 +94,6 @@
             }
         });
 
-
-        // 验证
         form.verify({
             table: function (value) {
                 if (value == "") {
@@ -126,7 +122,6 @@
     function setfield(v){
         $('#field').val(v);
     }
-
 </script>
 
 </body>

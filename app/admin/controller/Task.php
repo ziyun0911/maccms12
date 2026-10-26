@@ -9,7 +9,6 @@ class Task extends Base
         parent::__construct();
     }
 
-    // 任务列表
     public function data()
     {
         $param = input();
@@ -42,7 +41,6 @@ class Task extends Base
         return $this->fetch('admin@task/index');
     }
 
-    // 任务编辑
     public function info()
     {
         if (request()->isPost()) {
@@ -77,7 +75,6 @@ class Task extends Base
             }
         }
 
-        //内容级多语言
         $content_lang_default = mac_content_lang_default();
         $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
         $content_lang_data = [];
@@ -97,9 +94,6 @@ class Task extends Base
         return $this->fetch('admin@task/info');
     }
 
-    /**
-     * 调用已安装的翻译插件（若有）翻译单个字段。
-     */
     public function contentLangTranslate()
     {
         $text = (string)input('post.text', '');
@@ -118,7 +112,6 @@ class Task extends Base
         return json(['code' => 1, 'msg' => 'ok', 'data' => $result]);
     }
 
-    // 删除任务
     public function del()
     {
         $param = input();
@@ -135,7 +128,6 @@ class Task extends Base
         return $this->error(lang('param_err'));
     }
 
-    // 修改状态
     public function field()
     {
         $param = input();
@@ -154,7 +146,6 @@ class Task extends Base
         return $this->error(lang('param_err'));
     }
 
-    // 任务记录列表
     public function log()
     {
         $param = input();
@@ -186,7 +177,6 @@ class Task extends Base
         return $this->fetch('admin@task/log');
     }
 
-    // 删除任务记录
     public function log_del()
     {
         $param = input();

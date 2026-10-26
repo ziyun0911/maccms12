@@ -3,12 +3,6 @@ namespace app\admin\controller;
 
 use app\common\util\Translate as TranslateService;
 
-/**
- * 翻译设置（maccms12 / TP8）
- *
- * 负责后台「翻译设置」页：读取/保存 app\extra\translate.php 中的翻译 API 配置，
- * 并提供「测试翻译」动作验证凭据与连通性。保存/测试均带权限校验与令牌刷新。
- */
 class Translate extends Base
 {
     public function index()
@@ -23,9 +17,6 @@ class Translate extends Base
         return $this->fetch('admin@translate/config');
     }
 
-    /**
-     * 保存翻译 API 配置（写入 app\extra\translate.php）。
-     */
     public function save()
     {
         $param = input('post.');
@@ -45,7 +36,6 @@ class Translate extends Base
             'enable_map' => [],
         ];
 
-        // 允许的供应商白名单，防脏数据
         if (!in_array($config['type'], ['', 'baidu', 'tencent', 'deepl', 'openai'], true)) {
             $config['type'] = '';
         }
@@ -57,9 +47,6 @@ class Translate extends Base
         return json(['code' => 1, 'msg' => lang('save_ok')]);
     }
 
-    /**
-     * 测试翻译：用当前已保存配置把一句示例文本翻成 en-us。
-     */
     public function test()
     {
         if (!TranslateService::available()) {
@@ -75,9 +62,6 @@ class Translate extends Base
         return json(['code' => 1, 'msg' => lang('admin/translate/test_ok'), 'result' => $result]);
     }
 
-    /**
-     * AJAX form error with a new __token__ (ThinkPHP deletes the session token when validation runs).
-     */
     private function ajaxErrorWithFreshToken($msg)
     {
         $t = token('__token__');

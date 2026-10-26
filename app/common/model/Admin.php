@@ -3,14 +3,11 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Admin extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'admin';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -54,8 +51,6 @@ class Admin extends Base {
         else{
             $data['admin_auth'] = '';
         }
-        // 第 4 参 failException=false：默认 true 时 check() 直接抛 ValidateException，
-        // 下面两个返回 code 1001/1002 的分支是死代码，用户名留空只会看到 500 调试页。
         $validate = validate('app\\common\\validate\\Admin', [], false, false);
         if(!empty($data['admin_id'])){
             if(!$validate->scene('edit')->check($data)){
@@ -122,7 +117,6 @@ class Admin extends Base {
             }
         }
 
-
         $where=[];
         $where['admin_name'] = ['eq',$data['admin_name']];
         $where['admin_status'] = ['eq',1];
@@ -133,7 +127,6 @@ class Admin extends Base {
             return ['code'=>1003,'msg'=>lang('access_or_pass_err')];
         }
 
-        // 不再把 admin_pwd 放进 $where；先按用户名取行，再用 mac_verify_password 校验
         if (!mac_verify_password($data['admin_pwd'], $row['admin_pwd'])) {
             return ['code'=>1003,'msg'=>lang('access_or_pass_err')];
         }
@@ -146,9 +139,6 @@ class Admin extends Base {
         $update['admin_last_login_time'] = $row['admin_login_time'];
         $update['admin_last_login_ip'] = $row['admin_login_ip'];
 
-        // 惰性迁移：旧 md5/明文哈希在登录成功后升级为 bcrypt。
-        // 升级窗口期 admin_pwd 列可能仍是 varchar(32)，先确认列宽能容纳 60 字符
-        // bcrypt，否则跳过迁移避免被静默截断锁死账号。
         if (mac_password_needs_rehash($row['admin_pwd']) && mac_pwd_column_fits_hash('admin', 'admin_pwd')) {
             $update['admin_pwd'] = mac_hash_password($data['admin_pwd']);
         }
@@ -159,14 +149,8 @@ class Admin extends Base {
         }
 
         session('admin_auth','1');
-        // 关键：$row 是「更新前」的旧快照，需把本次登录写入 DB 的 $update 合并回去，
-        // 否则 session 里的 admin_last_login_time / admin_login_time 会停留在旧值，
         $admin_info = array_merge($row->toArray(), $update);
         session('admin_info',$admin_info);
-
-        //cookie('admin_id',$row['admin_id']);
-        //cookie('admin_name',$row['admin_name']);
-        //cookie('admin_check',md5($random .'-'. $row['admin_name'] .'-'.$row['admin_id'] .'-'.mac_get_client_ip() ) );
 
         return ['code'=>1,'msg'=>lang('model/admin/login_ok')];
     }
@@ -175,9 +159,6 @@ class Admin extends Base {
     {
         session('admin_auth',null);
         session('admin_info',null);
-        //cookie('admin_id',null);
-        //cookie('admin_name',null);
-        //cookie('admin_check',null);
 
         return ['code'=>1,'msg'=>lang('model/admin/logout_ok')];
     }
@@ -221,5 +202,4 @@ class Admin extends Base {
         }
         return ['code'=>1,'msg'=>lang('model/admin/haved_login'),'info'=>$info];
     }
-
 }

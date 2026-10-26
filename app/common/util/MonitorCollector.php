@@ -3,28 +3,13 @@ namespace app\common\util;
 
 use think\facade\Db;
 
-/**
- * 服务器性能指标采集器。
- *
- * 铁律：每一项独立 try/catch，任何一项失败都不 fatal、不影响其他项。
- * 拿不到的指标直接不写行（稀疏即语义），并在 skipped 里给出原因，
- * 后台据此隐藏对应图表，而不是画一条恒为 0 的假曲线。
- *
- * shell_exec 不是主路径（monitor.allow_shell 默认 '0'）：
- * 太多主机禁用它，而且它是 RCE 攻击面。
- */
 class MonitorCollector
 {
-    /**
-     * @return array ['metrics' => [['k'=>..,'t'=>..,'v'=>..]], 'skipped' => ['php.fpm' => '原因']]
-     */
     public static function collect()
     {
         $metrics = [];
         $skipped = [];
 
-        // 桶目录写不进去 = 请求埋点全部静默失效。
-        // 这是最需要被看见的一种故障：它不会报错，只会让监控安静地变成摆设。
         if (!self::runtimeWritable()) {
             $skipped['runtime'] = 'runtime_path()/monitor is not writable by the web process — '
                 . 'request metrics and abnormal-access tracking are silently disabled. '
@@ -43,11 +28,6 @@ class MonitorCollector
         return ['metrics' => $metrics, 'skipped' => $skipped];
     }
 
-    /**
-     * 能力探测结果，供后台「能力面板」展示。
-     *
-     * @return array
-     */
     public static function capabilities()
     {
         $caps = [];
@@ -65,32 +45,11 @@ class MonitorCollector
         return $caps;
     }
 
-    /**
-     * 分钟桶目录是否可写。
-     *
-     * ★ 为什么必须单独探测并上报 ★
-     * 请求路径上的埋点是 fail-open 的：任何异常都被 catch 吞掉，
-     * 绝不能因为监控自己出问题就把网站弄坏。代价是 —— 一旦
-     * runtime/monitor 因为权限问题写不进去（典型场景：站长以 root 跑过
-     * CLI 脚本，把目录建成了 root 所有，而 web 进程是 www-data），
-     * 埋点就会安静地什么都不做：没有报错、没有日志、后台看起来一切正常，
-     * 但监控实际上已经瞎了。
-     *
-     * 「看起来在保护你、其实没有」是最危险的失败模式。
-     * 所以必须主动探测并把它摆到站长眼前。
-     *
-     * @return bool
-     */
     public static function runtimeWritable()
     {
         try {
             $dir = rtrim(runtime_path(), '/\\') . DIRECTORY_SEPARATOR . 'monitor';
 
-            // ★ 探测必须零副作用，绝不能自己去 mkdir ★
-            // 采集器会以 CLI（可能是 root）被调用，一旦在这里把目录建出来，
-            // 目录的属主就是 root —— 而真正需要写它的 web 进程是 www-data，
-            // 于是这个「用来发现权限问题」的探测，自己制造了那个权限问题。
-            // 目录还不存在时，只判断父目录能不能建；由真正需要它的进程去创建。
             if (!is_dir($dir)) {
                 return is_writable(rtrim(runtime_path(), '/\\'));
             }
@@ -100,11 +59,6 @@ class MonitorCollector
         }
     }
 
-    /**
-     * CPU 采集范围：容器里 /proc/stat 是宿主的，优先用 cgroup。
-     *
-     * @return string 'cgroup2' | 'cgroup1' | 'host' | 'none'
-     */
     private static function cpuScope()
     {
         if (@is_readable('/sys/fs/cgroup/cpu.stat')) {
@@ -119,22 +73,6 @@ class MonitorCollector
         return 'none';
     }
 
-    // ------------------------------------------------------------------
-    // CPU：绝不 sleep(1)
-    // ------------------------------------------------------------------
-
-    /**
-     * cron 跑在 FPM worker 上。sleep(1) 取两次 /proc/stat 会占住一个 worker 整整一秒，
-     * 每分钟一次，在高负载时是自伤。
-     *
-     * 正确做法：把上次的采样存进 mac_monitor_state，用 delta 算。
-     * 这不但零阻塞，还更准 —— 得到的是「过去整整一分钟的平均 CPU」，
-     * 而不是「某一秒的瞬时值」。首次没有 prev，跳过一次。
-     *
-     * @param array $metrics
-     * @param array $skipped
-     * @return void
-     */
     private static function collectCpu(array &$metrics, array &$skipped)
     {
         try {
@@ -181,7 +119,6 @@ class MonitorCollector
 
             $metrics[] = ['k' => 'sys.cpu.pct', 't' => MonitorMetric::TYPE_GAUGE, 'v' => $pct];
             if ($scope === 'host' && self::looksContainerized()) {
-                // 值仍然采集，但标注它是宿主级的，后台会打标签
                 $skipped['sys.cpu.scope'] = 'host-level (containerized, no cgroup cpu.stat)';
             }
         } catch (\Throwable $e) {
@@ -189,10 +126,6 @@ class MonitorCollector
         }
     }
 
-    /**
-     * @param string $scope
-     * @return float|null 微秒累计值
-     */
     private static function readCgroupCpuUsec($scope)
     {
         if ($scope === 'cgroup2') {
@@ -205,7 +138,6 @@ class MonitorCollector
             }
             return null;
         }
-        // cgroup v1: cpuacct.usage 单位是纳秒
         $raw = @file_get_contents('/sys/fs/cgroup/cpuacct/cpuacct.usage');
         if ($raw === false) {
             return null;
@@ -217,20 +149,11 @@ class MonitorCollector
         return floatval($ns) / 1000.0;
     }
 
-    /**
-     * @return bool
-     */
     private static function looksContainerized()
     {
         return @is_file('/.dockerenv') || @is_dir('/sys/fs/cgroup/memory');
     }
 
-    /**
-     * 解析 /proc/stat 的第一行 cpu 累计 jiffies。纯函数，供单测。
-     *
-     * @param string $content
-     * @return array|null ['total'=>int,'idle'=>int]
-     */
     public static function parseProcStat($content)
     {
         if (!is_string($content) || $content === '') {
@@ -242,7 +165,7 @@ class MonitorCollector
                 continue;
             }
             $parts = preg_split('/\s+/', trim($line));
-            array_shift($parts); // 去掉 'cpu'
+            array_shift($parts);
             if (count($parts) < 5) {
                 return null;
             }
@@ -253,7 +176,6 @@ class MonitorCollector
                 }
                 $total += intval($p);
             }
-            // idle = idle(索引3) + iowait(索引4)
             $idle = intval($parts[3]) + intval($parts[4]);
             if ($total <= 0) {
                 return null;
@@ -263,13 +185,6 @@ class MonitorCollector
         return null;
     }
 
-    /**
-     * 从两次采样算 CPU 使用率。纯函数，供单测。
-     *
-     * @param array $prev
-     * @param array $cur
-     * @return float|null null = delta 非正（时钟回拨或计数器重置）
-     */
     public static function cpuPctFromDelta(array $prev, array $cur)
     {
         $mode = isset($cur['mode']) ? $cur['mode'] : 'jiffies';
@@ -300,9 +215,6 @@ class MonitorCollector
         return round(min(100.0, max(0.0, $pct)), 2);
     }
 
-    /**
-     * @return int
-     */
     private static function cpuCount()
     {
         $raw = @file_get_contents('/proc/cpuinfo');
@@ -314,10 +226,6 @@ class MonitorCollector
         }
         return 1;
     }
-
-    // ------------------------------------------------------------------
-    // Load / Memory / Disk / Uptime
-    // ------------------------------------------------------------------
 
     private static function collectLoad(array &$metrics, array &$skipped)
     {
@@ -339,12 +247,6 @@ class MonitorCollector
         }
     }
 
-    /**
-     * 解析 /proc/meminfo。纯函数，供单测。
-     *
-     * @param string $content
-     * @return array|null ['total_kb'=>int,'avail_kb'=>int,'swap_total_kb'=>int,'swap_free_kb'=>int]
-     */
     public static function parseMemInfo($content)
     {
         if (!is_string($content) || $content === '') {
@@ -374,7 +276,6 @@ class MonitorCollector
         if (empty($out['total_kb'])) {
             return null;
         }
-        // 老内核没有 MemAvailable，退回 MemFree
         if (!isset($out['avail_kb']) && isset($out['free_kb'])) {
             $out['avail_kb'] = $out['free_kb'];
         }
@@ -442,9 +343,6 @@ class MonitorCollector
         }
     }
 
-    /**
-     * @return array
-     */
     private static function diskMounts()
     {
         $mounts = ['/'];
@@ -453,7 +351,6 @@ class MonitorCollector
         if ($extra !== '') {
             foreach (explode(',', $extra) as $one) {
                 $one = trim($one);
-                // 只接受绝对路径，且必须真实存在，避免站长填错把 skipped 刷屏
                 if ($one !== '' && strpos($one, '/') === 0 && @is_dir($one)) {
                     $mounts[] = $one;
                 }
@@ -476,15 +373,10 @@ class MonitorCollector
         }
     }
 
-    // ------------------------------------------------------------------
-    // PHP-FPM / OPcache
-    // ------------------------------------------------------------------
-
     private static function collectFpm(array &$metrics, array &$skipped)
     {
         try {
             if (!function_exists('fpm_get_status')) {
-                // Apache mod_php / CLI / Swoole 下没有这个函数，这是常态而非故障
                 $skipped['php.fpm'] = 'fpm_get_status() unavailable (not running under PHP-FPM)';
                 return;
             }
@@ -547,23 +439,6 @@ class MonitorCollector
         }
     }
 
-    // ------------------------------------------------------------------
-    // MySQL
-    // ------------------------------------------------------------------
-
-    /**
-     * SHOW GLOBAL STATUS 给的是「自 MySQL 启动以来」的累计值。
-     *
-     * ★ delta 陷阱 ★
-     * 上次的累计值连同 Uptime 一起存进 mac_monitor_state。
-     * 若本次 Uptime < 上次 Uptime（MySQL 重启了），计数器已归零，
-     * 此时若照常做减法会得到一个巨大的负数或错误的正数尖峰，把告警炸醒。
-     * 正确做法：检测到重启就把该点的 delta 记为 0 并重置基准。
-     *
-     * @param array $metrics
-     * @param array $skipped
-     * @return void
-     */
     private static function collectDb(array &$metrics, array &$skipped)
     {
         try {
@@ -601,7 +476,6 @@ class MonitorCollector
 
             foreach (['slow_queries' => 'db.slow_queries', 'questions' => 'db.questions'] as $f => $key) {
                 if ($restarted) {
-                    // 首次采样，或 MySQL 刚重启：记 0，重置基准，不制造假尖峰
                     $metrics[] = ['k' => $key, 't' => MonitorMetric::TYPE_COUNTER, 'v' => 0];
                     continue;
                 }
@@ -612,8 +486,6 @@ class MonitorCollector
                 $metrics[] = ['k' => $key, 't' => MonitorMetric::TYPE_COUNTER, 'v' => $delta];
             }
 
-            // 慢查询日志没开时 Slow_queries 恒为 0，这不是「拿不到」而是「无意义」，
-            // 后台需要据此提示站长，否则会误以为「没有慢查询」。
             $var = Db::query("SHOW GLOBAL VARIABLES WHERE `Variable_name` = 'slow_query_log'");
             $slowOn = 0;
             if (!empty($var) && isset($var[0]['Value'])) {
@@ -625,9 +497,6 @@ class MonitorCollector
         }
     }
 
-    /**
-     * @return array
-     */
     private static function config()
     {
         return isset($GLOBALS['config']['monitor']) && is_array($GLOBALS['config']['monitor'])

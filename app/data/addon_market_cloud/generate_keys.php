@@ -1,13 +1,4 @@
 <?php
-/**
- * 生成插件市场 RSA 密钥对（云端私钥签名、客户端公钥验签）
- *
- * 用法：php application/data/addon_market_cloud/generate_keys.php
- *
- * 输出：
- *   keys/catalog_private.pem  — 仅保存在发布服务器，勿提交仓库
- *   catalog_public.pem        — 提交仓库，并同步到 AddonCloudService::CATALOG_PUBLIC_KEY_PEM
- */
 
 if (PHP_SAPI !== 'cli') {
     fwrite(STDERR, "CLI only\n");

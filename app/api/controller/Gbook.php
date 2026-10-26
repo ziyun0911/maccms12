@@ -11,23 +11,14 @@ class Gbook extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     *  获取列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -36,7 +27,6 @@ class Gbook extends Base
                 'msg'  => '参数错误: ' . $validate->getError(),
             ]);
         }
-        // 查询条件组装
         $where = [];
 
         $offset = isset($param['offset']) ? (int)$param['offset'] : 0;
@@ -74,11 +64,9 @@ class Gbook extends Base
             $where['gbook_time'] = ['>', (int)$param['time_start']];
         }
 
-        // 数据获取
         $total = (new \app\common\model\Gbook())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
-            // 排序
             $order = "gbook_time DESC";
             $field = '*';
             if (strlen($param['orderby']) > 0) {
@@ -86,7 +74,6 @@ class Gbook extends Base
             }
             $list = (new \app\common\model\Gbook())->getListByCond($offset, $limit, $where, $order, $field, []);
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -99,11 +86,6 @@ class Gbook extends Base
         ]);
     }
 
-    /**
-     * 提交留言
-     * api.php/gbook/submit (POST)
-     * 参数: gbook_content, [gbook_name]
-     */
     public function submit(Request $request)
     {
         $content = trim($request->param('gbook_content', ''));
@@ -134,10 +116,6 @@ class Gbook extends Base
         return json($res);
     }
 
-    /**
-     * 举报留言
-     * api.php/gbook/report?id=1
-     */
     public function report(Request $request)
     {
         $id = intval($request->param('id', 0));

@@ -1,6 +1,4 @@
-/* AI Content Assistant — Plugin Styles */
 
-/* Result panel animation */
 #result-panel {
     animation: fadeInUp 0.4s ease;
 }
@@ -10,7 +8,6 @@
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Stats cards */
 .ai-stat-card {
     border-radius: 6px;
     padding: 16px;
@@ -31,7 +28,6 @@
     letter-spacing: 0.05em;
 }
 
-/* Generate button pulse */
 #btn-generate:not([disabled]) {
     transition: box-shadow 0.2s ease;
 }
@@ -40,7 +36,6 @@
     box-shadow: 0 0 12px rgba(66, 139, 202, 0.55);
 }
 
-/* Tag badge display in results */
 .ai-tag-badge {
     display: inline-block;
     background: #e9f0fa;
@@ -51,24 +46,20 @@
     font-size: 0.82rem;
 }
 
-/* Provider select row */
 .provider-model-row {
     display: flex;
     gap: 8px;
     align-items: center;
 }
 
-/* Config page key fields */
 .form-group .btn-test-key {
     min-width: 56px;
 }
 
-/* Spinner override */
 .fa-spinner {
     animation: fa-spin 0.8s infinite linear;
 }
 
-/* Alert box tighter */
 .ai-alert-inline {
     padding: 8px 12px;
     border-radius: 4px;
@@ -76,12 +67,10 @@
     font-size: 0.9rem;
 }
 
-/* Task history table */
 .table .label {
     font-size: 0.8em;
 }
 
-/* Responsive tweaks */
 @media (max-width: 768px) {
     .panel-body .row > div {
         margin-bottom: 12px;

@@ -100,9 +100,6 @@ class Live extends Base
         return ['code' => 1, 'msg' => lang('set_ok')];
     }
 
-    /**
-     * 解析播放地址：格式 名称1$地址1#名称2$地址2
-     */
     public function parseUrlList($str)
     {
         $list = [];
@@ -122,8 +119,6 @@ class Live extends Base
         }
         return $list;
     }
-
-    // ==================== 分类 CRUD ====================
 
     public function categoryList($where = [], $order = 'cate_sort asc, cate_id asc')
     {

@@ -4,24 +4,16 @@ namespace addons\aicontent\model;
 
 use think\Model;
 
-/**
- * Model for the mac_ai_task table.
- * Tracks every AI generation request (single or batch).
- */
 class AiTask extends Model
 {
     protected $name       = 'ai_task';
     protected $pk         = 'id';
-    protected $autoWriteTimestamp = false; // We manage timestamps manually
+    protected $autoWriteTimestamp = false;
 
-    // Task status constants
     const STATUS_PENDING = 0;
     const STATUS_DONE    = 1;
     const STATUS_ERROR   = 2;
 
-    /**
-     * Create a new pending task record.
-     */
     public static function createTask(
         string $contentType,
         int    $contentId,
@@ -43,9 +35,6 @@ class AiTask extends Model
         return $task;
     }
 
-    /**
-     * Mark task as successfully completed with the AI result JSON.
-     */
     public function markDone(string $resultJson)
     {
         $this->status     = self::STATUS_DONE;
@@ -55,9 +44,6 @@ class AiTask extends Model
         $this->save();
     }
 
-    /**
-     * Mark task as failed with an error message.
-     */
     public function markError(string $errorMsg)
     {
         $this->status     = self::STATUS_ERROR;
@@ -66,22 +52,16 @@ class AiTask extends Model
         $this->save();
     }
 
-    /**
-     * Get paginated task history.
-     */
     public static function getHistory(int $page = 1, int $pageSize = 20): array
     {
         $total = self::count();
         $list  = self::order('id', 'desc')
-                     ->limit(($page - 1) * $pageSize, $pageSize)
-                     ->select()
-                     ->toArray();
+            ->limit(($page - 1) * $pageSize, $pageSize)
+            ->select()
+            ->toArray();
         return ['total' => $total, 'list' => $list];
     }
 
-    /**
-     * Human-readable status label.
-     */
     public function getStatusLabelAttr(): string
     {
         switch ((int) $this->status) {

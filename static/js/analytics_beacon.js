@@ -1,19 +1,4 @@
-/**
- * 前台埋点 beacon。由 All::label_fetch() 在 </body> 前注入，不需要模板改动。
- *
- * 分工（见 application/common/util/AnalyticsServerTracker.php）：
- *   MAC_ANA_SS === 1 —— 动态渲染，服务端已经写了 pageview 行。
- *                        这里只在页面离开时上报 stay_ms，由后端 UPDATE 回填。
- *                        绝不再发 pageview，否则同一次浏览会写两条。
- *   MAC_ANA_SS === 0 —— 静态生成的页面，PHP 不执行，服务端没记录。
- *                        这里必须走完整 pageview 上报。
- *
- * 刻意不依赖 jQuery / MAC 对象：注入点在所有前台模板上，不能假设它们加载了什么。
- *
- * window.MacAnalytics 是与 static/js/home.js 的互锁：那份 MAC.Analytics.Init()
- * 开头有 `if (window.MacAnalytics) return;`。本脚本先于 DOM-ready 执行并占位，
- * 所以即便将来前端把 home.js 挂上去，也不会双重上报。
- */
+
 (function () {
     'use strict';
 
@@ -52,7 +37,6 @@
     }
 
     function sessionKey() {
-        // 服务端埋点开着时，session_key 由后端种 cookie；读它即可，保证两边同一把 key。
         var s = getCookie(SESSION_KEY);
         if (!s) {
             s = sessionStorage.getItem(SESSION_KEY);
@@ -94,7 +78,6 @@
     }
 
     function reportPageviewFull() {
-        // 仅静态生成的页面走这条路：服务端没有机会记录。
         post('/api.php/analytics/pageview', {
             session_key: sessionKey(),
             visitor_id: visitorId(),
@@ -116,7 +99,6 @@
         }
     });
 
-    // 占位，让 home.js 的 MAC.Analytics.Init() 自动让位，避免双重上报
     window.MacAnalytics = {
         event: function (code, props) {
             post('/api.php/analytics/event', {

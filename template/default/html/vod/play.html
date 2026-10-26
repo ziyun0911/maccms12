@@ -95,7 +95,7 @@
                                 w.__macPlayerScriptFail = { src: src, at: Date.now() };
                               }, true);
                             })(window);
-                            </script>
+</script>
                             {$player_data}{$player_js}
                             {if condition="$play_float_enabled"}
                             <button type="button" class="mac-float-player-close" id="macFloatPlayerClose" data-title="string_play_float_close" data-aria-label="string_play_float_close" title="关闭悬浮播放" aria-label="关闭悬浮播放"><i class="iconfont" aria-hidden="true">&#xe616;</i></button>
@@ -304,7 +304,6 @@
 
                         {if condition="$obj.vod_copyright eq 1 && $GLOBALS['config']['app']['copyright_status'] eq 1 "}{else}
                         <div class="pannel clearfix" id="bofy">
-                            <!-- 信号列表：将下方 if condition 改为 1 可启用；当前恒走 else 播放列表 -->
                             {if condition="0"}
                                 <div class="pannel_head clearfix">
                                 <h3 class="title" data-lang="string_play_xhlb">信号列表</h3>
@@ -414,7 +413,7 @@
                                                 MAC.Comment.Show(1);
                                             });
                                         });
-                                    </script>
+</script>
                                 </div>
                 {/if}
             </div>
@@ -455,7 +454,7 @@
                 pic: "{$obj.vod_pic|mac_url_img}",
                 part: "{$obj['vod_play_list'][$param['sid']]['urls'][$param['nid']]['name']|default=''}"
             });
-        </script>
+</script>
         <script type="text/javascript">
             var w = $(window).width();
             var ph = "{$tplconfig.theme.play.height|default='56.25'}%";
@@ -465,7 +464,7 @@
             } else {
                 $(".MacPlayer").addClass("embed-responsive").css("padding-bottom", ph);
             }
-        </script>
+</script>
         <script type="text/javascript" src="{$maccms.path}template/default/asset/js/parts-gold.js?v=202604161"></script>
         <span class="mac_hits hits hide" data-mid="{$maccms.mid}" data-id="{$obj.vod_id}" data-type="hits"></span>
         <span class="hl_history hide" data-name="{$obj.vod_name}"

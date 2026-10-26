@@ -12,23 +12,14 @@ class Type extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     *  获取分类树
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -37,20 +28,16 @@ class Type extends Base
                 'msg'  => '参数错误: ' . $validate->getError(),
             ]);
         }
-        // 查询条件组装
         $where = [];
-        // 查询第一级
         $where['type_pid'] = 0;
 
         if (isset($param['type_id'])) {
             $where['type_id'] = (int)$param['type_id'];
         }
 
-        // 数据获取
         $total = (new \app\common\model\Type())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
-            // 排序
             $order = "type_sort DESC";
             $field = '*';
             $list = (new \app\common\model\Type())->getListByCond(0, PHP_INT_MAX, $where, $order, $field, []);
@@ -62,7 +49,6 @@ class Type extends Base
                 }
             }
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -73,15 +59,9 @@ class Type extends Base
         ]);
     }
 
-    /**
-     * 查询首页分类顶部导航栏
-     *
-     * @return \think\response\Json
-     */
     public function get_all_list()
     {
         $list = Db::name('type')->where(['type_pid'=> 0])->column('type_id,type_name,type_en');
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -92,20 +72,6 @@ class Type extends Base
         ]);
     }
 
-    /**
-     * 获取导航栏分类（含子分类 + 扩展信息：地区/年代）
-     * 首页 Banner 分类导航 + 顶部导航栏使用
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   ids    - 可选，指定分类ID，多个用逗号分隔，如 "26,27,20"
-     *   num    - 可选，限制返回数量，默认不限制
-     *   mid    - 可选，筛选模型ID (type_mid)
-     *   parent - 可选，传1则只返回父级分类(type_pid=0)
-     *   link_flag - 可选，type_link 使用的 mac_url_type 第三参：type（默认）| show（列表页）
-     */
     public function get_nav_types(Request $request)
     {
         $param = $request->param();
@@ -131,10 +97,8 @@ class Type extends Base
         }
         $where['type_status'] = 1;
 
-        // 与页脚同一口径：按当前访问者用户组的「列表」权限裁剪，子分类同样只看自身权限
         $visible_types = mac_get_popedom_type_visible(1);
 
-        // 全量取出后过滤再截断，否则 limit 会在权限过滤之前吃掉可见栏目
         $list = Db::name('type')->where($where)->order('type_sort asc')->select();
 
         $rows = [];
@@ -143,14 +107,12 @@ class Type extends Base
                 continue;
             }
             $v['type_link'] = mac_url_type($v, [], $linkFlag);
-            // 解析 type_extend JSON
             if (!empty($v['type_extend'])) {
                 $v['type_extend'] = is_string($v['type_extend']) ? json_decode($v['type_extend'], true) : $v['type_extend'];
             } else {
                 $v['type_extend'] = [];
             }
 
-            // 获取子分类
             $children = Db::name('type')
                 ->where(['type_pid' => $v['type_id'], 'type_status' => 1])
                 ->order('type_sort asc')
@@ -187,17 +149,6 @@ class Type extends Base
         ]);
     }
 
-    /**
-     * 获取指定分类及其子分类
-     * 用于各区块的子分类标签显示
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   type_id - 必须，父分类ID
-     *   num     - 可选，子分类数量限制，默认不限制
-     */
     public function get_type_with_children(Request $request)
     {
         $param = $request->param();
@@ -207,7 +158,6 @@ class Type extends Base
         $typeId = (int)$param['type_id'];
         $num = isset($param['num']) ? (int)$param['num'] : 0;
 
-        // 获取父分类
         $parent = Db::name('type')->where(['type_id' => $typeId])->find();
         if (empty($parent)) {
             return json(['code' => 1002, 'msg' => '分类不存在']);
@@ -219,7 +169,6 @@ class Type extends Base
         }
         $parent['type_link'] = mac_url_type($parent);
 
-        // 获取子分类
         $childQuery = Db::name('type')
             ->where(['type_pid' => $typeId])
             ->order('type_sort asc');

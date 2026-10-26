@@ -1,11 +1,4 @@
 <?php
-/**
- * 将本地 addons/{name} 打包为可发布的插件 zip
- *
- * 用法：
- *   php application/data/addon_market_cloud/build_package.php --name=adminloginbg
- *   php application/data/addon_market_cloud/build_package.php --name=adminloginbg --out=./packages/adminloginbg/package.zip
- */
 
 if (PHP_SAPI !== 'cli') {
     fwrite(STDERR, "CLI only\n");
@@ -66,7 +59,6 @@ $iterator = new RecursiveIteratorIterator(
 );
 
 foreach ($iterator as $file) {
-    /** @var SplFileInfo $file */
     $rel = str_replace('\\', '/', substr($file->getPathname(), strlen($src) + 1));
     if ($rel === false || $rel === '') {
         continue;

@@ -5,14 +5,11 @@ use think\facade\Cache;
 use app\common\util\Pinyin;
 
 class Msg extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'msg';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -43,7 +40,6 @@ class Msg extends Base {
         }
         $list = Db::name('Msg')->field($field)->where($where)->order($order)->limit($limit_str)->select();
         foreach($list as $k=>$v){
-
         }
         return ['code'=>1,'msg'=>lang('data_list'),'page'=>$page,'pagecount'=>ceil($total/$limit),'limit'=>$limit,'total'=>$total,'list'=>$list];
     }
@@ -109,5 +105,4 @@ class Msg extends Base {
 
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
 }

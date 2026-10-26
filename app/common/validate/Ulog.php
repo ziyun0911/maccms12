@@ -23,5 +23,4 @@ class Ulog extends Validate
         'add'  =>  ['user_id','ulog_mid','ulog_type','ulog_rid'],
         'edit'  =>  ['user_id','ulog_mid','ulog_type','ulog_rid'],
     ];
-
 }

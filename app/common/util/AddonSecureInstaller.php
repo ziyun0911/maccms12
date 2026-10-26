@@ -1,18 +1,8 @@
 <?php
 namespace app\common\util;
 
-/**
- * 插件本地安装安全封装：名称白名单、Zip Slip、危险扩展名、可选 RS256 包签名、卸载前备份回滚。
- * PHP 7.0 兼容。
- */
 class AddonSecureInstaller
 {
-    /**
-     * 禁止写入的顶层路径前缀（相对 ZIP 条目）。
-     * 名单里 application/thinkphp/public 是 maccms10 的站点根目录名；TP8 迁移后站点根
-     * 改用 app/ + config/ + route/，两种写法都留着，免得旧插件包和新插件包各漏一半。
-     * 当前安装只写 addons/<name>/，这份名单是防「覆盖式安装」回归的兜底。
-     */
     protected static $blockedPrefixes = [
         'application/',
         'app/',
@@ -25,16 +15,14 @@ class AddonSecureInstaller
         'template/',
         'public/',
         'runtime/',
-        'addons/', // zip 内不应再套一层 addons/
+        'addons/',
     ];
 
-    /** 包内禁止出现的扩展（即使落在插件目录）；不含 ini（info.ini 必需） */
     protected static $blockedExt = [
         'phtml', 'phar', 'php3', 'php4', 'php5', 'php7', 'phps',
         'shtml', 'asp', 'aspx', 'jsp',
     ];
 
-    /** 禁止的确切文件名（大小写不敏感） */
     protected static $blockedBasenames = [
         '.htaccess',
         '.htpasswd',
@@ -42,18 +30,10 @@ class AddonSecureInstaller
         'web.config',
     ];
 
-    /** zip 条目数上限（防 zip bomb） */
     const MAX_ZIP_ENTRIES = 5000;
-    /** zip 未压缩总字节上限 */
     const MAX_ZIP_UNCOMPRESSED = 52428800;
-    /** 单文件未压缩上限（与云端包上限同量级） */
     const MAX_ZIP_ENTRY_BYTES = 10240000;
 
-    /**
-     * 插件标识合法性
-     * @param mixed $name
-     * @return bool
-     */
     public static function isValidName($name)
     {
         if (!is_string($name) || $name === '') {
@@ -62,10 +42,6 @@ class AddonSecureInstaller
         return (bool)preg_match('/^[a-z][a-z0-9_]{0,31}$/', $name);
     }
 
-    /**
-     * 是否要求本地包必须带签名（读配置，缺省 false，不改写 maccms.php）
-     * @return bool
-     */
     public static function requireSignature()
     {
         $cfg = isset($GLOBALS['config']['addon']) && is_array($GLOBALS['config']['addon'])
@@ -73,12 +49,6 @@ class AddonSecureInstaller
         return !empty($cfg['require_local_signature']);
     }
 
-    /**
-     * 安全解压 zip 到目标目录（目录须为空或不存在）
-     * @param string $zipFile 绝对路径
-     * @param string $destDir 绝对路径，将写入此处
-     * @return array [ok=>bool, msg=>string, files=>string[]]
-     */
     public static function extractZipSafe($zipFile, $destDir)
     {
         if (!class_exists('ZipArchive')) {
@@ -130,7 +100,6 @@ class AddonSecureInstaller
             if ($norm === '' && $isDir) {
                 continue;
             }
-            // 目录条目也做前缀拦截，避免留下可被 enable 拷贝的空壳树
             if ($isDir) {
                 $dirCheck = self::validateZipEntryName($norm . '/');
                 if ($dirCheck !== true) {
@@ -188,7 +157,6 @@ class AddonSecureInstaller
                 return ['ok' => false, 'msg' => lang('admin/addon/extract_dir_fail'), 'files' => []];
             }
 
-            // Zip Slip：落盘路径必须仍在 destReal 下（带边界斜杠，防前缀误判）
             $parentReal = realpath($targetDir);
             $destNorm = rtrim(str_replace('\\', '/', $destReal), '/') . '/';
             $parentNorm = $parentReal === false ? '' : rtrim(str_replace('\\', '/', $parentReal), '/') . '/';
@@ -218,7 +186,6 @@ class AddonSecureInstaller
         }
         $zip->close();
 
-        // 解压后再校验真实文件未逃出目录
         $destBoundary = rtrim($destReal, '/') . '/';
         foreach ($files as $rel) {
             $full = realpath($destReal . '/' . $rel);
@@ -232,12 +199,6 @@ class AddonSecureInstaller
         return ['ok' => true, 'msg' => 'ok', 'files' => $files];
     }
 
-    /**
-     * 规范化 zip 相对路径：去掉空段与 '.'，拒绝 '..' / 绝对路径。
-     * 防止 ./app/... 绕过前缀黑名单后被 enable 拷入站点根。
-     * @param string $name
-     * @return string|false 目录条目可带尾 /
-     */
     public static function normalizeZipEntryRelPath($name)
     {
         $name = str_replace('\\', '/', (string)$name);
@@ -266,10 +227,6 @@ class AddonSecureInstaller
         return $isDir ? ($rel . '/') : $rel;
     }
 
-    /**
-     * @param string $name zip 内相对路径（建议已 normalize）
-     * @return true|string
-     */
     public static function validateZipEntryName($name)
     {
         $norm = self::normalizeZipEntryRelPath($name);
@@ -285,7 +242,6 @@ class AddonSecureInstaller
             return lang('admin/addon/zip_entry_invalid');
         }
         $lower = strtolower($path);
-        // 精确顶层目录名（无尾斜杠）与前缀均拦
         foreach (self::$blockedPrefixes as $prefix) {
             $p = rtrim($prefix, '/');
             if ($lower === $p || strpos($lower . '/', $prefix) === 0) {
@@ -295,13 +251,11 @@ class AddonSecureInstaller
         if ($isDir) {
             return true;
         }
-        // 双扩展名伪装：file.php.jpg 仍看最后一段；file.jpg.php 禁止
         $base = basename($lower);
         if (in_array($base, self::$blockedBasenames, true)) {
             return lang('admin/addon/zip_blocked_ext', [$base]);
         }
         if (preg_match('/\.(php|phtml|phar)(\.|$)/', $base) && !preg_match('/\.php$/', $base)) {
-            // e.g. shell.php.jpg
             if (preg_match('/\.php\./', $base)) {
                 return lang('admin/addon/zip_blocked_ext', ['php.*']);
             }
@@ -313,13 +267,6 @@ class AddonSecureInstaller
         return true;
     }
 
-    /**
-     * 可选 RS256 验签：存在 package.manifest.json + package.sig 时校验；
-     * 若配置 require_local_signature=1 则必须通过。
-     * 完整性：manifest 内逐文件 sha256 + 解压目录全量枚举（未列入且非签名材料的文件一律拒绝）。
-     * @param string $dir 已解压目录
-     * @return array [ok=>bool, msg=>string]
-     */
     public static function verifyPackageSignature($dir)
     {
         $baseDir = rtrim($dir, '/\\');
@@ -367,7 +314,6 @@ class AddonSecureInstaller
             $allowed[$rel] = true;
         }
 
-        // 拒绝 manifest 未列出的多余文件（防 MITM 向已签名包追加 evil.php）
         $onDisk = self::listPackageRelFiles($baseDir);
         if ($onDisk === null) {
             return ['ok' => false, 'msg' => lang('admin/addon/sig_verify_fail')];
@@ -392,7 +338,6 @@ class AddonSecureInstaller
             if ($require) {
                 return ['ok' => false, 'msg' => lang('admin/addon/sig_pubkey_missing')];
             }
-            // 有签名材料但无公钥：拒绝（避免“假签名”被忽略）
             return ['ok' => false, 'msg' => lang('admin/addon/sig_pubkey_missing')];
         }
 
@@ -410,11 +355,6 @@ class AddonSecureInstaller
         return ['ok' => true, 'msg' => 'ok'];
     }
 
-    /**
-     * 规范化 manifest 相对路径；非法（空、绝对、含 ..）返回 false。
-     * @param mixed $rel
-     * @return string|false
-     */
     protected static function normalizeManifestRelPath($rel)
     {
         $rel = str_replace('\\', '/', (string)$rel);
@@ -431,11 +371,6 @@ class AddonSecureInstaller
         return implode('/', $parts);
     }
 
-    /**
-     * 枚举解压目录下全部普通文件的相对路径（/ 分隔）。
-     * @param string $dir
-     * @return array|null 失败返回 null
-     */
     protected static function listPackageRelFiles($dir)
     {
         $real = realpath($dir);
@@ -471,9 +406,6 @@ class AddonSecureInstaller
         return $out;
     }
 
-    /**
-     * @return string PEM
-     */
     protected static function loadPublicKeyPem()
     {
         $cfg = isset($GLOBALS['config']['addon']) && is_array($GLOBALS['config']['addon'])
@@ -496,11 +428,6 @@ class AddonSecureInstaller
         return '';
     }
 
-    /**
-     * 备份插件目录为 zip，供卸载失败回滚
-     * @param string $name
-     * @return string|false 备份文件绝对路径
-     */
     public static function backupAddon($name)
     {
         if (!self::isValidName($name) || !class_exists('ZipArchive')) {
@@ -538,12 +465,6 @@ class AddonSecureInstaller
         return is_file($bakFile) ? $bakFile : false;
     }
 
-    /**
-     * 从备份 zip 恢复插件目录
-     * @param string $name
-     * @param string $bakFile
-     * @return bool
-     */
     public static function restoreAddon($name, $bakFile)
     {
         if (!self::isValidName($name) || !is_file($bakFile)) {
@@ -557,10 +478,6 @@ class AddonSecureInstaller
         return !empty($res['ok']);
     }
 
-    /**
-     * 递归删除目录
-     * @param string $dir
-     */
     public static function purgeDir($dir)
     {
         if (!is_dir($dir)) {

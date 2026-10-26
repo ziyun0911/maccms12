@@ -13,5 +13,4 @@ class Template extends Validate
         'fname.require' => 'validate/require_name',
         'fpath.require'   => 'validate/require_path',
     ];
-
 }

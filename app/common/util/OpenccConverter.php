@@ -2,42 +2,24 @@
 
 namespace app\common\util;
 
-/**
- * OpenCC 转换封装：优先 PHP 扩展 ext-opencc，其次系统 opencc 命令，均不可用时返回原文。
- * 进程内与跨请求（think\Cache）缓存转换结果。
- */
 class OpenccConverter
 {
     private static $shellChecked = false;
     private static $shellAvailable = false;
     private static $cache = [];
-    /** @var array<string, mixed> opencc_open 句柄，false 表示该 config 不可用 */
     private static $extOd = [];
-    /** @var bool|null 实测能否完成繁简转换（非仅扩展/命令是否存在） */
     private static $conversionWorks = null;
 
-    /** 跨请求缓存 TTL（秒），简繁映射稳定可设较长 */
     private static $persistTtl = 2592000;
-    /** shell opencc 可用性：成功结果缓存 TTL */
     private static $shellAvailableTtl = 86400;
-    /** shell 探测失败缓存 TTL（安装后无需等 24h 才重新检测） */
     private static $shellUnavailableTtl = 300;
-    /** shell 单次命令最长等待（秒），避免 opencc 卡死拖垮后台搜索 */
     private static $shellExecTimeout = 3;
 
-    /**
-     * 是否含汉字（简繁转换仅对汉字有意义；纯英文/番号不必 fork opencc）。
-     */
     private static function containsHan($text)
     {
         return is_string($text) && $text !== '' && preg_match('/\p{Han}/u', $text) === 1;
     }
 
-    /**
-     * 带超时的 shell 执行，避免 shell_exec 无上限阻塞。
-     *
-     * @return string|null
-     */
     private static function shellExecLimited($cmd, $timeoutSec = null)
     {
         $timeoutSec = max(1, (int)($timeoutSec ?? self::$shellExecTimeout));
@@ -78,25 +60,16 @@ class OpenccConverter
         return $stdout !== '' ? $stdout : null;
     }
 
-    /**
-     * 简体 -> 繁体（OpenCC s2t）。
-     */
     public static function s2t($text)
     {
         return self::convert($text, 's2t');
     }
 
-    /**
-     * 繁体 -> 简体（OpenCC t2s）。
-     */
     public static function t2s($text)
     {
         return self::convert($text, 't2s');
     }
 
-    /**
-     * @param string $config opencc 配置名，例如 s2t / t2s
-     */
     public static function convert($text, $config)
     {
         $text = (string)$text;
@@ -119,7 +92,6 @@ class OpenccConverter
                     return $cached;
                 }
             } catch (\Throwable $e) {
-                // 未初始化缓存时忽略
             }
         }
 
@@ -138,9 +110,6 @@ class OpenccConverter
         return $out;
     }
 
-    /**
-     * @return string|null
-     */
     private static function convertOnce($text, $config)
     {
         $ext = self::convertWithExtension($text, $config);
@@ -154,11 +123,6 @@ class OpenccConverter
         return self::execOpencc($text, $config);
     }
 
-    /**
-     * ext-opencc（opencc4php）：opencc_open / opencc_convert。
-     *
-     * @return string|null 扩展不可用或失败时返回 null
-     */
     private static function convertWithExtension($text, $config)
     {
         if (!extension_loaded('opencc') || !function_exists('opencc_open') || !function_exists('opencc_convert')) {
@@ -186,9 +150,6 @@ class OpenccConverter
         return is_string($converted) ? $converted : null;
     }
 
-    /**
-     * @return string[]
-     */
     private static function extensionConfigCandidates($config)
     {
         $config = trim((string)$config);
@@ -206,19 +167,11 @@ class OpenccConverter
         return array_values(array_unique($candidates));
     }
 
-    /**
-     * 扩展或 shell 能完成实测转换即视为可用（供后台状态展示与索引/搜索）。
-     */
     public static function available()
     {
         return self::conversionWorks();
     }
 
-    /**
-     * 搜索用词变体：原词、去空白、小写（英文）、OpenCC 繁简形式。
-     *
-     * @return string[]
-     */
     public static function searchVariants($text)
     {
         $text = trim((string)$text);
@@ -246,11 +199,6 @@ class OpenccConverter
         return array_values(array_unique($variants));
     }
 
-    /**
-     * 后台 MySQL LIKE 用的 %关键词% 列表（含繁简变体）。
-     *
-     * @return string[]
-     */
     public static function likePatterns($text)
     {
         $patterns = [];
@@ -261,9 +209,6 @@ class OpenccConverter
         return array_values(array_unique($patterns));
     }
 
-    /**
-     * 实测 OpenCC 能否完成简繁转换（避免“已装扩展但 opencc_open 失败”误报可用）。
-     */
     public static function conversionWorks()
     {
         if (self::$conversionWorks !== null) {
@@ -284,7 +229,6 @@ class OpenccConverter
                     return false;
                 }
             } catch (\Throwable $e) {
-                // 未初始化缓存时忽略
             }
         }
         $sample = '软件';
@@ -333,7 +277,6 @@ class OpenccConverter
                     return false;
                 }
             } catch (\Throwable $e) {
-                // 未初始化缓存时忽略
             }
         }
         if (!function_exists('shell_exec')) {
@@ -370,11 +313,6 @@ class OpenccConverter
         return self::$shellAvailable;
     }
 
-    /**
-     * 通过临时文件调用 opencc，避免命令行转义导致的文本损坏。
-     *
-     * @return string|null
-     */
     private static function execOpencc($text, $config)
     {
         try {

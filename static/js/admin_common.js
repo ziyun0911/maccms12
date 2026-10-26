@@ -11,7 +11,6 @@ String.prototype.replaceAll = function (s1, s2) {
     return this.replace(new RegExp(s1, "gm"), s2);
 }
 
-// 后台公共提示文案：优先取模板注入的 window.MAC_JS_LANG（随站点语言变化），取不到时回退中文
 function macLang(key, fallback) {
     var d = window.MAC_JS_LANG;
     return (d && d[key]) ? d[key] : fallback;
@@ -54,7 +53,6 @@ layui.define(['element', 'form'], function (exports) {
         });
     })();
 
-    // layui 下拉占位文案是库内置中文，渲染后按站点语言覆盖（不改写库文件）
     (function () {
         var zh = '请选择', txt = macLang('select_please', zh);
         if (txt === zh) {
@@ -82,8 +80,6 @@ layui.define(['element', 'form'], function (exports) {
 
     form.render();
 
-    // 后台主框架和 iframe 内容页都会加载本文件；锁屏只能在顶层窗口创建，
-    // 否则解锁时只关闭当前窗口的遮罩，iframe 里那层会残留导致一直无法解锁
     var adminIsTopWindow = (function () {
         try {
             return window.top === window.self;
@@ -93,7 +89,6 @@ layui.define(['element', 'form'], function (exports) {
     })();
     var lockScreenOpened = false;
 
-    // 锁屏弹窗文案由后台模板按当前语言注入 #lockScreen 的 data 属性
     var lockText = function (attr, fallback) {
         var v = $('#lockScreen').data(attr);
         return v ? String(v) : fallback;
@@ -118,7 +113,7 @@ layui.define(['element', 'form'], function (exports) {
             }
         });
     };
-    /* 锁屏 */
+    
     if (adminIsTopWindow) {
         $('#lockScreen').click(function () {
             window.sessionStorage.setItem("lockscreen", true);
@@ -150,7 +145,7 @@ layui.define(['element', 'form'], function (exports) {
         });
     });
 
-    /* 导航高亮标记 */
+    
     $('.admin-nav-item').click(function () {
         window.localStorage.setItem("adminNavTag", $(this).attr('href'));
     });
@@ -170,7 +165,7 @@ layui.define(['element', 'form'], function (exports) {
     } else {
         layer.config({ offset: LAYUI_OFFSET + 'px' });
     }
-    /* 打开/关闭左侧导航 */
+    
     $('#foldSwitch').click(function () {
         var that = $(this);
         if (!that.hasClass('close')) {
@@ -198,7 +193,7 @@ layui.define(['element', 'form'], function (exports) {
         }
     });
 
-    /* 操作提示 */
+    
     $('.help-tips').click(function () {
         layer.tips($(this).attr('data-title'), this, {
             tips: [3, '#009688'],
@@ -207,7 +202,7 @@ layui.define(['element', 'form'], function (exports) {
         return false;
     });
 
-    /* 全屏控制 */
+    
     $('#fullscreen-btn').click(function () {
         var that = $(this);
         if (!that.hasClass('ai-quanping')) {
@@ -223,7 +218,7 @@ layui.define(['element', 'form'], function (exports) {
         }
     });
 
-    /*弹出选择设置*/
+    
     $(document).on('click', '.j-select', function () {
         var that = $(this);
         _url = that.attr('data-href'),
@@ -246,7 +241,6 @@ layui.define(['element', 'form'], function (exports) {
             var lay = layer.open({ type: 1, title: _title, content: res, area: [_width + 'px', _height + 'px'] });
             form.render('select');
         }).fail(function (xhr) {
-            // 令牌/登录态失效（如 CsrfGuard 返回 403 code:1002）时，避免弹框不弹、“点没反应”，明确提示刷新。
             var m = macLang('js_request_fail_retry', '请求失败，请刷新页面后重试');
             try {
                 var r = xhr && xhr.responseJSON ? xhr.responseJSON : (xhr && xhr.responseText ? JSON.parse(xhr.responseText) : null);
@@ -261,7 +255,7 @@ layui.define(['element', 'form'], function (exports) {
         });
     });
 
-    /*iframe弹窗*/
+    
     $(document).on('click', '.j-iframe', function () {
         var that = $(this),
             _url = that.attr('data-href'),
@@ -298,7 +292,7 @@ layui.define(['element', 'form'], function (exports) {
         return false;
     });
 
-    /* 全选 */
+    
     form.on('checkbox(allChoose)', function (data) {
         var child = $(data.elem).parents('table').find('tbody input.checkbox-ids');
         child.each(function (index, item) {
@@ -307,7 +301,7 @@ layui.define(['element', 'form'], function (exports) {
         form.render('checkbox');
     });
 
-    /* 监听状态设置开关 */
+    
     form.on('switch(switchStatus)', function (data) {
         var that = $(this), status = 0;
         if (!that.attr('data-href')) {
@@ -326,7 +320,7 @@ layui.define(['element', 'form'], function (exports) {
         });
     });
 
-    /* 监听表单提交 */
+    
     form.on('submit(formSubmit)', function (data) {
         var that = $(this),
             _form = '';
@@ -346,7 +340,6 @@ layui.define(['element', 'form'], function (exports) {
 
         $button.prop('disabled', true);
 
-        // CKEditor专用
         if (typeof (CKEDITOR) != 'undefined') {
             for (instance in CKEDITOR.instances) {
                 CKEDITOR.instances[instance].updateElement();
@@ -362,8 +355,6 @@ layui.define(['element', 'form'], function (exports) {
             url: $form.attr('action'),
             data: _formData,
             success: function (res) {
-                // 被拒的提交会换发一枚新的一次性令牌（后台 ajaxErrorWithFreshToken），
-                // 回填进当前表单才能改完直接重提，不必刷新整页
                 if (res && res.data && res.data.__token__) {
                     var $token = $form.find('input[name="__token__"]');
                     if (!$token.length) {
@@ -410,7 +401,7 @@ layui.define(['element', 'form'], function (exports) {
         return false;
     });
 
-    /* TR数据行删除 */
+    
     $('.j-tr-del').click(function () {
         var that = $(this),
             href = !that.attr('data-href') ? that.attr('href') : that.attr('data-href');
@@ -431,7 +422,7 @@ layui.define(['element', 'form'], function (exports) {
         return false;
     });
 
-    /* ajax请求操作 */
+    
     $(document).on('click', '.j-ajax', function () {
         var that = $(this),
             href = !that.attr('data-href') ? that.attr('href') : that.attr('data-href'),
@@ -476,7 +467,7 @@ layui.define(['element', 'form'], function (exports) {
         return false;
     });
 
-    /* 数据列表input编辑自动选中ids */
+    
     $('.j-auto-checked').blur(function () {
         var that = $(this);
         if (that.attr('data-value') != that.val()) {
@@ -487,7 +478,7 @@ layui.define(['element', 'form'], function (exports) {
         form.render('checkbox');
     });
 
-    /* 用ajax方式更新input*/
+    
     $('.j-ajax-input').focusout(function () {
         var that = $(this), _val = that.val();
         if (_val == '') return false;
@@ -504,7 +495,7 @@ layui.define(['element', 'form'], function (exports) {
         });
     });
 
-    /* 小提示 */
+    
     $('.tooltip').hover(function () {
         var that = $(this);
         that.find('i').show();
@@ -519,7 +510,7 @@ layui.define(['element', 'form'], function (exports) {
         that.parents('form').submit();
     });
 
-    /* 列表按钮组 */
+    
     $('.j-page-btns').click(function () {
         var that = $(this),
             code = function (that) {

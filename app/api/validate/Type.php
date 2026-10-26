@@ -11,7 +11,7 @@ class Type extends Validate
     ];
 
     protected $message = [
-        
+
     ];
 
     protected $scene = [

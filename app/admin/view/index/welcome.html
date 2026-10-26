@@ -1,18 +1,13 @@
 {include file="../../../app/admin/view/public/head" /}
 <div class="page-container main-body">
     <div class="cont-Card">
-        <!-- Card -->
         <div class="cont-Card-body">
             <div class="cont-Card-info ">
-                <!-- Header -->
                 <div class="cont-Card-Header ">
-                    <!-- Icon -->
                     <span class="cont-Card-icon">
                         <img src="__STATIC__/images/home/home_card_ic_user@2x.png" />
                     </span>
-                    <!-- End Icon -->
                 </div>
-                <!-- End Header -->
 
                 <h2 class="cont-Card-H2 ">
                     {:lang('admin/index/welcome/today_visit_count')}
@@ -32,21 +27,15 @@
                 {/if}
             </div>
         </div>
-        <!-- End Card -->
 
-        <!-- Card -->
         <div class="cont-Card-body">
             <div class="cont-Card-info">
-                <!-- Header -->
                 <div class="cont-Card-Header">
-                    <!-- Icon -->
                     <span class="cont-Card-icon">
                         <img src="__STATIC__/images/home/home_card_ic_purse@2x.png" />
                     </span>
-                    <!-- End Icon -->
 
                 </div>
-                <!-- End Header -->
 
                 <h2 class="cont-Card-H2">
                     {:lang('admin/index/welcome/today_money_get')}</h2>
@@ -59,21 +48,15 @@
                 </div>
             </div>
         </div>
-        <!-- End Card -->
 
-        <!-- Card -->
         <div class="cont-Card-body">
             <div class="cont-Card-info">
-                <!-- Header -->
                 <div class="cont-Card-Header">
-                    <!-- Icon -->
                     <span class="cont-Card-icon">
                         <img src="__STATIC__/images/home/home_card_ic_time@2x.png" />
                     </span>
-                    <!-- End Icon -->
 
                 </div>
-                <!-- End Header -->
 
                 <h2 class="cont-Card-H2">
                     {:lang('admin/index/welcome/filed_last_login_time')}</h2>
@@ -85,24 +68,18 @@
                 </div>
             </div>
         </div>
-        <!-- End Card -->
 
-        <!-- Card -->
         <div class="cont-Card-body">
             <div class="cont-Card-info">
-                <!-- Header -->
                 <div class="cont-Card-Header">
-                    <!-- Icon -->
                     <span class="cont-Card-icon">
                         <img src="__STATIC__/images/home/home_card_ic_ip@2x.png" />
                     </span>
-                    <!-- End Icon -->
 
                     <div>
 
                     </div>
                 </div>
-                <!-- End Header -->
 
                 <h2 class="cont-Card-H2">
                     {:lang('admin/index/welcome/filed_last_login_ip')}</h2>
@@ -112,15 +89,11 @@
                         {$admin.admin_last_login_ip|long2ip}</h3>
                 </div>
             </div>
-            <!-- End Col -->
         </div>
-        <!-- End Card -->
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        <!-- Browsers Card -->
         <div class="Browsers-card">
-            <!-- Header -->
             <div class="Browsers-card-header">
                 <h2 class="ms-1 inline-block font-semibold text-[16px] text-gray-800">
                     {:lang('admin/index/welcome/system_status')}
@@ -137,15 +110,10 @@
                     Good
                 </span>
             </div>
-            <!-- End Header -->
 
-            <!-- Body -->
             <div class="flex flex-col justify-between h-full pb-5 px-5">
-                <!-- Stats -->
                 <div class="mt-5">
-                    <!-- Grid -->
                     <div class="grid grid-cols-2 gap-3 max-md:grid-cols-1">
-                        <!-- Card -->
                         <div class="p-3  bg-[#3C82F6]  rounded-lg flex items-center">
                             <div class="size-[46px] flex items-center justify-center rounded-full bg-white mr-3">
                                 <svg class="flex-shrink-0 size-6 text-[#3C82F6]" fill="#3C82F6"
@@ -159,7 +127,6 @@
                             <p class="font-semibold text-lg text-white ml-auto mr-4" id="cpu_usage">{$os_data['cpu_usage']}%</p>
                         </div>
 
-                        <!-- Card -->
                         <div class="p-3  bg-[#40CC92]  rounded-lg flex items-center">
                             <div class="size-[46px] flex items-center justify-center rounded-full bg-white mr-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="#40CC92" viewBox="0 0 576 512"
@@ -173,13 +140,9 @@
                             <p class="font-semibold text-lg text-white ml-auto mr-4" id="mem_usage">{$os_data['mem_usage']}%</p>
                         </div>
 
-                        <!-- Card -->
 
-                        <!-- End Card -->
                     </div>
-                    <!-- End Grid -->
                 </div>
-                <!-- End Stats -->
 
                 <div class="mt-5">
                     <ul class="space-y-2">
@@ -242,13 +205,9 @@
                     </ul>
                 </div>
             </div>
-            <!-- End Body -->
         </div>
-        <!-- End Browsers Card -->
 
-        <!-- Import Data Card -->
         <div class="Browsers-card">
-            <!-- Header -->
             <div class="Browsers-card-header">
                 <div>
                     <h2 class="inline-block font-semibold text-gray-800 ">
@@ -267,9 +226,7 @@
                     </span>
                 </div>
             </div>
-            <!-- End Header -->
 
-            <!-- Body -->
             <div class="h-full p-5 pt-0">
                 <div class="h-full flex flex-col justify-between space-y-4">
                     <div class="space-y-4">
@@ -322,27 +279,20 @@
                     </div>
                 </div>
             </div>
-            <!-- End Body -->
             {if condition="$show_os_guide"}
             <div class="h-full p-5">
                 {:lang('admin/index/welcome/system_info_guide')}
             </div>
             {/if}
-            <!-- End Footer -->
         </div>
-        <!-- End Import Data Card -->
 
-        <!-- Sales Stats Card -->
         <div class="Browsers-card">
-            <!-- Header -->
             <div class="Browsers-card-header">
                 <h2 class="inline-block font-semibold text-gray-800 ">
                     {:lang('admin/index/welcome/seven_day_reg_data')}
                 </h2>
             </div>
-            <!-- End Header -->
 
-            <!-- Body -->
             <div class="h-full pb-5 px-5 space-y-8">
                 <h4 class="text-4xl font-medium text-gray-800 Stats-Card-h4">
                     <img class="w-[228px] h-[126px] absolute right-0 top-0"
@@ -369,9 +319,7 @@
                         {$dashboard_data['raise_reg_user_today']}%
                     </p>
                 </h4>
-                <!-- List Group -->
                 <ul class="space-y-3">
-                    <!-- List Item -->
                     <li
                         class="flex flex-wrap py-2 justify-between items-center gap-x-2 border-b border-solid border-[#E6E7EB]">
                         <div>
@@ -387,9 +335,7 @@
                             </span>
                         </div>
                     </li>
-                    <!-- End List Item -->
 
-                    <!-- List Item -->
                     <li
                         class="flex flex-wrap py-2 justify-between items-center gap-x-2 border-b border-solid border-[#E6E7EB]">
                         <div>
@@ -405,30 +351,20 @@
                             </span>
                         </div>
                     </li>
-                    <!-- End List Item -->
 
-                    <!-- List Item -->
 
-                    <!-- End List Item -->
                 </ul>
-                <!-- End List Group -->
             </div>
-            <!-- End Body -->
 
-            <!-- Footer -->
             <div class="p-5 pt-0 space-y-8">
                 <div class="w-full">
-                    <!-- Apex Line Chart -->
                     <div id="hs-total-sales-lines-chart" style="min-height: 100px;"></div>
                 </div>
             </div>
-            <!-- End Footer -->
         </div>
-        <!-- End Sales Stats Card -->
     </div>
 
     <div class="flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl">
-        <!-- Header -->
         <div class="Browsers-card-header">
             <div class="relative inline-block">
                 <h2 class="inline-block font-semibold text-gray-800 ">
@@ -443,9 +379,7 @@
                     <input type="text" class="layui-input" id="date-range" placeholder="{:lang('welcome/date_range')}">
                 </div>
             </div>
-            <!-- End Col -->
         </div>
-        <!-- End Header -->
         <div class="flex items-center w-full p-5 h-[300px] max-md:flex-col max-md:h-[500px]">
             <div class="visits ">
                 <img class="w-full h-[82px] absolute left-0 bottom-0 max-md:w-fit max-md:left-auto max-md:right-0"
@@ -475,28 +409,22 @@
                 </p>
             </div>
             <div class="flex flex-col flex-1 h-full">
-                <!-- Legend Indicator -->
                 <div class="flex px-5 justify-center sm:justify-end items-center gap-x-4 mt-5 sm:mt-0 sm:mb-6">
                     <div class="inline-flex items-center">
                         <span class="size-2.5 inline-block bg-blue-600 rounded-sm me-2"></span>
                         <span class="text-[13px] text-gray-600 ">{:lang('welcome/daily_visits')}</span>
                     </div>
                 </div>
-                <!-- End Legend Indicator -->
-                <!-- Apex Line Chart -->
                 <div id="hs-visit-line-chart" class="h-full"></div>
             </div>
         </div>
 
     </div>
-    <!-- End Double Area Chart in Card -->
     <div class="pb-5 flex flex-col bg-white border border-stone-200 shadow-sm rounded-xl">
-        <!-- Header -->
         <div class="Browsers-card-header">
             <h2 class="inline-block font-semibold text-stone-800 ">
                 {:lang('welcome/seven_day_bot_visits')}
             </h2>
-            <!-- Select -->
             <div class="ml-auto relative inline-block layui-form layui-input-inline w-[100px]">
                 <select id="hs-pro-select-currency" lay-filter="spider_type">
                     <option value="Google" selected>Google</option>
@@ -514,52 +442,29 @@
                     <option value="so.com">so.com</option>
                 </select>
             </div>
-            <!-- End Select -->
         </div>
-        <!-- End Header -->
 
-        <!-- Apex Line Chart -->
         <div id="hs-all-time-earnings-line-charts" class="min-h-[300px] mt-5"></div>
     </div>
 
 
-    <!--    <blockquote class="layui-elem-quote layui-quote-nm mt10">-->
     <!--        <p class="f-20 text-success">{:lang('admin/index/welcome/tip_warn')}</p>-->
     <!--        <p>{:lang('admin/index/welcome/filed_login_num')}：{$admin.admin_login_num}  {:lang('admin/index/welcome/filed_last_login_ip')}：{$admin.admin_last_login_ip|long2ip}  {:lang('admin/index/welcome/filed_last_login_time')}：{$admin.admin_last_login_time|mac_day}</p>-->
-    <!--    </blockquote>-->
 
-    <!--    <table class="layui-table" >-->
-    <!--        <tbody>-->
-    <!--        <tr>-->
     <!--            <td width="110">{:lang('admin/index/welcome/filed_os')}</td>-->
     <!--            <td><?php echo PHP_OS ?> (<?php echo $_SERVER['SERVER_SOFTWARE'] ?>)</td>-->
-    <!--        </tr>-->
-    <!--        <tr>-->
     <!--            <td>{:lang('admin/index/welcome/filed_host')}</td>-->
     <!--            <td><?php echo $_SERVER['HTTP_HOST'] ?></td>-->
-    <!--        </tr>-->
-    <!--        <tr>-->
     <!--            <td>{:lang('admin/index/welcome/filed_max_upload')}</td>-->
     <!--            <td><?php echo get_cfg_var("file_uploads") ? get_cfg_var("upload_max_filesize") : $error;?></td>-->
-    <!--        </tr>-->
-    <!--        <tr>-->
     <!--            <td>{:lang('admin/index/welcome/filed_date')}</td>-->
     <!--            <td><?php echo date('Y-m-d'); ?></td>-->
-    <!--        </tr>-->
-    <!--         <tr>-->
     <!--            <td>{:lang('admin/index/welcome/filed_php_ver')}</td>-->
     <!--            <td><?php echo PHP_VERSION ?></td>-->
-    <!--        </tr>-->
-    <!--        <tr>-->
     <!--            <td>{:lang('admin/index/welcome/filed_thinkphp_ver')}</td>-->
     <!--            <td><?php echo \think\facade\App::version(); ?></td>-->
-    <!--        </tr>-->
-    <!--        <tr>-->
     <!--            <td>{:lang('admin/index/welcome/filed_ver')}</td>-->
     <!--            <td><span class="layui-badge">{$version.code}</span></td>-->
-    <!--        </tr>-->
-    <!--        </tbody>-->
-    <!--    </table>-->
     {if condition="$update_sql"}
     <table class="tbinfo pleft layui-table">
         <thead>

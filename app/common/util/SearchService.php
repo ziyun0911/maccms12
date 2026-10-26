@@ -5,14 +5,8 @@ namespace app\common\util;
 use think\facade\Cache;
 use think\facade\Db;
 
-/**
- * 搜索统计、联想排序、热门词等（不依赖外部检索引擎）。
- */
 class SearchService
 {
-    /**
-     * 记录一次带关键词的搜索（去抖 + 可选关闭）。
-     */
     public static function logFromParam($mid, $param)
     {
         if (!self::isQueryLogEnabled()) {
@@ -45,7 +39,6 @@ class SearchService
                 'log_time' => time(),
             ]);
         } catch (\Throwable $e) {
-            // 表未升级或写入失败时不影响搜索页
         }
     }
 
@@ -54,9 +47,6 @@ class SearchService
         return intval(self::cfg('search_query_log', 1)) === 1;
     }
 
-    /**
-     * 热门搜索词（按日志聚合，带缓存）。
-     */
     public static function hotWords($limit = 15, $days = 30)
     {
         $limit = max(1, min(50, (int)$limit));
@@ -95,9 +85,6 @@ class SearchService
         return $list;
     }
 
-    /**
-     * 登录用户最近不重复关键词。
-     */
     public static function userHistory($userId, $limit = 15)
     {
         $userId = (int)$userId;
@@ -129,9 +116,6 @@ class SearchService
         return $out;
     }
 
-    /**
-     * 清空用户搜索历史。
-     */
     public static function clearUserHistory($userId)
     {
         $userId = (int)$userId;
@@ -146,9 +130,6 @@ class SearchService
         }
     }
 
-    /**
-     * 联想接口限流（IP + visitor 维度）。
-     */
     public static function consumeSuggestRate($ip, $limitPerWindow, $windowSec, $visitorId = '')
     {
         $limitPerWindow = (int)$limitPerWindow;
@@ -171,9 +152,6 @@ class SearchService
         return true;
     }
 
-    /**
-     * 联想列表排序：popular = 月点击 + 更新时间；id = 仅按 id。
-     */
     public static function suggestOrder($pre, $mode)
     {
         $mode = strtolower((string)$mode) === 'id' ? 'id' : 'popular';

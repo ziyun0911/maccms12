@@ -108,7 +108,6 @@ class Art extends Base
     {
         $param = input();
         if (!empty($param)) {
-
             mac_echo('<style type="text/css">body{font-size:12px;color: #333333;line-height:21px;}span{font-weight:bold;color:#FF0000}</style>');
 
             if(empty($param['ck_del']) && empty($param['ck_level']) && empty($param['ck_status']) && empty($param['ck_lock']) && empty($param['ck_hits']) && empty($param['ck_type']) && empty($param['ck_replace']) ){
@@ -128,14 +127,8 @@ class Art extends Base
                 exit;
             }
 
-            // 批量改分类前先校验目标分类：必须存在且属于文章模块(type_mid=2)。
-            // 批量入口一次能改整批数据，不能只信前端下拉框——表单可被直接构造，
-            // 写进不存在或跨模块的 type_id 后，前台按分类取数会整批丢失。
-            // 这里取一次缓存即可，不必在每行循环里重复取。
             $batch_type_id = 0;
             $batch_type_pid = 0;
-            // 判定与 Vod.php 的批量分类入口保持同形：val_type 缺字段（构造表单只提交
-            // ck_type）时不能直接取下标，PHP 7.0 下会报 Undefined index notice
             if(!empty($param['ck_type']) && !empty($param['val_type'])){
                 $batch_type_id = intval($param['val_type']);
                 $type_list = (new \app\common\model\Type())->getCache();
@@ -191,14 +184,12 @@ class Art extends Base
                     $des .= '&nbsp;'.lang('hits').'：'.$update['art_hits'].'；';
                 }
 
-                // 新增：批量修改分类
                 if($batch_type_id > 0){
                     $update['type_id'] = $batch_type_id;
                     $update['type_id_1'] = $batch_type_pid;
                     $des .= '&nbsp;'.lang('type').'：'.$batch_type_id.'；';
                 }
 
-                // 新增：批量替换功能
                 if(!empty($param['ck_replace']) && !empty($param['replace_field']) && isset($param['replace_search'])){
                     $field = $param['replace_field'];
                     $replaceres = $this->batch_replace($field,$v,$param['replace_search'],$param['replace_with'],'art');
@@ -209,7 +200,6 @@ class Art extends Base
 
                 mac_echo($des);
                 $res2 = (new \app\common\model\Art())->where($where2)->update($update);
-
             }
             $param['page']++;
             $url = url('art/batch') .'?'. http_build_query($param);
@@ -317,7 +307,6 @@ class Art extends Base
         $type_tree = (new \app\common\model\Type())->getCache('type_tree');
         $this->assign('type_tree',$type_tree);
 
-        //内容级多语言
         $content_lang_default = mac_content_lang_default();
         $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
         $content_lang_data = [];
@@ -336,9 +325,6 @@ class Art extends Base
         return $this->fetch('admin@art/info');
     }
 
-    /**
-     * 调用已安装的翻译插件（若有）翻译单个字段。
-     */
     public function contentLangTranslate()
     {
         $text = (string)input('post.text', '');
@@ -438,9 +424,6 @@ class Art extends Base
         if ($col == 'type_id' && $val==''){
             return $this->error(lang('select_type_must'));
         }
-        // 与 batch() 同一套白名单：目标分类必须存在且属于文章模块(type_mid=2)。
-        // field() 同样是一次改整批数据的入口，表单可被直接构造，写进不存在或跨模块的
-        // type_id 后前台按分类取数会整批丢失。取一次缓存供下面复用。
         $type_pid = 0;
         if($col == 'type_id'){
             $type_list = (new \app\common\model\Type())->getCache();
@@ -487,5 +470,4 @@ class Art extends Base
         $res = (new \app\common\model\Art())->updateToday($flag);
         return json($res);
     }
-
 }

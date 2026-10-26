@@ -13,7 +13,6 @@ use app\common\validate\Vod as VodValidate;
 class Vod extends Base {
     use RecycleBinTrait;
 
-    // 设置数据表（不含前缀）
     protected $name = 'vod';
 
     protected function getRecycleTimeField(): string
@@ -21,11 +20,9 @@ class Vod extends Base {
         return 'vod_recycle_time';
     }
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -70,9 +67,7 @@ class Vod extends Base {
 
         $list = Db::name('Vod')->field($field)->where($where)->where($where2)->order($order)->limit($limit_str)->select();
 
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
 
         $vip_exclusive = mac_get_vip_exclusive_type_ids();
@@ -116,9 +111,7 @@ class Vod extends Base {
             ->limit($limit_str)
             ->select();
 
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
 
         $vip_exclusive = mac_get_vip_exclusive_type_ids();
@@ -201,7 +194,6 @@ class Vod extends Base {
             $param = mac_search_len_check($param);
             $totalshow = 1;
             if(!empty($param['id'])){
-                //$type = intval($param['id']);
             }
             if(!empty($param['level'])){
                 $level = $param['level'];
@@ -341,7 +333,6 @@ class Vod extends Base {
             $where['vod_version'] = ['in',explode(',',$version)];
         }
         if(!empty($weekday)){
-            //$where['vod_weekday'] = ['in',explode(',',$weekday)];
             $where['vod_weekday'] = ['like', mac_like_arr($weekday),'OR'];
         }
         if(!empty($tv)){
@@ -384,13 +375,11 @@ class Vod extends Base {
         }
         if(!empty($typenot)){
             $typenot_arr = array_map('intval', explode(',', $typenot));
-            // 如果同时存在 type 和 typenot，需在已有 type 条件上排除 typenot
             if(!empty($type) && is_array($type)){
                 $type = array_diff($type, $typenot_arr);
                 if(!empty($type)){
                     $where['type_id'] = ['in', array_values(array_map('intval', $type))];
                 } else {
-                    // type 被完全排除后，设置一个永不匹配的条件，避免查询所有视频
                     $where['type_id'] = ['eq', -1];
                 }
             } else {
@@ -401,7 +390,6 @@ class Vod extends Base {
             $where['type_id|type_id_1'] = ['eq',$tid];
         }
         if(!in_array($GLOBALS['aid'],[13,14,15]) && !empty($param['id'])){
-            //$where['vod_id'] = ['not in',$param['id']];
         }
 
         if(!empty($hitsmonth)){
@@ -446,11 +434,9 @@ class Vod extends Base {
         }
 
         $vod_search = (new \app\common\model\VodSearch());
-        // Meilisearch 开启时不再走 mac_vod_search 前台 ID 缓存，避免与 Meili 双写、且 _string 会阻断 applyForVod；采集侧仍可用 VodSearch::isCollectEnabled()
         $vod_search_enabled = $vod_search->isFrontendEnabled() && !MeilisearchService::enabled();
         $max_id_count = $vod_search->maxIdCount;
         if ($vod_search_enabled) {
-            // 开启搜索优化，查询并缓存Id
             $search_id_list = [];
             if(!empty($wd)) {
                 $role = 'vod_name';
@@ -503,7 +489,6 @@ class Vod extends Base {
                 $where['_string'] = "vod_id IN (" . join(',', $search_id_list) . ")";
             }
         } else {
-            // 不开启搜索优化，使用默认条件
             if(!empty($wd)) {
                 $role = 'vod_name';
                 if(!empty($GLOBALS['config']['app']['search_vod_rule'])){
@@ -542,8 +527,6 @@ class Vod extends Base {
                 }
             }
         }
-        // 随机排序 rnd：按条件 SQL 随机排序并保留当前页码（不再随机跳转分页）
-        // 大表下 ORDER BY RAND() 有性能代价，属语义正确性与性能的取舍
         $use_rand = ($by == 'rnd');
         if (!$use_rand) {
             if (!in_array($by, ['id', 'time', 'time_add', 'score', 'hits', 'hits_day', 'hits_week', 'hits_month', 'up', 'down', 'level', 'rnd'])) {
@@ -554,8 +537,6 @@ class Vod extends Base {
             $order = 'desc';
         }
         if ($use_rand) {
-            // 大表优化：候选集超阈值时先用 PK 索引圈一个随机 ID 窗口，再在窗口内 ORDER BY RAND()
-            // 避免 ORDER BY RAND() 对全表逐行计算 RAND() 后再全排序的开销；阈值可由 app.rnd_window_size 配置
             $rnd_window = isset($GLOBALS['config']['app']['rnd_window_size']) ? (int)$GLOBALS['config']['app']['rnd_window_size'] : 3000;
             if ($rnd_window > 0 && !isset($where['vod_id']) && $this->countData($where) > $rnd_window) {
                 $where_q = $this->mergeRecycleWhere($where);
@@ -635,7 +616,6 @@ class Vod extends Base {
                 Cache::set($cach_name, $res, (int)$cachetime);
             }
         }
-        // 列表缓存不区分内容语言，分类名会带着建缓存时的语言；按当前语言重新挂载
         if (!empty($res['list'])) {
             $type_list = (new \app\common\model\Type())->getCache('type_list');
             $rows = $res['list'] instanceof \think\Collection ? $res['list']->toArray() : $res['list'];
@@ -698,14 +678,11 @@ class Vod extends Base {
                 $info['vod_pic_screenshot_list'] = mac_screenshot_list($info['vod_pic_screenshot']);
             }
 
-
-            //分类
             if (!empty($info['type_id'])) {
                 $type_list = (new \app\common\model\Type())->getCache('type_list');
                 $info['type'] = $type_list[$info['type_id']];
                 $info['type_1'] = $type_list[$info['type']['type_pid']];
             }
-            //用户组
             if (!empty($info['group_id'])) {
                 $group_list = (new \app\common\model\Group())->getCache('group_list');
                 $info['group'] = $group_list[$info['group_id']];
@@ -717,7 +694,6 @@ class Vod extends Base {
             }
         }
         $info = mac_content_lang_overlay('vod', $info);
-        // 详情缓存不区分内容语言，分类名会带着建缓存时的语言；按当前语言重新挂载
         if (!empty($info['type_id'])) {
             $type_list = (new \app\common\model\Type())->getCache('type_list');
             if (isset($type_list[$info['type_id']])) {
@@ -728,8 +704,6 @@ class Vod extends Base {
                 }
             }
         }
-        // 线路/播放器/下载器配置的译文按当前语言覆盖。必须放在核心缓存读取「之后」，
-        // 否则先建缓存的语言会把线路译文烘进不区分语言的 vod_detail 缓存里串给其它语言。
         foreach (['vod_play_list', 'vod_down_list'] as $vlk) {
             if (empty($info[$vlk]) || !is_array($info[$vlk])) {
                 continue;
@@ -838,11 +812,9 @@ class Vod extends Base {
         VodPublishService::normalizeOnSave($data);
         VodAuditService::applyOnSave($data, $isNew);
         if(!empty($data['vod_id'])){
-
             $where=[];
             $where['vod_id'] = ['eq',$data['vod_id']];
             $res = $this->allowField([])->where($where)->update($data);
-            //编辑 先获取到之前的name
             $old_name = $this->where('vod_id',$data['vod_id'])->value('vod_name');
             if($old_name!=$data['vod_name']){
                 $this->cacheRepeatWithName($old_name);
@@ -863,7 +835,6 @@ class Vod extends Base {
             if ($res > 0 && (new \app\common\model\VodSearch())->isFrontendEnabled()) {
                 (new \app\common\model\VodSearch())->checkAndUpdateTopResults(['vod_id' => $seoObjId] + $data);
             }
-            //新增 针对当前name 判断是否重复
             $this->cacheRepeatWithName($data['vod_name']);
         }
         if(false === $res){
@@ -1031,7 +1002,6 @@ class Vod extends Base {
         try{
             Db::execute("TRUNCATE TABLE `{$tableName}`");
         }catch (\Exception $e){
-            //创建表
             Db::execute('DROP TABLE IF EXISTS ' . config('database.connections.mysql.prefix') . 'vod_repeat');
             Db::execute('CREATE TABLE `' . config('database.connections.mysql.prefix') . 'vod_repeat` (`id1` int unsigned DEFAULT NULL, `name1` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT \'\') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci');
             Db::execute('ALTER TABLE `' . config('database.connections.mysql.prefix') . 'vod_repeat` ADD INDEX `name1` (`name1`(100))');
@@ -1040,5 +1010,4 @@ class Vod extends Base {
             config('database.connections.mysql.prefix') . 'vod WHERE vod_recycle_time = 0 GROUP BY name1 HAVING COUNT(name1)>1)');
         Cache::set('vod_repeat_table_created_time',time());
     }
-
 }

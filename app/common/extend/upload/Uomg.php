@@ -23,7 +23,6 @@ class Uomg
 
         $url = 'https://api.uomg.com/api/image.'.$type;
         $data = [];
-        //$data['imgurl'] = 'http://imgsrc.baidu.com/forum/pic/item/09f790529822720edafc8a9d76cb0a46f21faba3.jpg';
         $data['file'] = 'multipart';
 
         if (class_exists('CURLFile')) {

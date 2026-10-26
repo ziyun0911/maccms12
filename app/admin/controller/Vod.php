@@ -51,19 +51,15 @@ class Vod extends Base
             $where['vod_plot'] = ['eq',$param['plot']];
         }
 
-        // 处理角色筛选 - 通过查询角色表判断是否有角色数据
         if(in_array($param['role'],['0','1'])){
             $roleVodIds = Db::name('role')->where('role_rid', '>', 0)->group('role_rid')->column('role_rid');
             if($param['role'] == '1'){
-                // 有角色数据
                 if(!empty($roleVodIds)){
                     $where['vod_id'] = ['in', $roleVodIds];
                 } else {
-                    // 如果没有任何角色数据，设置一个不可能匹配的条件
                     $where['vod_id'] = ['eq', 0];
                 }
             } else {
-                // 无角色数据
                 if(!empty($roleVodIds)){
                     $where['vod_id'] = ['not in', $roleVodIds];
                 }
@@ -135,9 +131,7 @@ class Vod extends Base
             }
 
             if($param['page'] ==1){
-                //使用缓存查看是否创建过缓存表
                 $cacheResult = Cache::get('vod_repeat_table_created_time',0);
-                //缓存时间超过7天和没有创建过缓存都会重建缓存
                 if( $cacheResult == 0 || time() - $cacheResult > 604800){
                     (new \app\common\model\Vod())->createRepeatCache();
                 }
@@ -149,8 +143,6 @@ class Vod extends Base
             $res = (new \app\common\model\Vod())->listData($where,$order,$param['page'],$param['limit']);
         }
 
-
-        // 批量查询哪些视频有角色数据
         $vodIds = array_column($res['list'] instanceof \think\Collection ? $res['list']->toArray() : $res['list'], 'vod_id');
         $vodIdsWithRole = [];
         $vodSeoStatusMap = [];
@@ -160,7 +152,7 @@ class Vod extends Base
                 ->where('role_rid', '>', 0)
                 ->group('role_rid')
                 ->column('role_rid');
-            $vodIdsWithRole = array_flip($roleData); // 转为键值对，方便快速查找
+            $vodIdsWithRole = array_flip($roleData);
 
             $seoRows = Db::name('seo_ai_result')
                 ->field('seo_obj_id,seo_status')
@@ -178,7 +170,6 @@ class Vod extends Base
             if($GLOBALS['config']['view']['vod_detail'] >0 && $v['vod_time_make'] < $v['vod_time']){
                 $v['ismake'] = 0;
             }
-            // 标记是否有角色数据
             $v['vod_role'] = isset($vodIdsWithRole[$v['vod_id']]) ? 1 : 0;
             $v['seo_ai_status'] = isset($vodSeoStatusMap[$v['vod_id']]) ? intval($vodSeoStatusMap[$v['vod_id']]) : 0;
         }
@@ -193,11 +184,9 @@ class Vod extends Base
         $this->assign('param',$param);
         $queryString = '?' . http_build_query($param);
         $this->assign('query_string',$queryString);
-        //分类
         $type_tree = (new \app\common\model\Type())->getCache('type_tree');
         $this->assign('type_tree',$type_tree);
 
-        //播放器
         $this->assignBaseListByConfig();
         $this->assign('title',lang('admin/vod/title'));
         return $this->fetch('admin@vod/index');
@@ -207,7 +196,6 @@ class Vod extends Base
     {
         $param = input();
         if (!empty($param)) {
-
             mac_echo('<style type="text/css">body{font-size:12px;color: #333333;line-height:21px;}span{font-weight:bold;color:#FF0000}</style>');
 
             if(empty($param['ck_del']) && empty($param['ck_level']) && empty($param['ck_status']) && empty($param['ck_lock']) && empty($param['ck_hits'])
@@ -216,7 +204,6 @@ class Vod extends Base
             ){
                 return $this->error(lang('param_err'));
             }
-
 
             if($param['ck_del']==2 && empty($param['player'])){
                 return $this->error(lang('admin/vod/del_play_must_select_play'));
@@ -250,7 +237,6 @@ class Vod extends Base
                 mac_jump( url('vod/batch') ,3);
                 exit;
             }
-
 
             if(empty($param['page'])){
                 $param['page'] = 1;
@@ -324,7 +310,6 @@ class Vod extends Base
                     $des .= '&nbsp;'.lang('points_down').'：'.$param['val_points_down'].'；';
                 }
 
-                // 新增：批量修改分类
                 if(!empty($param['ck_type']) && !empty($param['val_type'])){
                     $update['type_id'] = intval($param['val_type']);
                     $type_list = (new \app\common\model\Type())->getCache();
@@ -335,19 +320,16 @@ class Vod extends Base
                     $des .= '&nbsp;'.lang('type').'：'.$update['type_id'].'；';
                 }
 
-                // 新增：批量修改标签
                 if(!empty($param['ck_tag']) && !empty($param['val_tag'])){
                     $update['vod_tag'] = mac_filter_xss($param['val_tag']);
                     $des .= '&nbsp;'.lang('tag').'：'.$update['vod_tag'].'；';
                 }
 
-                // 新增：批量修改播放源
                 if(!empty($param['ck_play']) && !empty($param['val_play'])){
                     $update['vod_play_from'] = $param['val_play'];
                     $des .= '&nbsp;'.lang('play_group').'：'.$param['val_play'].'；';
                 }
 
-                // 新增：批量替换功能
                 if(!empty($param['ck_replace']) && !empty($param['replace_field']) && isset($param['replace_search'])){
                     $field = $param['replace_field'];
                     $replaceres = $this->batch_replace($field,$v,$param['replace_search'],$param['replace_with'],'vod');
@@ -367,7 +349,6 @@ class Vod extends Base
                         $par='downer';
                         $des .= '&nbsp;'.lang('down_group').'：';
                     }
-
 
                     if($param[$par] == $v[$pre.'_from']){
                         $update[$pre.'_from'] = '';
@@ -406,7 +387,6 @@ class Vod extends Base
                 if ($res2 !== false && isset($update['vod_status'])) {
                     \app\common\util\MeilisearchSync::afterVodSave((int)$v['vod_id']);
                 }
-
             }
             $param['page']++;
             $url = url('vod/batch') .'?'. http_build_query($param);
@@ -414,19 +394,14 @@ class Vod extends Base
             exit;
         }
 
-        //分类
         $type_tree = (new \app\common\model\Type())->getCache('type_tree');
         $this->assign('type_tree',$type_tree);
 
-        //播放器
         $this->assignBaseListByConfig();
         $this->assign('title',lang('admin/vod/title'));
         return $this->fetch('admin@vod/batch');
     }
 
-    /**
-     * 与批量操作页筛选条件一致（用于导出）
-     */
     private function vodBatchFilterWhere(&$param)
     {
         $where = [];
@@ -559,7 +534,6 @@ class Vod extends Base
             }
             $vodId = (int)($res['vod_id'] ?? 0);
             if ($vodId > 0 && is_array($contentLang)) {
-                //默认语言以原始行为准，只写非默认语言的译文（见 mac_content_lang_overlay 注释）
                 $defaultLang = mac_content_lang_default();
                 foreach ($contentLang as $langCode => $fields) {
                     if ((string)$langCode === $defaultLang || !is_array($fields)) {
@@ -577,7 +551,6 @@ class Vod extends Base
         $where['_recycle'] = 'all';
         $res = (new \app\common\model\Vod())->infoData($where);
 
-
         $info = $res['info'];
         $this->assign('info',$info);
         $seoAiStatus = 0;
@@ -590,30 +563,24 @@ class Vod extends Base
         $this->assign('seo_ai_status', $seoAiStatus);
         $this->assign('vod_ai_cover_can_revert', !empty($info['vod_pic_original']));
 
-        //分类
         $type_tree = (new \app\common\model\Type())->getCache('type_tree');
         $this->assign('type_tree',$type_tree);
 
-        //地区、语言
         $config = config('maccms.app');
         $area_list = explode(',',$config['vod_area']);
         $lang_list = explode(',',$config['vod_lang']);
         $this->assign('area_list',$area_list);
         $this->assign('lang_list',$lang_list);
 
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
         $this->assign('group_list',$group_list);
 
-        //播放器
         $this->assignBaseListByConfig();
 
-        //播放组、下载租
         $this->assign('vod_play_list',(array)$info['vod_play_list']);
         $this->assign('vod_down_list',(array)$info['vod_down_list']);
         $this->assign('vod_plot_list',(array)$info['vod_plot_list']);
 
-        //内容级多语言：默认语言永远排第一位（即便后台没勾选它），其后跟已启用的其它语言
         $content_lang_default = mac_content_lang_default();
         $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
         $content_lang_data = [];
@@ -632,9 +599,6 @@ class Vod extends Base
         return $this->fetch('admin@vod/info');
     }
 
-    /**
-     * 调用已安装的翻译插件（若有）翻译单个字段；没有插件注册时返回空字符串，前端据此禁用按钮。
-     */
     public function contentLangTranslate()
     {
         $text = (string)input('post.text', '');
@@ -741,11 +705,9 @@ class Vod extends Base
         $where['_recycle'] = 'all';
         $res = (new \app\common\model\Vod())->infoData($where);
 
-
         $info = $res['info'];
         $this->assign('info',$info);
         $this->assign('vod_plot_list',$info['vod_plot_list']);
-
 
         $this->assign('title',lang('admin/vod/plot/title'));
         return $this->fetch('admin@vod/iplot');
@@ -789,7 +751,6 @@ class Vod extends Base
         }
         elseif(!empty($param['repeat'])){
             if($param['retain']=='max') {
-                // 保留最大ID - 先用子查询找出要保留的ID
                 $sql = 'DELETE FROM '.config('database.connections.mysql.prefix').'vod WHERE vod_id IN (
                 SELECT * FROM (
                     SELECT v1.vod_id
@@ -799,7 +760,6 @@ class Vod extends Base
                 ) tmp
             )';
             } else {
-                // 保留最小ID - 先用子查询找出要保留的ID
                 $sql = 'DELETE FROM '.config('database.connections.mysql.prefix').'vod WHERE vod_id IN (
                 SELECT * FROM (
                     SELECT v1.vod_id
@@ -832,9 +792,6 @@ class Vod extends Base
         if ($col == 'type_id' && $val==''){
             return $this->error(lang('select_type_must'));
         }
-        // 与批量入口同一套白名单：目标分类必须存在且属于视频模块(type_mid=1)。
-        // field() 同样是一次改整批数据的入口，表单可被直接构造，写进不存在或跨模块的
-        // type_id 后前台按分类取数会整批丢失。取一次缓存供下面复用。
         $type_pid = 0;
         if($col == 'type_id'){
             $type_list = (new \app\common\model\Type())->getCache();
@@ -902,9 +859,6 @@ class Vod extends Base
         return $this->error(lang('param_err'));
     }
 
-    /**
-     * 批量改审核状态（view 专用弹层）
-     */
     public function selectStatus()
     {
         $param = input();
@@ -922,9 +876,6 @@ class Vod extends Base
         return $this->fetch('public/select_vod_status');
     }
 
-    /**
-     * 批量审核：通过 / 驳回（可带驳回理由）
-     */
     public function audit()
     {
         $param = input();

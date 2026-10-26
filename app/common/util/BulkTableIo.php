@@ -1,9 +1,6 @@
 <?php
 namespace app\common\util;
 
-/**
- * CSV / XLSX 批量导入导出（无第三方依赖，xlsx 依赖 ZipArchive）
- */
 class BulkTableIo
 {
     const MAX_IMPORT_ROWS = 2000;

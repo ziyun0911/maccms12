@@ -1,5 +1,3 @@
-/* .doc-page 等外壳元素直接引用上方 :root 的 --shell-* 令牌，
-   与后台首页共用同一套设计变量，改主题只需改 :root 一处。 */
 
 .doc-page {
     min-height: 100%;

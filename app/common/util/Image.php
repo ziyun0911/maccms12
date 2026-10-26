@@ -1,35 +1,27 @@
 <?php
 namespace app\common\util;
 
-/**
- * GD 图像处理，替代 TP5 的 think\Image（TP8 框架不再自带图像库，composer 也没装）。
- * 只实现 maccms 用到的 open/thumb/text/save；裁剪方式、水印位置、颜色与透明度口径
- * 与 think-image 1.x 一致，保证后台「上传设置」里 1~6 / 1~9 的选项行为不变。
- *  animated GIF 只处理首帧（GD 无多帧写回能力），存回 .gif 时为单帧。
- */
 class Image
 {
-    const THUMB_SCALING   = 1; //等比例缩放
-    const THUMB_FILLED    = 2; //缩放后填充
-    const THUMB_CENTER    = 3; //居中裁剪
-    const THUMB_NORTHWEST = 4; //左上角裁剪
-    const THUMB_SOUTHEAST = 5; //右下角裁剪
-    const THUMB_FIXED     = 6; //固定尺寸缩放
+    const THUMB_SCALING   = 1;
+    const THUMB_FILLED    = 2;
+    const THUMB_CENTER    = 3;
+    const THUMB_NORTHWEST = 4;
+    const THUMB_SOUTHEAST = 5;
+    const THUMB_FIXED     = 6;
 
-    const WATER_NORTHWEST = 1; //左上角
-    const WATER_NORTH     = 2; //上居中
-    const WATER_NORTHEAST = 3; //右上角
-    const WATER_WEST      = 4; //左居中
-    const WATER_CENTER    = 5; //居中
-    const WATER_EAST      = 6; //右居中
-    const WATER_SOUTHWEST = 7; //左下角
-    const WATER_SOUTH     = 8; //下居中
-    const WATER_SOUTHEAST = 9; //右下角
+    const WATER_NORTHWEST = 1;
+    const WATER_NORTH     = 2;
+    const WATER_NORTHEAST = 3;
+    const WATER_WEST      = 4;
+    const WATER_CENTER    = 5;
+    const WATER_EAST      = 6;
+    const WATER_SOUTHWEST = 7;
+    const WATER_SOUTH     = 8;
+    const WATER_SOUTHEAST = 9;
 
-    /** @var \GdImage|resource|null */
     protected $im = null;
 
-    /** @var array */
     protected $info = [];
 
     private function __construct(\SplFileInfo $file)
@@ -89,9 +81,6 @@ class Image
         return [$this->info['width'], $this->info['height']];
     }
 
-    /**
-     * 生成缩略图，尺寸为 宽x高，$type 取 THUMB_* 常量。
-     */
     public function thumb($width, $height, $type = self::THUMB_SCALING)
     {
         $width  = max(1, (int) $width);
@@ -136,10 +125,6 @@ class Image
                 } else {
                     $scale = min($width / $w, $height / $h);
                 }
-                // GD 的坐标参数在 PHP8 声明为 int，浮点直接传会触发
-                // 「Implicit conversion from float ... loses precision」，而 TP8 的 error_handler
-                // 把 E_DEPRECATED 也抛成异常，所以这里全部显式取整。
-                // 源图整体缩放后居中贴到目标画布上（$w/$h 就是源尺寸，所以取样起点恒为 0,0）。
                 $neww = (int) round($w * $scale);
                 $newh = (int) round($h * $scale);
                 $x    = 0;
@@ -196,9 +181,6 @@ class Image
         return $this;
     }
 
-    /**
-     * 文字水印。$color 支持 #RRGGBB 与 #RRGGBBAA（AA 为 GD 透明度 0~127）。
-     */
     public function text($text, $font, $size = 16, $color = '#00000000', $locate = self::WATER_SOUTHEAST, $offset = 0, $angle = 0)
     {
         $text = (string) $text;
@@ -327,19 +309,12 @@ class Image
         return $this;
     }
 
-    /**
-     * 调用方沿用 TP5 的 './upload/...' 写法：Web 请求下当前目录就是站点根，
-     * 但 CLI（定时任务、静态生成、AI 封面）下不是，路径会整体失效。
-     * 相对路径在当前目录找不到时，回退到 ROOT_PATH 再试一次。
-     */
     public static function locate($path, $must_exist = true)
     {
         $path = (string) $path;
         if ('' === $path) {
             return $path;
         }
-        // 已经是带盘符/UNC 的绝对路径（例如上一次 locate() 的结果）时原样返回，
-        // 否则 ROOT_PATH 会被拼两遍，写出的目标文件路径变成「根目录+根目录+相对路径」。
         if (preg_match('#^[A-Za-z]:[\\\\/]#', $path) || str_starts_with($path, '\\\\/')) {
             return $path;
         }

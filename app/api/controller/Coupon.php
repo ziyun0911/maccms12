@@ -6,11 +6,6 @@ use app\common\util\CsrfGuard;
 use think\facade\Db;
 use think\Request;
 
-/**
- * 优惠券 API
- *
- * 提供可用优惠券列表查询与领取。所有接口需用户登录。
- */
 class Coupon extends Base
 {
     use PublicApi;
@@ -22,9 +17,6 @@ class Coupon extends Base
         $this->check_config();
     }
 
-    /**
-     * 辅助：检查登录
-     */
     private function _checkLogin()
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -41,13 +33,6 @@ class Coupon extends Base
         return ['ok' => true, 'user_id' => $uid, 'user' => $user, 'response' => null];
     }
 
-    /**
-     * 获取可用优惠券列表
-     * GET /api.php/coupon/get_list?scene=recharge|vip&group_id=&long=&price=
-     *
-     * 返回当前用户可领取、在有效期、有库存、匹配场景与目标、且未达每人限领的优惠券。
-     * coupon_end_time = 0 视为永不过期。
-     */
     public function get_list(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -72,7 +57,6 @@ class Coupon extends Base
 
         $available = [];
         $mine = [];
-        // 已领取记录按 coupon_id 索引：mine 需要回传 coupon_user_id，下单时用它抵扣
         $myReceivedMap = [];
         $myRows = Db::name('coupon_user')->where('user_id', $auth['user_id'])->select();
         foreach ($myRows as $cu) {
@@ -80,31 +64,25 @@ class Coupon extends Base
         }
 
         foreach ($list as $row) {
-            // 场景匹配
             if ($row['coupon_scene'] !== 'all' && $row['coupon_scene'] !== $scene) {
                 continue;
             }
-            // 已领取：先于库存判断，券被领完后持有人仍要能看到自己的券
             if (isset($myReceivedMap[intval($row['coupon_id'])])) {
                 $cu = $myReceivedMap[intval($row['coupon_id'])];
                 $row['coupon_user_id'] = intval($cu['coupon_user_id']);
                 $row['coupon_user_status'] = intval($cu['coupon_user_status']);
                 $row['order_code'] = (string)$cu['order_code'];
-                // usable：未核销且未被待支付订单预占，可直接用于下单
                 $row['usable'] = (intval($cu['coupon_user_status']) === 0 && (string)$cu['order_code'] === '') ? 1 : 0;
                 $row['coupon_target_arr'] = json_decode($row['coupon_target'], true);
                 $mine[] = $row;
                 continue;
             }
-            // 库存：coupon_total 恒为发放上限（校验器强制 >=1），无「0=无限」语义，与 receive() 一致
             if (intval($row['coupon_received']) >= intval($row['coupon_total'])) {
                 continue;
             }
-            // 满减门槛：price=0 时不做门槛过滤（仅展示）
             if ($price > 0 && floatval($row['coupon_min_price']) > $price) {
                 continue;
             }
-            // VIP 场景目标匹配
             if ($scene === 'vip' && !empty($row['coupon_target'])) {
                 $target = json_decode($row['coupon_target'], true);
                 if (is_array($target)) {
@@ -130,10 +108,6 @@ class Coupon extends Base
         ]);
     }
 
-    /**
-     * 领取优惠券
-     * POST /api.php/coupon/receive  参数 coupon_id
-     */
     public function receive(Request $request)
     {
         $auth = $this->_checkLogin();

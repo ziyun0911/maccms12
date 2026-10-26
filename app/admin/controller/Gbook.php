@@ -38,7 +38,6 @@ class Gbook extends Base
             $where['gbook_name|gbook_content'] = ['like','%'.$param['wd'].'%'];
         }
 
-
         $order='gbook_id desc';
         $res = (new \app\common\model\Gbook())->listData($where,$order,$param['page'],$param['limit']);
 
@@ -115,5 +114,4 @@ class Gbook extends Base
         }
         return $this->error(lang('param_err'));
     }
-
 }

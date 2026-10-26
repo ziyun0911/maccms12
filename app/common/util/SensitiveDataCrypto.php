@@ -1,12 +1,6 @@
 <?php
 namespace app\common\util;
 
-/**
- * 敏感字符串对称加密（AES-256-GCM），用于审计日志等落库场景。
- * 未设置独立密钥时从 cache_flag + 表前缀派生（生产环境请配置 admin_audit_crypto_secret）。
- *
- * 若运行环境不含 openssl 的 aes-256-gcm（通常需 PHP 7.1+），encryptString 会退回明文落库，须在后台配置页提示站长。
- */
 class SensitiveDataCrypto
 {
     const PREFIX_GCM = 'MACENC1:';
@@ -17,9 +11,6 @@ class SensitiveDataCrypto
 
     const METHOD = 'aes-256-gcm';
 
-    /**
-     * 当前环境是否可用 AES-256-GCM（与 encryptString 实际是否加密一致）。
-     */
     public static function supportsAes256Gcm()
     {
         if (!function_exists('openssl_encrypt')) {
@@ -33,9 +24,6 @@ class SensitiveDataCrypto
         return in_array(self::METHOD, $methods, true);
     }
 
-    /**
-     * @param array<string,mixed> $app maccms app 配置块
-     */
     public static function deriveKeyFromApp(array $app)
     {
         $explicit = isset($app['admin_audit_crypto_secret']) ? trim((string)$app['admin_audit_crypto_secret']) : '';
@@ -51,9 +39,6 @@ class SensitiveDataCrypto
         return hash('sha256', 'maccms.sensitive_crypto.v1|' . $flag . '|' . $pfx, true);
     }
 
-    /**
-     * 加密为带版本前缀的 ASCII 串；失败或不可用则返回原文（与 supportsAes256Gcm() 为 false 时行为一致）。
-     */
     public static function encryptString($plaintext, array $app = null)
     {
         if ($plaintext === null || $plaintext === '') {
@@ -76,11 +61,6 @@ class SensitiveDataCrypto
         return self::PREFIX_GCM . base64_encode($iv . $tag . $ct);
     }
 
-    /**
-     * 若为加密串则解密；否则原样返回历史明文。
-     *
-     * @return string|false
-     */
     public static function decryptString($stored, array $app = null)
     {
         if ($stored === null || $stored === '') {

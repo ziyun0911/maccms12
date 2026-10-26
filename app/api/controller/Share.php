@@ -28,9 +28,6 @@ class Share extends Base
         return false;
     }
 
-    /**
-     * 原子化频率检查：Redis 后端用 SETNX，文件缓存回退到 has+set
-     */
     private function _rateCheck($key, $interval)
     {
         try {
@@ -89,7 +86,6 @@ class Share extends Base
             return json(['code' => 1010, 'msg' => lang('share/login_required')]);
         }
         $param = $request->param();
-        // 安全：仅返回当前登录用户自己的分享历史，忽略外部传入的 uid（防 IDOR）
         $uid = $user['user_id'];
         $page = isset($param['page']) ? max(1, intval($param['page'])) : 1;
         $limit = isset($param['limit']) ? min(100, max(1, intval($param['limit']))) : 20;

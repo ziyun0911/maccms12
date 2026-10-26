@@ -80,5 +80,4 @@ class Actor extends Base
         $info = $this->label_actor_detail();
         return response($this->label_fetch('actor/rss'), 200, ['Content-Type' => 'text/xml; charset=utf-8']);
     }
-
 }

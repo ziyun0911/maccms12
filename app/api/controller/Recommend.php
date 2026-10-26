@@ -7,20 +7,6 @@ use think\facade\Cache;
 use think\Request;
 use app\common\util\SlidingWindowIpLimiter;
 
-/**
- * 个性化推荐
- *
- * 登录用户按用户画像（mac_user_profile.prefer_types）命中的分类 × 内容质量分
- * （mac_content_quality.score_total）取 Top-N；未登录 / 无画像 / 画像无偏好分类 /
- * 个性化候选为空时，降级为全站按 score_total 降序的热门榜单，保证任何情况下都有
- * 结果兜底（除非质量分表整体为空）。
- *
- * 安全：
- *   - uid 只取自 model('User')->checkLogin()，绝不使用请求参数；请求携带他人 user_id
- *     参数一律拒绝（IDOR 防护），绝不用它去查画像。
- *   - 同一 IP 60 秒内最多 30 次，超限返回 code=1429。
- *   - 只返回 vod 公开字段，不泄露画像原文或他人数据。
- */
 class Recommend extends Base
 {
     public function __construct()
@@ -28,14 +14,8 @@ class Recommend extends Base
         parent::__construct();
     }
 
-    /**
-     * 推荐列表
-     * GET/POST api.php/recommend/list
-     * 参数：limit 可选，默认12，上限30
-     */
     public function list(Request $request)
     {
-        // 1) 限流，先于任何业务逻辑
         $ip = mac_get_client_ip();
         $rl = SlidingWindowIpLimiter::checkHit($ip, 'recommend', 60, 30, 'recommend_rl');
         if (empty($rl['allowed'])) {
@@ -51,18 +31,15 @@ class Recommend extends Base
             $limit = 30;
         }
 
-        // 2) 鉴权：uid 只来自 checkLogin()，绝不来自请求参数
         $check = (new \app\common\model\User())->checkLogin();
         $loggedIn = !($check['code'] > 1);
         $uid = $loggedIn ? intval($check['info']['user_id']) : 0;
 
-        // IDOR 防护：请求携带他人 user_id 参数一律拒绝
         $reqUserId = intval($param['user_id'] ?? 0);
         if ($reqUserId > 0 && $loggedIn && $reqUserId !== $uid) {
             return json(['code' => 1403, 'msg' => lang('permission_denied')]);
         }
 
-        // 3) 取画像（仅登录用户）
         $profile = null;
         if ($loggedIn) {
             $profile = (new \app\common\model\UserProfile())->getByUser($uid);
@@ -84,7 +61,6 @@ class Recommend extends Base
             $preferTypeIds = array_values(array_unique($preferTypeIds));
         }
 
-        // 4) 个性化 or 降级（降级分支必须有结果兜底）
         $items = [];
         if (!empty($preferTypeIds)) {
             $items = $this->fetchByTypeIds($preferTypeIds, $limit);
@@ -96,12 +72,8 @@ class Recommend extends Base
         return json(['code' => 1, 'msg' => lang('obtain_ok'), 'info' => $items]);
     }
 
-    /**
-     * 个性化候选：按偏好分类过滤，score_total 降序取 Top-N
-     */
     private function fetchByTypeIds(array $typeIds, $limit)
     {
-        // 相同偏好分类组合会被多个口味相近的用户命中，短 TTL 缓存降载
         $keyIds = $typeIds;
         sort($keyIds);
         $cacheKey = 'rec_types_' . md5(implode(',', $keyIds)) . '_' . intval($limit);
@@ -125,12 +97,8 @@ class Recommend extends Base
         return $items;
     }
 
-    /**
-     * 降级兜底：全站按 score_total 降序取 Top-N 热门
-     */
     private function fetchPopular($limit)
     {
-        // 全站热门兜底榜对所有匿名/无画像用户一致，短 TTL 缓存降载
         $cacheKey = 'rec_popular_' . intval($limit);
         $cached = Cache::get($cacheKey);
         if (is_array($cached)) {
@@ -151,9 +119,6 @@ class Recommend extends Base
         return $items;
     }
 
-    /**
-     * 只保留公开字段，vod_pic 过 mac_url_img()
-     */
     private function formatVodRows($rows)
     {
         $items = [];

@@ -1,24 +1,14 @@
 <?php
 namespace app\admin\controller;
 
-/**
- * 说明文档在线阅读（后台，只读）
- *
- * 站点根的 说明文档/ 与 README.md 在 Apache/nginx/IIS/php -S 各层都被禁止 HTTP 直接下载，
- * 站长读手册却没有入口，这里按白名单从磁盘读取、转义后渲染；公网访问依旧拿不到这些文件。
- */
 class Doc extends Base
 {
-    /** 允许在线阅读的目录（相对站点根） */
     const DOC_DIR = '说明文档';
 
-    /** 单独放行的根文件 */
     const ROOT_FILES = 'README.md';
 
-    /** 单文件最多读取的字节数，超出只读前一段 */
     const MAX_SIZE = 1048576;
 
-    /** 扩展名白名单；.wpm 之类的二进制模块不在其中 */
     protected static $allowExt = ['txt', 'md', 'conf', 'ini', 'config'];
 
     public function index()
@@ -58,10 +48,6 @@ class Doc extends Base
         return $this->fetch('admin@doc/info');
     }
 
-    /**
-     * 可阅读文件清单：说明文档/ 递归 + 根部的 README.md
-     * @return array
-     */
     protected function fileList()
     {
         $base = rtrim(root_path(), '/\\');
@@ -93,10 +79,6 @@ class Doc extends Base
         return $list;
     }
 
-    /**
-     * 按所在目录分组，列表页一个目录一张卡
-     * @return array
-     */
     protected function groupList($list)
     {
         $groups = [];
@@ -117,10 +99,6 @@ class Doc extends Base
         return array_values($groups);
     }
 
-    /**
-     * 把请求里的相对路径解析成真实文件；任何越出白名单范围的情况都返回 null
-     * @return array|null
-     */
     protected function resolve($id)
     {
         if (!is_string($id) || $id === '' || strpos($id, "\0") !== false) {

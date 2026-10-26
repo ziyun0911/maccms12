@@ -89,9 +89,6 @@ class Task extends Base {
         return ['code' => 1, 'msg' => lang('set_ok')];
     }
 
-    /**
-     * 获取所有启用的任务，按类型分组
-     */
     public function getActiveTasks()
     {
         $where = ['task_status' => 1];

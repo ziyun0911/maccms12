@@ -16,20 +16,10 @@ class Socialws extends Addon
         return true;
     }
 
-    /**
-     * Hook: app_init — reserved for bootstrap work. Addon HTTP routes are
-     * registered globally in route/addons.php and need no per-request toggle.
-     */
     public function appInit()
     {
     }
 
-    /**
-     * Hook: social_broadcast — fired by Chatroom::saveData() / Danmaku::saveData()
-     * after a new chat/danmaku row is inserted. Pushes it to the matching
-     * GatewayWorker room. Never throws — a down/unreachable daemon must not
-     * affect the HTTP request that already committed the DB write.
-     */
     public function socialBroadcast($params)
     {
         if (empty($params['kind']) || empty($params['data'])) {
@@ -40,8 +30,6 @@ class Socialws extends Addon
             return;
         }
 
-        // 计算目标房间放进 try：dynamics 扇出需查粉丝(DB)，DB 异常也不得
-        // 冒泡影响已提交写入的 HTTP 请求（保持本方法「绝不抛出」的契约）。
         try {
             $rooms = $this->targetRooms($params);
             if (empty($rooms)) {
@@ -62,12 +50,6 @@ class Socialws extends Addon
         }
     }
 
-    /**
-     * 广播目标房间列表。除 dynamics 外均为单房间(roomKey)。
-     * dynamics 必须扇出到发布者每个粉丝自己的 user_<fid> 房间：Events::canSubscribe
-     * 只允许用户订阅自身 user_ 房间，若推到发布者本人房间(user_<actor>)关注者收不到。
-     * 粉丝各自订阅自己的 user_<自己uid>（与 pm/follow 同一房间）即可实时收到动态。
-     */
     private function targetRooms($params)
     {
         if ($params['kind'] === 'dynamics') {
@@ -85,11 +67,6 @@ class Socialws extends Addon
         return $room === '' ? [] : [$room];
     }
 
-    /**
-     * Room key formula — MUST stay identical to Events::roomKey() in
-     * addons/socialws/server/Events.php (duplicated deliberately; the two
-     * runtimes don't share a code layer).
-     */
     private function roomKey($params)
     {
         $kind = $params['kind'];
@@ -105,7 +82,6 @@ class Socialws extends Addon
             }
             return 'dm_' . (int)$params['vod_id'] . '_' . (int)$params['sid'] . '_' . (int)$params['nid'];
         }
-        // 推送到收信人的个人房间，前端订阅 user_<自己的uid> 即可收到
         if ($kind === 'follow') {
             if (!isset($params['follow_uid'])) {
                 return '';
@@ -113,14 +89,12 @@ class Socialws extends Addon
             return 'user_' . (int)$params['follow_uid'];
         }
         if ($kind === 'dynamics') {
-            // dynamics 推送给关注者的个人房间
             if (!isset($params['user_id'])) {
                 return '';
             }
             return 'user_' . (int)$params['user_id'];
         }
         if ($kind === 'pm') {
-            // pm 推送给收信人的个人房间
             if (!isset($params['to_uid'])) {
                 return '';
             }

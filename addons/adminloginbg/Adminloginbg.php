@@ -4,25 +4,13 @@ namespace addons\adminloginbg;
 
 use app\common\addon\Addon;
 
-/**
- * 登录背景图插件
- */
 class Adminloginbg extends Addon
 {
-
-    /**
-     * 插件安装方法
-     * @return bool
-     */
     public function install()
     {
         return true;
     }
 
-    /**
-     * 插件卸载方法
-     * @return bool
-     */
     public function uninstall()
     {
         return true;
@@ -42,5 +30,4 @@ class Adminloginbg extends Addon
             \think\facade\View::assign('background', $background);
         }
     }
-
 }

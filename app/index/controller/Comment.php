@@ -8,7 +8,6 @@ class Comment extends Base
     public function __construct()
     {
         parent::__construct();
-        //关闭中
         if($GLOBALS['config']['comment']['status'] == 0){
             echo 'comment is close';
             exit;
@@ -37,7 +36,6 @@ class Comment extends Base
     public function saveData() {
         $param = input();
 
-        // 兼容：部分模板/历史版本会使用 mid/rid 作为参数名
         if (empty($param['comment_mid']) && isset($param['mid'])) {
             $param['comment_mid'] = $param['mid'];
         }
@@ -45,7 +43,6 @@ class Comment extends Base
             $param['comment_rid'] = $param['rid'];
         }
 
-        // 兼容：部分调用会传模块字符串（vod/art/topic/actor/role/website）
         if (!empty($param['comment_mid']) && !is_numeric($param['comment_mid'])) {
             $mid_map = [
                 'vod' => 1,
@@ -62,7 +59,6 @@ class Comment extends Base
             }
         }
 
-        // 兼容：有些模板会误把 comment_mid 传为 4（评论自身），若同时存在合法 mid 则优先使用之
         if (isset($param['comment_mid']) && (string)$param['comment_mid'] === '4' && isset($param['mid']) && in_array((string)$param['mid'], ['1','2','3','8','9','11','12'], true)) {
             $param['comment_mid'] = (string)$param['mid'];
         }
@@ -93,9 +89,6 @@ class Comment extends Base
         }
 
         $param['comment_content']= htmlentities(mac_filter_words($param['comment_content']));
-        // if(!preg_match('/[^\x00-\x80]/',$param['comment_content'])){
-        //     return ['code'=>1005,'msg'=>lang('index/require_cn')];
-        // }
 
         if(!in_array($param['comment_mid'],['1','2','3','8','9','11','12'])){
             return json(['code'=>1006,'msg'=>lang('index/mid_err')]);
@@ -124,7 +117,6 @@ class Comment extends Base
 
         $param['comment_ip'] = mac_get_ip_long();
         $blcaks = config('blacks');
-        //判断黑名单关键字是否为空 不为空并且大于0则循环判断是否包含黑名单关键字
         if(!empty($blcaks['black_keyword_list']) && count($blcaks['black_keyword_list']) > 0){
             foreach ($blcaks['black_keyword_list'] as $key => $value) {
                 if(strpos($param['comment_content'], $value) !== false){
@@ -132,7 +124,6 @@ class Comment extends Base
                 }
             }
         }
-        //判断黑名单IP是否为空 不为空并且大于0则循环判断客户端ip是否包含黑名单ip
         if(!empty($blcaks['black_ip_list']) && count($blcaks['black_ip_list']) > 0){
             $client_ip = long2ip($param['comment_ip']);
             if (in_array($client_ip, $blcaks['black_ip_list'])){
@@ -229,5 +220,4 @@ class Comment extends Base
         }
         return json(['code'=>1,'msg'=>lang('opt_ok'),'data'=>$data]);
     }
-
 }

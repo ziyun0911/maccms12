@@ -17,12 +17,10 @@ class User extends Base
 
         define('THIRD_LOGIN_CALLBACK',  $GLOBALS['http_type'] . $_SERVER['HTTP_HOST'] . '/index.php/user/logincallback/type/');
 
-        //判断用户登录状态
         $ac = request()->action();
         $guestAllowedActions = ['login', 'logout', 'ajax_login', 'reg', 'findpass', 'findpass_msg', 'findpass_reset', 'reg_msg', 'oauth', 'logincallback', 'visit', 'index', 'ajax_upgrade', 'ajax_buy_popedom'];
         $guestAllowedGetActions = ['buy', 'plays', 'upgrade', 'checkin', 'ajax_mall_goods', 'ajax_mall_orders'];
         if (in_array($ac, $guestAllowedActions) || (in_array($ac, $guestAllowedGetActions) && !Request()->isPost())) {
-            // 游客可访问的页面也注入 obj，避免模板判断分支缺少变量
             $this->assign('obj', $GLOBALS['user']);
         } else {
             if ($GLOBALS['user']['user_id'] < 1) {
@@ -48,9 +46,6 @@ class User extends Base
     {
         $param = input();
         if ($param['ac'] == 'set') {
-            // 写入类操作（收藏/想看/播放/章节阅读历史）必须为 POST 且通过 CSRF 校验，
-            // 杜绝第三方页面、浏览器预加载器或爬虫借登录用户 Cookie 发起 GET 写入而污染记录。
-            // 读取路径（ac=list）不受影响，仍可 GET。
             if (!request()->isPost()) {
                 return json(['code' => 1001, 'msg' => lang('param_err')]);
             }
@@ -92,7 +87,6 @@ class User extends Base
             $res = (new \app\common\model\Ulog())->infoData($data);
             if ($res['code'] == 1) {
                 $r = (new \app\common\model\Ulog())->where($data)->update(['ulog_time'=>time()]);
-                // update() 返回 false 才是写库失败；受影响行数为 0（时间戳值未变）仍算成功。失败不埋点。
                 if ($r !== false && isset($__ualMap[$data['ulog_type']])) {
                     \app\common\model\UserAccessLog::record($__ualMap[$data['ulog_type']], [
                         'user_id' => $data['user_id'],
@@ -139,7 +133,6 @@ class User extends Base
         if (empty($GLOBALS['user']['user_id']) || intval($GLOBALS['user']['user_id']) < 1) {
             return json(['code' => 1001, 'msg' => lang('api/please_login_first')]);
         }
-        // 会扣积分/写 ulog 的写接口：强制 POST + CSRF，防跨站诱导非自愿扣费购买
         if (!Request()->isPost()) {
             return json(['code' => 1002, 'msg' => lang('param_err')]);
         }
@@ -163,7 +156,6 @@ class User extends Base
 
         $where = [];
         if($param['mid']=='12'){
-            // 漫画购买（扣费额与 check_user_popedom 一致）
             $where['manga_id'] = $data['ulog_rid'];
             $res = (new \app\common\model\Manga())->infoData($where);
             if ($res['code'] > 1) {
@@ -176,7 +168,6 @@ class User extends Base
             }
         }
         elseif($param['type']=='1'){
-            // 文章购买
             $where['art_id'] = $data['ulog_rid'];
             $res = (new \app\common\model\Art())->infoData($where);
             if ($res['code'] > 1) {
@@ -189,7 +180,6 @@ class User extends Base
             }
         }
         else{
-            // 视频播放/下载购买
             $where['vod_id'] = $data['ulog_rid'];
             $res = (new \app\common\model\Vod())->infoData($where);
             if ($res['code'] > 1) {
@@ -204,8 +194,6 @@ class User extends Base
             $data['ulog_points'] = intval($res['info'][$col]);
         }
 
-        // 视频下载(mid=1,type=5)已拥有判断走 hasBought：额度兑换记 ulog_points=0，
-        // 与金币购买(记原价)都应算已购，避免二次扣额度；其余类型保持原精确匹配。
         $isDownload = ($param['mid'] == '1' && $param['type'] == '5');
         $owned = $isDownload
             ? (new \app\common\model\Ulog())->hasBought($data)
@@ -226,7 +214,6 @@ class User extends Base
             if ($quotaRes['code'] != 1) {
                 return json(['code' => 2003, 'msg' => lang('index/buy_popedom2')]);
             }
-            // 风控日志（issue #149）：下载额度兑换成功（等同一次付费下载访问）
             \app\common\model\UserAccessLog::record('buy', [
                 'user_id' => $GLOBALS['user']['user_id'],
                 'mid'     => $data['ulog_mid'],
@@ -239,10 +226,8 @@ class User extends Base
             return json(['code' => 2002, 'msg' => lang('index/buy_popedom3',[$data['ulog_points'],$GLOBALS['user']['user_points']])]);
         }
 
-        // 使用事务 + 条件更新防止并发刷积分
         Db::startTrans();
         try {
-            // 带条件的原子扣除：只有积分足够时才扣除
             $affected = Db::name('user')
                 ->where('user_id', $GLOBALS['user']['user_id'])
                 ->where('user_points', '>=', $data['ulog_points'])
@@ -253,29 +238,22 @@ class User extends Base
                 return json(['code' => 2002, 'msg' => lang('index/buy_popedom3',[$data['ulog_points'],$GLOBALS['user']['user_points']])]);
             }
 
-            //积分日志
             $data2 = [];
             $data2['user_id'] = $GLOBALS['user']['user_id'];
             $data2['plog_type'] = 8;
             $data2['plog_points'] = $data['ulog_points'];
-            // 扣分凭证必须写入成功，否则出现「已扣分但无扣分日志」的账目黑洞：任一必要写入失败即整单回滚。
             $plogRes = (new \app\common\model\Plog())->saveData($data2);
             if (!is_array($plogRes) || intval(isset($plogRes['code']) ? $plogRes['code'] : 0) !== 1) {
                 Db::rollback();
                 return json(['code' => 2003, 'msg' => lang('index/buy_popedom2')]);
             }
 
-            //分销佣金：strict 模式下，上级积分已加但佣金日志写入失败会连同本单一起回滚，保账目一致（与 API 购买流程一致）。
             $rewardRes = (new \app\common\model\User())->reward($data['ulog_points'], true);
             if (!is_array($rewardRes) || intval(isset($rewardRes['code']) ? $rewardRes['code'] : 0) !== 1) {
                 Db::rollback();
                 return json(['code' => 2003, 'msg' => lang('index/buy_popedom2')]);
             }
 
-            // 购买/使用凭证必须写入成功，否则用户扣了分却拿不到使用权。
-            // 注意 mac_ulog 仍是 MyISAM，本行不受事务回滚保护；故放在事务最后一步、紧接
-            // Db::commit()，把「已扣分未记权 / 已记权未扣分」的窗口压到最小。写入失败时，
-            // 回滚的只是 InnoDB 侧的扣分/佣金；ulog 迁移 InnoDB 以获得真正原子性，另行拆 PR。
             $res = (new \app\common\model\Ulog())->saveData($data);
             if (!is_array($res) || intval(isset($res['code']) ? $res['code'] : 0) !== 1) {
                 Db::rollback();
@@ -283,7 +261,6 @@ class User extends Base
             }
 
             Db::commit();
-            // 风控日志（issue #149）：积分购买/点播成功埋点
             \app\common\model\UserAccessLog::record('buy', [
                 'user_id' => $GLOBALS['user']['user_id'],
                 'mid'     => $data['ulog_mid'],
@@ -329,46 +306,35 @@ class User extends Base
         if (empty($type)) {
             return $this->error(lang('param_err'));
         }
-        //加载ThinkOauth类并实例化一个对象
         $sns = ThinkOauth::getInstance($type);
-        //跳转到授权页面
         return $this->redirect($sns->getRequestCodeURL());
     }
 
-    //授权回调地址
     public function logincallback($type = '', $code = '')
     {
         if (empty($type) || empty($code)) {
             return $this->error(lang('param_err'));
         }
-        //加载ThinkOauth类并实例化一个对象
         $sns = ThinkOauth::getInstance($type);
         $extend = null;
 
-        //请妥善保管这里获取到的Token信息，方便以后API调用
         $token = $sns->getAccessToken($code, $extend);
-        //获取当前登录用户信息
         if (is_array($token)) {
             $loginEvent = new LoginEvent();
             $res = $loginEvent->$type($token);
             if ($res['code'] == 1) {
                 $openid = $res['info']['openid'];
                 $col = 'user_openid_' . $type;
-                //如果已登录,是否需要重新绑定
                 $check = (new \app\common\model\User())->checkLogin();
                 if ($check['code'] == 1) {
-
                     if ($check['info'][$col] == $openid) {
-                        //无需再次绑定
                         return json(['code' => 1001, 'msg' => lang('index/bind_haved')]);
                     } else {
-                        //解除原有绑定
                         $where = [];
                         $where[$col] = $openid;
                         $update = [];
                         $update[$col] = '';
                         (new \app\common\model\User())->where($where)->update($update);
-                        //新绑定
                         $where = [];
                         $where['user_id'] = $GLOBALS['user']['user_id'];
                         $update = [];
@@ -381,7 +347,6 @@ class User extends Base
                 $where = [];
                 $where[$col] = $openid;
                 $res2 = (new \app\common\model\User())->infoData($where);
-                //未绑定的需要先创建用户并绑定
                 if ($res2['code'] > 1) {
                     $data = [];
                     $data['user_name'] = substr($openid, 0, 10);
@@ -392,11 +357,9 @@ class User extends Base
                     $data[$col] = $openid;
                     $reg = (new \app\common\model\User())->register($data);
                     if ($reg['code'] > 1) {
-                        //注册失败
                         return $this->error(lang('index/logincallback1'));
                     }
                 }
-                //直接登录。。。
                 $login = (new \app\common\model\User())->login(['col' => $col, 'openid' => $openid]);
                 if ($login['code'] > 1) {
                     return $this->error($login['msg']);
@@ -524,7 +487,6 @@ class User extends Base
         return json($res);
     }
 
-
     public function portrait()
     {
         if(request()->isPost()){
@@ -600,8 +562,6 @@ class User extends Base
                 $data['order_price'] = $price;
                 $data['order_time'] = time();
                 $data['order_points'] = intval($GLOBALS['config']['pay']['scale'] * $price);
-                // order_remarks 是 text NOT NULL，MySQL 的 TEXT 不能有 DEFAULT，
-                // 省略该列会在严格模式（STRICT_TRANS_TABLES）下报 1364 导致建单失败
                 $data['order_remarks'] = '';
                 $res = (new \app\common\model\Order())->saveData($data);
                 if ($res['code'] == 1) {
@@ -647,7 +607,6 @@ class User extends Base
     {
         $param = input();
 
-        // gopay 可由传统表单 POST 提交（非 AJAX），需 CSRF 校验
         if (Request()->isPost()) {
             $csrfErr = $this->checkCsrf();
             if ($csrfErr !== null) {
@@ -667,7 +626,6 @@ class User extends Base
             return $this->error(lang('index/payment_status'));
         }
 
-        //核实订单
         $where['order_id'] = $order_id;
         $where['order_code'] = $order_code;
         $where['user_id'] = $GLOBALS['user']['user_id'];
@@ -680,7 +638,6 @@ class User extends Base
         }
 
         $this->assign('order', $res['info']);
-        //跳转到相应页面
         $this->assign('param',$param);
 
         $cp = 'app\\common\\extend\\pay\\' . ucfirst($payment);
@@ -688,7 +645,6 @@ class User extends Base
             $c = new $cp;
             $payment_res = $c->submit($GLOBALS['user'], $res['info'], $param);
         }
-        //$payment_res = model('Pay' . $payment)->submit($this->user, $res['info'], $param);
         if ($payment == 'weixin') {
             $this->assign('payment', $payment_res);
             return $this->fetch('user/payment_weixin');
@@ -728,25 +684,16 @@ class User extends Base
         return $this->fetch('user/upgrade');
     }
 
-    /**
-     * 会员权益说明页（需登录）
-     */
     public function benefits()
     {
         return $this->fetch('user/benefits');
     }
 
-    /**
-     * 每日签到（当前为前端展示页，业务逻辑待接入）
-     */
     public function checkin()
     {
         return $this->fetch('user/checkin');
     }
 
-    /**
-     * 弹窗用：返回升级会员表单 HTML（需登录）
-     */
     public function ajax_upgrade()
     {
         $group_list = (new \app\common\model\Group())->getCache();
@@ -758,10 +705,6 @@ class User extends Base
         return json($html);
     }
 
-    /**
-     * 归一化 VIP 套餐活动价：活动有效时用 group_activity_points_* 覆盖 group_points_*，
-     * 使模板渲染时 data-points 直接反映生效积分（活动价或正常价）。
-     */
     private function buildVipActivityGroupList($group_list)
     {
         if (!is_array($group_list)) {
@@ -838,9 +781,6 @@ class User extends Base
         return $this->fetch('user/plays');
     }
 
-    /**
-     * 站内消息中心（列表与 Push 开关由前端 API 拉取）
-     */
     public function notify()
     {
         return $this->fetch('user/notify');
@@ -961,7 +901,6 @@ class User extends Base
 
         $where = [];
         $where['user_id'] = $GLOBALS['user']['user_id'];
-        // 筛选：income=收入(1-6 与任务/里程碑奖励 10-11), expense=支出(7-9)
         if ($param['filter'] == 'income') {
             $where['plog_type'] = ['in', [1, 2, 3, 4, 5, 6, 10, 11]];
         } elseif ($param['filter'] == 'expense') {
@@ -1261,7 +1200,6 @@ class User extends Base
         return $this->fetch('user/order_info');
     }
 
-
     public function cards()
     {
         $param = input();
@@ -1296,9 +1234,6 @@ class User extends Base
         return $this->fetch('user/gbook');
     }
 
-    /**
-     * 邀请推广页面：展示邀请码、邀请链接及下线列表
-     */
     public function invite()
     {
         $param = input();
@@ -1378,5 +1313,4 @@ class User extends Base
         }
         return $this->redirect($url);
     }
-
 }

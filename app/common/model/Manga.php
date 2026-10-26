@@ -10,7 +10,6 @@ use app\common\util\MeilisearchSync;
 class Manga extends Base {
     use RecycleBinTrait;
 
-    // 设置数据表（不含前缀）
     protected $name = 'manga';
 
     protected function getRecycleTimeField(): string
@@ -18,11 +17,9 @@ class Manga extends Base {
         return 'manga_recycle_time';
     }
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -71,11 +68,7 @@ class Manga extends Base {
             $total = $this->where($where)->count();
         }
         $list = Db::name('Manga')->field($field)->where($where)->where($where2)->order($order)->limit($limit_str)->select();
-        //dump($where);die;
-        //echo $this->getLastSql();die;
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
 
         $vip_exclusive = mac_get_vip_exclusive_type_ids();
@@ -119,11 +112,7 @@ class Manga extends Base {
             ->limit($limit_str)
             ->select();
 
-        //dump($where);die;
-        //echo $this->getLastSql();die;
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
 
         $vip_exclusive = mac_get_vip_exclusive_type_ids();
@@ -139,7 +128,6 @@ class Manga extends Base {
                 }
             }
         }
-
 
         return ['code'=>1,'msg'=>lang('data_list'),'page'=>$page,'pagecount'=>ceil($total/$limit),'limit'=>$limit,'total'=>$total,'list'=>$list];
     }
@@ -194,7 +182,6 @@ class Manga extends Base {
             $param = mac_search_len_check($param);
             $totalshow = 1;
             if(!empty($param['id'])) {
-                //$type = intval($param['id']);
             }
             if(!empty($param['ids'])){
                 $ids = $param['ids'];
@@ -252,7 +239,6 @@ class Manga extends Base {
             else{
                 $pageurl = mac_url($pageurl,$param);
             }
-
         }
 
         $where['manga_status'] = ['eq',1];
@@ -467,7 +453,6 @@ class Manga extends Base {
                 return ['code' => 1002, 'msg' => lang('obtain_err')];
             }
             $info = $info->toArray();
-            //内容
             if (!empty($info['manga_chapter_url'])) {
                 $info['manga_page_list'] = mac_manga_list($info['manga_chapter_from'], $info['manga_chapter_url'], $info['manga_play_server'], $info['manga_play_note']);
                 $info['manga_page_total'] = count($info['manga_page_list']);
@@ -475,14 +460,12 @@ class Manga extends Base {
             if(!empty($info['manga_pic_screenshot'])){
                 $info['manga_pic_screenshot_list'] = mac_screenshot_list($info['manga_pic_screenshot']);
             }
-            //分类
             if (!empty($info['type_id'])) {
                 $type_list = (new \app\common\model\Type())->getCache('type_list');
                 $info['type'] = $type_list[$info['type_id']];
                 $info['type_1'] = $type_list[$info['type']['type_pid']];
             }
 
-            //用户组
             if (!empty($info['group_id'])) {
                 $group_list = (new \app\common\model\Group())->getCache('group_list');
                 $info['group'] = $group_list[$info['group_id']];
@@ -510,7 +493,6 @@ class Manga extends Base {
         Cache::delete($key);
         $key = 'manga_detail_'.$data['manga_id'].'_'.$data['manga_en'];
         Cache::delete($key);
-
 
         $type_list = (new \app\common\model\Type())->getCache('type_list');
         $type_info = $type_list[$data['type_id']];
@@ -563,7 +545,6 @@ class Manga extends Base {
         unset($data['uptime']);
         unset($data['uptag']);
 
-        // xss过滤
         $filter_fields = [
             'manga_name',
             'manga_sub',
@@ -700,5 +681,4 @@ class Manga extends Base {
         }
         return ['code'=>1,'msg'=>lang('obtain_ok'),'data'=> join(',',$ids) ];
     }
-
 }

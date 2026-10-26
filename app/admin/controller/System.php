@@ -11,16 +11,8 @@ use think\facade\Cache;
 
 class System extends Base
 {
-    /**
-     * 系统设置中心。
-     *
-     * 把本控制器内全部设置页聚合到一个入口：左侧按功能分组导航，
-     * 右侧展示系统概览、配置体检或具体设置页。各设置页仍由原有
-     * action 渲染并提交，保存逻辑、Token 校验与权限保持不变。
-     */
     public function index()
     {
-        // 入口再做一次权限兜底：仅超级管理员或拥有任意 system/* 权限的管理员可进入
         $adminId = isset($this->_admin['admin_id']) ? (string)$this->_admin['admin_id'] : '';
         $adminAuth = isset($this->_admin['admin_auth']) ? (string)$this->_admin['admin_auth'] : '';
         if ($adminId !== '1' && strpos(',' . strtolower($adminAuth) . ',', ',system/') === false) {
@@ -47,7 +39,6 @@ class System extends Base
         }
 
         $health = $this->systemSettingsHealth($config);
-        // 子管理员看不到无权访问设置页的“去配置”入口
         foreach ($health as &$healthRow) {
             if ($healthRow['url'] !== '' && !$this->check_auth('system', $healthRow['perm'])) {
                 $healthRow['url'] = '';
@@ -105,29 +96,11 @@ class System extends Base
         return $this->fetch('admin@system/index');
     }
 
-    /* ------------------------------------------------------------------
-     * 设置中心：数据装配
-     * ------------------------------------------------------------------ */
-
-    /**
-     * 读取多级配置，任意层级缺失时返回默认值。
-     *
-     * @param array  $config
-     * @param string $path    点号路径，如 site.site_url
-     * @param mixed  $default
-     * @return mixed
-     */
     private function systemSettingsGet($config, $path, $default = null)
     {
         return SystemSettingsMenu::get($config, $path, $default);
     }
 
-    /**
-     * 构建设置中心左侧导航（按当前管理员权限过滤）。
-     *
-     * @param array $config
-     * @return array
-     */
     private function systemSettingsNav($config)
     {
         return SystemSettingsMenu::build($config, function ($action) {
@@ -135,12 +108,6 @@ class System extends Base
         });
     }
 
-    /**
-     * 系统概览：运行环境表。
-     *
-     * @param array $config
-     * @return array
-     */
     private function systemSettingsOverview($config)
     {
         $rows = [];
@@ -220,12 +187,6 @@ class System extends Base
         return $rows;
     }
 
-    /**
-     * 系统概览：配置体检表。
-     *
-     * @param array $config
-     * @return array
-     */
     private function systemSettingsHealth($config)
     {
         $texts = [
@@ -247,7 +208,6 @@ class System extends Base
         };
         $configUrl = (string)url('system/config');
 
-        // 站点 URL
         $siteUrl = trim((string)$this->systemSettingsGet($config, 'site.site_url', ''));
         if ($siteUrl === '') {
             $add(lang('admin/safety/checkup/item_site_url'), 'danger', lang('admin/safety/checkup/site_url_empty'), $configUrl);
@@ -257,7 +217,6 @@ class System extends Base
             $add(lang('admin/safety/checkup/item_site_url'), 'ok', lang('admin/safety/checkup/site_url_ok'), $configUrl);
         }
 
-        // 模板目录
         $template = trim((string)$this->systemSettingsGet($config, 'site.template_dir', ''));
         if ($template !== '' && is_dir(ROOT_PATH . 'template/' . $template)) {
             $add(lang('admin/system/config/template_dir'), 'ok', $template, $configUrl);
@@ -265,7 +224,6 @@ class System extends Base
             $add(lang('admin/system/config/template_dir'), 'danger', $template !== '' ? $template : '-', $configUrl);
         }
 
-        // 手机模板
         $mobStatus = (string)$this->systemSettingsGet($config, 'site.mob_status', '0');
         if ($mobStatus === '0') {
             $add(lang('admin/system/config/mob_template_dir'), 'off', lang('admin/safety/checkup_status_off'), $configUrl);
@@ -278,7 +236,6 @@ class System extends Base
             }
         }
 
-        // 缓存标识
         $cacheFlag = trim((string)$this->systemSettingsGet($config, 'app.cache_flag', ''));
         if ($cacheFlag === '') {
             $add(lang('admin/safety/checkup/item_cache_flag'), 'warn', lang('admin/safety/checkup/cache_flag_empty'), $configUrl);
@@ -288,7 +245,6 @@ class System extends Base
             $add(lang('admin/safety/checkup/item_cache_flag'), 'ok', lang('admin/safety/checkup/cache_flag_ok'), $configUrl);
         }
 
-        // 后台 CSRF
         $csrfOn = (string)$this->systemSettingsGet($config, 'app.security_csrf_admin', '0') === '1';
         $add(
             lang('admin/safety/checkup/item_security_csrf_admin'),
@@ -297,7 +253,6 @@ class System extends Base
             $configUrl
         );
 
-        // 后台操作审计
         $auditOn = (string)$this->systemSettingsGet($config, 'app.admin_audit_enabled', '0') === '1';
         $add(
             lang('admin/safety/checkup/item_admin_audit_enabled'),
@@ -306,7 +261,6 @@ class System extends Base
             $configUrl
         );
 
-        // 接口 / 前台限频
         $apiLimit = (string)$this->systemSettingsGet($config, 'app.anti_scrape_api_enabled', '0') === '1';
         $add(
             lang('admin/safety/checkup/item_anti_scrape_api_enabled'),
@@ -322,7 +276,6 @@ class System extends Base
             $configUrl
         );
 
-        // API JWT
         $jwtOn = (string)$this->systemSettingsGet($config, 'app.api_jwt_enabled', '0') === '1';
         if (!$jwtOn) {
             $add(lang('admin/system/config/api_jwt_title'), 'off', lang('admin/safety/checkup_status_off'), $configUrl);
@@ -332,7 +285,6 @@ class System extends Base
             $add(lang('admin/system/config/api_jwt_title'), 'danger', lang('admin/system/config/api_jwt_secret_weak_tip'), $configUrl);
         }
 
-        // AI SEO
         $seoOn = (string)$this->systemSettingsGet($config, 'ai_seo.enabled', '0') === '1';
         $seoReady = trim((string)$this->systemSettingsGet($config, 'ai_seo.api_key', '')) !== '';
         $seoUrl = (string)url('system/config', ['tab' => 'aiseo']);
@@ -344,7 +296,6 @@ class System extends Base
             $add(lang('menu/configaiseo'), 'warn', lang('admin/ueditor_ai/no_key'), $seoUrl);
         }
 
-        // AI 搜索
         $searchOn = (string)$this->systemSettingsGet($config, 'ai_search.enabled', '0') === '1';
         $searchReady = trim((string)$this->systemSettingsGet($config, 'ai_search.api_key', '')) !== '';
         $searchUrl = (string)url('system/configaisearch');
@@ -356,7 +307,6 @@ class System extends Base
             $add(lang('menu/configaisearch'), 'warn', lang('admin/ueditor_ai/no_key'), $searchUrl, 'configaisearch');
         }
 
-        // 邮件服务
         $emailType = trim((string)$this->systemSettingsGet($config, 'email.type', 'phpmailer'));
         $emailHost = $emailType !== ''
             ? trim((string)$this->systemSettingsGet($config, 'email.' . $emailType . '.host', ''))
@@ -435,8 +385,6 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
-            // 第 4 参 failException=false：默认 true 时 check() 抛 ValidateException，
-            // 令牌失效直接落到框架调试页，下面返回 JSON 的分支走不到。
             $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
@@ -460,14 +408,12 @@ class System extends Base
             if (!isset($config['app']['pathinfo_depr']) || trim((string)$config['app']['pathinfo_depr']) === '') {
                 return $this->ajaxErrorWithFreshToken($invalidSubmitMsg);
             }
-            // 模板名会原样拼进主题目录（think-view 不过滤 ../），只允许字面量文件名
             if (array_key_exists('page_404', $config['app'])) {
                 $config['app']['page_404'] = trim((string)$config['app']['page_404']);
                 if ($config['app']['page_404'] !== '' && !preg_match('/^[A-Za-z0-9_-]{1,64}$/', $config['app']['page_404'])) {
                     return $this->ajaxErrorWithFreshToken(lang('admin/system/config/page_404_err'));
                 }
             }
-
 
             $ads_dir='ads';
             $mob_ads_dir='ads';
@@ -494,13 +440,11 @@ class System extends Base
             $config['app']['vod_search_optimise'] = join('|', !empty($config['app']['vod_search_optimise']) ? (array)$config['app']['vod_search_optimise'] : []);
             $config['app']['vod_search_optimise_cache_minutes'] = (int)$config['app']['vod_search_optimise_cache_minutes'];
 
-            //内容级多语言：默认语言必须合法且在启用列表内（它始终作为回退语言存在）
             $contentLangKnown = mac_content_lang_codes();
             if (empty($config['app']['content_lang_default']) || !in_array($config['app']['content_lang_default'], $contentLangKnown, true)) {
                 $config['app']['content_lang_default'] = mac_content_lang_first();
             }
             $contentLangList = !empty($config['app']['content_lang_list']) ? (array)$config['app']['content_lang_list'] : [];
-            // 只接受白名单内的语言码：缓存的旧后台页面可能仍在提交已下架的码
             $contentLangList = array_values(array_unique(array_filter(array_map(function ($v) {
                 return strtolower(trim((string)$v));
             }, $contentLangList), function ($v) use ($contentLangKnown) {
@@ -613,14 +557,12 @@ class System extends Base
             return $this->success(lang('save_ok'));
         }
 
-
         $templates = glob('./template' . '/*', GLOB_ONLYDIR);
         foreach ($templates as $k => &$v) {
             $v = str_replace('./template/', '', $v);
         }
         $this->assign('templates', $templates);
 
-        // 界面语言与前台内容语言共用同一份注册表：清单由 app/lang/*.php 的自述块决定
         $langs = array_values(mac_lang_registry());
         $this->assign('langs', $langs);
 
@@ -634,13 +576,11 @@ class System extends Base
         $pubGroupsRaw = isset($config['site']['site_publish_groups']) ? $config['site']['site_publish_groups'] : '';
         $publish_groups_ui = PublishPage::parseGroups((string) $pubGroupsRaw);
         $this->assign('publish_groups_ui', $publish_groups_ui);
-        // 默认get+post
         if (!isset($config['app']['input_type'])) {
             $config['app']['input_type'] = 1;
         }
         $config['app']['vod_search_optimise_cache_minutes'] = (new \app\common\model\VodSearch())->getResultCacheMinutes($config);
 
-        // 「播放器参数配置」页签：可配项以 static/js/playerconfig.js 为准
         $fp = './static/js/playerconfig.js';
         if (!file_exists($fp)) {
             $fp .= '.bak';
@@ -667,16 +607,13 @@ class System extends Base
         $this->assign('config_merge_tab', in_array($tab, $allowTab, true) ? $tab : '');
         $this->assign('audit_crypto_gcm_supported', SensitiveDataCrypto::supportsAes256Gcm() ? 1 : 0);
         $this->assign('api_jwt_secret_strong', JwtService::hasStrongSecret() ? 1 : 0);
-        // 「AI SEO 设置」「AI 视频封面设置」页签：补齐展示默认值并回显已保存 Key 的尾号
         $config['ai_seo'] = $this->aiSeoFormConfig()['ai_seo'];
         $config['ai_cover'] = $this->aiCoverFormConfig()['ai_cover'];
         $this->assign('config', $config);
-        // 「附件参数配置」页签：上传扩展插件的字段各自 View::fetch，须先有 $config 才能回填已存的密钥
         $this->assign('extends', mac_extends_list('upload'));
         $this->assign('title', lang('admin/system/config/title'));
         return $this->fetch('admin@system/config');
     }
-
 
     public function configurl()
     {
@@ -695,7 +632,6 @@ class System extends Base
             $config_new['path'] = $config['path'];
             $config_new['rewrite'] = $config['rewrite'];
 
-            //写路由规则文件
             $route = [];
             $route['__pattern__'] = [
 
@@ -740,9 +676,6 @@ class System extends Base
                 if (strpos($r, '=>') !== false) {
                     $a = explode('=>', $r);
                     $rule = [];
-//                    if (strpos($a, ':id') !== false) {
-                        //$rule['id'] = '\w+';
-//                    }
                     $route[trim($a[0])] = [trim($a[1]), [], $rule];
                 }
             }
@@ -751,7 +684,6 @@ class System extends Base
             unset($route['__pattern__']);
             $route = PublishPage::mergePublishRoutes($route);
 
-            // TP8 多应用：前台路由文件位于 app/index/route/，使用 Route 门面生成
             $lines = [];
             $lines[] = '<?php';
             $lines[] = '// 由后台“URL 配置”自动生成（ThinkPHP 8 路由定义）；手工修改会在下次保存时被覆盖。';
@@ -772,7 +704,6 @@ class System extends Base
                 return $this->error(lang('write_err_route'));
             }
 
-            //写扩展配置
             $config_old = config('maccms');
             $config_new = array_merge($config_old, $config_new);
             $res = mac_arr2file(APP_PATH . 'extra/maccms.php', $config_new);
@@ -855,21 +786,10 @@ class System extends Base
         return $this->fetch('admin@system/configuser');
     }
 
-    /**
-     * 用户访问风控日志配置。
-     *
-     * 这 4 个键物理上仍存放在 maccms.php 的 monitor 段（与 UserAccessLog::cfg()
-     * 和定时任务 user_access_purge 的读取路径保持一致），此页仅负责在“系统”菜单
-     * 下呈现/回写这几个键；存档时用 array_merge 只覆盖这 4 个键，其余 monitor 键
-     * （cron_token / webhook 等）原样保留，避免误伤。
-     */
     public function configuseraccess()
     {
         if (Request()->isPost()) {
             $post = input('post.', '', 'htmlentities');
-            // 该页使用会话级稳定令牌，不能调用 ThinkPHP Token validator：
-            // validator 会消费并删除易变的 Session __token__，导致多标签页互相失效。
-            // 同时保留 legacy token 比对，兼容升级前已经打开的旧页面。
             $submitted = isset($post['__token__']) && is_string($post['__token__'])
                 ? $post['__token__'] : '';
             $stable = function_exists('mac_admin_csrf_token')
@@ -880,7 +800,6 @@ class System extends Base
             if (!$tokenOk) {
                 return $this->error(lang('token_err'));
             }
-            // 只有真正使用旧 token 时才消费它；稳定 token 可跨标签页重复使用。
             if ($legacy !== '' && hash_equals($legacy, $submitted)) {
                 \think\facade\Session::delete('__token__');
             }
@@ -891,9 +810,6 @@ class System extends Base
 
             $retain = max(1, min(365, intval(isset($ua['retain_user_access_days']) ? $ua['retain_user_access_days'] : 90)));
             $anonymize = max(0, min(365, intval(isset($ua['user_access_anonymize_days']) ? $ua['user_access_anonymize_days'] : 30)));
-            // 不变量：匿名化期限必须早于删除期限。若站长误填 anonymize >= retain，
-            // 匿名化窗口（>=删除线 且 <匿名化线）恒为空，资料会在去识别化前就整行删除。
-            // 这里钳制为 retain-1（retain=1 时归 0，即等价关闭匿名化），与模型层 purge() 双重兜底。
             if ($anonymize > 0 && $anonymize >= $retain) {
                 $anonymize = $retain - 1;
             }
@@ -918,7 +834,6 @@ class System extends Base
 
         $config = config('maccms');
         $mon = (isset($config['monitor']) && is_array($config['monitor'])) ? $config['monitor'] : [];
-        // 视图专用聚合键（仅用于渲染表单，存储位置仍是 monitor 段）
         $config['user_access'] = [
             'user_access_log_enabled'    => (string)(isset($mon['user_access_log_enabled']) ? $mon['user_access_log_enabled'] : '1'),
             'user_access_throttle_min'   => (string)(isset($mon['user_access_throttle_min']) ? $mon['user_access_throttle_min'] : '10'),
@@ -926,7 +841,6 @@ class System extends Base
             'user_access_anonymize_days' => (string)(isset($mon['user_access_anonymize_days']) ? $mon['user_access_anonymize_days'] : '30'),
         ];
 
-        // 仅承载于新版后台主题（view）；旧版 view/ 不再承载新功能（铁律 2）
         $this->assign('config', $config);
         $this->assign('title', lang('admin/system/configuseraccess'));
         $this->view->config(['view_path' => APP_PATH . 'admin/view/']);
@@ -982,7 +896,6 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
             $invalidSubmitMsg = '提交数据不完整，请刷新页面后重试';
-            // 评论留言独立表单只提交 gbook / comment，不包含会员配置 user[*]
             if (
                 !isset($config['gbook']) || !is_array($config['gbook']) ||
                 !isset($config['comment']) || !is_array($config['comment'])
@@ -1154,7 +1067,6 @@ class System extends Base
             }
             unset($config['__token__']);
 
-
             $config_new['sms'] = $config['sms'];
 
             $config_old = config('maccms');
@@ -1177,7 +1089,6 @@ class System extends Base
 
     public function configpush()
     {
-        // 生成 VAPID 密钥对（AJAX，op=genkey）：仅返回给前端填入表单，由站长确认后再保存落盘
         if (input('op') === 'genkey') {
             $keys = \app\common\util\PushDispatcher::generateVapidKeys();
             if ($keys === false) {
@@ -1285,7 +1196,6 @@ class System extends Base
                 return $this->ajaxErrorWithFreshToken(lang('save_err'));
             }
 
-            //保存缓存
             mac_interface_type();
 
             return $this->success(lang('save_ok'));
@@ -1392,7 +1302,6 @@ class System extends Base
             return $this->success(lang('save_ok'));
         }
 
-
         $config = config('maccms');
         if (!isset($config['api']['publicapi'])) {
             $config['api']['publicapi'] = [
@@ -1490,9 +1399,6 @@ class System extends Base
         return $this->redirect( url('config', ['tab' => 'seo']) );
     }
 
-    /**
-     * AI SEO 表单的展示默认值：未写入配置时须与运行时 mergeDetailSeoIntoMaccms 的「视为关闭」一致。
-     */
     private function aiSeoFormConfig()
     {
         $config = config('maccms');
@@ -1514,9 +1420,6 @@ class System extends Base
         return $config;
     }
 
-    /**
-     * AI 视频封面表单的展示默认值。
-     */
     private function aiCoverFormConfig()
     {
         $config = config('maccms');
@@ -1575,7 +1478,6 @@ class System extends Base
             if ($newKey !== '') {
                 $row['api_key'] = $newKey;
             } else {
-                // Read from latest config file to avoid accidental key loss when config cache is stale.
                 $cfgFile = APP_PATH . 'extra/maccms.php';
                 $latest = is_file($cfgFile) ? include $cfgFile : [];
                 if (isset($latest['ai_seo']['api_key']) && $latest['ai_seo']['api_key'] !== '') {
@@ -2135,11 +2037,6 @@ class System extends Base
         return $this->fetch('admin@system/configassistant');
     }
 
-    /**
-     * 主题AI 配置（主题设计「AI 生成」专用，独立于后台助手）。
-     * 写入 maccms.theme_ai：enabled / provider(openai|claude) / model / api_base / api_key / timeout / max_tokens。
-     * api_key 留空则保留原值（避免每次都要重填密钥）。
-     */
     public function configthemeai()
     {
         if (Request()->isPost()) {
@@ -2187,7 +2084,6 @@ class System extends Base
                 }
             }
 
-            // 图像生成（logo/头像）独立配置：端点 / 密钥 / 模型；留空则回退到上方文本端点
             $themeRow['image_api_base'] = $sanitize(isset($ta['image_api_base']) ? $ta['image_api_base'] : '');
             $imgModel = $sanitize(isset($ta['image_model']) ? $ta['image_model'] : '');
             if (preg_match('/[<>{};]/', $imgModel)) {
@@ -2243,7 +2139,6 @@ class System extends Base
         $this->assign('config', $config);
         $this->assign('title', lang('menu/configthemeai'));
         return $this->fetch('admin@system/configthemeai');
-
     }
 
     public function configanalytics()
@@ -2286,7 +2181,6 @@ class System extends Base
             'track_region' => '0',
         ], $config['analytics']);
 
-        // 行为分析开关配置页迁移到新版后台主题（view）；旧版 view/ 不再承载新功能（铁律 2）
         $this->assign('config', $config);
         $this->assign('title', lang('admin/system/configanalytics'));
         $this->view->config(['view_path' => APP_PATH . 'admin/view/']);
@@ -2330,7 +2224,6 @@ class System extends Base
                 'auto_adopt_empty' => isset($ai['auto_adopt_empty']) && (string)$ai['auto_adopt_empty'] === '1' ? '1' : '0',
             ];
 
-            // 金钥留空 = 保留旧值。从最新的配置文件读，避免配置缓存过期把 key 弄丢。
             $newKey = isset($ai['api_key']) ? trim((string)$ai['api_key']) : '';
             if ($newKey !== '') {
                 $row['api_key'] = $newKey;
@@ -2356,7 +2249,6 @@ class System extends Base
 
         $this->assign('config', config('maccms'));
         $this->assign('title', lang('admin/system/configaicontent'));
-        // AI 内容标注配置页仅放新版后台主题（view）；旧版 view/ 不再承载新功能（铁律 2）
         $this->view->config(['view_path' => APP_PATH . 'admin/view/']);
         return $this->fetch('system/configaicontent');
     }
@@ -2402,7 +2294,6 @@ class System extends Base
 
     public function configlang(){
         $param = input();
-        // 只接受注册表里的语言码：缓存的旧后台页面可能仍在提交已删除的语言码
         $lang = strtolower(trim((string)($param['lang'] ?? '')));
         if (!in_array($lang, mac_lang_codes(), true)) {
             return $this->ajaxErrorWithFreshToken(lang('param_err'));
@@ -2419,13 +2310,9 @@ class System extends Base
         return json(['code' => 1, 'msg' => 'ok']);
     }
 
-    /**
-     * AJAX form error with a new __token__ (ThinkPHP deletes the session token when validation runs).
-     */
     private function ajaxErrorWithFreshToken($msg)
     {
         $t = token('__token__');
         return $this->error($msg, null, ['__token__' => $t]);
     }
-
 }

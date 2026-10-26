@@ -5,29 +5,17 @@ use think\facade\Cache;
 use think\facade\Config;
 use app\common\addon\Service;
 
-/**
- * 插件云市场（RS256 签目录 + package_hash + 安全安装）
- * 对齐 TemplateCloudService 流水线；包内允许 PHP（插件主类）。
- * PHP 7.0 兼容。
- */
 class AddonCloudService
 {
     const CACHE_CATALOG = 'addon_market_catalog';
     const CACHE_CATALOG_HASH = 'addon_market_catalog_hash';
     const CACHE_CATALOG_BACKUP = 'addon_market_catalog_backup';
-    /** 已验签的原始目录 JSON，安装时重新验签用（防缓存被篡改） */
     const CACHE_CATALOG_RAW = 'addon_market_catalog_raw';
 
-    /** 云端包体积上限（与本地 zip 上传量级一致） */
     const MAX_PACKAGE_BYTES = 10240000;
 
-    /**
-     * 内置验签公钥（与 application/data/addon_market_cloud/catalog_public.pem 同步）
-     * 首次部署请运行 generate_keys.php 后粘贴此处。
-     */
     const CATALOG_PUBLIC_KEY_PEM = '';
 
-    /** @var array */
     protected $config;
 
     public function __construct()
@@ -57,17 +45,12 @@ class AddonCloudService
         return (int) ($this->config['status'] ?? 0) === 1;
     }
 
-    /**
-     * @param bool $force
-     * @return array{items:array,error:string}
-     */
     public function fetchCatalog($force = false)
     {
         if (!$this->isEnabled()) {
             return ['items' => [], 'error' => 'disabled'];
         }
 
-        // mock 骨架：本地 JSON、不走远程验签（仅列表调试；安装仍要求合法 package_hash）
         if ((int) ($this->config['mock'] ?? 0) === 1) {
             return ['items' => $this->filterApprovedItems($this->loadMockItems()), 'error' => 'mock'];
         }
@@ -122,13 +105,6 @@ class AddonCloudService
         }
     }
 
-    /**
-     * 按目录 id 安装（可选 force 覆盖升级）
-     * @param string $id
-     * @param int $adminId
-     * @param string $adminIp
-     * @return array{code:int,msg:string,data:array}
-     */
     public function installById($id, $adminId = 0, $adminIp = '')
     {
         $id = $this->sanitizeId($id);
@@ -138,7 +114,6 @@ class AddonCloudService
         if (!$this->isEnabled()) {
             return ['code' => 0, 'msg' => lang('admin/addon/cloud_disabled'), 'data' => []];
         }
-        // mock 目录仅供列表联调，禁止当真安装通道
         if ((int) ($this->config['mock'] ?? 0) === 1) {
             return ['code' => 0, 'msg' => lang('admin/addon/cloud_mock_no_install'), 'data' => []];
         }
@@ -149,7 +124,6 @@ class AddonCloudService
             return ['code' => 0, 'msg' => $rl['msg'], 'data' => []];
         }
 
-        // 安装不信任纯缓存 items：强制拉目录或对缓存 raw 重新验签
         $item = $this->resolveInstallItem($id);
         if ($item === null) {
             $this->appendAudit($adminId, '', $id, '', 'denied', $adminIp, 'not_found');
@@ -162,7 +136,6 @@ class AddonCloudService
             return ['code' => 0, 'msg' => $compat['msg'], 'data' => []];
         }
 
-        // 尝试即计数，防止反复失败下载打满带宽/内存
         $this->hitRateLimit($adminId, $adminIp);
 
         $lock = $this->acquireInstallLock(isset($item['name']) ? $item['name'] : '');
@@ -193,10 +166,6 @@ class AddonCloudService
         return $res;
     }
 
-    /**
-     * @param array $item
-     * @return array{code:int,msg:string,data:array}
-     */
     public function installPackage(array $item)
     {
         if (!class_exists('ZipArchive')) {
@@ -253,7 +222,6 @@ class AddonCloudService
             return ['code' => 0, 'msg' => $extracted['msg'], 'data' => []];
         }
 
-        // zip 可能多包一层 name/
         $sourceRoot = $this->resolveAddonRoot($stageDir, $name);
         if ($sourceRoot === '') {
             AddonSecureInstaller::purgeDir($stageDir);
@@ -283,7 +251,6 @@ class AddonCloudService
         $isUpgrade = is_dir($target);
         if ($isUpgrade) {
             $bak = AddonSecureInstaller::backupAddon($name);
-            // [P0] 备份失败则禁止 purge，避免装包半截不可恢复
             if ($bak === false) {
                 return ['code' => 0, 'msg' => lang('admin/addon/cloud_backup_fail'), 'data' => []];
             }
@@ -351,12 +318,6 @@ class AddonCloudService
         }
     }
 
-    /**
-     * 对比本地与云端版本
-     * @param string $name
-     * @param string $cloudVersion
-     * @return string none|same|update|newer_local
-     */
     public function compareLocal($name, $cloudVersion = '')
     {
         $name = strtolower(trim((string) $name));
@@ -378,11 +339,6 @@ class AddonCloudService
         return 'same';
     }
 
-    /**
-     * 丰富云目录项：本地状态、兼容、版本关系
-     * @param array $items
-     * @return array
-     */
     public function enrichItems(array $items)
     {
         $out = [];
@@ -410,11 +366,6 @@ class AddonCloudService
         return $out;
     }
 
-    /**
-     * 最近审计条数
-     * @param int $limit
-     * @return array
-     */
     public function recentAudit($limit = 5)
     {
         $file = APP_PATH . 'extra' . DS . 'addon_market_audit.php';
@@ -429,10 +380,6 @@ class AddonCloudService
         return array_slice(array_reverse($data), 0, $limit);
     }
 
-    /**
-     * @param array $item
-     * @return array{ok:bool,msg:string}
-     */
     public function checkCmsCompat(array $item)
     {
         $compat = isset($item['cms_compat']) && is_array($item['cms_compat']) ? $item['cms_compat'] : [];
@@ -470,10 +417,6 @@ class AddonCloudService
         return $out;
     }
 
-    /**
-     * 读取本地 mock 目录骨架（addon_cloud.mock=1）
-     * @return array
-     */
     protected function loadMockItems()
     {
         $file = APP_PATH . 'data' . DS . 'addon_market_cloud' . DS . 'catalog.mock.json';
@@ -507,7 +450,6 @@ class AddonCloudService
                 'price' => (string) (isset($row['price']) ? $row['price'] : '0.00'),
                 'status' => isset($row['status']) ? (string) $row['status'] : 'approved',
                 'cms_compat' => isset($row['cms_compat']) && is_array($row['cms_compat']) ? $row['cms_compat'] : ['min' => '', 'max' => ''],
-                // 故意不带真实 package，防止误装
                 'package_url' => '',
                 'package_hash' => '',
             ];
@@ -650,7 +592,6 @@ class AddonCloudService
                 return false;
             }
         }
-        // 连接后复核实际对端 IP（空则失败关闭，缓解 DNS rebinding / 双栈漏检）
         if ($primaryIp === '' || !$this->ipIsPublicInternet($primaryIp)) {
             return false;
         }
@@ -660,11 +601,6 @@ class AddonCloudService
         return $body;
     }
 
-    /**
-     * 安装用目录项：优先强制刷新；失败则对缓存 raw 重新 RS256 验签。
-     * @param string $id
-     * @return array|null
-     */
     protected function resolveInstallItem($id)
     {
         $catalog = $this->fetchCatalog(true);
@@ -684,11 +620,6 @@ class AddonCloudService
         return $this->findItemById($this->filterApprovedItems($items), $id);
     }
 
-    /**
-     * @param array $items
-     * @param string $id
-     * @return array|null
-     */
     protected function findItemById(array $items, $id)
     {
         foreach ($items as $row) {
@@ -728,7 +659,6 @@ class AddonCloudService
             return false;
         }
 
-        // 字面 IP：直接判公网
         if (filter_var($host, FILTER_VALIDATE_IP)) {
             return $this->ipIsPublicInternet($host);
         }
@@ -745,10 +675,6 @@ class AddonCloudService
         return true;
     }
 
-    /**
-     * @param string $host
-     * @return string[]
-     */
     protected function resolveHostIps($host)
     {
         $ips = [];
@@ -781,10 +707,6 @@ class AddonCloudService
         return array_values(array_unique($ips));
     }
 
-    /**
-     * @param string $ip
-     * @return bool
-     */
     protected function ipIsPublicInternet($ip)
     {
         $ip = $this->unwrapMappedIpv4($ip);
@@ -794,7 +716,6 @@ class AddonCloudService
         if (strpos($ip, '169.254.') === 0) {
             return false;
         }
-        // IPv6 link-local / ULA 粗略拦截
         $lower = strtolower($ip);
         if (strpos($lower, 'fe80:') === 0 || strpos($lower, 'fc') === 0 || strpos($lower, 'fd') === 0) {
             return false;
@@ -803,11 +724,6 @@ class AddonCloudService
         return filter_var($ip, FILTER_VALIDATE_IP, $flags) !== false;
     }
 
-    /**
-     * 展开 IPv4-mapped IPv6（::ffff:127.0.0.1 / ::ffff:7f00:1）
-     * @param string $ip
-     * @return string
-     */
     protected function unwrapMappedIpv4($ip)
     {
         $ip = trim((string)$ip);
@@ -863,11 +779,6 @@ class AddonCloudService
         }
     }
 
-    /**
-     * 插件安装互斥锁（供云安装 / 本地安装复用）
-     * @param string $name
-     * @return resource|false
-     */
     public function acquireInstallLock($name)
     {
         if (!AddonSecureInstaller::isValidName($name)) {
@@ -889,9 +800,6 @@ class AddonCloudService
         return $fp;
     }
 
-    /**
-     * @param resource|false $fp
-     */
     public function releaseInstallLock($fp)
     {
         if (!is_resource($fp)) {
@@ -901,12 +809,6 @@ class AddonCloudService
         fclose($fp);
     }
 
-    /**
-     * admin_id 与 IP 独立分桶，任一超限即拒绝（cms-review）
-     * @param int $adminId
-     * @param string $adminIp
-     * @return array{ok:bool,msg:string}
-     */
     public function checkRateLimit($adminId, $adminIp = '')
     {
         $limit = max(1, (int) ($this->config['rate_limit'] ?? 10));
@@ -926,19 +828,11 @@ class AddonCloudService
         Cache::set($ipKey, (int) Cache::get($ipKey) + 1, 3600);
     }
 
-    /**
-     * @param int $adminId
-     * @return string
-     */
     protected function rateLimitKeyAdmin($adminId)
     {
         return 'addon_market_rl_admin_' . (int)$adminId;
     }
 
-    /**
-     * @param string $adminIp
-     * @return string
-     */
     protected function rateLimitKeyIp($adminIp)
     {
         return 'addon_market_rl_ip_' . substr(md5((string)$adminIp), 0, 16);

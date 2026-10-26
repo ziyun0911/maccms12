@@ -35,7 +35,6 @@ window.__macNormalizeMaccmsBaseUrl = function () {
     if (typeof maccms === 'undefined') {
         return '';
     }
-    // site_url 可能被填成另一个域名（甚至未解析的示例域名），AJAX 必须留在当前 origin 内，否则整站交互全挂
     var sub = String(maccms.path || '').replace(/\/+$/, '');
     var resolved = window.location.protocol + '//' + window.location.host + sub;
     maccms.base_url = resolved;

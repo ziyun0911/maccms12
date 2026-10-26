@@ -1,4 +1,4 @@
-/* 弹窗容器：layer 内 flex 链，让 update_list 占满剩余高度 */
+
 .layui-layer.skin_updae_from {
   display: flex;
   flex-direction: column;
@@ -108,7 +108,6 @@
   margin: 5px 0;
 }
 
-/* 独立页 update.html 无 layer 固定高度时的兜底 */
 body > .updae_from .update_list {
   max-height: min(40vh, 280px);
 }
@@ -125,7 +124,6 @@ body > .updae_from .update_list {
   border-radius: 8px;
 }
 
-/* 更新按钮样式 - 移动端（顶部导航栏） */
 .layout-right #update-notification {
   position: relative;
   margin-right: 8px;
@@ -181,7 +179,6 @@ body > .updae_from .update_list {
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-/* 移动端特殊优化 */
 @media (max-width: 768px) {
   .layout-right #update-notification {
     margin-right: 4px;
@@ -211,7 +208,6 @@ body > .updae_from .update_list {
   }
 }
 
-/* 超小屏幕优化 */
 @media (max-width: 480px) {
   .layout-right #update-notification {
     margin-right: 2px;
@@ -243,17 +239,15 @@ body > .updae_from .update_list {
     font-size: 11px;
   }
 
-  /* 超小屏幕隐藏小红点，避免过于拥挤 */
   .layout-right #update-notification::after {
     display: none;
   }
 }
 
-/* 触摸设备优化 */
 @media (hover: none) and (pointer: coarse) {
 
   .layout-right #update-notification a:hover {
-    /* 触摸设备禁用悬停效果 */
+
     transform: none;
     box-shadow: 0 4px 15px rgba(0, 212, 170, 0.4);
   }
@@ -264,7 +258,6 @@ body > .updae_from .update_list {
   }
 }
 
-/* PC端更新按钮样式（bottom-nav） */
 .bottom-nav #update-notification {
   position: relative;
   margin-right: 8px;
@@ -323,7 +316,6 @@ body > .updae_from .update_list {
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-/* 图标样式 */
 #update-notification i {
   color: white !important;
   font-size: 13px;
@@ -335,7 +327,6 @@ body > .updae_from .update_list {
   font-size: 16px;
 }
 
-/* 文字样式 */
 #update-notification span {
   color: white !important;
   font-weight: 500;
@@ -347,12 +338,10 @@ body > .updae_from .update_list {
   text-align: center;
 }
 
-/* 悬停时图标旋转效果 */
 #update-notification a:hover i {
   transform: rotate(180deg);
 }
 
-/* 更新按钮显示时的动画效果 */
 #update-notification.show {
   animation: slideInRight 0.5s ease-out;
 }
@@ -369,7 +358,6 @@ body > .updae_from .update_list {
   }
 }
 
-/* 更新按钮上的小红点 - 通用 */
 #update-notification::after {
   content: '';
   position: absolute;
@@ -382,7 +370,6 @@ body > .updae_from .update_list {
   z-index: 1;
 }
 
-/* 移动端小红点位置 */
 .layout-right #update-notification::after {
   top: 8px;
   right: 8px;
@@ -390,7 +377,6 @@ body > .updae_from .update_list {
   height: 6px;
 }
 
-/* 移动端小红点位置调整 */
 @media (max-width: 768px) {
   .layout-right #update-notification::after {
     top: 10px;
@@ -400,7 +386,6 @@ body > .updae_from .update_list {
   }
 }
 
-/* PC端小红点位置 */
 .bottom-nav #update-notification::after {
   top: 8px;
   right: 10px;
@@ -435,7 +420,6 @@ body > .updae_from .update_list {
   }
 }
 
-/* 更新按钮呼吸灯效果 */
 @keyframes breathe {
 
   0%,

@@ -6,11 +6,6 @@ use app\common\util\CsrfGuard;
 use think\facade\Db;
 use think\Request;
 
-/**
- * 秒杀 API
- *
- * 提供秒杀活动列表、详情与购买（积分扣减 + 权益发放）。
- */
 class Seckill extends Base
 {
     use PublicApi;
@@ -38,10 +33,6 @@ class Seckill extends Base
         return ['ok' => true, 'user_id' => $uid, 'user' => $user, 'response' => null];
     }
 
-    /**
-     * 秒杀活动列表
-     * GET /api.php/seckill/get_list
-     */
     public function get_list(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -56,7 +47,6 @@ class Seckill extends Base
         $order = 'seckill_time desc';
         $res = (new \app\common\model\Seckill())->listData($where, $order);
 
-        // 附加倒计时
         $list = [];
         foreach ($res['list'] as $row) {
             $end = intval($row['seckill_end_time']);
@@ -75,10 +65,6 @@ class Seckill extends Base
         ]);
     }
 
-    /**
-     * 秒杀详情
-     * GET /api.php/seckill/get_detail?seckill_id=1
-     */
     public function get_detail(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -92,10 +78,6 @@ class Seckill extends Base
         return json($res);
     }
 
-    /**
-     * 秒杀购买
-     * POST /api.php/seckill/buy  参数 seckill_id
-     */
     public function buy(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -119,7 +101,6 @@ class Seckill extends Base
         }
         $res = (new \app\common\model\Seckill())->buy($seckillId, $auth['user_id']);
         if (intval($res['code']) === 1) {
-            // 刷新用户会员组 cookie（Cookie 登录用户；JWT 用户无 cookie 不受影响）
             $freshUser = Db::name('User')->where('user_id', $auth['user_id'])->find();
             if ($freshUser) {
                 $groupList = (new \app\common\model\Group())->getCache('group_list');

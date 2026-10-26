@@ -2,10 +2,6 @@
 
 use app\common\addon\AddonManager;
 
-/**
- * 插件信息 / 配置 / 钩子辅助函数（TP8 原生实现）。
- */
-
 if (!function_exists('addon_info')) {
     function addon_info(string $name, bool $refresh = false): array
     {
@@ -204,10 +200,6 @@ if (!function_exists('addon_url')) {
 }
 
 if (!function_exists('addon_hook')) {
-    /**
-     * 分发插件钩子。$params 传入副本，插件对参数的修改通过返回值带回。
-     * @return mixed
-     */
     function addon_hook(string $hook, $params = null)
     {
         return AddonManager::dispatch($hook, $params);

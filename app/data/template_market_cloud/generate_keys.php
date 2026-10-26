@@ -1,13 +1,4 @@
 <?php
-/**
- * 生成模板市场 RSA 密钥对（云端私钥签名、客户端公钥验签）
- *
- * 用法：php application/data/template_market_cloud/generate_keys.php
- *
- * 输出：
- *   keys/catalog_private.pem  — 仅保存在发布服务器，勿提交仓库
- *   catalog_public.pem        — 提交仓库，与客户端验签公钥一致
- */
 
 if (PHP_SAPI !== 'cli') {
     fwrite(STDERR, "CLI only\n");

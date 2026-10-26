@@ -22,5 +22,4 @@ class Order extends Validate
         'add'  =>  ['user_id','order_status','order_code','order_price','order_points'],
         'edit'  =>  ['user_id','order_status','order_code','order_price','order_points'],
     ];
-
 }

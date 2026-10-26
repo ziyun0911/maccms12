@@ -3,7 +3,6 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Cj extends Base {
-
     public function listData($tab,$where,$order,$page,$limit=20)
     {
         $page = $page > 0 ? (int)$page : 1;
@@ -56,15 +55,12 @@ class Cj extends Base {
     public function delData($where)
     {
         try {
-            //删除node
             $res = Db::name('cj_node')->where($where)->delete();
-            //删除history
             $list = Db::name('cj_content')->field('url')->where($where)->select();
             foreach ($list as $k => $v) {
                 $md5 = md5($v['url']);
                 Db::name('cj_history')->where('md5',$md5)->delete();
             }
-            //删除content
             $res = Db::name('cj_content')->where($where)->delete();
         } catch (\Throwable $e) {
             return $this->writeFailed('Cj::delData', $e, 'del_err', 1001);
@@ -75,6 +71,4 @@ class Cj extends Base {
         }
         return ['code'=>1,'msg'=>lang('del_ok')];
     }
-
-
 }

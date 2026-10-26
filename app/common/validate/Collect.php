@@ -18,5 +18,4 @@ class Collect extends Validate
         'add'  =>  ['collect_name','collect_url'],
         'edit'  =>  ['collect_name','collect_url'],
     ];
-
 }

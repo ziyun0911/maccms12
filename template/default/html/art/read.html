@@ -195,7 +195,7 @@ $curChapterTitle = !empty($curPageInfo['title']) ? $curPageInfo['title'] : '第'
         var curPage = parseInt('{$curPage}', 10) || 1;
         var curChapterTitle = '{$curChapterTitle}';
         var pageTotal = parseInt('{$pageTotal}', 10) || 1;
-        /* guest | member；身份未确认前不读写任一进度 */
+
         var identityMode = '';
         var memberReadPages = [];
 
@@ -245,7 +245,6 @@ $curChapterTitle = !empty($curPageInfo['title']) ? $curPageInfo['title'] : '第'
             return fallback;
         }
 
-        /* 无自定义标题时：第N章 / Ch.N chapters（走语言包） */
         function defaultChapterTitle(page){
             var n = parseInt(page, 10) || 0;
             return langText('art_read_chapter_ordinal', '第') + ' ' + n + ' ' + langText('art_read_chapter_unit', '章');
@@ -264,7 +263,6 @@ $curChapterTitle = !empty($curPageInfo['title']) ? $curPageInfo['title'] : '第'
             return false;
         }
 
-        /* MAC.User.Init 在 $(ready) 且常异步 fetchAuthMe；未 emit 前 __authMe 为 undefined */
         function isAuthReady(){
             return typeof window.__authMe !== 'undefined';
         }
@@ -294,7 +292,7 @@ $curChapterTitle = !empty($curPageInfo['title']) ? $curPageInfo['title'] : '第'
                 if(isNaN(p) || p < 1){ return null; }
                 data.page = Math.min(pageTotal, p);
                 var pages = normalizeReadPages(data.readPages);
-                /* 旧数据只有 page：只把该章加入集合，禁止展开为 1..page */
+
                 if(!pages.length && data.page){
                     pages = [data.page];
                 }
@@ -347,7 +345,7 @@ $curChapterTitle = !empty($curPageInfo['title']) ? $curPageInfo['title'] : '第'
             });
 
             if(lastPage && lastPage !== curPage){
-                /* 有独立标题时附带章节序号；标题已是默认「第N章」则不再重复括号 */
+
                 $progressText.text(lastTitle && lastTitle !== chapterMark ? (lastTitle + '（' + chapterMark + '）') : chapterMark);
                 $catalogProgress.show();
                 var url = "{:mac_url('art/read',['id'=>$obj.art_id,'page'=>'PAGEX'])}";
@@ -376,8 +374,7 @@ $curChapterTitle = !empty($curPageInfo['title']) ? $curPageInfo['title'] : '第'
                 if(!(res && Number(res.code) === 1 && res.info)){ return; }
                 var serverPages = normalizeReadPages(res.info.read_chapters);
                 memberReadPages = mergeReadPages(serverPages, [curPage]);
-                /* 当前章优先：ajax_ulog 写入与 get_read_chapters 并发时，
-                   last_chapter 可能仍是上一章；本页「继续阅读」以 curPage 为准。 */
+
                 applyProgressUI({
                     page: curPage,
                     title: curChapterTitle,
@@ -394,7 +391,7 @@ $curChapterTitle = !empty($curPageInfo['title']) ? $curPageInfo['title'] : '第'
                 loadMemberReadChapters();
                 return;
             }
-            /* 身份未确认：禁止读写访客 localStorage，避免会员误入访客通道 */
+
             if(!isAuthReady()){ return; }
             identityMode = 'guest';
             saveProgress(curPage, curChapterTitle);
@@ -420,7 +417,7 @@ $curChapterTitle = !empty($curPageInfo['title']) ? $curPageInfo['title'] : '第'
                     bootstrapProgress();
                     return;
                 }
-                /* 超时仍未 ready：有 user_id cookie 则走会员（只读 API，不写访客 key），否则访客 */
+
                 if(hasUserIdCookie()){
                     identityMode = 'member';
                     loadMemberReadChapters();

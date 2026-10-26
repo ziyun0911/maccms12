@@ -5,13 +5,6 @@ use Closure;
 use think\Request;
 use think\Response;
 
-/**
- * 苹果CMS v12 —— 业务 Cookie SameSite 中间件
- * （由 TP5 的 common\behavior\CookieSameSite 迁移）
- *
- * 在 TP8 中，Cookie 由 Response 对象统一管理；此处对已生成的所有 Set-Cookie
- * 响应头逐条补齐 SameSite 属性。
- */
 class CookieSameSite
 {
     public function handle(Request $request, Closure $next)
@@ -56,9 +49,6 @@ class CookieSameSite
         return $response;
     }
 
-    /**
-     * 若 Set-Cookie 值尚未带 SameSite，则追加；已带则原样返回。
-     */
     public static function applySameSite($cookie, $samesite)
     {
         if (stripos($cookie, 'samesite=') !== false) {

@@ -464,7 +464,6 @@
         }
     }
     layui.use(['form','upload', 'layer'], function () {
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer
                 , upload = layui.upload
@@ -508,7 +507,6 @@
             $(".showpic").css("display","none");
         });
 
-        // 验证
         form.verify({
             type_name: function (value) {
                 if (value == "") {
@@ -522,15 +520,12 @@
             }
         });
 
-
         form.on('select(type_mid)', function(data){
             selectOnChange(data.value);
         });
 
-
         selectOnChange({$info.type_mid});
 
-        // 内容级多语言：单字段自动翻译（保存随主表单一起提交，不单独 ajax 保存）
         $('.cl-translate-btn').on('click', function () {
             var $btn = $(this);
             var lang = $btn.data('lang');

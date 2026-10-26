@@ -15,7 +15,6 @@ class Provide extends Base
 
     public function index()
     {
-
     }
 
     public function vod()
@@ -54,7 +53,6 @@ class Provide extends Base
                     $where['type_id'] = $this->_param['t'];
                 }
             }
-            // 支持isend参数，是否完结
             if (isset($this->_param['isend'])) {
                 $where['vod_isend'] = $this->_param['isend'] == 1 ? 1 : 0;
             }
@@ -70,7 +68,6 @@ class Provide extends Base
             if (!empty($this->_param['wd'])) {
                 $where['vod_name'] = ['like', '%' . $this->_param['wd'] . '%'];
             }
-            // 增加年份筛选 https://github.com/magicblack/maccms10/issues/815
             if (!empty($this->_param['year'])) {
                 $param_year = trim($this->_param['year']);
                 if (strlen($param_year) == 4) {
@@ -96,8 +93,6 @@ class Provide extends Base
             if (empty($GLOBALS['config']['api']['vod']['from']) && !empty($this->_param['from']) && strlen($this->_param['from']) >= 2) {
                 $GLOBALS['config']['api']['vod']['from'] = $this->_param['from'];
             }
-            // 采集播放组支持多个播放器
-            // https://github.com/magicblack/maccms10/issues/888
             if (!empty($GLOBALS['config']['api']['vod']['from'])) {
                 $vod_play_from_list = explode(',', trim($GLOBALS['config']['api']['vod']['from']));
                 $vod_play_from_list = array_unique($vod_play_from_list);
@@ -129,7 +124,6 @@ class Provide extends Base
             }
             $res = (new \app\common\model\vod())->listData($where, $order, $this->_param['pg'], $pagesize, 0, $field, 0);
 
-
             if ($this->_param['at'] == 'xml') {
                 $html = $this->vod_xml($res);
             } else {
@@ -140,7 +134,6 @@ class Provide extends Base
                 Cache::set($cach_name, $html, $cache_time);
             }
         }
-        // https://github.com/magicblack/maccms10/issues/818 影片的播放量+1
         if (
             isset($this->_param['ac']) && $this->_param['ac'] == 'detail' && 
             !empty($this->_param['ids']) && (int)$this->_param['ids'] == $this->_param['ids'] && 
@@ -192,10 +185,7 @@ class Provide extends Base
             }
 
             if ($this->_param['ac']=='videolist' || $this->_param['ac']=='detail') {
-                // 如果指定返回播放组，则只返回对应播放组的播放数据
-                // https://github.com/magicblack/maccms10/issues/957
                 if (!empty($GLOBALS['config']['api']['vod']['from'])) {
-                    // 准备数据，逐个处理
                     $arr_from = explode('$$$', $v['vod_play_from']);
                     $arr_url = explode('$$$', $v['vod_play_url']);
                     $arr_server = explode('$$$', $v['vod_play_server']);
@@ -223,7 +213,6 @@ class Provide extends Base
                 }
             } else {
                 if (!empty($GLOBALS['config']['api']['vod']['from'])) {
-                    // 准备数据，逐个处理
                     $arr_from = explode('$$$', $v['vod_play_from']);
                     $vod_play_from_list = explode(',', trim($GLOBALS['config']['api']['vod']['from']));
                     $vod_play_from_list = array_unique($vod_play_from_list);
@@ -242,13 +231,11 @@ class Provide extends Base
             }
         }
 
-
         if($this->_param['ac']!='videolist' && $this->_param['ac']!='detail') {
             $class = [];
             $typefilter  = explode(',',$GLOBALS['config']['api']['vod']['typefilter']);
 
             foreach ($type_list as $k=>&$v) {
-
                 if (!empty($GLOBALS['config']['api']['vod']['typefilter'])){
                     if(in_array($v['type_id'],$typefilter)) {
                         $class[] = ['type_id' => $v['type_id'], 'type_pid' => $v['type_pid'], 'type_name' => $v['type_name']];
@@ -269,7 +256,6 @@ class Provide extends Base
         $xml .= '<rss version="5.1">';
         $type_list = (new \app\common\model\Type())->getCache('type_list');
 
-        //视频列表开始
         $xml .= '<list page="'.$res['page'].'" pagecount="'.$res['pagecount'].'" pagesize="'.$res['limit'].'" recordcount="'.$res['total'].'">';
         foreach($res['list'] as $k=>&$v){
             $type_info = $type_list[$v['type_id']];
@@ -313,10 +299,7 @@ class Provide extends Base
         }
         $xml .= '</list>';
 
-        //视频列表结束
-
         if($this->_param['ac'] != 'videolist' && $this->_param['ac']!='detail') {
-            //分类列表开始
             $xml .= "<class>";
             $typefilter  = explode(',',$GLOBALS['config']['api']['vod']['typefilter']);
             foreach ($type_list as $k=>&$v) {
@@ -333,8 +316,6 @@ class Provide extends Base
             }
             unset($rs);
             $xml .= "</class>";
-            //分类列表结束
-
         }
         $xml .= "</rss>";
         return $xml;
@@ -418,9 +399,7 @@ class Provide extends Base
                 }
 
                 if ($this->_param['ac'] == 'detail') {
-
                 } else {
-
                 }
             }
 
@@ -430,7 +409,6 @@ class Provide extends Base
 
                 foreach ($type_list as $k => &$v) {
                     if ($v['type_mid'] == 2) {
-
                         if (!empty($GLOBALS['config']['api']['art']['typefilter'])) {
                             if (in_array($v['type_id'], $typefilter)) {
                                 $class[] = ['type_id' => $v['type_id'], 'type_pid' => $v['type_pid'], 'type_name' => $v['type_name']];
@@ -529,9 +507,7 @@ class Provide extends Base
                 }
 
                 if ($this->_param['ac'] == 'detail') {
-
                 } else {
-
                 }
             }
 
@@ -541,7 +517,6 @@ class Provide extends Base
 
                 foreach ($type_list as $k => &$v) {
                     if ($v['type_mid'] == 8) {
-
                         if (!empty($GLOBALS['config']['api']['actor']['typefilter'])) {
                             if (in_array($v['type_id'], $typefilter)) {
                                 $class[] = ['type_id' => $v['type_id'], 'type_pid' => $v['type_pid'], 'type_name' => $v['type_name']];
@@ -641,9 +616,7 @@ class Provide extends Base
                 }
 
                 if ($this->_param['ac'] == 'detail') {
-
                 } else {
-
                 }
             }
 
@@ -731,7 +704,6 @@ class Provide extends Base
             }
             $res = (new \app\common\model\manga())->listData($where, $order, $this->_param['pg'], $pagesize, 0, $field, 0);
 
-
             if ($this->_param['at'] == 'xml') {
                 $html = $this->manga_xml($res);
             } else {
@@ -767,7 +739,6 @@ class Provide extends Base
             $typefilter  = explode(',',$GLOBALS['config']['api']['manga']['typefilter']);
 
             foreach ($type_list as $k=>&$v) {
-
                 if (!empty($GLOBALS['config']['api']['manga']['typefilter'])){
                     if(in_array($v['type_id'],$typefilter)) {
                         $class[] = ['type_id' => $v['type_id'], 'type_pid' => $v['type_pid'], 'type_name' => $v['type_name']];
@@ -922,9 +893,7 @@ class Provide extends Base
                 }
 
                 if ($this->_param['ac'] == 'detail') {
-
                 } else {
-
                 }
             }
 
@@ -934,7 +903,6 @@ class Provide extends Base
 
                 foreach ($type_list as $k => &$v) {
                     if ($v['type_mid'] == 11) {
-
                         if (!empty($GLOBALS['config']['api']['website']['typefilter'])) {
                             if (in_array($v['type_id'], $typefilter)) {
                                 $class[] = ['type_id' => $v['type_id'], 'type_pid' => $v['type_pid'], 'type_name' => $v['type_name']];
@@ -959,7 +927,6 @@ class Provide extends Base
 
     public function comment()
     {
-
     }
 
     private function checkDomainAuth($auth)

@@ -6,12 +6,6 @@ use app\common\util\AnnotationAdopter;
 use app\common\util\ContentAnnotator;
 use think\facade\Db;
 
-/**
- * AI 内容标注 —— 待采纳队列。
- *
- * 新后台控制器：view_path 指向 view，且 fetch() 必须用模块相对形式。
- * 用跨模块前缀形式（module 前缀 + @ + controller/action）的 fetch 会绕过 view_path，硬解析到旧的 application/admin/view/。
- */
 class AiAnnotation extends Base
 {
     public function __construct()
@@ -39,7 +33,6 @@ class AiAnnotation extends Base
             ->page($page, $limit)
             ->select();
 
-        // 把「当前值」查出来，和 AI 建议并排展示 —— 采纳前必须让人看见会改掉什么
         $ids = [];
         foreach ($list as $r) {
             $ids[] = intval($r['content_id']);
@@ -70,9 +63,6 @@ class AiAnnotation extends Base
         return $this->fetch('ai_annotation/index');
     }
 
-    /**
-     * 批量生成：只取还没有标注、或源文本已变的内容。分块，每次最多 batch_size 条。
-     */
     public function generate()
     {
         $param = input('post.');
@@ -148,9 +138,6 @@ class AiAnnotation extends Base
         return json(['code' => 1, 'msg' => 'ok']);
     }
 
-    /**
-     * 校验 CSRF token。本页一个页面会多次提交，共用一个令牌，所以只比对不销毁。
-     */
     private function checkAjaxToken($param)
     {
         $token = isset($param['__token__']) ? (string)$param['__token__'] : '';
@@ -158,9 +145,6 @@ class AiAnnotation extends Base
         return $token !== '' && $sess !== '' && hash_equals($sess, $token);
     }
 
-    /**
-     * 挑出还没标注过的内容。定时任务与后台批量按钮共用。
-     */
     public static function pickPending($mid, $limit)
     {
         $mid = intval($mid);

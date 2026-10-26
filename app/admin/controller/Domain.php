@@ -7,7 +7,6 @@ use app\common\util\UploadCheck;
 
 class Domain extends Base
 {
-
     public function index()
     {
         if (Request()->isPost()) {
@@ -16,12 +15,7 @@ class Domain extends Base
             $tmp = $config['domain'];
             $domain=[];
 
-
-
             foreach ($tmp['site_url'] as $k=>$v){
-
-                // 与 import() 一致地逐字段兜底：表单少提交一列（旧缓存页面、插件改过的
-                // 表单）时不能整页 Undefined index，缺的按空值存
                 $domain[$v] =[
                    'site_url'=>$v,
                     'site_name'=>isset($tmp['site_name'][$k]) ? $tmp['site_name'][$k] : '',
@@ -34,9 +28,7 @@ class Domain extends Base
                     'mob_template_dir'=>isset($tmp['mob_template_dir'][$k]) ? $tmp['mob_template_dir'][$k] : '',
                     'site_wapurl'=>isset($tmp['site_wapurl'][$k]) ? mac_domain_host($tmp['site_wapurl'][$k]) : '',
                 ];
-
             }
-
 
             $res = mac_arr2file(APP_PATH . 'extra/domain.php', $domain);
             if ($res === false) {
@@ -44,7 +36,6 @@ class Domain extends Base
             }
             return $this->success(lang('save_ok'));
         }
-
 
         $templates = glob('./template' . '/*', GLOB_ONLYDIR);
         foreach ($templates as $k => &$v) {
@@ -56,7 +47,6 @@ class Domain extends Base
         if(!is_array($config)){
             $config = [];
         }
-        // 存量条目没有 wap 字段，补空值避免模板取不到下标
         foreach($config as &$one){
             if(!isset($one['mob_template_dir'])){
                 $one['mob_template_dir'] = '';
@@ -117,7 +107,6 @@ class Domain extends Base
 
         foreach($list as $k=>$v){
             if(!empty($v)) {
-                // 兼容旧版导出文件（7 / 8 段），缺失的字段按空值补齐
                 $one = explode('$', trim($v));
                 $domain[$one[0]] = [
                     'site_url' => $one[0],
@@ -134,7 +123,6 @@ class Domain extends Base
             }
         }
 
-        // 整份文件解析不出任何站点时不写盘，否则等于把现有多站点配置清空
         if (empty($domain)) {
             return $this->error(lang('import_err'));
         }

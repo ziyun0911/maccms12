@@ -62,7 +62,6 @@ class Card extends Base
             exit;
         }
 
-
         $this->assign('list',$res['list']);
         $this->assign('total',$res['total']);
         $this->assign('page',$res['page']);
@@ -90,7 +89,6 @@ class Card extends Base
             }
             return $this->success($res['msg']);
         }
-
 
         $id = input('id');
         $where=[];
@@ -124,5 +122,4 @@ class Card extends Base
         }
         return $this->error(lang('param_err'));
     }
-
 }

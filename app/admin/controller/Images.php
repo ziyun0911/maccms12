@@ -7,12 +7,10 @@ class Images extends Base
     public function __construct()
     {
         parent::__construct();
-        //header('X-Accel-Buffering: no');
     }
 
     public function data()
     {
-
     }
 
     public function opt()
@@ -32,7 +30,6 @@ class Images extends Base
                 $a = str_replace('\\','/',$a);
 
                 if( (substr($a,0,8) != "./upload") || count( explode("./",$a) ) > 2) {
-
                 }
                 else{
                     $a = mac_convert_encoding($a,"UTF-8","GB2312");
@@ -57,7 +54,6 @@ class Images extends Base
             $col_name ='vod_name';
             $col_pic= $param['col']==2 ? 'vod_content' : 'vod_pic';
             $col_time='vod_time';
-
         }
         elseif($param['tab']=='art'){
             $tab='art';
@@ -146,9 +142,7 @@ class Images extends Base
             $config['mode'] = 'weibo';
         }
 
-
         foreach($list as $k=>$v){
-
             mac_echo($v[$col_id].'、'.$v[$col_name]);
 
             if($param['col'] == 2){
@@ -226,6 +220,4 @@ class Images extends Base
         $url = url('images/sync') .'?'. http_build_query($param);
         mac_jump( $url ,3);
     }
-
-
 }

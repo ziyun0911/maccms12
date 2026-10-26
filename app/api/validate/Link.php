@@ -19,7 +19,7 @@ class Link extends Validate
     ];
 
     protected $message = [
-        
+
     ];
 
     protected $scene = [

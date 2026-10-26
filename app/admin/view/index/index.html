@@ -1,6 +1,5 @@
 {include file="../../../app/admin/view/public/head" /}
 <div id="adminShell" class="admin-shell admin-shell--light">
-    <!-- 移动端顶栏 -->
     <header class="admin-mobile-header">
         <button type="button" class="admin-mobile-menu" id="mobileMenuBtn" title="{:lang('admin/index/index/menu_switch')}" aria-label="{:lang('admin/index/index/menu_switch')}" aria-expanded="false">
             <i class="layui-icon layui-icon-spread-left"></i>
@@ -22,7 +21,6 @@
         </div>
     </header>
 
-    <!-- 桌面端顶栏 -->
     <header class="admin-header admin-header--desktop">
         <div class="admin-header__logo">
             <img src="__STATIC__/images/logo@2x.png" alt="" />
@@ -31,11 +29,9 @@
         <div class="admin-header__center">
             <nav class="admin-header__nav" id="mainNav" aria-label="{:lang('admin/index/index/nav_main')}">
                 {volist name="menus" id="v" key="k"}
-                <!-- data-i 用 auth.php 的组号而非 volist 序号：分组可被权限过滤，序号会错位 -->
                 <a href="javascript:;" class="main-nav-item{eq name="k" value="1"} is-active{/eq}" data-i="{$v.gid}">{$v.name}</a>
                 {/volist}
             </nav>
-            <!-- 顶栏放不下的主模块收进这里；可见项由 layoutMainNav() 按容器宽度实时计算 -->
             <div class="admin-dropdown admin-nav-more" id="mainNavMore" hidden data-dropdown>
                 <button type="button" class="admin-nav-more__trigger admin-dropdown__trigger" aria-haspopup="true" title="{:lang('admin/index/index/nav_more')}">
                     <span>{:lang('admin/index/index/nav_more')}</span>
@@ -73,12 +69,10 @@
         </div>
     </header>
 
-    <!-- PC：侧栏分界线悬浮收缩钮 -->
     <button type="button" class="admin-rail-toggle admin-rail-toggle--float" id="railToggle" title="{:lang('admin/index/index/menu_switch')}" aria-label="{:lang('admin/index/index/menu_switch')}" aria-expanded="true">
         <i class="layui-icon layui-icon-shrink-right"></i>
     </button>
 
-    <!-- 左侧二级菜单 -->
     <aside class="admin-side" id="switchNav">
         <div class="admin-side__mobile-head">
             <span class="admin-side__mobile-title">{:lang('admin/index/index/nav_menu')}</span>
@@ -97,7 +91,6 @@
                 {volist name="v['sub']" id="vv"}
                 {if condition="($vv['url'] !=='###')"}
                 <li class="side-panel__item">
-                    <!-- data-id = 组键-节点键，同时用作常驻标签的 lay-id，必须与 WELCOME_TAB_ID 的拼法一致 -->
                     <a class="admin-nav-item" data-id="{$v.gid}-{$key}" href="{$vv['url']}" title="{$vv['name']}">
                         <span class="admin-nav-item__glyph" aria-hidden="true"></span>
                         <span class="admin-nav-item__label">{$vv['name']}</span>
@@ -138,7 +131,6 @@
 
     <div class="site-mobile-shade"></div>
 
-    <!-- 主内容区 -->
     <main class="admin-body" id="switchBody">
         <div class="admin-workspace" id="top_tabs_box">
             <div class="admin-workspace__head">
@@ -192,7 +184,6 @@
 </div>
 
 {include file="../../../app/admin/view/public/foot" /}
-<!--请在下方写此页面业务相关的脚本-->
 <script>
     var RAIL_COLLAPSED_KEY = 'adminRailCollapsed';
     var railCollapsedSaved = localStorage.getItem(RAIL_COLLAPSED_KEY);
@@ -303,7 +294,6 @@
         var $ = layui.jquery, form = layui.form;
         var TAB_CLOSE_LABEL = "{:addslashes(lang('close'))}";
 
-        /* ── 顶栏 / 移动端一级菜单切换 ── */
         var $navMore = $('#mainNavMore'),
             $navTrigger = $navMore.find('.admin-nav-more__trigger'),
             $navMoreMenu = $navMore.find('.admin-nav-more__menu');
@@ -319,7 +309,6 @@
             syncMoreActive();
         }
 
-        /* ── 顶栏溢出：放不下的主模块自动收进「更多」下拉 ── */
         function navGap() {
             var el = document.getElementById('mainNav');
             if (!el) return 0;
@@ -340,7 +329,7 @@
             var $items = $('#mainNav .main-nav-item'),
                 avail = $('.admin-header__center').width(),
                 gap = navGap();
-            if (avail < 1) return; // 移动端布局下顶栏整体隐藏，不参与计算
+            if (avail < 1) return;
 
             $items.removeClass('is-overflow');
             $navMore.attr('hidden', true);
@@ -407,7 +396,6 @@
         }
         layoutMainNav();
 
-        /* ── 下拉菜单 ── */
         $(document).on('click', '[data-dropdown] .admin-dropdown__trigger', function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -419,7 +407,6 @@
             $('[data-dropdown]').removeClass('is-open');
         });
 
-        /* ── 语言切换（Layui 自定义下拉 + 国旗） ── */
         form.render('select', '.language-select-wrap--plain');
         decorateLanguageSelect();
         $('#languageSelectWrap').on('click', '.layui-form-select .layui-input, .layui-form-select .layui-edge', function () {
@@ -444,8 +431,6 @@
             });
         });
 
-        /* ── 标签页管理（Ant Design 风格 · 不依赖 layui element） ── */
-        // 与首页组「欢迎页面」节点的 data-id（组键-节点键 = 1-11）保持一致，否则常驻标签会被当成普通标签
         var WELCOME_TAB_ID = '1-11';
         var $tabViewport = $('#tabViewport');
         var $tabCtxMenu = $('#tabContextMenu');
@@ -658,7 +643,6 @@
             return true;
         }
 
-        // 系统信息页里的卡片/体检链接调用它，把设置页开成框架页标签，而不是页内嵌套 iframe
         window.AdminShell = window.AdminShell || {};
         window.AdminShell.openSettings = openSettingsTab;
 
@@ -711,8 +695,6 @@
         if ($settingsSearch.length) {
             $settingsSearch.on('input', applySettingsFilter);
         }
-
-        /* 主内容区由 grid + flex 撑满，无需手动算高度 */
 
         $('.admin-nav-item').on('click', function (event) {
             var that = $(this);
@@ -835,7 +817,6 @@
 
         updateTabScrollEdges();
 
-        /* ── 移动端侧栏抽屉 ── */
         function setMobileNavOpen(open) {
             $('body').toggleClass('site-mobile', open);
             var $menuBtn = $('#mobileMenuBtn');
@@ -855,7 +836,6 @@
             setMobileNavOpen(false);
         });
 
-        /* ── 版本更新检测 ── */
         if (typeof MAC_VERSION !== 'undefined' && typeof PHP_VERSION !== 'undefined' && typeof THINK_VERSION !== 'undefined') {
             $.ajax({
                 url: 'https://update.maccms.la/v10/?c=check&v=' + MAC_VERSION + '&p=' + PHP_VERSION + '&tp=' + THINK_VERSION + '&t=' + Math.random(),
@@ -880,7 +860,6 @@
         setInterval("checkCache()", 30 * 1000);
     });
 
-    //检查缓存并保持登录状态
     function checkCache() {
         $.ajax({
             url: "{:url('checkcache')}",
@@ -893,7 +872,6 @@
         });
     }
 
-    // 显示更新对话框的函数
     function showUpdateDialog() {
         if (!window.updateInfo) {
             layer.msg("{:lang('no_update_info')}", { time: 2000 });
@@ -904,7 +882,6 @@
         var update_content = window.updateInfo.update_content;
         var package = window.updateInfo.package;
 
-        // js 判断是否移动端
         var area = ['460px', '638px']
         var agent = navigator.userAgent.toLowerCase();
         var isMobile = /android|iphone|ipod|ipad|ios/.test(agent)
@@ -914,13 +891,13 @@
 
         layer.open({
             type: 1,
-            area, // 宽高
-            title: false, // 不显示标题栏
+            area,
+            title: false,
             closeBtn: 0,
             btn: ['{:addslashes(lang('close'))}'],
             btnAlign: 'c',
-            shadeClose: true, // 点击遮罩关闭层
-            skin: 'skin_updae_from', // 加上边框
+            shadeClose: true,
+            skin: 'skin_updae_from',
             content: `
                 <div class="updae_from">
                     <img class="update_bg" src="__STATIC__/images/upgrade_pop_rocket_bg@2x.png" alt="" srcset="">

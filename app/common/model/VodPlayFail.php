@@ -2,15 +2,9 @@
 namespace app\common\model;
 use think\facade\Db;
 
-/**
- * 视频线路播放失败统计模型
- * 用于「播放失败自动切换线路」功能的后台统计与前端上报
- */
 class VodPlayFail extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'vod_play_fail';
 
-    // 不使用自动时间戳
     protected $createTime = '';
     protected $updateTime = '';
 
@@ -18,9 +12,6 @@ class VodPlayFail extends Base {
     protected $insert     = [];
     protected $update     = [];
 
-    /**
-     * 后台列表数据
-     */
     public function listData($where,$order,$page=1,$limit=20,$start=0)
     {
         $page = $page > 0 ? (int)$page : 1;
@@ -37,13 +28,11 @@ class VodPlayFail extends Base {
         $list = Db::name('VodPlayFail')->where($where)->order($order)->limit($limit_str)->select();
 
         foreach($list as $k=>&$v){
-            // 关联影片详情链接，便于后台快速核查
             if($v['vod_id'] > 0){
                 $vod_info = (new \app\common\model\Vod())->infoData(['vod_id'=>['eq',$v['vod_id']]],'vod_id,vod_name,vod_play_from',1);
                 if(!empty($vod_info['info'])){
                     $v['vod_name'] = $v['vod_name'] !== '' ? $v['vod_name'] : $vod_info['info']['vod_name'];
                     $v['vod_link'] = mac_url_vod_detail($vod_info['info']);
-                    // 解析线路名称
                     $froms = explode('$$$', (string)$vod_info['info']['vod_play_from']);
                     $v['from_name'] = isset($froms[$v['vod_sid']]) ? $froms[$v['vod_sid']] : ($v['play_from'] ?: ('线路'.($v['vod_sid']+1)));
                 }
@@ -66,13 +55,6 @@ class VodPlayFail extends Base {
         return ['code'=>1,'msg'=>lang('obtain_ok'),'info'=>$info];
     }
 
-    /**
-     * 上报一次线路播放失败（前端 onerror 触发）
-     * 采用 唯一键(vod_id,vod_sid,vod_nid) 累加，避免行数爆炸
-     *
-     * @param array $data vod_id, vod_sid, vod_nid, play_from, vod_name, switched(是否成功切换), ip
-     * @return array
-     */
     public function reportFail($data)
     {
         $vod_id  = isset($data['vod_id'])  ? intval($data['vod_id'])  : 0;
@@ -89,7 +71,6 @@ class VodPlayFail extends Base {
         $ip        = isset($data['ip']) ? (string)$data['ip'] : '';
         $time      = time();
 
-        // 长度保护
         $play_from = mb_substr($play_from, 0, 30);
         $vod_name  = mb_substr($vod_name, 0, 255);
         $ip        = mb_substr($ip, 0, 45);

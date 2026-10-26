@@ -12,23 +12,14 @@ class Art extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     *  获取列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -37,7 +28,6 @@ class Art extends Base
                 'msg'  => '参数错误: ' . $validate->getError(),
             ]);
         }
-        // 查询条件组装
         $where = [];
 
         $offset = isset($param['offset']) ? (int)$param['offset'] : 0;
@@ -93,11 +83,9 @@ class Art extends Base
             $where['art_level'] = ['in', $this->format_sql_string($param['level'])];
         }
 
-        // 数据获取
         $total = (new \app\common\model\Art())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
-            // 排序
             $order = "art_time DESC";
             $field = 'art_id,art_name,art_sub,art_en,art_pic,art_blurb,art_time,art_time_add,art_hits,art_points,art_points_detail,art_remarks,art_author,type_id';
             if (strlen($param['orderby']) > 0) {
@@ -123,7 +111,6 @@ class Art extends Base
             unset($v);
             mac_append_type_is_vip_exclusive_for_rows($list);
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -136,15 +123,6 @@ class Art extends Base
         ]);
     }
 
-    /**
-     * 视频文章详情
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
     public function get_detail(Request $request)
     {
         $param = $request->param();
@@ -221,10 +199,6 @@ class Art extends Base
         ]);
     }
 
-    /**
-     * 单页正文（供 uni-app / SPA 原生渲染小说阅读页）
-     * GET api.php/art/get_read_page 参数：art_id，page 可选默认 1
-     */
     public function get_read_page(Request $request)
     {
         $param = $request->param();
@@ -271,9 +245,6 @@ class Art extends Base
             $html = mac_url_content_img($cur['content']);
         }
 
-        // 阅读历史改由前端在正文实际打开后，显式调用受登录态+CSRF 保护的 POST 接口
-        // （api.php/user/add_ulog）写入；此 GET 内容接口只读，不再写入任何记录，
-        // 以杜绝预加载/爬虫/第三方页面用 Cookie 携带发起 GET 即污染已读集合。
         $canRead = ($popedom['code'] == 1) ? 1 : 0;
         $out     = [
             'can_read'     => $canRead,
@@ -294,22 +265,6 @@ class Art extends Base
         return json(['code' => 1, 'msg' => 'ok', 'info' => $out]);
     }
 
-    /**
-     * 获取热门文章/小说
-     * 对应首页热门小说区块
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   num     - 可选，数量，默认6
-     *   type_id - 可选，分类ID
-     *   start   - 可选，偏移量，默认0
-     *   by      - 可选，排序字段，默认 time，可选: hits,hits_day,hits_week,hits_month,time
-     */
-    /**
-     * 文章顶/踩
-     */
     public function digg(Request $request)
     {
         $param = $request->param();
@@ -329,9 +284,6 @@ class Art extends Base
         return json(['code' => 1, 'msg' => 'ok', 'data' => ['up' => $res['info']['art_up'] ?? 0, 'down' => $res['info']['art_down'] ?? 0]]);
     }
 
-    /**
-     * 更新/获取文章点击数
-     */
     public function update_hits(Request $request)
     {
         $param = $request->param();
@@ -357,9 +309,6 @@ class Art extends Base
         return json(['code'=>1,'msg'=>'ok','data'=>['hits'=>$info['art_hits'],'hits_day'=>$info['art_hits_day'],'hits_week'=>$info['art_hits_week'],'hits_month'=>$info['art_hits_month']]]);
     }
 
-    /**
-     * 文章评分
-     */
     public function update_score(Request $request)
     {
         $param = $request->param();
@@ -426,17 +375,6 @@ class Art extends Base
         ]);
     }
 
-    /**
-     * 获取最新文章/资讯
-     * 对应首页最新小说 + 最新影视资讯区块
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   num     - 可选，数量，默认24
-     *   type_id - 可选，分类ID
-     */
     public function get_latest(Request $request)
     {
         $param = $request->param();
@@ -475,13 +413,8 @@ class Art extends Base
         ]);
     }
 
-    /**
-     * 搜索建议/自动完成（与列表同一套 Meili + 已发布/回收过滤）
-     * api.php/art/suggest?wd=关键词&limit=10
-     */
     public function suggest(Request $request)
     {
         return $this->jsonSuggestByKind($request, 'art');
     }
-
 }

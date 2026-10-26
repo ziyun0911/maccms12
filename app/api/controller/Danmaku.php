@@ -15,22 +15,8 @@ class Danmaku extends Base
 
     public function index()
     {
-
     }
 
-    /**
-     * 获取某影片某集的弹幕列表（一次性加载）
-     *
-     * GET /api.php/danmaku/get_list
-     * 参数:
-     *   vod_id - 必须，影片ID
-     *   sid    - 必须，播放源ID
-     *   nid    - 必须，集数ID
-     *   limit  - 可选，数量，默认1000
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
         $param = $request->param();
@@ -52,19 +38,9 @@ class Danmaku extends Base
         return json($res);
     }
 
-    /**
-     * DPlayer兼容格式弹幕接口
-     *
-     * GET  /api.php/danmaku/dplayer?id={vod_id}-{sid}-{nid}  获取弹幕
-     * POST /api.php/danmaku/dplayer  发送弹幕（DPlayer标准POST格式）
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function dplayer(Request $request)
     {
         if ($request->isGet()) {
-            // 获取弹幕 - DPlayer标准格式
             $id = $request->param('id', '');
             $parts = explode('-', $id);
             if (count($parts) < 3) {
@@ -80,7 +56,6 @@ class Danmaku extends Base
         }
 
         if ($request->isPost()) {
-            // 发送弹幕 - DPlayer标准POST
             $user = $this->_checkLoginForApi();
             if (!$user) {
                 return json(['code' => 1, 'msg' => lang('danmaku/login_required')]);
@@ -97,16 +72,13 @@ class Danmaku extends Base
             $sid = (int)$parts[1];
             $nid = (int)$parts[2];
 
-            // 校验影片是否存在且可用
             $vod_check = $this->_checkVodAvailable($vod_id);
             if ($vod_check !== true) {
                 return json(['code' => 1, 'msg' => $vod_check['msg']]);
             }
 
-            // 公共发送前校验（IP黑名单 + 频率限制）
             $preCheck = $this->_preSendCheck($user);
             if ($preCheck !== true) {
-                // DPlayer 期望 code=1 表示失败
                 return json(['code' => 1, 'msg' => $preCheck['msg']]);
             }
 
@@ -126,32 +98,14 @@ class Danmaku extends Base
             }
 
             $res = (new \app\common\model\Danmaku())->saveData($data);
-            // DPlayer期望code=0为成功
             return json(['code' => ($res['code'] == 1) ? 0 : 1, 'msg' => $res['msg']]);
         }
 
         return json(['code' => 1, 'msg' => lang('param_err')]);
     }
 
-    /**
-     * 发送弹幕
-     *
-     * POST /api.php/danmaku/send
-     * 参数:
-     *   vod_id - 必须，影片ID
-     *   sid    - 必须，播放源ID
-     *   nid    - 必须，集数ID
-     *   time   - 必须，影片播放到的秒数
-     *   text   - 必须，弹幕内容（最长200字）
-     *   type   - 可选，0=滚动 1=顶部 2=底部，默认0
-     *   color  - 可选，弹幕颜色，默认#FFFFFF
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function send(Request $request)
     {
-        // 检查登录
         $user = $this->_checkLoginForApi();
         if (!$user) {
             return json(['code' => 1010, 'msg' => lang('danmaku/login_required')]);
@@ -166,13 +120,11 @@ class Danmaku extends Base
             ]);
         }
 
-        // 校验影片是否存在且可用
         $vod_check = $this->_checkVodAvailable((int)$param['vod_id']);
         if ($vod_check !== true) {
             return json($vod_check);
         }
 
-        // 公共发送前校验（IP黑名单 + 频率限制）
         $preCheck = $this->_preSendCheck($user);
         if ($preCheck !== true) {
             return json($preCheck);
@@ -193,7 +145,6 @@ class Danmaku extends Base
             return json(['code' => 1002, 'msg' => lang('danmaku/content_empty')]);
         }
 
-        // 验证弹幕类型
         if (!in_array($data['danmaku_type'], [0, 1, 2])) {
             $data['danmaku_type'] = 0;
         }
@@ -203,19 +154,8 @@ class Danmaku extends Base
         return json($res);
     }
 
-    /**
-     * 举报弹幕
-     *
-     * POST /api.php/danmaku/report
-     * 参数:
-     *   danmaku_id - 必须，弹幕ID
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function report(Request $request)
     {
-        // 检查登录
         $user = $this->_checkLoginForApi();
         if (!$user) {
             return json(['code' => 1010, 'msg' => lang('danmaku/login_required')]);
@@ -239,12 +179,10 @@ class Danmaku extends Base
             return json(['code' => 1002, 'msg' => lang('danmaku/not_found')]);
         }
 
-        // 已禁用的弹幕无需再举报
         if (isset($info['info']['danmaku_status']) && $info['info']['danmaku_status'] != 1) {
             return json(['code' => 1003, 'msg' => lang('danmaku/disabled')]);
         }
 
-        // 同一用户同一弹幕 24 小时内只能举报一次（Cache 去重）
         $cache_key = 'danmaku_report_' . $user['user_id'] . '_' . $danmaku_id;
         if (\think\facade\Cache::get($cache_key)) {
             return json(['code' => 1, 'msg' => lang('danmaku/already_reported')]);
@@ -256,15 +194,8 @@ class Danmaku extends Base
         return json(['code' => 1, 'msg' => lang('danmaku/report_ok')]);
     }
 
-    /**
-     * 发送弹幕前公共校验：IP黑名单 + 频率限制
-     * send() 和 dplayer() POST 共用，避免两个入口防护不对称
-     * @param array $user 当前登录用户信息
-     * @return array|true true=通过, array=错误响应体
-     */
     private function _preSendCheck($user)
     {
-        // IP黑名单检查
         $blacks = config('blacks');
         if (!empty($blacks['black_ip_list']) && is_array($blacks['black_ip_list'])) {
             $ip = mac_get_client_ip();
@@ -273,7 +204,6 @@ class Danmaku extends Base
             }
         }
 
-        // 频率限制
         if (!(new \app\common\model\Danmaku())->checkSendRate($user['user_id'], 5)) {
             return ['code' => 1003, 'msg' => lang('danmaku/rate_limit')];
         }
@@ -281,12 +211,6 @@ class Danmaku extends Base
         return true;
     }
 
-    /**
-     * 轻量级校验影片是否存在且可用（status=1）
-     * 不走 Vod::infoData 避免加载播放列表等重数据
-     * @param int $vod_id
-     * @return array|true  true=可用, array=错误响应
-     */
     private function _checkVodAvailable($vod_id)
     {
         $vod = \think\facade\Db::name('vod')->field('vod_id,vod_status')->where('vod_id', (int)$vod_id)->find();
@@ -299,10 +223,6 @@ class Danmaku extends Base
         return true;
     }
 
-    /**
-     * 检查用户登录状态（API用）
-     * @return array|false
-     */
     private function _checkLoginForApi()
     {
         $res = (new \app\common\model\User())->checkLogin();

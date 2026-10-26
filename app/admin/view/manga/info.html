@@ -491,10 +491,8 @@
     var editor = editor_getEditor('manga_content');
 
     layui.use(['form','upload', 'layer'], function () {
-        // 操作对象
         var form = layui.form, layer = layui.layer, $ = layui.jquery, upload = layui.upload;
 
-        // 验证
         form.verify({
             manga_name: function (value) {
                 if (value == "") {
@@ -603,7 +601,6 @@
             $("#manga_score_num").val( rndNum(100) );
         });
 
-        // 内容级多语言：其它语言 tab 的“漫画简介”字段也用富文本编辑器，和默认语言保持一致的输入体验
         var clContentEditors = {};
         {volist name="content_lang_enabled" id="lc"}
         {if condition="$lc neq $content_lang_default"}
@@ -611,7 +608,6 @@
         {/if}
         {/volist}
 
-        // 内容级多语言：单字段自动翻译（保存随主表单一起提交，不单独 ajax 保存）
         $('.cl-translate-btn').on('click', function () {
             var $btn = $(this);
             var lang = $btn.data('lang');

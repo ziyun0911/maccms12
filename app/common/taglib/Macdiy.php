@@ -4,8 +4,7 @@ use think\template\TagLib;
 use think\facade\Db;
 
 class Macdiy extends Taglib {
-
-	protected $tags = [
+    protected $tags = [
         'test'=> ['attr'=>'order,by,num'],
     ];
 

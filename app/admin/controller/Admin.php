@@ -46,7 +46,6 @@ class Admin extends Base
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }
-            // 权限复选框一个都没勾时浏览器不提交 admin_auth，模型侧按空数组写 ''
             if (!isset($param['admin_auth']) || !is_array($param['admin_auth'])) {
                 $param['admin_auth'] = [];
             }
@@ -72,7 +71,6 @@ class Admin extends Base
         $res = (new \app\common\model\Admin())->infoData($where);
         $this->assign('info',$res['info']);
 
-        //权限列表
         $menus = @include MAC_ADMIN_COMM . 'auth.php';
 
         foreach($menus as $k1=>$v1){
@@ -85,8 +83,6 @@ class Admin extends Base
                 $menus[$k1]['sub'][$k2]['ck']= '';
                 $all[] = $one;
 
-                // 内置 auth.php 的节点名已是 lang() 结果；这里兼容第三方写法：
-                // "--" 前缀（隐藏标记）去掉后若仍是一个语言键，就替换成当前语言的译名。
                 $label = $v2['name'];
                 if (strpos($label, '--') === 0) {
                     $label = substr($label, 2);
@@ -103,8 +99,6 @@ class Admin extends Base
                     $cs[] = $one;
                     $menus[$k1]['sub'][$k2]['ck'] = 'checked';
                 }
-                // 欢迎页是登录后必达项，权限列表里固定勾选且不可取消；按 controller/action 判定，
-                // 不按菜单键数字判定——键会随分组调整重排，数字判断迟早误伤同名键的其他节点。
                 if($v2['controller']==='index' && $v2['action']==='welcome'){
                     $menus[$k1]['sub'][$k2]['ck'] = ' checked  readonly="readonly" ';
                 }
@@ -114,7 +108,6 @@ class Admin extends Base
             }
         }
         $this->assign('menus',$menus);
-
 
         $this->assign('title',lang('admin/admin/title'));
         return $this->fetch('admin@admin/info');
@@ -162,5 +155,4 @@ class Admin extends Base
         }
         return $this->error(lang('param_err'));
     }
-
 }

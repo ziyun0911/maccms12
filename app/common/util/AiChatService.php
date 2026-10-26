@@ -5,22 +5,12 @@ use think\facade\Db;
 
 class AiChatService
 {
-    /** @var int Number of billable LLM HTTP calls made during this request. */
     private $llmCallCount = 0;
 
-    /** @var int|null Configured cap on billable LLM calls per request. */
     private $llmCallCap = null;
 
-    /** @var array ai_search config snapshot, lazily loaded. */
     private $aiCfg;
 
-    /**
-     * Guard a billable LLM HTTP call. Returns true if the call may proceed
-     * (under the per-request cap), false if the cap has been reached.
-     * On success this also consumes a slot (increments the counter).
-     *
-     * @return bool
-     */
     private function allowLlmCall()
     {
         if ($this->llmCallCap === null) {
@@ -35,15 +25,6 @@ class AiChatService
         return true;
     }
 
-    /**
-     * Wrap a billable LLM HTTP call: enforce the per-request cap, count the
-     * attempt, record success/failure to the circuit breaker, and return the
-     * parsed result (or '' / null / [] on cap-rejection or failure).
-     *
-     * @param callable $fn  performs the HTTP request, returns string|false
-     * @param string    $kind 'chat' | 'embedding'
-     * @return string|false raw response body, or false if rejected/failed
-     */
     private function guardedLlmCall($fn, $kind = 'chat')
     {
         if (!$this->allowLlmCall()) {
@@ -75,8 +56,6 @@ class AiChatService
             function () { return $this->allowLlmCall(); },
             function ($ok) { AiChatRateLimit::recordLlmCall($ok, $this->aiCfg()); }
         );
-        // embedding 语义重排（AiChatService 与 AiSearch 两处均经 AiEmbeddingService）也纳入
-        // 同一每请求上限 + 熔断器，避免公开搜索路径上无防护的 embedding 成本放大。
         AiEmbeddingService::setLlmGate(
             function () { return $this->allowLlmCall(); },
             function ($ok) { AiChatRateLimit::recordLlmCall($ok, $this->aiCfg()); }
@@ -151,9 +130,6 @@ class AiChatService
         ];
     }
 
-    /**
-     * 站内匹配（来自 searchMeta['internal_resources']），与主卡片去重后返回。
-     */
     private function buildInternalResults(array $searchMeta, array $cards)
     {
         $items = (isset($searchMeta['internal_resources']) && is_array($searchMeta['internal_resources']))
@@ -187,7 +163,7 @@ class AiChatService
             $tl = strtolower($title);
             $ul = strtolower($url);
             if (isset($cardTitles[$tl]) || isset($cardUrls[$ul])) {
-                continue; // 已作为主卡片展示，避免重复
+                continue;
             }
             $dk = 't:' . $tl . '|u:' . $ul;
             if (isset($seen[$dk])) {
@@ -423,10 +399,6 @@ class AiChatService
         return array_slice($out, 0, $fetchLimit);
     }
 
-    /**
-     * 语义 embedding 重排：复用公共 AiEmbeddingService（带缓存 + 超时），
-     * 基础分沿用现有 score、同分按 hits 降序、混合分写回 score 供后续 usort 使用。
-     */
     private function applySemanticEmbeddingRerank($question, array $rows, $mid)
     {
         $cfg = config('maccms.ai_search');
@@ -506,9 +478,6 @@ class AiChatService
         return implode("\n\n", $parts);
     }
 
-    /**
-     * After the keyword overview: on-site matches (if any) plus external/AI rows as title + description text.
-     */
     private function buildResourcesNarrativeBlock(array $cards, array $searchMeta, array $aiSearchResults, array $externalFederated, $responseLang)
     {
         $chunks = [];
@@ -570,12 +539,6 @@ class AiChatService
         return $out;
     }
 
-    /**
-     * When there are no CMS cards, present only external-style rows as plain descriptions
-     * (title + optional snippet). No wording about the local database or “not found”.
-     *
-     * @param array $rows Items with keys title, snippet (optional)
-     */
     private function buildExternalOnlyDescriptionContent(array $rows)
     {
         if (empty($rows) || !is_array($rows)) {
@@ -638,9 +601,6 @@ class AiChatService
         return $this->requestNormalChatReply($prompt, $responseLang);
     }
 
-    /**
-     * Short explanation of what the keyword/topic usually means (comes first in the reply body).
-     */
     private function requestKeywordOverviewReply($keyword, $responseLang = 'zh')
     {
         $keyword = trim((string)$keyword);
@@ -679,9 +639,6 @@ class AiChatService
         );
     }
 
-    /**
-     * @param array $messages OpenAI chat messages (system + user, etc.)
-     */
     private function requestOpenAiChat(array $messages, $temperature = 0.55)
     {
         $cfg = config('maccms.ai_search');
@@ -726,9 +683,6 @@ class AiChatService
         return !empty($json['choices'][0]['message']['content']) ? trim((string)$json['choices'][0]['message']['content']) : '';
     }
 
-    /**
-     * Legacy AiSearch "Search \"keyword\" on domain" Google site: links — omit from related links.
-     */
     private function isLegacyGoogleSiteSearchExternalLink(array $item)
     {
         $title = isset($item['title']) ? trim((string)$item['title']) : '';
@@ -743,9 +697,6 @@ class AiChatService
         return false;
     }
 
-    /**
-     * Ensure every external related link has a short description for the UI.
-     */
     private function enrichExternalSnippet(array $item)
     {
         $s = isset($item['snippet']) ? trim(strip_tags((string)$item['snippet'])) : '';

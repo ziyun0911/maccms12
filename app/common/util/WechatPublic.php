@@ -114,7 +114,6 @@ class WechatPublic
                 $this->_conf['sousuo'] = 'http://' . $this->_conf['sousuo'];
             }
 
-
             $res = (new \app\common\model\Vod())->listCacheData($param);
             $data = [];
             if($res['code']>1 || empty($res['list'])){
@@ -122,15 +121,13 @@ class WechatPublic
                 $data[] = array('Title'=>$this->_conf['wuziyuan'], 'Description'=>'', 'PicUrl'=>'', 'Url'=>$this->_conf['wuziyuanlink']);
             }
             else{
-
                 if($this->_conf['bofang'] ==2){
-                    $search_url = $this->_conf['sousuo'] .mac_url('vod/search',['wd'=>$content]); //'/index.php/vod/search/wd/' . urlencode($content);
+                    $search_url = $this->_conf['sousuo'] .mac_url('vod/search',['wd'=>$content]);
                     $txt .=  '<a href="'.$search_url.'">点击进入搜索页面查看</a>' . "\n";
                     $data[] = array('Title'=>'点击进入搜索页面查看', 'Description'=>'恭喜您找到了相关资源，由于微信限制请进入搜索页查看', 'PicUrl'=>'', 'Url'=>$search_url );
                 }
                 else {
                     foreach ($res['list'] as $k => $v) {
-
                         $url = $this->_conf['sousuo'] . mac_url_vod_detail($v);
                         if ($this->_conf['bofang'] > 0) {
                             $url = $this->_conf['sousuo'] . mac_url_vod_play($v, ['sid' => 1, 'nid' => 1]);

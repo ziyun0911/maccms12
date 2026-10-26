@@ -3,13 +3,11 @@
     if(!$ || !layer){ console.error('ResourceHub: layui.jquery or layui.layer not ready'); return; }
     if(typeof RH_LANG === 'undefined') RH_LANG = {};
 
-    // 统一的请求失败提示
     function rhAjaxError(loading){
         if(loading) layer.close(loading);
         layer.msg(RH_LANG.request_fail || 'Request failed, please try again', {icon:2});
     }
 
-    // 检测资源站
     $(document).on('click', '.btn-check', function(){
         var btn = $(this);
         var url = btn.data('url');
@@ -31,10 +29,8 @@
         });
     });
 
-    // 进入资源库（POST 表单提交，防止 GET 触发 SSRF）
     $(document).on('click', '.btn-quick-collect', function(){
         var btn = $(this);
-        // 防止重复点击造成多次提交
         if(btn.data('rh-submitting')){ return; }
         btn.data('rh-submitting', true);
 
@@ -42,7 +38,6 @@
         var type = btn.data('type');
         var mid = btn.data('mid');
 
-        // 全屏载入提示，因后端需请求远端资源站，页面跳转后会自动消失
         layer.msg(RH_LANG.entering || 'Entering resource library, please wait...', {
             icon: 16,
             shade: 0.3,
@@ -57,7 +52,6 @@
         form.appendTo('body').submit();
     });
 
-    // 同步分类
     $(document).on('click', '.btn-sync-type', function(){
         var url = $(this).data('url');
         var type = $(this).data('type');
@@ -107,7 +101,6 @@
         }, 'json').fail(function(){ rhAjaxError(loading); });
     });
 
-    // 自动配置（绑定分类+播放器）
     $(document).on('click', '.btn-auto-bindplayer', function(){
         var url = $(this).data('url');
         var type = $(this).data('type');
@@ -123,7 +116,6 @@
         });
     });
 
-    // 添加到采集列表
     $(document).on('click', '.btn-add-collect', function(){
         var btn = $(this);
         var d = {url: btn.data('url'), type: btn.data('type'), mid: btn.data('mid'), name: btn.data('name')};
@@ -139,7 +131,6 @@
         });
     });
 
-    // 添加定时任务
     $(document).on('click', '.btn-add-timming', function(){
         var url = $(this).data('url'), type = $(this).data('type'), mid = $(this).data('mid'), name = $(this).data('name');
         layer.open({
@@ -169,7 +160,6 @@
         });
     });
 
-    // 添加自定义资源站
     $(document).on('click', '#addCustomSite', function(){
         layer.open({
             type: 1, title: RH_LANG.add_custom_title||'Add Custom Site', area: ['500px', '400px'],
@@ -198,7 +188,6 @@
         });
     });
 
-    // 删除自定义资源站
     $(document).on('click', '.btn-del-custom', function(){
         var index = $(this).data('index');
         layer.confirm(RH_LANG.confirm_delete||'Are you sure?', function(idx){

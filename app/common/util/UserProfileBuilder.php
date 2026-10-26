@@ -3,11 +3,6 @@ namespace app\common\util;
 
 use think\facade\Db;
 
-/**
- * 用户画像计算：从 mac_ulog（播放行为）与 mac_order（支付订单）中
- * 算出单个用户的画像数据。纯只读查询 + 计算，$now 由调用方传入以便测试确定性。
- * 任何子查询无结果都应降级为零值/空 JSON，绝不抛异常（避免 Task 3 的 cron 整批失败）。
- */
 class UserProfileBuilder
 {
     public function buildForUser($uid, $windowDays, $now)
@@ -32,7 +27,6 @@ class UserProfileBuilder
 
         $watchCntWindow = count($watchRows);
 
-        // avg_completion_rate：仅统计 ulog_duration>0 的行，每行夹取到 [0,1] 后取平均
         $ratioSum = 0.0;
         $ratioCnt = 0;
         foreach ($watchRows as $row) {
@@ -52,7 +46,6 @@ class UserProfileBuilder
         }
         $avgCompletionRate = $ratioCnt > 0 ? round($ratioSum / $ratioCnt, 4) : 0.0;
 
-        // activity_level：按 watch_cnt_window 阈值
         if ($watchCntWindow >= 16) {
             $activityLevel = 3;
         } elseif ($watchCntWindow >= 4) {
@@ -63,7 +56,6 @@ class UserProfileBuilder
             $activityLevel = 0;
         }
 
-        // prefer_types：按 ulog_mid 分组批量解析 type_id，再计数取 Top-5
         $vodRids = [];
         $artRids = [];
         foreach ($watchRows as $row) {
@@ -79,7 +71,6 @@ class UserProfileBuilder
         $vodTypeMap = [];
         $vodTagRows = [];
         if (!empty($vodRids)) {
-            // 一次取回 type_id 与 vod_tag，供下方 prefer_types / prefer_tags 复用，避免二次查询 Vod
             $vodList = Db::name('Vod')
                 ->whereIn('vod_id', array_unique($vodRids))
                 ->field('vod_id,type_id,vod_tag')
@@ -135,7 +126,6 @@ class UserProfileBuilder
             $preferTypes = json_encode($list);
         }
 
-        // prefer_tags：best-effort，来自 vod_tag（逗号/斜杠分隔），无数据则空
         $preferTags = '[]';
         if (!empty($vodTagRows)) {
             $tagCount = [];
@@ -163,7 +153,6 @@ class UserProfileBuilder
             }
         }
 
-        // pay_amount_window：窗口内已支付订单金额之和
         $payAmountWindow = 0.0;
         if ($uid > 0) {
             $sum = Db::name('Order')
@@ -174,7 +163,6 @@ class UserProfileBuilder
             $payAmountWindow = round(floatval($sum), 2);
         }
 
-        // last_active_time：该用户全部播放记录（不限窗口/类型）的最大 ulog_time
         $lastActiveTime = 0;
         if ($uid > 0) {
             $max = Db::name('Ulog')

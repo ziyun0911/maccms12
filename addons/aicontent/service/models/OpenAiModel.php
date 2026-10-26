@@ -2,10 +2,6 @@
 
 namespace addons\aicontent\service\models;
 
-/**
- * OpenAI ChatGPT integration.
- * API docs: https://platform.openai.com/docs/api-reference/chat
- */
 class OpenAiModel extends BaseModel
 {
     const API_URL = 'https://api.openai.com/v1/chat/completions';

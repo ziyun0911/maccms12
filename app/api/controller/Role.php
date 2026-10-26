@@ -5,12 +5,6 @@ namespace app\api\controller;
 use think\facade\Db;
 use think\Request;
 
-/**
- * Role 角色前台 JSON 接口
- *
- * 提供 role/get_list 和 role/get_detail 接口，
- * 对应前台模板中 {maccms:role} 标签的数据需求。
- */
 class Role extends Base
 {
     use PublicApi;
@@ -23,32 +17,12 @@ class Role extends Base
 
     public function index()
     {
-
     }
 
-    /**
-     * 获取角色列表
-     * GET /api.php/role/get_list
-     *
-     * 参数说明:
-     *   offset  - 可选，偏移量，默认0
-     *   limit   - 可选，每页条数，默认20
-     *   rid     - 可选，关联视频ID（role_rid）
-     *   name    - 可选，角色名称模糊搜索
-     *   letter  - 可选，首字母筛选
-     *   level   - 可选，推荐等级筛选，多个用逗号分隔
-     *   actor   - 可选，配音/演员筛选
-     *   orderby - 可选，排序字段，默认 time
-     *             可选: id,time,time_add,hits,hits_day,hits_week,hits_month,score,up,down,level
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
         $param = $request->param();
 
-        // 参数校验
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
             return json([
@@ -60,7 +34,6 @@ class Role extends Base
         $offset = isset($param['offset']) ? (int)$param['offset'] : 0;
         $limit  = isset($param['limit']) ? (int)$param['limit'] : 20;
 
-        // 查询条件组装
         $where = [];
         $where['role_status'] = ['eq', 1];
 
@@ -84,12 +57,10 @@ class Role extends Base
             $where['role_actor'] = ['like', '%' . $this->format_sql_string($param['actor']) . '%'];
         }
 
-        // 数据获取
         $total = (new \app\common\model\Role())->countData($where);
         $list = [];
 
         if ($total > 0) {
-            // 排序
             $by = 'time';
             if (!empty($param['orderby'])) {
                 $allowBy = ['id', 'time', 'time_add', 'hits', 'hits_day', 'hits_week', 'hits_month', 'score', 'up', 'down', 'level'];
@@ -144,21 +115,10 @@ class Role extends Base
         ]);
     }
 
-    /**
-     * 获取角色详情
-     * GET /api.php/role/get_detail
-     *
-     * 参数说明:
-     *   role_id - 必须，角色ID
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_detail(Request $request)
     {
         $param = $request->param();
 
-        // 参数校验
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
             return json([
@@ -174,11 +134,9 @@ class Role extends Base
             return json(['code' => 1001, 'msg' => '数据不存在']);
         }
 
-        // 处理图片 URL
         $res['role_pic'] = mac_url_img($res['role_pic'] ?? '');
         $res['role_link'] = mac_url_role_detail($res);
 
-        // 关联视频信息
         $res['vod_info'] = null;
         if (!empty($res['role_rid'])) {
             $vodInfo = Db::name('vod')
@@ -192,7 +150,6 @@ class Role extends Base
             }
         }
 
-        // 清理 HTML 标签
         if (!empty($res['role_content'])) {
             $res['role_content'] = str_replace('mac:', $GLOBALS['config']['upload']['protocol'] . ':', $res['role_content']);
         }
@@ -204,19 +161,6 @@ class Role extends Base
         ]);
     }
 
-    /**
-     * 获取推荐角色
-     * GET /api.php/role/get_recommend
-     *
-     * 参数说明:
-     *   rid   - 可选，关联视频ID
-     *   num   - 可选，数量，默认8
-     *   by    - 可选，排序字段，默认 time
-     *   level - 可选，推荐等级
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_recommend(Request $request)
     {
         $param = $request->param();
@@ -264,10 +208,6 @@ class Role extends Base
         ]);
     }
 
-    /**
-     * 搜索建议/自动完成（与列表同一套 Meili + 已发布过滤）
-     * api.php/role/suggest?wd=关键词&limit=10
-     */
     public function suggest(Request $request)
     {
         return $this->jsonSuggestByKind($request, 'role');

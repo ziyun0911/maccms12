@@ -1,28 +1,11 @@
 <?php
 namespace app\common\util;
 
-/**
- * 按 IP 的请求频率限制（防爬虫 / API 滥用）。
- *
- * 类名历史为 SlidingWindow，两条路径窗口语义不同、功能均正确：
- * - Redis（phpredis \Redis）：按 time/windowSec 分桶的固定窗口 INCR（多机共享同一 Redis 时生效）。
- * - 文件回退：runtime + flock 真滑动窗口（仅单机有效）。
- *
- * 对齐弹幕/搜索限流经验：先探测 Cache::handler() 是否为 \Redis；失败则回退，不因 Redis 抖动拒绝全站。
- * PHP 7.0 兼容。
- */
 class SlidingWindowIpLimiter
 {
-    /** 窗口上限（秒），防止误配置写出超长 TTL */
     const WINDOW_MAX_SEC = 86400;
-    /** 次数上限，防止误配置与洪水 INCR 失控 */
     const HITS_MAX = 1000000;
 
-    /**
-     * Lua：超限时不再 INCR；返回值用 cur+1（>limit）触发 PHP 拦截，存储计数仍封顶在 limit
-     * 首击或无 TTL 键补 EXPIRE（避免 INCR/EXPIRE 竞态残留永久键）
-     * 返回 {count, ttl}
-     */
     const REDIS_SCRIPT = "local limit=tonumber(ARGV[2])\n"
         . "local expire=tonumber(ARGV[1])\n"
         . "local cur=redis.call('GET',KEYS[1])\n"
@@ -37,15 +20,6 @@ class SlidingWindowIpLimiter
         . "end\n"
         . "return {c,redis.call('TTL',KEYS[1])}";
 
-    /**
-     * @param string $ip
-     * @param string $scope  逻辑名，仅允许 [a-z0-9_]+
-     * @param int    $windowSec 窗口秒数
-     * @param int    $maxHits   窗口内最大命中次数
-     * @param string $runtimeSubdir runtime_path() 下子目录名（文件回退用）
-     *
-     * @return array
-     */
     public static function checkHit($ip, $scope, $windowSec, $maxHits, $runtimeSubdir = 'anti_scrape_rl')
     {
         $windowSec = (int)$windowSec;
@@ -81,11 +55,6 @@ class SlidingWindowIpLimiter
         return self::checkHitFile($ip, $scope, $windowSec, $maxHits, $runtimeSubdir);
     }
 
-    /**
-     * Redis 固定窗口。成功返回限流结果；不可用返回 null（交给文件回退）。
-     *
-     * @return array|null
-     */
     protected static function checkHitRedis($ip, $scope, $windowSec, $maxHits)
     {
         if (!class_exists('\Redis', false)) {
@@ -98,7 +67,6 @@ class SlidingWindowIpLimiter
             return null;
         }
 
-        // 多机 CMS 共享同一 Redis（phpredis \Redis）即可；Cluster/Redisd 客户端类型不同，走回退
         if (!is_object($handler) || !($handler instanceof \Redis)) {
             return null;
         }
@@ -137,12 +105,6 @@ class SlidingWindowIpLimiter
         }
     }
 
-    /**
-     * 优先 Lua 原子脚本；禁 SCRIPT 时回退 INCR + TTL 愈合。
-     *
-     * @param \Redis $handler
-     * @return array|null [count, ttl] 或 null 表示 Redis 调用失败
-     */
     protected static function redisIncrAtomic($handler, $key, $expireSec, $maxHits)
     {
         if (method_exists($handler, 'eval')) {
@@ -153,7 +115,6 @@ class SlidingWindowIpLimiter
                     return $parsed;
                 }
             } catch (\Exception $e) {
-                // SCRIPT 禁用等：走非 Lua 路径
             }
         }
 
@@ -163,7 +124,6 @@ class SlidingWindowIpLimiter
         }
         $count = (int)$count;
         $ttl = (int)$handler->ttl($key);
-        // 首击或历史无 TTL 残留：补过期，避免永久占键 / 永久拒绝
         if ($count === 1 || $ttl < 0) {
             $handler->expire($key, $expireSec);
             $ttl = $expireSec;
@@ -174,10 +134,6 @@ class SlidingWindowIpLimiter
         return [$count, $ttl];
     }
 
-    /**
-     * @param mixed $ret
-     * @return array|null
-     */
     protected static function parseRedisCountTtl($ret)
     {
         if (!is_array($ret) || count($ret) < 2) {
@@ -186,11 +142,6 @@ class SlidingWindowIpLimiter
         return [(int)$ret[0], (int)$ret[1]];
     }
 
-    /**
-     * 单机文件滑动窗口（历史实现）
-     *
-     * @return array
-     */
     protected static function checkHitFile($ip, $scope, $windowSec, $maxHits, $runtimeSubdir)
     {
         $dir = rtrim(runtime_path(), '/\\') . DIRECTORY_SEPARATOR . $runtimeSubdir;
@@ -202,7 +153,6 @@ class SlidingWindowIpLimiter
 
         $fp = @fopen($path, 'c+');
         if ($fp === false) {
-            // 无法落盘时放行，避免反爬组件拖垮站点（与历史一致）
             return ['allowed' => true, 'retry_after' => 0];
         }
 

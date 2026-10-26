@@ -2,8 +2,6 @@
 
 <link rel="stylesheet" href="__STATIC__/swagger/swagger-ui.css?{$MAC_VERSION}">
 <style>
-    /* 页面外壳（.doc-page / .doc-bar）已并入 static/css/admin.bundle.css，与「说明文档」共用；
-       下面只覆盖 swagger 的展示样式，不改 static/swagger/ 里的第三方文件 */
     #swagger-ui {
         max-width: 1200px;
         margin: 0 auto;
@@ -31,7 +29,6 @@
         padding: 0;
     }
 
-    /* ── 文档抬头 ── */
     #swagger-ui .swagger-ui .info {
         margin: 0 0 12px;
         padding: 16px 18px;
@@ -85,7 +82,6 @@
         color: #475569;
     }
 
-    /* ── 服务器选择 / 过滤框 ── */
     #swagger-ui .swagger-ui .scheme-container {
         margin: 0 0 12px;
         padding: 0;
@@ -135,7 +131,6 @@
         outline: none;
     }
 
-    /* ── 分组标题：swagger 默认 24px + sans-serif，这里收到 15px 卡片 ── */
     #swagger-ui .swagger-ui .opblock-tag {
         margin: 0 0 8px;
         padding: 12px 14px;
@@ -180,7 +175,6 @@
         color: #94a3b8;
     }
 
-    /* ── 接口行 ── */
     #swagger-ui .swagger-ui .opblock {
         margin: 0 0 8px;
         border: 1px solid #e8edf3;
@@ -352,7 +346,6 @@
         border-radius: 8px;
     }
 
-    /* 响应示例与 cURL 由 highlight.js 写内联样式（深底白字），这里只统一圆角、间距与滚动 */
     #swagger-ui .swagger-ui pre.microlight {
         padding: 12px !important;
         font-family: Consolas, Monaco, "Courier New", monospace !important;
@@ -383,8 +376,6 @@
         border-radius: 8px;
     }
 
-    /* 末尾的 Schemas 区：swagger 默认灰底深边框、标题 16px 常规体、箭头贴最右，
-       和上面的分组白卡对不上，这里统一成同一种卡片 */
     #swagger-ui .swagger-ui section.models {
         margin: 0 0 8px;
         padding: 0;
@@ -404,8 +395,6 @@
         transition: background-color .18s cubic-bezier(.22, 1, .36, 1);
     }
 
-    /* swagger 给 h4 画了条 rgba(59,65,81,.3) 深色下边框，展开收起都在；
-       改成跟随展开状态的浅色内缩分隔线 */
     #swagger-ui .swagger-ui section.models h4 .models-control[aria-expanded="true"] {
         padding-bottom: 10px;
         border-bottom: 1px solid #eef1f5;
@@ -429,8 +418,6 @@
         cursor: pointer;
     }
 
-    /* "Schemas"/"Models" 是 bundle 里写死的英文，改不动组件也不该改；
-       藏掉原节点、用后台语言渲染 ::before，React 重渲染也不会退回英文 */
     #swagger-ui .swagger-ui section.models h4 .models-control > span {
         display: none;
     }
@@ -576,11 +563,10 @@ window.addEventListener('load', function () {
                     if (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'].indexOf(method.toLowerCase()) >= 0) ops++;
                 });
             });
-        } catch (e) { /* 取不到就只显示分组数 */ }
+        } catch (e) {  }
         $stat.text(groups + ' ' + langGroups + (ops ? ' / ' + ops + ' ' + langOps : ''));
     }
 
-    // 过滤框的占位文案是 swagger 自带的英文，换成当前后台语言
     function localizeFilter() {
         jQuery('#swagger-ui .operation-filter-input').attr('placeholder', filterPh);
     }
@@ -614,7 +600,6 @@ window.addEventListener('load', function () {
             SwaggerUIBundle.plugins.DownloadUrl
         ],
         layout: 'BaseLayout',
-        // 在线调试时携带后台同源 Cookie，便于调试需登录接口
         requestInterceptor: function (req) {
             req.credentials = 'same-origin';
             return req;

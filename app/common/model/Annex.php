@@ -3,14 +3,11 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Annex extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'annex';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -96,7 +93,6 @@ class Annex extends Base {
             return ['code'=>1001,'msg'=>lang('del_err').'：'.$this->getError() ];
         }
 
-
         return ['code'=>1,'msg'=>lang('del_ok')];
     }
 
@@ -114,5 +110,4 @@ class Annex extends Base {
         }
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
 }

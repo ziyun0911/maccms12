@@ -1,4 +1,3 @@
-/* MacCMS Admin Shell — 白色主题 · 统一网格布局 */
 
 :root {
     --shell-font: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -45,8 +44,6 @@
     background: var(--shell-bg);
     color: var(--shell-ink);
 }
-
-/* ── 桌面端：统一 2 列网格（左轨 | 主区）──────────────── */
 
 @media (min-width: 768px) {
     .admin-shell {
@@ -117,8 +114,6 @@
     }
 }
 
-/* ── 顶栏 ─────────────────────────────────────────────── */
-
 .admin-header__logo {
     display: flex;
     align-items: center;
@@ -130,7 +125,6 @@
     border-right: 1px solid var(--shell-line);
 }
 
-/* PC：分界线悬浮收缩钮 */
 .admin-rail-toggle {
     display: none;
     align-items: center;
@@ -199,8 +193,7 @@
     display: flex;
     align-items: center;
     padding: 0 12px;
-    /* 不能用 overflow: hidden —— 「更多」下拉要越出 32px 高的顶栏绘制；
-       横向溢出由 .admin-header__nav 自己的 overflow-x: auto 兜住 */
+
     overflow: visible;
     background: var(--shell-header);
 }
@@ -248,7 +241,6 @@
     box-shadow: inset 0 0 0 1px var(--shell-brand-ring);
 }
 
-/* 顶栏溢出：放不下的主模块由 layoutMainNav() 打上 is-overflow 收进「更多」下拉 */
 .main-nav-item.is-overflow {
     display: none;
 }
@@ -418,7 +410,6 @@
     line-height: 1;
 }
 
-/* 语言切换：Layui 自定义下拉 + 国旗 */
 .language-select-wrap--plain {
     position: relative;
     flex-shrink: 0;
@@ -560,8 +551,6 @@
     color: var(--shell-brand-deep) !important;
 }
 
-/* ── 左侧栏（与 Logo 列同宽对齐）──────────────────────── */
-
 .admin-side__nav {
     padding: 10px 8px 14px;
 }
@@ -663,8 +652,6 @@
     transform: scale(1.05);
 }
 
-/* ── 系统信息：左栏设置导航 ───────────────────────────── */
-
 .side-panel__search {
     position: relative;
     margin: 2px 0 6px;
@@ -746,8 +733,6 @@
     align-items: center;
     gap: 5px;
 }
-
-/* ── 侧栏收缩（桌面端）────────────────────────────────── */
 
 @media (min-width: 768px) {
     .admin-shell.admin-shell--rail-collapsed {
@@ -880,8 +865,6 @@
     }
 }
 
-/* ── 主内容：一体化工作区卡片 ─────────────────────────── */
-
 .admin-workspace {
     display: flex;
     flex-direction: column;
@@ -895,7 +878,6 @@
     box-shadow: none;
 }
 
-/* 覆盖 admin_style.css 中 #top_tabs_box 旧版固定高度 / 内边距 */
 #adminShell #top_tabs_box.admin-workspace {
     padding: 0 !important;
     height: auto !important;
@@ -903,7 +885,6 @@
     border-bottom: none;
 }
 
-/* Ant Design Pro 风格标签栏 */
 .admin-workspace__head {
     display: flex;
     align-items: stretch;
@@ -1208,8 +1189,6 @@
     display: none !important;
 }
 
-/* ── 页脚 ─────────────────────────────────────────────── */
-
 .admin-footer {
     height: var(--shell-footer-h);
     display: flex;
@@ -1221,14 +1200,10 @@
     font-size: 11px;
 }
 
-/* ── 移动端抽屉头部（桌面隐藏）────────────────────────── */
-
 .admin-side__mobile-head,
 .admin-side__mobile-modules {
     display: none;
 }
-
-/* ── 移动端 ───────────────────────────────────────────── */
 
 .admin-mobile-header {
     display: none;

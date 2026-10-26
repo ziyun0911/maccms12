@@ -10,9 +10,6 @@ class Index extends Base
         parent::__construct();
     }
 
-    /**
-     * 发布页「永久地址」展示（后台配置展示文本 + 链接）。
-     */
     protected function assign_publish_permanent()
     {
         $rawT = isset($GLOBALS['config']['site']['site_publish_permanent_text']) ? trim((string) $GLOBALS['config']['site']['site_publish_permanent_text']) : '';
@@ -28,9 +25,6 @@ class Index extends Base
         $this->assign('publish_permanent_url', htmlspecialchars($url, ENT_QUOTES, 'UTF-8'));
     }
 
-    /**
-     * 发布页复制按钮等 JS 文案（JSON，供 publish-pages.js 使用）。
-     */
     protected function assign_publish_i18n()
     {
         $this->assign('publish_i18n_json', json_encode([
@@ -40,11 +34,6 @@ class Index extends Base
         ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP));
     }
 
-    /**
-     * 发布页 html lang、文档标题、Logo（见 PublishPage）。
-     *
-     * @param string $pageTitle 已解析的页面标题（非 lang 键）
-     */
     protected function assign_publish_meta($pageTitle)
     {
         $siteName = isset($GLOBALS['config']['site']['site_name']) ? trim((string) $GLOBALS['config']['site']['site_name']) : '';
@@ -53,9 +42,6 @@ class Index extends Base
         $this->assign('publish_page_title', htmlspecialchars(PublishPage::pageTitle($siteName, (string) $pageTitle), ENT_QUOTES, 'UTF-8'));
     }
 
-    /**
-     * 发布页 partial 绝对路径（include 用，避免切换 view_path 污染主题模板）。
-     */
     protected function assign_publish_partials()
     {
         $dir = APP_PATH . 'index' . DS . 'view' . DS . 'site_publish' . DS;
@@ -64,10 +50,6 @@ class Index extends Base
         $this->assign('publish_inc_browser_tips', $dir . '_partial_browser_tips.html');
     }
 
-    /**
-     * @param string $name 视图名 publish | publish_group
-     * @param string $pageTitle 空则使用 index/publish/title
-     */
     protected function fetch_site_publish_view($name, $pageTitle = '')
     {
         $allowed = ['publish', 'publish_group'];
@@ -84,17 +66,11 @@ class Index extends Base
         return $this->fetch(APP_PATH . 'index/view/site_publish/' . $name . '.html');
     }
 
-    /**
-     * 发布页「进入本站」链接（sitehome 路由，兼容伪静态）。
-     */
     protected function assign_publish_enter_href()
     {
         $this->assign('publish_enter_href', (string) PublishPage::siteHomeUrl());
     }
 
-    /**
-     * 站点默认首页入口：可能为地址发布页（门闸开且命中根入口）或原首页。
-     */
     public function index()
     {
         $gate = !empty($GLOBALS['config']['site']['site_publish_status'])
@@ -141,9 +117,6 @@ class Index extends Base
         return $this->label_fetch('index/index');
     }
 
-    /**
-     * 域名组详情页（独立 URL，不经门闸首页判定）。
-     */
     public function publish_group()
     {
         PublishPage::sendNoStoreHeaders();
@@ -169,9 +142,6 @@ class Index extends Base
         return $this->fetch_site_publish_view('publish_group', $group['title']);
     }
 
-    /**
-     * 门闸开启时「进入主站」：写 Cookie 后在当前 URL 渲染首页，并注入 base href 修正相对资源路径。
-     */
     public function home()
     {
         PublishPage::setEnteredCookie();

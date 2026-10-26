@@ -3,18 +3,14 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Plog extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'plog';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
-
 
     public function listData($where,$order,$page=1,$limit=20,$start=0)
     {
@@ -118,5 +114,4 @@ class Plog extends Base {
         }
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
 }

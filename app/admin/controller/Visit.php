@@ -72,5 +72,4 @@ class Visit extends Base
         }
         return $this->error(lang('param_err'));
     }
-
 }

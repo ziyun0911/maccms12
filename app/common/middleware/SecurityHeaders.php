@@ -5,10 +5,6 @@ use Closure;
 use think\Request;
 use think\Response;
 
-/**
- * 苹果CMS v12 —— 安全响应头中间件
- * （由 TP5 的 common\behavior\SecurityHeaders 迁移，改为对 Response 对象注入响应头）
- */
 class SecurityHeaders
 {
     public function handle(Request $request, Closure $next)
@@ -19,7 +15,6 @@ class SecurityHeaders
             return $response;
         }
 
-        // 前台模板缺失时 All::fetch() 回退到 404 页面，这里把响应码同步为 404
         if (!empty($GLOBALS['__tpl_not_found']) && $response->getCode() === 200) {
             $response->code(404);
         }
@@ -71,9 +66,6 @@ class SecurityHeaders
         return $response;
     }
 
-    /**
-     * 兼容苹果 CMS 常见模板：允许内联脚本/样式、外链图片与播放器 iframe。
-     */
     public static function defaultCspPolicy()
     {
         return implode(' ', [

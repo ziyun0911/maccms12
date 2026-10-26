@@ -1,42 +1,20 @@
 <?php
 namespace app\admin\controller;
 
-/**
- * 主题设计控制器
- *
- * 针对当前激活的前台主题（prism）的「草稿 → 预览 → 发布」可视化设计器。
- * 设计原则：
- *   1. 编辑只写入草稿（draft），永不直接修改线上主题；
- *   2. 预览展示草稿效果；
- *   3. 发布把草稿应用到线上主题，并快照历史以便回滚。
- * 线上主题的 .html / tokens.css / base.css 永不被修改 —— 仅生成一个
- * 覆盖样式（override css）+ 一层 theme-design.json 配置叠加在其上。
- */
 class ThemeDesign extends Base
 {
-    /** 默认主题（无法解析时回退） */
     const THEME = 'prism';
 
-    /** 当前正在设计的主题（可由 ?theme= 选择，默认=站点激活主题/prism） */
     private $theme = 'prism';
 
     public function __construct()
     {
         parent::__construct();
-        // admin 模块统一使用新版后台模板目录 view/。
-        // Init 会把 template.view_path 指向前台模板目录，模块相对 fetch 需显式指定，否则会白屏。
         $this->view->config(['view_path' => APP_PATH . 'admin/view/']);
 
         $this->theme = $this->resolveTheme();
     }
 
-    /**
-     * 解析当前设计主题：
-     *   1) 合法的 ?theme= 请求参数；
-     *   2) 站点激活主题（site.template_dir，若为有效前台主题）；
-     *   3) prism；
-     *   4) 首个可用前台主题。
-     */
     private function resolveTheme()
     {
         $themes = $this->availableThemes();
@@ -58,10 +36,6 @@ class ThemeDesign extends Base
         return !empty($themes) ? $themes[0]['dir'] : self::THEME;
     }
 
-    /**
-     * 可设计的前台主题列表（template/<dir>/html 存在者）。
-     * 每项：dir / label / active(站点激活) / designable(含 asset/css 令牌样式) / selected(当前设计中)。
-     */
     private function availableThemes()
     {
         $base = ROOT_PATH . 'template/';
@@ -71,7 +45,7 @@ class ThemeDesign extends Base
             foreach (glob($base . '*', GLOB_ONLYDIR) as $dir) {
                 $name = basename($dir);
                 if (!is_dir($dir . '/html')) {
-                    continue; // 仅前台主题
+                    continue;
                 }
                 $list[] = array(
                     'dir'        => $name,
@@ -85,52 +59,42 @@ class ThemeDesign extends Base
         return $list;
     }
 
-    /** 主题目录名 -> 展示名 */
     private function themeLabel($dir)
     {
         $map = array('prism' => 'Prism', 'default' => 'Default');
         return isset($map[$dir]) ? $map[$dir] : ucfirst($dir);
     }
 
-    // ───────────────────────── 路径辅助 ─────────────────────────
-
-    /** 主题设计数据目录（草稿/发布/历史） */
     private function dataDir()
     {
         return APP_PATH . 'data/theme_design/' . $this->theme . '/';
     }
 
-    /** 草稿配置文件 */
     private function draftFile()
     {
         return $this->dataDir() . 'draft.json';
     }
 
-    /** 已发布配置文件 */
     private function publishedFile()
     {
         return $this->dataDir() . 'published.json';
     }
 
-    /** 历史快照目录 */
     private function historyDir()
     {
         return $this->dataDir() . 'history/';
     }
 
-    /** prism 主题根目录 */
     private function themeDir()
     {
         return ROOT_PATH . 'template/' . $this->theme . '/';
     }
 
-    /** prism 主题 css 目录 */
     private function cssDir()
     {
         return $this->themeDir() . 'asset/css/';
     }
 
-    /** 确保目录存在 */
     private function ensureDir($dir)
     {
         if (!is_dir($dir)) {
@@ -139,11 +103,6 @@ class ThemeDesign extends Base
         return is_dir($dir);
     }
 
-    // ───────────────────────── 预设数据 ─────────────────────────
-
-    /**
-     * 6 套配色预设：key => [name, colors(accent/accent_ink/bg/surface/surface_2/text/text_muted/border)]
-     */
     private function schemePresets()
     {
         return array(
@@ -174,7 +133,6 @@ class ThemeDesign extends Base
         );
     }
 
-    /** 5 个字体选项 value => label */
     private function fontOptions()
     {
         return array(
@@ -187,7 +145,6 @@ class ThemeDesign extends Base
         );
     }
 
-    /** 首页区块目录 key => label（顺序即展示顺序） */
     private function sectionCatalog()
     {
         return array(
@@ -205,9 +162,6 @@ class ThemeDesign extends Base
         );
     }
 
-    // ───────────────────────── 配置构建 ─────────────────────────
-
-    /** 顶级分类（用于导航栏默认 type_ids 及视图渲染） */
     private function topTypeTree()
     {
         $list = (new \app\common\model\Type())
@@ -228,7 +182,6 @@ class ThemeDesign extends Base
         return $tree;
     }
 
-    /** 完整分类树（顶级 + 各自子分类），用于导航栏步骤的树形选择 */
     private function typeTreeFull()
     {
         $list = (new \app\common\model\Type())
@@ -263,7 +216,6 @@ class ThemeDesign extends Base
         return array_values($tops);
     }
 
-    /** 扁平分类列表（用于板块属性中的「分类」下拉），子分类带缩进前缀 */
     private function catsFlat()
     {
         $flat = array();
@@ -278,17 +230,14 @@ class ThemeDesign extends Base
         return $flat;
     }
 
-    /** 预览 URL（真实前台首页 + td_preview=1 + td_theme=所选主题，供步骤内 iframe 实时预览） */
     private function previewUrl()
     {
         $url = $this->siteHome();
         $url .= (strpos($url, '?') === false ? '?' : '&') . 'td_preview=1';
-        // 用「所选主题」渲染预览，而非站点当前 template_dir（二者可不同）
         $url .= '&td_theme=' . urlencode($this->theme);
         return $url;
     }
 
-    /** 选定主题自带的 logo 资源 URL（空态预览展示其内置 logo）；没有则空 */
     private function themeLogoUrl()
     {
         $cands = array('asset/img/logo.svg', 'asset/img/logo.png', 'asset/img/logo_black.png', 'asset/img/logo.jpg');
@@ -301,7 +250,6 @@ class ThemeDesign extends Base
         return '';
     }
 
-    /** 选定主题的默认头像 URL（主题自带优先，否则全局 static 头像） */
     private function themeAvatarUrl()
     {
         $r = 'template/' . $this->theme . '/asset/img/touxiang.png';
@@ -311,11 +259,6 @@ class ThemeDesign extends Base
         return MAC_PATH . 'static/images/touxiang.png';
     }
 
-    /**
-     * 主题在「未配置版权」时实际显示的默认版权文案，
-     * 与 prism footer.html 的回退逻辑一致：© 年份 站点URL [E-Mail] [备案]。
-     * 仅用于 wizard 的输入占位提示（留空即用主题内置版权）。
-     */
     private function defaultFooterCopyright()
     {
         $site = isset($GLOBALS['config']['site']) ? $GLOBALS['config']['site'] : array();
@@ -332,29 +275,20 @@ class ThemeDesign extends Base
         return $copy;
     }
 
-    /**
-     * 默认配置（indigo 预设 + Inter 字体 + 16px + 站点 logo/版权 + 全部顶级分类 + 全部区块）
-     */
     private function buildDefaults()
     {
         $site = isset($GLOBALS['config']['site']) ? $GLOBALS['config']['site'] : array();
         $presets = $this->schemePresets();
 
-        // 默认 logo 留空：prism 主题在未配置 logo 时使用内置 SVG 标识，
-        // 不应预填站点 logo.jpg（那会覆盖主题自带标识）。留空 = 用主题默认。
         $logo = '';
 
-        // 默认版权留空：使用 prism 主题内置版权（© 年份 站点URL [E-Mail/备案]），
-        // 与前台实际显示一致；不再预填站点名（那会与主题真正显示的版权不符）。
         $copyright = '';
 
-        // 导航默认全部顶级分类
         $type_ids = array();
         foreach ($this->topTypeTree() as $t) {
             $type_ids[] = (int)$t['id'];
         }
 
-        // 首页区块默认全部启用（按目录顺序）
         $sections = array();
         foreach ($this->sectionCatalog() as $key => $label) {
             $sections[] = array('key' => $key, 'enabled' => true);
@@ -384,7 +318,6 @@ class ThemeDesign extends Base
         );
     }
 
-    /** 读取 JSON 文件为数组，失败返回 null */
     private function readJson($file)
     {
         if (!is_file($file)) {
@@ -398,7 +331,6 @@ class ThemeDesign extends Base
         return is_array($arr) ? $arr : null;
     }
 
-    /** 写入 JSON 文件 */
     private function writeJson($file, $data)
     {
         $dir = dirname($file);
@@ -412,7 +344,6 @@ class ThemeDesign extends Base
         return @file_put_contents($file, $json) !== false;
     }
 
-    /** 取当前草稿配置（无草稿则从已发布初始化，再无则用默认） */
     private function currentDraft()
     {
         $cfg = $this->readJson($this->draftFile());
@@ -426,14 +357,6 @@ class ThemeDesign extends Base
         return $this->buildDefaults();
     }
 
-    // ───────────────────────── 产物生成（APPLY） ─────────────────────────
-
-    /**
-     * 把配置写成主题预览/线上产物。
-     * @param array $cfg     设计配置
-     * @param bool  $isDraft true=草稿产物（.draft），false=线上产物
-     * @return bool
-     */
     private function writeArtifacts($cfg, $isDraft)
     {
         $cssOk = $this->writeOverrideCss($cfg, $isDraft);
@@ -441,13 +364,11 @@ class ThemeDesign extends Base
         return $cssOk && $jsonOk;
     }
 
-    /** 校验十六进制颜色 */
     private function validHex($v)
     {
         return is_string($v) && preg_match('/^#[0-9a-fA-F]{3,8}$/', $v);
     }
 
-    /** 生成覆盖样式 css */
     private function writeOverrideCss($cfg, $isDraft)
     {
         $defaults = $this->schemePresets();
@@ -456,7 +377,6 @@ class ThemeDesign extends Base
         $attr = isset($cfg['attributes']) && is_array($cfg['attributes']) ? $cfg['attributes'] : array();
         $colors = isset($attr['colors']) && is_array($attr['colors']) ? $attr['colors'] : array();
 
-        // 逐项校验颜色，非法回退默认（永不写出畸形 css）
         $keys = array('accent', 'accent_ink', 'bg', 'surface', 'surface_2', 'text', 'text_muted', 'border');
         $c = array();
         foreach ($keys as $k) {
@@ -464,13 +384,11 @@ class ThemeDesign extends Base
             $c[$k] = $this->validHex($v) ? $v : $defColors[$k];
         }
 
-        // 字体栈：仅允许常见字符，否则回退默认
         $font = isset($attr['font_family']) ? (string)$attr['font_family'] : '';
         if ($font === '' || preg_match('/[<>{};]/', $font)) {
             $font = "Inter, 'Noto Sans SC', system-ui, sans-serif";
         }
 
-        // 字号 12-22，否则回退 16
         $fontSize = isset($attr['font_size']) ? (int)$attr['font_size'] : 16;
         if ($fontSize < 12 || $fontSize > 22) {
             $fontSize = 16;
@@ -499,7 +417,6 @@ class ThemeDesign extends Base
         return @file_put_contents($file, $css) !== false;
     }
 
-    /** 生成 theme-design json 配置层 */
     private function writeDesignJson($cfg, $isDraft)
     {
         $attr = isset($cfg['attributes']) && is_array($cfg['attributes']) ? $cfg['attributes'] : array();
@@ -524,10 +441,6 @@ class ThemeDesign extends Base
         return @file_put_contents($file, $json) !== false;
     }
 
-    /**
-     * 发布专属：把默认头像同步到 static/images/touxiang.png（带备份）。
-     * 全程 is_file 保护，任何失败都不致命。
-     */
     private function applyDefaultAvatar($cfg)
     {
         $attr = isset($cfg['attributes']) && is_array($cfg['attributes']) ? $cfg['attributes'] : array();
@@ -536,9 +449,7 @@ class ThemeDesign extends Base
             return;
         }
 
-        // 只处理本地上传路径（相对站点根的图片），去掉可能的前导斜杠
         $rel = ltrim(str_replace('\\', '/', $avatar), '/');
-        // 安全：禁止目录穿越
         if (strpos($rel, '..') !== false) {
             return;
         }
@@ -546,7 +457,6 @@ class ThemeDesign extends Base
         if (!is_file($src)) {
             return;
         }
-        // 仅接受图片扩展名
         $ext = strtolower(pathinfo($src, PATHINFO_EXTENSION));
         if (!in_array($ext, array('png', 'jpg', 'jpeg', 'gif', 'webp'), true)) {
             return;
@@ -558,7 +468,6 @@ class ThemeDesign extends Base
         }
         $dest = $destDir . 'touxiang.png';
 
-        // 首次替换前备份原图
         if (is_file($dest)) {
             $bak = $destDir . 'touxiang.original.bak.png';
             if (!is_file($bak)) {
@@ -568,29 +477,21 @@ class ThemeDesign extends Base
         @copy($src, $dest);
     }
 
-    // ───────────────────────── 动作 ─────────────────────────
-
-    /** 入口 -> 跳转到设计页 */
     public function index()
     {
         return $this->redirect(url('theme_design/design'));
     }
 
-    /** 设计页 */
     public function design()
     {
         $cfg = $this->currentDraft();
 
-        // 迁移：早期默认把站点 logo（site_logo）预填进了设计，导致显示成
-        // 通用/默认模板的 logo。若 logo 恰为站点 logo，视为「未自定义」→ 清空，
-        // 让前台与预览回退到所选主题自带的 logo。
         $migrated = false;
         $site_logo = isset($GLOBALS['config']['site']['site_logo']) ? (string)$GLOBALS['config']['site']['site_logo'] : '';
         if ($site_logo !== '' && isset($cfg['attributes']['logo']) && (string)$cfg['attributes']['logo'] === $site_logo) {
             $cfg['attributes']['logo'] = '';
             $migrated = true;
         }
-        // 同样迁移：早期默认把「© 年份 站点名」预填进版权，与主题实际显示不符 → 清空。
         $site_name = isset($GLOBALS['config']['site']['site_name']) ? (string)$GLOBALS['config']['site']['site_name'] : '';
         $copy = isset($cfg['attributes']['footer_copyright']) ? (string)$cfg['attributes']['footer_copyright'] : '';
         if ($site_name !== '' && $copy !== ''
@@ -598,28 +499,23 @@ class ThemeDesign extends Base
             $cfg['attributes']['footer_copyright'] = '';
             $migrated = true;
         }
-        // 持久化迁移，使预览产物（draft）也丢弃错误值
         if ($migrated && is_file($this->draftFile())) {
             $this->writeJson($this->draftFile(), $cfg);
             $this->writeArtifacts($cfg, true);
         }
 
-        // 若尚无草稿，用 published 或 defaults 初始化（仅用于展示，不落盘）
         $defaults = $this->buildDefaults();
 
-        // 配色预设列表
         $schemes = array();
         foreach ($this->schemePresets() as $key => $p) {
             $schemes[] = array('key' => $key, 'name' => $p['name'], 'colors' => $p['colors']);
         }
 
-        // 字体列表
         $fonts = array();
         foreach ($this->fontOptions() as $value => $label) {
             $fonts[] = array('value' => $value, 'label' => $label);
         }
 
-        // 区块目录
         $section_catalog = array();
         foreach ($this->sectionCatalog() as $key => $label) {
             $section_catalog[] = array('key' => $key, 'label' => $label);
@@ -636,17 +532,14 @@ class ThemeDesign extends Base
         $this->assign('themes', $this->availableThemes());
         $this->assign('cur_theme', $this->theme);
         $this->assign('preview_url', $this->previewUrl());
-        // 主题自带 logo / 默认头像（字段留空时用于预览回退展示选定主题自己的资源）
         $this->assign('theme_logo_url', $this->themeLogoUrl());
         $this->assign('default_avatar_url', $this->themeAvatarUrl());
-        // 版权占位：展示「留空时主题实际显示的默认版权」
         $this->assign('footer_copyright_ph', $this->defaultFooterCopyright());
         $this->assign('has_published', is_file($this->publishedFile()));
         $this->assign('title', lang('menu/theme_design'));
         return $this->fetch('themedesign/design');
     }
 
-    /** 加载当前配置（JSON） */
     public function load()
     {
         $draft = $this->currentDraft();
@@ -660,10 +553,6 @@ class ThemeDesign extends Base
         ));
     }
 
-    /**
-     * 保存某一步骤到草稿，并刷新草稿预览产物。
-     * POST step=attributes|navbar|footer|homepage, data=<JSON string>
-     */
     public function save_step()
     {
         if (!$this->request->isPost()) {
@@ -683,7 +572,6 @@ class ThemeDesign extends Base
             return json(array('code' => 0, 'msg' => lang('param_err')));
         }
 
-        // 草稿不存在则先用默认播种
         $cfg = $this->readJson($this->draftFile());
         if (!is_array($cfg)) {
             $cfg = $this->currentDraft();
@@ -692,7 +580,6 @@ class ThemeDesign extends Base
             }
         }
 
-        // 合并对应步骤
         $cfg[$step] = $data;
         $cfg['theme'] = $this->theme;
         $cfg['updated_at'] = time();
@@ -701,17 +588,14 @@ class ThemeDesign extends Base
             return json(array('code' => 0, 'msg' => lang('write_err_config') ?: '写入失败'));
         }
 
-        // 刷新草稿预览产物
         $this->writeArtifacts($cfg, true);
 
         return json(array('code' => 1, 'msg' => lang('save_ok')));
     }
 
-    /** 预览：刷新草稿产物并返回带 td_preview 标记的首页 URL */
     public function preview()
     {
         $cfg = $this->currentDraft();
-        // 确保草稿已落盘（首次预览也能生效）
         if (!is_file($this->draftFile())) {
             $this->writeJson($this->draftFile(), $cfg);
         }
@@ -723,14 +607,10 @@ class ThemeDesign extends Base
         return json(array('code' => 1, 'url' => $url));
     }
 
-    /** 站点首页 URL（site_url 为空则用请求 host 拼） */
     private function siteHome()
     {
-        // 预览始终用「后台当前访问的 scheme + host + 安装路径」构建，刻意忽略 site_url：
-        // site_url 可能指向后台浏览器无法访问的域名（如 test.cn），会导致预览空白。
-        // 这样预览与后台同源、同主机，无论 site_url 设成什么都能正常加载。
         $scheme = $this->request->scheme();
-        $host   = $this->request->host();            // 含端口（如有）
+        $host   = $this->request->host();
         $path   = defined('MAC_PATH') ? (string)MAC_PATH : '/';
         if ($path === '') {
             $path = '/';
@@ -741,11 +621,6 @@ class ThemeDesign extends Base
         return $scheme . '://' . $host . $path . 'index.php/index.html';
     }
 
-    /**
-     * 发布：草稿 -> 已发布 + 历史快照 + 生成线上产物。
-     * mode=update（默认）：更新当前主题；
-     * mode=new：复制当前主题为一个新主题并把设计作为其线上产物（不动原主题）。
-     */
     public function publish()
     {
         if (!$this->request->isPost()) {
@@ -764,31 +639,22 @@ class ThemeDesign extends Base
         $cfg['theme'] = $this->theme;
         $cfg['updated_at'] = time();
 
-        // 写已发布
         if (!$this->writeJson($this->publishedFile(), $cfg)) {
             return json(array('code' => 0, 'msg' => lang('write_err_config') ?: '写入失败'));
         }
 
-        // 历史快照
         $ts = time();
         $this->ensureDir($this->historyDir());
         $this->writeJson($this->historyDir() . $ts . '.json', $cfg);
 
-        // 生成线上产物
         $this->writeArtifacts($cfg, false);
-        // 发布专属：默认头像同步
         $this->applyDefaultAvatar($cfg);
 
-        // 仅保留最新 ~20 份历史
         $this->trimHistory(20);
 
         return json(array('code' => 1, 'msg' => lang('admin/themedesign/publish_done')));
     }
 
-    /**
-     * 以「新建主题」方式发布：复制当前主题目录为新主题，写入 info.ini，
-     * 并把当前草稿作为新主题的线上产物。原主题完全不受影响。
-     */
     private function publishAsNew($cfg)
     {
         @set_time_limit(180);
@@ -797,7 +663,6 @@ class ThemeDesign extends Base
         $name  = trim((string)input('post.new_name', ''));
         $intro = trim((string)input('post.new_intro', ''));
 
-        // 目录名校验：字母开头，2-32 位字母/数字/下划线/连字符
         if (!preg_match('/^[a-z][a-z0-9_-]{1,31}$/', $dir)) {
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/new_dir_invalid')));
         }
@@ -814,12 +679,10 @@ class ThemeDesign extends Base
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/new_dir_exists')));
         }
 
-        // 1) 递归复制主题目录
         if (!$this->copyDir($src, $dest)) {
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/new_copy_failed')));
         }
 
-        // 2) 写 info.ini（主题元信息）
         $ini = "name\t= " . str_replace(array("\r", "\n"), ' ', $name) . "\n"
             . "lastdate= " . date('Y-m-d') . "\n"
             . "version\t= V1.0\n"
@@ -827,7 +690,6 @@ class ThemeDesign extends Base
             . "intro\t= " . str_replace(array("\r", "\n"), ' ', $intro) . "\n";
         @file_put_contents($dest . '/info.ini', $ini);
 
-        // 3) 把当前草稿作为新主题的线上产物（临时把目标主题指向新目录）
         $oldTheme = $this->theme;
         $this->theme = $dir;
 
@@ -848,7 +710,6 @@ class ThemeDesign extends Base
         ));
     }
 
-    /** 递归复制目录（用于「新建主题」） */
     private function copyDir($src, $dst)
     {
         if (!is_dir($src)) {
@@ -884,7 +745,6 @@ class ThemeDesign extends Base
         return $ok;
     }
 
-    /** 保留最新 $keep 份历史快照，删除更旧的 */
     private function trimHistory($keep)
     {
         $dir = $this->historyDir();
@@ -895,7 +755,6 @@ class ThemeDesign extends Base
         if ($files === false || count($files) <= $keep) {
             return;
         }
-        // 按文件名（时间戳）升序，旧的在前
         $items = array();
         foreach ($files as $f) {
             $ts = (int)pathinfo($f, PATHINFO_FILENAME);
@@ -910,7 +769,6 @@ class ThemeDesign extends Base
         }
     }
 
-    /** 历史列表（新 -> 旧） */
     public function history()
     {
         $dir = $this->historyDir();
@@ -927,17 +785,12 @@ class ThemeDesign extends Base
                 }
             }
         }
-        // 新 -> 旧
         usort($list, function ($a, $b) {
             return $b['ts'] - $a['ts'];
         });
         return json(array('code' => 1, 'list' => $list));
     }
 
-    /**
-     * 回滚：把某历史快照恢复为草稿（不自动发布），刷新草稿预览产物。
-     * POST ts=<int>
-     */
     public function rollback()
     {
         if (!$this->request->isPost()) {
@@ -964,11 +817,9 @@ class ThemeDesign extends Base
         return json(array('code' => 1, 'msg' => lang('admin/themedesign/rollback_done')));
     }
 
-    /** 图片上传（logo / default_avatar），复用 Upload 模型 */
     public function upload()
     {
         $res = (new \app\common\model\Upload())->upload(array('input' => 'file', 'flag' => 'images'));
-        // 后台(ENTRANCE=admin)下 Upload 返回 {code,msg,data:{file}}，前端读取 res.file，这里统一归一化为顶层 file 并补全为可用 URL
         $file = '';
         if (isset($res['file'])) {
             $file = $res['file'];
@@ -985,21 +836,12 @@ class ThemeDesign extends Base
         ));
     }
 
-    // ───────────────────────── AI 生成 ─────────────────────────
-
-    /** 主题AI 配置（System → Theme AI，独立于后台助手） */
     private function themeAiConfig()
     {
         $cfg = config('maccms');
         return isset($cfg['theme_ai']) && is_array($cfg['theme_ai']) ? $cfg['theme_ai'] : array();
     }
 
-    /**
-     * 调用主题AI。provider=openai → {base}/chat/completions（Bearer）；
-     * provider=claude → {base}/messages（x-api-key + anthropic-version）。
-     * 二者都由所配代理（newapi）支持。api_base 形如 https://host/v1。
-     * @return array ['ok'=>bool,'text'=>string,'error'=>string]
-     */
     private function themeAiChat($system, $user, $images = array())
     {
         $cfg = $this->themeAiConfig();
@@ -1025,7 +867,6 @@ class ThemeDesign extends Base
         if ($provider === 'claude' || $provider === 'anthropic') {
             $url = $base . '/messages';
             if ($hasImages) {
-                // 视觉输入：user content 为块数组（文本 + base64 图片）。需模型支持视觉。
                 $content = array(array('type' => 'text', 'text' => $user));
                 foreach ($images as $img) {
                     $content[] = array(
@@ -1060,7 +901,6 @@ class ThemeDesign extends Base
         } else {
             $url = $base . '/chat/completions';
             if ($hasImages) {
-                // OpenAI 兼容视觉：user content 为块数组（text + image_url data-uri）。
                 $uc = array(array('type' => 'text', 'text' => $user));
                 foreach ($images as $img) {
                     $mt = isset($img['media_type']) ? $img['media_type'] : 'image/png';
@@ -1101,7 +941,6 @@ class ThemeDesign extends Base
                 }
             }
             if ($emsg !== '') {
-                // API 明确返回了错误（限流/额度/鉴权等）——直接透传，避免误报“无法解析”。
                 $low = strtolower($emsg);
                 $rate = strpos($low, 'rate limit') !== false || strpos($low, 'rate_limit') !== false
                     || strpos($low, 'too many requests') !== false || strpos($low, '429') !== false;
@@ -1113,7 +952,6 @@ class ThemeDesign extends Base
         return array('ok' => true, 'text' => $text);
     }
 
-    /** 扁平分类（去缩进前缀），供 prompt 使用 */
     private function catsForPrompt()
     {
         $out = array();
@@ -1127,10 +965,6 @@ class ThemeDesign extends Base
         return $out;
     }
 
-    /**
-     * 把「分类引用」解析为有效的 type_id：接受数字 **ID** 或分类**名称**（不区分大小写、忽略缩进前缀）。
-     * 无效 / 找不到返回 0。让主题在收到分类 ID 或名称时都能正确按分类构建。
-     */
     private function resolveCategoryId($ref)
     {
         static $byId = null, $byName = null;
@@ -1164,7 +998,6 @@ class ThemeDesign extends Base
         return isset($byName[$nm]) ? $byName[$nm] : 0;
     }
 
-    /** 生成用的 system 提示（内置严格 JSON 契约 + 允许的词汇表） */
     private function buildGeneratePromptSystem()
     {
         $sectionKeys = array_keys($this->sectionCatalog());
@@ -1201,7 +1034,6 @@ class ThemeDesign extends Base
         return $sys;
     }
 
-    /** 解析模型输出：剥离 ``` 围栏，抽取最外层 {...} */
     private function parseGenerated($text)
     {
         $text = (string)$text;
@@ -1214,17 +1046,12 @@ class ThemeDesign extends Base
         $json = substr($text, $start, $end - $start + 1);
         $arr = json_decode($json, true);
         if (!is_array($arr)) {
-            // 常见修复：去掉对象/数组结尾的多余逗号（模型偶发）后重试
             $repaired = preg_replace('/,(\s*[}\]])/', '$1', $json);
             $arr = json_decode($repaired, true);
         }
         return is_array($arr) ? $arr : null;
     }
 
-    /**
-     * 把生成结果安全地合并进当前草稿（白名单校验，永不信任模型直出）。
-     * @return array [$cfg, $applied]
-     */
     private function sanitizeGeneratedIntoDraft($gen)
     {
         $base = $this->currentDraft();
@@ -1238,7 +1065,6 @@ class ThemeDesign extends Base
         $defColors = $presets['indigo']['colors'];
         $attr = isset($design['attributes']) && is_array($design['attributes']) ? $design['attributes'] : array();
 
-        // colors
         $genColors = isset($attr['colors']) && is_array($attr['colors']) ? $attr['colors'] : array();
         $keys = array('accent', 'accent_ink', 'bg', 'surface', 'surface_2', 'text', 'text_muted', 'border');
         $colors = isset($base['attributes']['colors']) && is_array($base['attributes']['colors']) ? $base['attributes']['colors'] : $defColors;
@@ -1257,7 +1083,6 @@ class ThemeDesign extends Base
         }
         $applied['colors'] = $hits;
 
-        // font family (must be one of the allowed stacks)
         $fontOpts = array_keys($this->fontOptions());
         if (isset($attr['font_family'])) {
             $f = trim((string)$attr['font_family']);
@@ -1267,7 +1092,6 @@ class ThemeDesign extends Base
             }
         }
 
-        // font size
         if (isset($attr['font_size'])) {
             $fs = intval($attr['font_size']);
             if ($fs >= 12 && $fs <= 22) {
@@ -1276,11 +1100,10 @@ class ThemeDesign extends Base
             }
         }
 
-        // navbar
         if (isset($design['navbar']['type_ids']) && is_array($design['navbar']['type_ids'])) {
             $ids = array();
             foreach ($design['navbar']['type_ids'] as $ref) {
-                $rid = $this->resolveCategoryId($ref); // 接受数字 ID 或分类名称
+                $rid = $this->resolveCategoryId($ref);
                 if ($rid > 0 && !in_array($rid, $ids, true)) {
                     $ids[] = $rid;
                 }
@@ -1291,7 +1114,6 @@ class ThemeDesign extends Base
             }
         }
 
-        // homepage sections
         if (isset($design['homepage']['sections']) && is_array($design['homepage']['sections'])) {
             $sections = $this->sanitizeGeneratedSections($design['homepage']['sections']);
             if (!empty($sections)) {
@@ -1305,7 +1127,6 @@ class ThemeDesign extends Base
         return array($base, $applied);
     }
 
-    /** 校验首页区块数组（安全边界） */
     private function sanitizeGeneratedSections($list)
     {
         $catalogKeys = array_keys($this->sectionCatalog());
@@ -1335,7 +1156,6 @@ class ThemeDesign extends Base
             }
             $enabled = !(isset($s['enabled']) && ($s['enabled'] === false || $s['enabled'] === 0 || $s['enabled'] === '0' || $s['enabled'] === 'false'));
             $item = array('key' => $key, 'enabled' => $enabled);
-            // 分类：接受数字 ID 或分类名称；兼容模型可能用的多种字段名
             $catRef = null;
             foreach (array('type_id', 'category_id', 'category', 'cat', 'category_name') as $ck) {
                 if (isset($s[$ck]) && $s[$ck] !== '' && $s[$ck] !== null && !is_array($s[$ck])) {
@@ -1385,7 +1205,6 @@ class ThemeDesign extends Base
         return $out;
     }
 
-    /** 校验模型的自评「覆盖情况」列表 */
     private function sanitizeCoverage($gen)
     {
         $out = array();
@@ -1416,7 +1235,6 @@ class ThemeDesign extends Base
         return $out;
     }
 
-    /** 由主题名派生一个合法目录名（小写字母数字），失败回退 'ai'+时间戳 */
     private function slugTheme($name)
     {
         $s = strtolower((string)$name);
@@ -1428,12 +1246,6 @@ class ThemeDesign extends Base
         return substr($s, 0, 32);
     }
 
-    /**
-     * 用生成的配置创建（或更新）一个新主题：首次从基底主题克隆整个目录 + 写 info.ini，
-     * 然后把配置作为新主题的「线上 + 草稿」产物写入。**基底主题（prism）完全不受影响。**
-     * 已存在同名目录则只更新其产物（便于「重新生成」幂等覆盖，不重复克隆）。
-     * @return array ['ok'=>bool,'dir'=>string,'created'=>bool,'error'=>string]
-     */
     private function createOrUpdateNewTheme($cfg, $dir, $name, $intro)
     {
         @set_time_limit(300);
@@ -1461,7 +1273,6 @@ class ThemeDesign extends Base
             @file_put_contents($dest . '/info.ini', $ini);
         }
 
-        // 以新主题为目标写产物（草稿供预览 + 线上），随后恢复基底主题指针
         $oldTheme = $this->theme;
         $this->theme = $dir;
         $cfg['theme'] = $dir;
@@ -1470,25 +1281,19 @@ class ThemeDesign extends Base
         $this->writeJson($this->publishedFile(), $cfg);
         $this->ensureDir($this->historyDir());
         $this->writeJson($this->historyDir() . time() . '.json', $cfg);
-        $this->writeArtifacts($cfg, true);   // 草稿产物（供 td_preview 预览）
-        $this->writeArtifacts($cfg, false);  // 线上产物
+        $this->writeArtifacts($cfg, true);
+        $this->writeArtifacts($cfg, false);
         $this->applyDefaultAvatar($cfg);
         $this->theme = $oldTheme;
 
         return array('ok' => true, 'dir' => $dir, 'created' => $created);
     }
 
-    /**
-     * AI 生成：读取需求（prompt 或表单文本）→ 调 AI → 解析 → 校验 → **直接创建（或更新）一个新主题**
-     * （克隆基底主题目录 + 写产物，基底主题不受影响）。POST spec / new_name / new_dir。
-     * 返回 applied 摘要 + coverage 覆盖情况 + new_theme 目录。
-     */
     public function generate()
     {
         if (!$this->request->isPost()) {
             return json(array('code' => 0, 'msg' => lang('illegal_request')));
         }
-        // 每管理员限流（外部 AI 调用，防刷）
         $adminId = intval(isset($this->_admin['admin_id']) ? $this->_admin['admin_id'] : 0);
         if (!\app\common\util\VodAiCover::consumeGenerateRateLimit($adminId)) {
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/ai_rate_limit')));
@@ -1519,7 +1324,6 @@ class ThemeDesign extends Base
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/gen_bad_response')));
         }
 
-        // 解析新主题名/目录：UI 输入优先，其次 AI 从表单提取，最后由名称派生
         $uiName = trim((string)input('post.new_name', ''));
         $uiDir  = strtolower(trim((string)input('post.new_dir', '')));
         $aiName = isset($gen['theme_name']) ? trim(strip_tags((string)$gen['theme_name'])) : '';
@@ -1533,7 +1337,6 @@ class ThemeDesign extends Base
         }
         $dir = substr($dir, 0, 32);
 
-        // 生成 = 直接创建（或更新）一个新主题：克隆基底主题目录 + 写产物，基底主题不受影响
         $new = $this->createOrUpdateNewTheme($cfg, $dir, $name, 'Generated by Theme AI');
         if (empty($new['ok'])) {
             return json(array('code' => 0, 'msg' => isset($new['error']) ? $new['error'] : lang('admin/themedesign/new_copy_failed')));
@@ -1557,19 +1360,11 @@ class ThemeDesign extends Base
         ));
     }
 
-    // ───────────────────── AI 探测（截图 / 网址 → 主题元素） ─────────────────────
-
-    /**
-     * 探测主题元素：输入截图 / 网址 / 文本 → 调 AI → 返回「可编辑的检测结果」
-     * （8 个配色令牌 + 字体 + 字号 + 主题名），**不创建主题**。供前端审阅/修改后再应用。
-     * POST mode=text|image|url, spec(可选), image_data/image_type(截图), url(网址)。
-     */
     public function detect()
     {
         if (!$this->request->isPost()) {
             return json(array('code' => 0, 'msg' => lang('illegal_request')));
         }
-        // 每管理员限流（外部 AI 调用，防刷）
         $adminId = intval(isset($this->_admin['admin_id']) ? $this->_admin['admin_id'] : 0);
         if (!\app\common\util\VodAiCover::consumeGenerateRateLimit($adminId)) {
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/ai_rate_limit')));
@@ -1593,7 +1388,6 @@ class ThemeDesign extends Base
             $idata = preg_replace('#^data:[^,]+,#', '', $idata);
             $idata = trim($idata);
             $allow = array('image/png', 'image/jpeg', 'image/webp', 'image/gif');
-            // base64 合法 + 体积上限（约 6MB 解码后）
             if (!in_array($itype, $allow, true) || $idata === '' || base64_decode($idata, true) === false || strlen($idata) > 8 * 1024 * 1024) {
                 return json(array('code' => 0, 'msg' => lang('admin/themedesign/ai_detect_bad_image')));
             }
@@ -1638,10 +1432,6 @@ class ThemeDesign extends Base
         return json(array('code' => 1, 'detected' => $detected, 'mode' => $mode));
     }
 
-    /**
-     * 应用「已审阅的检测结果」→ **直接创建（或更新）一个新主题**（不再调 AI，
-     * 所见即所得）。POST colors(JSON) / font_family / font_size / new_name / new_dir。
-     */
     public function generate_apply()
     {
         if (!$this->request->isPost()) {
@@ -1654,7 +1444,6 @@ class ThemeDesign extends Base
         $font = trim((string)input('post.font_family', ''));
         $size = (int)input('post.font_size/d', 16);
 
-        // 复用 generate 的白名单校验：构造 gen 形状后走 sanitizeGeneratedIntoDraft
         $gen = array('design' => array('attributes' => array(
             'colors' => $colors,
             'font_family' => $font,
@@ -1698,7 +1487,6 @@ class ThemeDesign extends Base
         ));
     }
 
-    /** 探测用 system 提示：只输出配色令牌 + 字体 + 字号 + 主题名 + notes（无区块/导航/coverage）。 */
     private function buildDetectPromptSystem()
     {
         $fonts = array_keys($this->fontOptions());
@@ -1732,7 +1520,6 @@ class ThemeDesign extends Base
         return $sys;
     }
 
-    /** 把 3/4/8 位十六进制颜色规整为 6 位小写（供前端 <input type=color> 使用）。 */
     private function normalizeHex($v)
     {
         $v = strtolower(trim((string)$v));
@@ -1749,7 +1536,6 @@ class ThemeDesign extends Base
         return '#' . $h;
     }
 
-    /** 校验/规整探测结果（白名单，永不信任模型直出）。 */
     private function sanitizeDetected($gen)
     {
         $design = is_array($gen) ? $gen : array();
@@ -1812,10 +1598,6 @@ class ThemeDesign extends Base
         );
     }
 
-    /**
-     * 判断主机是否为「公网可访问」——阻断 localhost / 私有 / 保留 / 回环 / 链路本地地址（SSRF 防护）。
-     * 解析失败或落在内网范围一律拒绝（fail-closed）。
-     */
     private function hostIsPublic($host)
     {
         $host = strtolower(trim((string)$host));
@@ -1824,16 +1606,14 @@ class ThemeDesign extends Base
         }
         $ip = $host;
         if (!filter_var($host, FILTER_VALIDATE_IP)) {
-            $ip = @gethostbyname($host); // 仅解析 IPv4；失败时原样返回主机名
+            $ip = @gethostbyname($host);
             if (!filter_var($ip, FILTER_VALIDATE_IP)) {
                 return false;
             }
         }
-        // IPv4：排除私有段 + 保留段
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             return (bool)filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
         }
-        // IPv6：排除回环 / 链路本地 / 唯一本地
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             $low = strtolower($ip);
             if ($low === '::1' || strpos($low, 'fe80') === 0 || strpos($low, 'fc') === 0 || strpos($low, 'fd') === 0) {
@@ -1844,7 +1624,6 @@ class ThemeDesign extends Base
         return false;
     }
 
-    /** 把 CSS 里的相对/根相对/协议相对链接解析为绝对 URL。 */
     private function absoluteUrl($href, $baseParts)
     {
         $href = trim((string)$href);
@@ -1874,11 +1653,6 @@ class ThemeDesign extends Base
         return $scheme . '://' . $host . $port . $dir . $href;
     }
 
-    /**
-     * 抓取网址并抽取「设计证据」：页面 HTML + 内联 <style> + 至多 3 个外链 CSS，
-     * 从中提取高频颜色 / CSS 颜色变量 / font-family / <title> / meta theme-color。
-     * 全程 SSRF 校验 + 不跟随重定向。@return array ['ok','evidence','title','error']
-     */
     private function fetchUrlEvidence($url)
     {
         $url = trim((string)$url);
@@ -1886,7 +1660,7 @@ class ThemeDesign extends Base
             return array('ok' => false, 'error' => lang('admin/themedesign/ai_detect_empty'));
         }
         if (!preg_match('#^https?://#i', $url)) {
-            $url = 'https://' . $url; // 裸域名默认 https
+            $url = 'https://' . $url;
         }
         $parts = parse_url($url);
         $scheme = isset($parts['scheme']) ? strtolower($parts['scheme']) : '';
@@ -1949,7 +1723,6 @@ class ThemeDesign extends Base
         return array('ok' => true, 'evidence' => $evidence, 'title' => $title);
     }
 
-    /** 从 CSS/HTML 文本抽取紧凑的颜色/字体证据（限长），交给 AI 归纳成 8 令牌调色板。 */
     private function extractDesignEvidence($text, $themeColor)
     {
         $text = (string)$text;
@@ -2017,14 +1790,6 @@ class ThemeDesign extends Base
         return mb_substr(implode("\n", $lines), 0, 4000);
     }
 
-    // ───────────────────── AI 生成图片（logo / 头像） ─────────────────────
-
-    /**
-     * AI 生成 logo / 头像：复用 主题AI 的 api_base + api_key，调 OpenAI 兼容
-     * `/images/generations`（图像模型默认 gpt-image-1，可由 theme_ai.image_model 覆盖）。
-     * 支持用户附加提示词。生成图落地到 upload/theme/，返回值与 upload 契约一致：{code,msg,file}。
-     * POST kind=logo|avatar, message=<可选附加提示词>。
-     */
     public function gen_image()
     {
         if (!$this->request->isPost()) {
@@ -2036,14 +1801,11 @@ class ThemeDesign extends Base
         }
         $message = (string)input('post.message', '');
 
-        // 每管理员限流（复用图片生成限流：5/分、50/时）
         $adminId = intval(isset($this->_admin['admin_id']) ? $this->_admin['admin_id'] : 0);
         if (!\app\common\util\VodAiCover::consumeGenerateRateLimit($adminId)) {
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/img_ai_rate_limit')));
         }
 
-        // 图像凭据独立于「主题AI」文本凭据解析：文本可以是 Claude（不支持绘图），
-        // 图像必须走支持图像模型的 OpenAI 兼容端点（ai_cover 专用配置，或 theme_ai 的 image_* 覆盖）。
         $ic = $this->resolveImageAiConfig();
         if (empty($ic['ok'])) {
             return json(array('code' => 0, 'msg' => isset($ic['error']) ? $ic['error'] : lang('admin/themedesign/gen_no_key')));
@@ -2063,7 +1825,7 @@ class ThemeDesign extends Base
         if (strpos($ml, 'gpt-image') !== false) {
             $post['quality'] = 'medium';
             if ($kind === 'logo') {
-                $post['background'] = 'transparent'; // gpt-image 支持透明底，logo 更实用
+                $post['background'] = 'transparent';
             }
         } elseif (strpos($ml, 'dall-e-3') !== false) {
             $post['quality'] = 'standard';
@@ -2106,13 +1868,6 @@ class ThemeDesign extends Base
         return json(array('code' => 1, 'msg' => lang('admin/themedesign/img_ai_done'), 'file' => $file));
     }
 
-    /**
-     * 解析「图像生成」凭据（独立于文本凭据）。优先级：
-     *   1) ai_cover 专用图像配置（AI 封面同款，OpenAI Images，后台可视化可配）；
-     *   2) theme_ai 的 image_api_base / image_api_key / image_model 覆盖（可指向独立图像端点）；
-     *      未设置则回退 theme_ai 的文本端点——仅当该代理确实提供图像模型时才可用。
-     * @return array{ok:bool,key?:string,base?:string,model?:string,timeout?:int,error?:string}
-     */
     private function resolveImageAiConfig()
     {
         $config = config('maccms');
@@ -2153,7 +1908,6 @@ class ThemeDesign extends Base
         );
     }
 
-    /** 构建 logo / 头像的绘图提示：站点名 + 当前草稿主色 + 用户附加提示。 */
     private function buildImagePrompt($kind, $message)
     {
         $site = isset($GLOBALS['config']['site']) ? $GLOBALS['config']['site'] : array();
@@ -2186,7 +1940,6 @@ class ThemeDesign extends Base
         return mb_substr($p, 0, 2000);
     }
 
-    /** 安全下载图片（仅 https + 公网主机；不跟随重定向）。@return string|null 二进制内容 */
     private function downloadImageSafe($url, $timeout)
     {
         $url = trim((string)$url);
@@ -2201,7 +1954,6 @@ class ThemeDesign extends Base
         return ($bin === false || $bin === '') ? null : (string)$bin;
     }
 
-    /** 保存生成图到 upload/theme/<日期>/，返回站点相对路径（无前导斜杠）；失败返回 ''。 */
     private function saveThemeImage($raw, $kind, $ext)
     {
         $ext = preg_replace('/[^a-z0-9]/i', '', (string)$ext);

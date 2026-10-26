@@ -2,17 +2,9 @@
 
 namespace addons\aicontent\service;
 
-/**
- * Orchestrates content generation:
- * - Builds prompts from templates and content data
- * - Calls the AI model
- * - Parses and returns structured results
- */
 class ContentGenerator
 {
-    /** @var \addons\aicontent\service\models\BaseModel */
     private $model;
-    /** @var array */
     private $config;
 
     public function __construct(string $provider = null, string $modelName = null)
@@ -21,14 +13,6 @@ class ContentGenerator
         $this->model  = ModelFactory::create($provider, $modelName);
     }
 
-    /**
-     * Generate content for a single item.
-     *
-     * @param  array  $data  Content fields: title, type, year, area, actor, director, etc.
-     * @param  string $contentType  'video' | 'article' | 'topic'
-     * @return array  ['description' => '', 'tags' => [], 'seo_title' => '']
-     * @throws \RuntimeException
-     */
     public function generate(array $data, string $contentType = 'video'): array
     {
         $prompt = $this->buildPrompt($data, $contentType);
@@ -36,15 +20,6 @@ class ContentGenerator
         return $this->parseResponse($raw);
     }
 
-    /**
-     * Enhance an existing draft text for a specific field.
-     *
-     * @param  string $draft       The user's current draft text
-     * @param  string $field       'blurb' | 'content'
-     * @param  array  $context     ['title' => '...']
-     * @param  string $contentType 'video' | 'article'
-     * @return string              Enhanced plain text
-     */
     public function enhance(string $draft, string $field, array $context, string $contentType): string
     {
         $lang    = $this->config['language'] ?? 'zh-cn';
@@ -70,39 +45,27 @@ class ContentGenerator
         return trim($this->model->generate($prompt));
     }
 
-    /**
-     * Build the prompt by substituting template variables with actual data.
-     */
     public function buildPrompt(array $data, string $contentType): string
     {
         $templateKey = 'prompt_' . $contentType;
 
-        // Fall back to video template if specific type not found
         $template = $this->config[$templateKey]
             ?? $this->config['prompt_video']
             ?? $this->getDefaultTemplate($contentType);
 
-        // Replace {variable} placeholders
         foreach ($data as $key => $value) {
             $template = str_replace('{' . $key . '}', (string) $value, $template);
         }
 
-        // Remove any unreplaced placeholders
         $template = preg_replace('/\{[a-z_]+\}/', 'N/A', $template);
 
         return $template;
     }
 
-    /**
-     * Parse the AI response — expects JSON, but gracefully handles plain text.
-     *
-     * @return array ['description' => string, 'tags' => array, 'seo_title' => string]
-     */
     public function parseResponse(string $raw): array
     {
         $raw = trim($raw);
 
-        // Strip markdown code fences if present
         $raw = preg_replace('/^```(?:json)?\s*/i', '', $raw);
         $raw = preg_replace('/\s*```$/', '', $raw);
 
@@ -117,7 +80,6 @@ class ContentGenerator
             ];
         }
 
-        // Fallback: treat entire response as description
         return [
             'description' => $raw,
             'tags'        => [],
@@ -126,9 +88,6 @@ class ContentGenerator
         ];
     }
 
-    /**
-     * Ensure tags is always a flat string array.
-     */
     private function normalizeTags($tags): array
     {
         if (is_array($tags)) {
@@ -140,9 +99,6 @@ class ContentGenerator
         return [];
     }
 
-    /**
-     * Default prompt template used when none is configured.
-     */
     private function getDefaultTemplate(string $contentType): string
     {
         if ($contentType === 'article') {

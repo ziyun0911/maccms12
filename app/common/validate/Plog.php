@@ -19,5 +19,4 @@ class Plog extends Validate
         'add'  =>  ['user_id','plog_type','plog_points'],
         'edit'  => ['user_id','plog_type','plog_points'],
     ];
-
 }

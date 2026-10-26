@@ -12,23 +12,14 @@ class Actor extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     *  获取列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -39,7 +30,6 @@ class Actor extends Base
         }
         $offset = isset($param['offset']) ? (int)$param['offset'] : 0;
         $limit = isset($param['limit']) ? (int)$param['limit'] : 20;
-        // 查询条件组装（0/1 均展示：采集/默认入库常见 actor_status=0，仅 eq 1 会导致「库里有数据但接口为空」）
         $where = [];
         $where['actor_status'] = ['in', [0, 1]];
 
@@ -83,11 +73,9 @@ class Actor extends Base
             $where['actor_time'] = ['>', (int)$param['time_start']];
         }
 
-        // 数据获取
         $total = (new \app\common\model\Actor())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
-            // 排序
             $order = "actor_time DESC";
             if (!empty($param['orderby'])) {
                 $order = 'actor_' . $param['orderby'] . " DESC";
@@ -100,7 +88,6 @@ class Actor extends Base
             }
             unset($row);
         }
-        // 返回
         return json([
             'code' => 1,
             'msg' => '获取成功',
@@ -113,15 +100,6 @@ class Actor extends Base
         ]);
     }
 
-    /**
-     * 视频演员详情
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
     public function get_detail(Request $request)
     {
         $param = $request->param();
@@ -141,12 +119,10 @@ class Actor extends Base
             return json(['code' => 1001, 'msg' => '数据不存在']);
         }
 
-        // 处理图片 URL
         $res['actor_pic'] = mac_url_img($res['actor_pic']);
         $res['actor_pic_thumb'] = mac_url_img($res['actor_pic_thumb'] ?? '');
         $res['actor_link'] = mac_url_actor_detail($res);
 
-        // 返回
         return json([
             'code' => 1,
             'msg' => '获取成功',
@@ -154,18 +130,6 @@ class Actor extends Base
         ]);
     }
 
-    /**
-     * 获取推荐明星
-     * 对应首页推荐明星区块
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   ids - 可选，指定明星ID，多个用逗号分隔
-     *   num - 可选，数量，默认8
-     *   by  - 可选，排序字段，默认 time，可选: hits,hits_day,hits_week,hits_month,time
-     */
     public function get_recommend(Request $request)
     {
         $param = $request->param();
@@ -209,10 +173,6 @@ class Actor extends Base
         ]);
     }
 
-    /**
-     * 搜索建议/自动完成（与列表同一套 Meili + 已发布过滤）
-     * api.php/actor/suggest?wd=关键词&limit=10
-     */
     public function suggest(Request $request)
     {
         return $this->jsonSuggestByKind($request, 'actor');

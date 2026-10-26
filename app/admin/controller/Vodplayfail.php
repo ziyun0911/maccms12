@@ -2,10 +2,8 @@
 namespace app\admin\controller;
 use think\facade\Db;
 
-// 视频线路播放失败统计（播放失败自动切换线路）
 class Vodplayfail extends Base
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -25,7 +23,6 @@ class Vodplayfail extends Base
             $where['vod_name'] = ['like', '%' . $param['wd'] . '%'];
         }
 
-        // 排序：默认按累计失败次数降序，可切换最近失败时间
         $order = 'fail_count desc,last_fail_time desc';
         if (($param['order'] ?? '') === 'time') {
             $order = 'last_fail_time desc';

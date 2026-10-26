@@ -8,15 +8,12 @@ use app\common\util\MeilisearchListBridge;
 use app\common\util\MeilisearchSync;
 
 class Topic extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'topic';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
     protected $autoWriteTimestamp = true;
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -55,7 +52,6 @@ class Topic extends Base {
 
         return ['code'=>1,'msg'=>lang('data_list'),'page'=>$page,'pagecount'=>ceil($total/$limit),'limit'=>$limit,'total'=>$total,'list'=>$list];
     }
-
 
     public function listCacheData($lp)
     {
@@ -149,7 +145,6 @@ class Topic extends Base {
             }
             $param['page'] = 'PAGELINK';
             $pageurl = mac_url($pageurl,$param);
-
         }
 
         $where['topic_status'] = ['eq',1];
@@ -384,7 +379,6 @@ class Topic extends Base {
         $key = 'topic_detail_'.$data['topic_id'].'_'.$data['topic_en'];
         Cache::delete($key);
 
-
         if(empty($data['topic_extend'])){
             $data['topic_extend'] = '';
         }
@@ -413,7 +407,6 @@ class Topic extends Base {
         }
         unset($data['uptime']);
 
-        // xss过滤
         $filter_fields = [
             'topic_name',
             'topic_en',
@@ -525,7 +518,4 @@ class Topic extends Base {
 
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
-
-
 }

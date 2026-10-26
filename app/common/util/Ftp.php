@@ -1,11 +1,5 @@
 <?php
 namespace app\common\util;
-//$config = array('ftp_host'=>'xxx.xxx.xxx.xxx','ftp_port'=>21,'ftp_user'=>'xxx','ftp_pwd' =>'xxxxx','ftp_dir'=>'/');
-//$ftp=new ftp();
-//$ftp->config($config);
-//$ftp->connect();
-//$ftp->put(ROOT_PATH.$file, $file);
-//@unlink($this->getPicFile($file));
 class Ftp{
 	protected $_config = array( 'ftp_host'=>'www.test.com', 'ftp_port'=>'21', 'ftp_user'=>'maccms', 'ftp_pwd' =>'maccms', 'ftp_timeout'=>'30', 'ftp_dir' =>'/', 'ftp_pasv'=>1 );
 	protected $_conn = null; 
@@ -20,15 +14,15 @@ class Ftp{
 	function connect(){ 
 		$this->_conn = @ftp_connect($this->_config['ftp_host'],$this->_config['ftp_port'],$this->_config['ftp_timeout']); 
 		if(!$this->_conn){
-			return -1;//FTP服务器连接失败! 请检查服务器地址和端口
+			return -1;
 		}
 		$this->_rs = @ftp_login($this->_conn, $this->_config['ftp_user'], $this->_config['ftp_pwd']); 
 		if(!$this->_rs){ 
-			return -2; //FTP登录错误! 请检查用户名和密码
+			return -2;
 		} 
 		$this->_config['ftp_pasv'] && $this->pasv(true); 
 		if(!$this->chdir($this->_config['ftp_dir'])){ 
-			return -3; //切换到FTP当前目录失败! 请检查目录是否存在
+			return -3;
 		} 
 		return $this; 
 	}
@@ -66,7 +60,7 @@ class Ftp{
 			}
 			if($this->chdir($val) == false){
 				if(!$this->mkdir($val)){
-					return false;//创建失败
+					return false;
 				} 
 				$this->chdir($val); 
 			}

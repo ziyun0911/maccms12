@@ -1,9 +1,6 @@
 <?php
 namespace app\common\extend\push;
 
-/**
- * Server 酱（sctapi.ftqq.com）推送，微信收告警最省事的一条路。
- */
 class Serverchan
 {
     public $name = 'ServerChan';

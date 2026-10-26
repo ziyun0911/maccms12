@@ -3,9 +3,6 @@ namespace app\common\addon;
 
 use think\exception\HttpException;
 
-/**
- * /addons/{addon}/{controller}/{action} 请求分发。
- */
 class Dispatcher
 {
     public function run($addon = '', $controller = 'index', $action = 'index')

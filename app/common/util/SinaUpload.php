@@ -31,7 +31,6 @@ class SinaUpload
                 if ($res === false) {
                     return ['code'=>'202','msg'=>'写入微博登录状态失败'];
                 }
-
             }else{
                 return ['code'=>'203','msg'=>'获取新浪微博cookie出现错误，请检查账号状态或者重新获取cookie'];
             }
@@ -60,12 +59,6 @@ class SinaUpload
         return self::loginPost($loginUrl,$loginData);
     }
 
-    /**
-     * 发送微博登录请求
-     * @param  string $url  接口地址
-     * @param  array  $data 数据
-     * @return json         算了，还是返回cookie吧//返回登录成功后的用户信息json
-     */
     function loginPost($url,$data){
         $tmp = '';
         if(is_array($data)){
@@ -89,24 +82,18 @@ class SinaUpload
         return 'SUB' . self::getSubstr($return,"Set-Cookie: SUB",'; ') . ';';
     }
 
-    /**
-     * 取本文中间
-     */
     function getSubstr($str,$leftStr,$rightStr){
         $left = strpos($str, $leftStr);
-        //echo '左边:'.$left;
         $right = strpos($str, $rightStr,$left);
-        //echo '<br>右边:'.$right;
         if($left <= 0 or $right < $left) return '';
         return substr($str, $left + strlen($leftStr), $right-$left-strlen($leftStr));
     }
-
 
     function upload($file, $multipart, $cookie) {
         $url = 'http://picupload.service.weibo.com/interface/pic_upload.php'.'?mime=image%2Fjpeg&data=base64&url=0&markpos=1&logo=&nick=0&marks=1&app=miniblog';
         if($multipart) {
             $url .= '&cb=http://weibo.com/aj/static/upimgback.html?_wv=5&callback=STK_ijax_'.time();
-            if (class_exists('CURLFile')) {     // php 5.5
+            if (class_exists('CURLFile')) {
                 $post['pic1'] = new \CURLFile(realpath($file));
             } else {
                 $post['pic1'] = '@'.realpath($file);
@@ -114,7 +101,6 @@ class SinaUpload
         } else {
             $post['b64_data'] = base64_encode(file_get_contents($file));
         }
-        // Curl提交
         $ch = curl_init($url);
         curl_setopt_array($ch, array(
             CURLOPT_POST => true,
@@ -125,7 +111,6 @@ class SinaUpload
         ));
         $output = curl_exec($ch);
         curl_close($ch);
-        // 正则表达式提取返回结果中的json数据
         preg_match('/({.*)/i', $output, $match);
         if(!isset($match[1])) return ['code'=>'301','msg'=>'上传错误'];
         $a=json_decode($match[1],true);

@@ -8,14 +8,11 @@ use app\common\validate\User as UserValidate;
 
 class User extends Base
 {
-    // 设置数据表（不含前缀）
     protected $name = 'user';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto = [];
     protected $insert = [];
     protected $update = [];
@@ -23,7 +20,6 @@ class User extends Base
     public $_guest_group = 1;
     public $_def_group = 2;
 
-    /** 禁止通过前台 / 公开 API 输出的用户字段（含会话伪造所需 user_random） */
     private static $sensitiveFields = [
         'user_pwd',
         'user_random',
@@ -36,23 +32,11 @@ class User extends Base
         'user_openid_weixin',
     ];
 
-    /**
-     * 公开 API 用户详情允许返回的字段（白名单）。
-     *
-     * @return string
-     */
     public function publicApiDetailFields()
     {
         return 'user_id,user_name,user_nick_name,user_phone,user_qq,user_email,group_id,user_points,user_exp,user_integral,user_invite_code,user_invite_count,user_reg_time,user_status';
     }
 
-    /**
-     * 剥离会话/凭证相关字段，避免公开接口泄露后可伪造 user_check / JWT。
-     *
-     * @param array|null $row
-     *
-     * @return array|null
-     */
     public function stripSensitiveFields($row)
     {
         if (!is_array($row)) {
@@ -92,7 +76,6 @@ class User extends Base
         }
         $info = $info->toArray();
 
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
         $group_ids = explode(',', $info['group_id']);
         $info['group'] = $group_list[$group_ids[0]];
@@ -102,7 +85,6 @@ class User extends Base
                 $info['groups'][] = $group_list[$gid];
             }
         }
-
 
         $info['user_pwd'] = '';
         $info = $this->stripSensitiveFields($info);
@@ -120,9 +102,7 @@ class User extends Base
             $data['user_end_time'] = strtotime($data['user_end_time']);
         }
 
-        // 选择VIP会员组（group_id > 2）时，包时截止时间必须大于当前时间
         $check_group_id = isset($data['group_id']) ? $data['group_id'] : 0;
-        // 支持多组逗号分隔，取最大值判断
         $max_group_id = 0;
         if (!empty($check_group_id)) {
             $group_ids_arr = explode(',', $check_group_id);
@@ -155,7 +135,6 @@ class User extends Base
 
             $data['user_pwd'] = mac_hash_password_for_column($data['user_pwd'], 'user', 'user_pwd');
             $res = $this->insert($data);
-            // 新增用户后自动生成邀请码
             if ($res !== false) {
                 $nid = $this->getLastInsID();
                 if ($nid > 0) {
@@ -205,7 +184,6 @@ class User extends Base
         $data['verify'] = isset($param['verify']) ? $param['verify'] : '';
         $uid = isset($param['uid']) ? $param['uid'] : 0;
         $is_from_3rdparty = !empty($param['user_openid_qq']) || !empty($param['user_openid_weixin']);
-
 
         if ($config['user']['status'] == 0 || $config['user']['reg_open'] == 0) {
             return ['code' => 1001, 'msg' => lang('model/user/not_open_reg')];
@@ -264,7 +242,6 @@ class User extends Base
         $fields['user_openid_weixin'] = isset($param['user_openid_weixin']) ? (string)$param['user_openid_weixin'] : '';
 
         if (!$is_from_3rdparty) {
-            // https://github.com/magicblack/maccms10/issues/418
             if($config['user']['reg_phone_sms'] == '1'){
                 $param['type'] = 3;
                 $res = $this->check_msg($param);
@@ -282,7 +259,6 @@ class User extends Base
                 if (!empty($row)) {
                     return ['code' => 1011, 'msg' =>lang('model/user/phone_haved')];
                 }
-                //$this->where($where2)->update($update);
             }
             elseif($config['user']['reg_email_sms'] == '1'){
                 $param['type'] = 3;
@@ -301,7 +277,6 @@ class User extends Base
                 if (!empty($row)) {
                     return ['code' => 1012, 'msg' => lang('model/user/email_haved')];
                 }
-                //$this->where($where2)->update($update);
             }
         }
 
@@ -310,7 +285,6 @@ class User extends Base
             return ['code' => 1010, 'msg' => lang('model/user/reg_err')];
         }
         $nid = $this->getLastInsID();
-        // 风控日志（issue #149）：注册成功记录 IP/UA
         \app\common\model\UserAccessLog::record('register', ['user_id' => $nid, 'user_name' => $fields['user_name']]);
 
         $invite_code = $this->generateUniqueInviteCode($nid);
@@ -343,7 +317,6 @@ class User extends Base
                 }
 
                 if($r2!==false) {
-                    //积分日志
                     $data = [];
                     $data['user_id'] = $uid;
                     $data['plog_type'] = 2;
@@ -379,11 +352,6 @@ class User extends Base
         return ['code' => 1, 'msg' => 'ok'];
     }
 
-    /**
-     * 重新鉴权：校验当前用户密码（bind/unbind 变更绑定联系方式前调用）
-     * @param string $password_raw 用户提交的当前密码明文
-     * @return array|null 校验通过返回 null，失败返回 ['code'=>..., 'msg'=>...]
-     */
     private function verifyCurrentPassword($password_raw)
     {
         if ($password_raw === '') {
@@ -395,8 +363,6 @@ class User extends Base
         }
         $storedHash = $this->where('user_id', $uid)->value('user_pwd');
         $storedHash = $storedHash === null ? '' : (string) $storedHash;
-        // 兼容 bcrypt / md5(trim) / md5(formatted) / 明文（与 login()、info() 一致）。
-        // 密码迁移到 bcrypt 后旧的 md5 比对必然失败，统一委托 mac_verify_password。
         $ok = mac_verify_password($password_raw, $storedHash);
         if (!$ok) {
             return ['code' => 1002, 'msg' => lang('model/user/old_pass_err')];
@@ -416,14 +382,12 @@ class User extends Base
                 return ['code' => 1001, 'msg' => lang('model/user/input_old_pass')];
             }
             $password_raw = $pwd_old;
-            // 必须用库里的哈希：$GLOBALS['user'] 经模板/接口传递时可能不含 user_pwd，导致误判「原密码错误」
             $uid = intval($GLOBALS['user']['user_id'] ?? 0);
             if ($uid < 1) {
                 return ['code' => 1002, 'msg' => lang('model/user/not_login')];
             }
             $storedHash = $this->where('user_id', $uid)->value('user_pwd');
             $storedHash = $storedHash === null ? '' : (string) $storedHash;
-            // 集中到 mac_verify_password：兼容 bcrypt / md5(trim) / md5(formatted) / 明文 四种历史形态
             $ok = mac_verify_password($password_raw, $storedHash);
             if (!$ok) {
                 return ['code' => 1002, 'msg' => lang('model/user/old_pass_err')];
@@ -451,11 +415,6 @@ class User extends Base
         return $this->saveData($data);
     }
 
-    /**
-     * 登录注册一体化：帐号存在则校验密码登录，不存在则自动注册并登录
-     * @param array $param [user_name, user_pwd, invite_code(可选)]
-     * @return array
-     */
     public function loginOrRegister($param)
     {
         $config = config('maccms');
@@ -466,11 +425,9 @@ class User extends Base
             return ['code' => 1001, 'msg' => lang('model/user/input_require')];
         }
 
-        // 查找用户是否已存在
         $row = $this->where('user_name', $user_name)->find();
 
         if (!empty($row)) {
-            // ---- 帐号存在：校验密码 ----
             if (!mac_verify_password($password_raw, $row['user_pwd'])) {
                 \app\common\model\UserAccessLog::record('login_fail', [
                     'user_id' => 0,
@@ -486,7 +443,6 @@ class User extends Base
                 return ['code' => 1004, 'msg' => lang('model/user/account_disabled')];
             }
 
-            // 会员过期降级
             $login_group_ids = explode(',', $row['group_id']);
             $update = [];
             if (max($login_group_ids) > 2 && $row['user_end_time'] < time()) {
@@ -502,9 +458,6 @@ class User extends Base
             $update['user_last_login_time'] = $row['user_login_time'];
             $update['user_last_login_ip'] = $row['user_login_ip'];
 
-            // 惰性迁移：旧 md5/明文哈希在登录成功后升级为 bcrypt。
-            // 升级窗口期 user_pwd 列可能仍是 char(32)/varchar(32)，先确认列宽
-            // 能容纳 60 字符 bcrypt，否则跳过迁移避免被静默截断锁死账号。
             if (mac_password_needs_rehash($row['user_pwd']) && mac_pwd_column_fits_hash('user', 'user_pwd')) {
                 $update['user_pwd'] = mac_hash_password($password_raw);
             }
@@ -526,17 +479,14 @@ class User extends Base
             return ['code' => 1, 'msg' => lang('model/user/login_ok'), 'action' => 'login', 'info' => $info];
         }
 
-        // ---- 帐号不存在：自动注册 ----
         if ($config['user']['status'] == 0) {
             return ['code' => 1005, 'msg' => lang('model/user/user_feature_closed')];
         }
 
-        // 用户名格式校验：仅英文+数字
         if (!preg_match("/^[a-zA-Z\d]{3,30}$/i", $user_name)) {
             return ['code' => 1006, 'msg' => lang('model/user/name_alnum_3_30')];
         }
 
-        // 敏感词过滤
         $filter = !empty($GLOBALS['config']['user']['filter_words']) ? $GLOBALS['config']['user']['filter_words'] : '';
         if (!empty($filter)) {
             $filter_arr = explode(',', $filter);
@@ -546,7 +496,6 @@ class User extends Base
             }
         }
 
-        // IP 注册限制
         $ip = mac_get_ip_long();
         if (!empty($GLOBALS['config']['user']['reg_num']) && $GLOBALS['config']['user']['reg_num'] > 0) {
             $where2 = [];
@@ -558,12 +507,10 @@ class User extends Base
             }
         }
 
-        // 密码长度校验
         if (strlen($password_raw) < 6) {
             return ['code' => 1010, 'msg' => lang('model/user/pass_length_err')];
         }
 
-        // 创建用户
         $random = md5(rand(10000000, 99999999));
         $fields = [];
         $fields['user_name'] = $user_name;
@@ -588,11 +535,9 @@ class User extends Base
             'user_name' => $user_name,
         ]);
 
-        // 生成邀请码
         $invite_code = $this->generateUniqueInviteCode($nid);
         $this->where('user_id', $nid)->update(['user_invite_code' => $invite_code]);
 
-        // 处理邀请码
         $invite_code_param = trim($param['invite_code'] ?? '');
         if (!empty($invite_code_param)) {
             $uid = $this->getUserIdByInviteCode($invite_code_param);
@@ -618,7 +563,6 @@ class User extends Base
             }
         }
 
-        // 注册后自动登录
         $row = $this->where('user_id', $nid)->find();
         if ($row) {
             $this->_setLoginCookie($row, $random);
@@ -630,9 +574,6 @@ class User extends Base
         return ['code' => 1, 'msg' => lang('index/reg_ok'), 'action' => 'register'];
     }
 
-    /**
-     * 设置登录 Cookie（loginOrRegister / login 共用）
-     */
     private function _setLoginCookie($row, $random)
     {
         $group_list = (new \app\common\model\Group())->getCache('group_list');
@@ -676,8 +617,6 @@ class User extends Base
             } else {
                 $where['user_email'] = ['eq', $data['user_name']];
             }
-            // 移除 OR 分支（issues/781 遗留兼容）：不再接受「提交等于哈希值的字符串」。
-            // user_pwd 不放进 $where；先按用户名/邮箱取行，再用 mac_verify_password 校验。
         } else {
             if (empty($data['openid']) || empty($data['col'])) {
                 return ['code' => 1001, 'msg' => lang('model/user/input_require')];
@@ -692,8 +631,6 @@ class User extends Base
 
         if(empty($row)) {
             if (empty($data['openid'])) {
-                // 查无或停用账号同样是撞库/账号喷洒的重要信号；失败事件固定 user_id=0，
-                // 不把攻击者来源误关联到被尝试的账号。
                 \app\common\model\UserAccessLog::record('login_fail', [
                     'user_id' => 0,
                     'user_name' => $data['user_name'],
@@ -702,10 +639,8 @@ class User extends Base
             return ['code' => 1003, 'msg' => lang('model/user/not_found')];
         }
 
-        // 用户名/密码登录需校验密码；openid 登录凭 openid 即可，不校验密码
         if (empty($data['openid'])) {
             if (!mac_verify_password($password_raw, $row['user_pwd'])) {
-                // 风控日志（issue #149）：记录登录失败尝试的 IP/UA，用于关联封禁撞库/爆破
                 \app\common\model\UserAccessLog::record('login_fail', [
                     'user_id' => 0,
                     'user_name' => isset($data['user_name']) ? $data['user_name'] : '',
@@ -728,10 +663,6 @@ class User extends Base
         $update['user_last_login_time'] = $row['user_login_time'];
         $update['user_last_login_ip'] = $row['user_login_ip'];
 
-        // 惰性迁移：旧 md5/明文哈希在登录成功后升级为 bcrypt。
-        // 仅用户名/密码登录路径才迁移——openid 登录未校验密码，$password_raw 为空，
-        // 若在此迁移会用空字符串 bcrypt 覆盖真实密码哈希，破坏密码登录。
-        // 同上：列宽不足时跳过写回，避免升级窗口期 bcrypt 被截断锁死账号。
         if (empty($data['openid']) && mac_password_needs_rehash($row['user_pwd']) && mac_pwd_column_fits_hash('user', 'user_pwd')) {
             $update['user_pwd'] = mac_hash_password($password_raw);
         }
@@ -741,10 +672,8 @@ class User extends Base
             return ['code' => 1004, 'msg' => lang('model/user/update_login_err')];
         }
 
-        // 风控日志（issue #149）：登录成功记录 IP/UA，用于关联封禁分析
         \app\common\model\UserAccessLog::record('login', ['user_id' => $row['user_id'], 'user_name' => $row['user_name']]);
 
-        //用户组
         $group_list = (new \app\common\model\Group())->getCache('group_list');
         $group_ids = explode(',', $row['group_id']);
         $group = [];
@@ -779,7 +708,6 @@ class User extends Base
     public function expire()
     {
         $where=[];
-        // 只处理VIP会员组（group_id > 2）且 user_end_time 已过期（排除 user_end_time=0 的普通用户）
         $where['group_id'] = ['gt', 2];
         $where['user_end_time'] = ['between', [1, time()]];
 
@@ -860,14 +788,6 @@ class User extends Base
         return $this->finalizeUserLoginPayload($info, $where);
     }
 
-    /**
-     * 组装已校验用户（Cookie 或 JWT）的会员组与过期处理。
-     *
-     * @param array $info        用户行
-     * @param array $whereUpdate VIP 过期等更新时用于 where()
-     *
-     * @return array
-     */
     private function finalizeUserLoginPayload(array $info, array $whereUpdate)
     {
         $group_list = (new \app\common\model\Group())->getCache('group_list');
@@ -893,14 +813,11 @@ class User extends Base
                 $all_names[] = $g['group_name'];
             }
             $info['group']['group_name'] = implode(',', $all_names);
-
         } else {
             $info['group'] = $group_list[1];
         }
 
-        //会员截止日期
         if (max($group_ids) > 2 && $info['user_end_time'] < time()) {
-            //用户组
             $info['group'] = $group_list[2];
 
             $update = [];
@@ -922,7 +839,6 @@ class User extends Base
 
     public function resetPwd()
     {
-
     }
 
     public function findpass($param)
@@ -948,7 +864,6 @@ class User extends Base
             return ['code' => 1003, 'msg' => lang('model/user/pass_not_same_pass2')];
         }
 
-
         $where = [];
         $where['user_name'] = $data['user_name'];
         $where['user_question'] = $data['user_question'];
@@ -970,7 +885,6 @@ class User extends Base
             return ['code' => 1005, 'msg' => '' . $this->getError()];
         }
         return ['code' => 1, 'msg' => lang('model/user/findpass_ok')];
-
     }
 
     public function popedom($type_id, $popedom, $group_ids = 1)
@@ -1013,7 +927,6 @@ class User extends Base
             $quotaDeducted = true;
             $data['user_id'] = $user_id;
             $data['ulog_time'] = time();
-            // 额度路径消耗的是下载额度而非积分，ulog 记录积分价应清零，避免账目误解
             $data['ulog_points'] = 0;
             $insert = Db::name('ulog')->insert($data);
             if ($insert === false) {
@@ -1059,7 +972,6 @@ class User extends Base
             return ['code'=>1004,'msg'=>lang('model/user/group_is_close')];
         }
 
-        // 活动价优先：活动有效时用 group_activity_points_*，否则回退正常价
         $plan = (new \app\common\model\Group())->vipPlanPrice($group_info, $long);
         $point = intval($plan['effective_points']);
         if($GLOBALS['user']['user_points'] < $point){
@@ -1085,13 +997,11 @@ class User extends Base
             return ['code'=>1009,'msg'=>lang('model/user/update_group_err')];
         }
 
-        //积分日志
         $data = [];
         $data['user_id'] = $GLOBALS['user']['user_id'];
         $data['plog_type'] = 7;
         $data['plog_points'] = $point;
         (new \app\common\model\Plog())->saveData($data);
-        //分销日志
         $this->reward($point);
 
         cookie('group_id', $group_info['group_id'],['expire'=>2592000] );
@@ -1109,7 +1019,6 @@ class User extends Base
 
         $group_id = intval($remarks['group_id'] ?? 0);
         $long = trim($remarks['long'] ?? '');
-        // 优先使用活动价快照的 effective_points，回退到 upgrade_points
         $point = intval($remarks['upgrade_effective_points'] ?? $remarks['upgrade_points'] ?? 0);
         $points_long = ['day' => 86400, 'week' => 86400 * 7, 'month' => 86400 * 30, 'year' => 86400 * 365];
         if ($group_id < 3 || !isset($points_long[$long]) || $point < 1) {
@@ -1145,7 +1054,6 @@ class User extends Base
         $plog['plog_remarks'] = '支付后自动升级会员：' . ($group_list[$group_id]['group_name'] ?? '');
         (new \app\common\model\Plog())->saveData($plog);
 
-        // 为了复用原有分销逻辑，临时填充全局用户上下文
         $prevUser = $GLOBALS['user'] ?? null;
         $GLOBALS['user'] = $user;
         $this->reward($point);
@@ -1188,7 +1096,6 @@ class User extends Base
         return ['code' => 1, 'msg' => lang('model/user/update_group_ok'), 'info' => ['user_end_time' => $end_time, 'group_id' => $group_id, 'group_name' => $group_list[$group_id]['group_name'] ?? '']];
     }
 
-    // Shared VIP extension rule used by upgradeByPaidOrder() and mall VIP exchange.
     private function calcVipEndTimeByUpgradeRule($current_end_time, $seconds)
     {
         $now = time();
@@ -1203,14 +1110,12 @@ class User extends Base
         if(!in_array($param['ac'],['email','phone']) || empty($param['to']) || empty($param['code']) || empty($param['type'])){
             return ['code'=>9001,'msg'=>lang('param_err')];
         }
-        // https://github.com/magicblack/maccms10/issues/792 邮箱增加黑白名单校验
         if ($param['ac'] == 'email' && in_array($param['type'], [1, 3])) {
             $result = UserValidate::validateEmail($param['to']);
             if ($result['code'] > 1) {
                 return $result;
             }
         }
-        //msg_type  1绑定2找回3注册
         $stime = strtotime('-5 min');
         if($param['ac']=='email' && intval($GLOBALS['config']['email']['time'])>0){
             $stime = strtotime('-'.$GLOBALS['config']['email']['time'].' min');
@@ -1243,7 +1148,6 @@ class User extends Base
         if(!in_array($param['ac'],['email','phone']) || !isset($type_arr[$param['type']]) || empty($param['to'])  || empty($param['type'])){
             return ['code'=>9001,'msg'=>lang('param_err')];
         }
-        // https://github.com/magicblack/maccms10/issues/792 邮箱增加黑白名单校验
         if ($param['ac'] == 'email' && in_array($param['type'], [1, 3])) {
             $result = UserValidate::validateEmail($param['to']);
             if ($result['code'] > 1) {
@@ -1253,7 +1157,6 @@ class User extends Base
 
         $type_des = $type_arr[$param['type']]['des'];
         $type_flag = $type_arr[$param['type']]['flag'];
-
 
         $to = $param['to'];
         $code = mac_get_rndstr(6,'num');
@@ -1312,7 +1215,6 @@ class User extends Base
 
     public function bind($param)
     {
-        // 重新鉴权：变更绑定邮箱/手机前要求当前密码
         $pwd = isset($param['user_pwd']) ? trim($param['user_pwd']) : '';
         $pwdErr = $this->verifyCurrentPassword($pwd);
         if ($pwdErr !== null) {
@@ -1354,7 +1256,6 @@ class User extends Base
         if(!in_array($param['ac'],['email','phone']) ){
             return ['code'=>2001,'msg'=>lang('param_err')];
         }
-        // 重新鉴权：解绑邮箱/手机前要求当前密码
         $pwd = isset($param['user_pwd']) ? trim($param['user_pwd']) : '';
         $pwdErr = $this->verifyCurrentPassword($pwd);
         if ($pwdErr !== null) {
@@ -1393,7 +1294,6 @@ class User extends Base
         return $this->send_msg($param);
     }
 
-
     public function findpass_reset($param)
     {
         $to_src = trim(isset($param['user_email']) ? $param['user_email'] : '');
@@ -1406,7 +1306,6 @@ class User extends Base
         $param['code'] = htmlspecialchars(urldecode(trim($param['code'])));
         $param['user_pwd'] = htmlspecialchars(urldecode(trim($param['user_pwd'])));
         $param['user_pwd2'] = htmlspecialchars(urldecode(trim($param['user_pwd2'])));
-
 
         if (strlen($param['user_pwd']) < 6) {
             return ['code' => 2002, 'msg' => lang('model/user/pass_length_err')];
@@ -1424,7 +1323,6 @@ class User extends Base
         $msg_id = $res['msg_id'];
 
         if($param['ac']=='email') {
-
             $pattern = '/\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/';
             if(!preg_match( $pattern, $to)){
                 return ['code'=>2005,'msg'=>lang('model/user/email_format_err')];
@@ -1451,7 +1349,6 @@ class User extends Base
             }
         }
 
-        // 原子作废验证码，防重放：仅当仍为未使用(0)时置为已使用(1)，避免并发重复重置
         $consumed = Db::name('msg')->where(['msg_id'=>$msg_id,'msg_status'=>0])->update(['msg_status'=>1]);
         if($consumed != 1){
             return ['code'=>9002,'msg'=>lang('model/user/msg_not_found')];
@@ -1501,7 +1398,6 @@ class User extends Base
 
         $res = $this->where('user_id', $param['uid'])->setInc('user_points', intval($GLOBALS['config']['user']['invite_visit_points']));
         if($res) {
-            //积分日志
             $data = [];
             $data['user_id'] = $param['uid'];
             $data['plog_type'] = 3;
@@ -1514,17 +1410,6 @@ class User extends Base
 
     public function reward($fee_points=0, $strict=false)
     {
-        //三级分销
-        // $strict=true（购买交易）：任一必要写入失败即返回错误码，交由调用方回滚整笔事务，
-        //   避免「只给上级加了积分却漏记积分日志」的账目黑洞。
-        // ★ 前置约束：$strict=true 必须在 Db::startTrans() 事务内调用。本方法自身只返回错误码、
-        //   不会 rollback；strict 下若一级上级 setInc 已成功而随后 Plog::saveData 失败，会带着
-        //   「已加分未记账」的中间状态返回，须由调用方 rollback 撤销（否则残留半付的分销链）。
-        //   当前 strict=true 的调用方仅两处，且均在 Db::startTrans() 事务内：
-        //   api/controller/Payment.php::buy_popedom() 与 index/controller/User.php::ajax_buy_popedom()。
-        //   本类 upgrade() 等升级/充值流程走 $strict=false（默认），不受此约束；事务外调用请勿传 strict=true。
-        // $strict=false（默认，兼容既有会员升级/充值等流程）：三级分销为尽力而为的附带奖励，
-        //   内部失败自行吞掉、不阻断主流程，保持原有语义。
         if($fee_points>0 && $GLOBALS['config']['user']['reward_status'] == '1'){
             $levels = [
                 ['ratio' => 'reward_ratio',   'pid' => 'user_pid',   'type' => 4],
@@ -1541,8 +1426,6 @@ class User extends Base
                 }
                 $where = ['user_id' => $GLOBALS['user'][$lv['pid']]];
                 $r = (new \app\common\model\User())->where($where)->setInc('user_points', $points);
-                // setInc 返回 false 才是写库失败；受影响 0 行代表上级用户不存在（配置层面问题），
-                // 非交易故障，strict 下也不应连累买家的正常交易，故仅跳过、不判失败。
                 if ($r === false) {
                     if ($strict) {
                         return ['code'=>1101,'msg'=>lang('save_err')];
@@ -1566,11 +1449,6 @@ class User extends Base
         return ['code'=>1,'msg'=>lang('model/user/reward_ok')];
     }
 
-    /**
-     * 根据用户ID生成邀请码
-     * @param int $user_id
-     * @return string
-     */
     public function generateInviteCode($user_id)
     {
         $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -1582,22 +1460,12 @@ class User extends Base
         return $code;
     }
     
-    /**
-     * 检查邀请码是否已存在
-     * @param string $code
-     * @return bool
-     */
     public function checkInviteCodeExists($code)
     {
         $count = $this->where('user_invite_code', $code)->count();
         return $count > 0;
     }
     
-    /**
-     * 生成唯一的不重复邀请码
-     * @param int $user_id
-     * @return string
-     */
     public function generateUniqueInviteCode($user_id)
     {
         $max_attempts = 10;
@@ -1616,22 +1484,12 @@ class User extends Base
         return $fallback_code;
     }
 
-    /**
-     * 根据邀请码获取用户ID
-     * @param string $invite_code
-     * @return int
-     */
     public function getUserIdByInviteCode($invite_code)
     {
         $info = $this->where('user_invite_code', $invite_code)->find();
         return $info ? $info['user_id'] : 0;
     }
 
-    /**
-     * 处理邀请奖励
-     * 当被邀请人注册时，自动为邀请人发放奖励
-     * @param int $user_id 邀请人用户ID
-     */
     public function processInviteReward($user_id)
     {
         $maccms_config = config('maccms');
@@ -1655,12 +1513,10 @@ class User extends Base
         }
         ksort($sorted_reward);
         
-        // 使用事务 + SELECT FOR UPDATE 行锁，防止并发重复发放奖励
         \think\facade\Db::startTrans();
         try {
             $where = [];
             $where['user_id'] = $user_id;
-            // lock(true) = SELECT ... FOR UPDATE，锁定该行直到事务结束
             $user_info = $this->where($where)->lock(true)->find();
             
             if (!$user_info) {
@@ -1739,15 +1595,10 @@ class User extends Base
         }
     }
 
-    /**
-     * 增加邀请计数并处理奖励
-     * @param int $user_id
-     */
     public function addInviteCount($user_id)
     {
         $this->where('user_id', $user_id)->setInc('user_invite_count', 1);
         
         $this->processInviteReward($user_id);
     }
-
 }

@@ -8,7 +8,6 @@ use think\Request;
 
 class Analytics extends Base
 {
-    // page_leave 回填的 stay_ms 上限（毫秒）：24 小时。超过视为客户端上报的异常/伪造值，做钳制而非直接丢弃。
     const MAX_STAY_MS = 86400000;
 
     public function session(Request $request)
@@ -169,7 +168,6 @@ class Analytics extends Base
 
     public function aggregate(Request $request)
     {
-        // 这是重操作且接口公开，只允许 POST 并严格限流，防止匿名刷爆数据库。
         if (!$request->isPost()) {
             return $this->jsonError('method not allowed');
         }
@@ -182,8 +180,6 @@ class Analytics extends Base
             $mode = 'hour';
         }
         if ($mode === 'day') {
-            // 全天重聚合是重操作：仅允许后台已登录管理员触发。
-            // 定时任务经 api/Timming 直接调用聚合器，不走此公开接口，因此不受影响。
             $adminChk = ((new \app\common\model\Admin()))->checkLogin();
             $isAdmin = is_array($adminChk) && isset($adminChk['code']) && intval($adminChk['code']) <= 1;
             if (!$isAdmin) {
@@ -213,8 +209,6 @@ class Analytics extends Base
 
     private function resolveSessionId($payload)
     {
-        // 只认服务端可校验的 session_key（session() 建立时由后端种下、随机 64 位），
-        // 忽略客户端直传的数字 session_id：后者可被枚举，用来定位并篡改他人会话的 pageview。
         $sessionKey = $this->strVal($payload, 'session_key', 64);
         if ($sessionKey === '') {
             return 0;
@@ -223,14 +217,6 @@ class Analytics extends Base
         return intval($exists);
     }
 
-    /**
-     * 把前端 page_leave 带回来的 stay_ms 回填到服务端已经写好的 pageview 行。
-     *
-     * 服务端埋点是 pageview 行的唯一创建者，但它拿不到「用户在这页待了多久」——
-     * 那只有浏览器知道。所以前端不再 insert，只 update。
-     * 匹配：同 session + 同 path + 30 分钟内的最新一行。匹配不到就丢弃，绝不新建行，
-     * 否则同一次浏览会出现两条记录，PV 直接翻倍。
-     */
     private function backfillStayMs($sessionId, $payload, $props)
     {
         $sessionId = intval($sessionId);
@@ -252,8 +238,6 @@ class Analytics extends Base
             return;
         }
 
-        // 除 session_id + path + 时间窗外再绑定 visitor_id：pageview 行写入时已记录 visitor_id，
-        // 回填必须由同一 visitor 触发，杜绝借他人会话的 pageview 越权改写 stay_ms。
         $visitorId = $this->strVal($payload, 'visitor_id', 64);
         if ($visitorId === '') {
             return;

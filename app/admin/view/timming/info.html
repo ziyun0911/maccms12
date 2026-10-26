@@ -41,7 +41,6 @@
                                 <option value="content_quality" {if condition="$info['file'] eq 'content_quality'"}selected{/if}>{:lang('admin/timming/content_quality')}</option>
                                 <option value="user_profile" {if condition="$info['file'] eq 'user_profile'"}selected{/if}>{:lang('admin/timming/user_profile')}</option>
                                 {if condition="!empty($info['file']) && !in_array($info['file'], ['collect','make','cj','cache','urlsend','extsync','vodpublish','analytics','notify','pushbroadcast','user_access_purge','annotate','content_quality','user_profile'])"}
-                                <!-- 配置文件里手写的、或旧版本遗留的执行文件名不在候选项中；不补这一项的话，保存时下拉会落回第一项 collect，等于把任务改掉 -->
                                 <option value="{$info.file}" selected>{$info.file}</option>
                                 {/if}
                             </select>
@@ -119,14 +118,11 @@
 </div>
 {include file="../../../app/admin/view/public/foot" /}
 <script type="text/javascript">
-
     layui.use(['form', 'layer'], function () {
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer
                 , $ = layui.jquery;
 
-        // 验证
         form.verify({
             show: function (value) {
                 if (value == "") {
@@ -137,7 +133,7 @@
 
         $('.formCheckAll').click(function(){
             var child = $('.role-list-form').find('input');
-            /* 自动选中子节点 */
+
             child.each(function(index, item) {
                 item.checked = true;
             });
@@ -145,13 +141,12 @@
         });
         $('.formCheckOther').click(function(){
             var child = $('.role-list-form').find('input');
-            /* 自动选中子节点 */
+
             child.each(function(index, item) {
                 item.checked = (item.checked  ? false : true);
             });
             form.render('checkbox');
         });
-
 
     });
 </script>

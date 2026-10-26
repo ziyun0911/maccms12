@@ -4,14 +4,6 @@ use think\facade\Db;
 use think\facade\Cache;
 
 class Extend extends Base {
-
-
-    /**
-     * 取分类自己的扩展串（地区/语言/分类/年份/版本/状态）。
-     * Type::listData 已经把 type_extend json_decode 成数组再入缓存，所以这里拿到的通常是数组；
-     * v10 又对数组 json_decode 一次，PHP7 只是 notice 并退回全局配置，导致分类级扩展一直没生效，
-     * PHP8 下同样的写法会抛异常。两种形态都兼容，取不到就返回 null 让调用方沿用全局值。
-     */
     private function typeExtendValue($type_info, string $key)
     {
         if (!is_array($type_info)) {
@@ -27,12 +19,6 @@ class Extend extends Base {
         return (string)$raw[$key];
     }
 
-    /**
-     * 标签编译时把属性数组 json_encode 成字符串传进来（见 taglib/Maccms.php 的 $__TAG__），
-     * 和各模型 listCacheData 的入参口径一致，必须先还原成数组：
-     * PHP7 对字符串用 'order' 取下标只报 notice 并退回首字符，PHP8 直接抛 TypeError。
-     * 标签声明里只有 order/start/num，tid 属于直接调用方的扩展入参，缺失时一律按 v10 的默认值处理。
-     */
     private function tagParams($lp): array
     {
         if (is_string($lp)) {
@@ -55,8 +41,6 @@ class Extend extends Base {
         $data = Cache::get($key);
         if(empty($data)){
             $totay = strtotime(date('Y-m-d'));
-            // 空站/新装的库计数全为 0，累加前必须先把键建好：PHP8 下对不存在的键用 += 会逐条报
-            // Undefined array key，后台首页每个统计卡片都要跑一遍这里。
             $data = [
                 'vod_all' => 0, 'vod_today' => 0,
                 'art_all' => 0, 'art_today' => 0,
@@ -67,7 +51,6 @@ class Extend extends Base {
             ];
             $list = [];
 
-            //视频
             $where = [];
             $where['vod_status'] = ['eq',1];
             $tmp = (new \app\common\model\Vod())->field('type_id_1,type_id,count(vod_id) as cc')->where($where)->group('type_id_1,type_id')->select();
@@ -84,7 +67,6 @@ class Extend extends Base {
             }
             $data['vod_min'] = (new \app\common\model\Vod())->min('vod_id');
 
-            //文章
             $where = [];
             $where['art_status'] = ['eq',1];
             $tmp = (new \app\common\model\Art())->field('type_id_1,type_id,count(art_id) as cc')->where($where)->group('type_id_1,type_id')->select();
@@ -100,7 +82,6 @@ class Extend extends Base {
             }
             $data['art_min'] = (new \app\common\model\Art())->min('art_id');
 
-            //分类
             foreach($list as $k=>$v) {
                 $data[$k]=$v['cc'];
 
@@ -114,7 +95,6 @@ class Extend extends Base {
                 }
             }
 
-            //专题
             $where = [];
             $where['topic_status'] = ['eq',1];
             $tmp = (new \app\common\model\Topic())->where($where)->count();
@@ -124,8 +104,6 @@ class Extend extends Base {
             $data['topic_today'] = $tmp;
             $data['tpoic_min'] = (new \app\common\model\Topic())->min('topic_id');
 
-
-            //演员库
             $where = [];
             $where['actor_status'] = ['eq',1];
             $tmp = (new \app\common\model\Actor())->where($where)->count();
@@ -135,7 +113,6 @@ class Extend extends Base {
             $data['actor_today'] = $tmp;
             $data['actor_min'] = (new \app\common\model\Actor())->min('actor_id');
 
-            //角色库
             $where = [];
             $where['role_status'] = ['eq',1];
             $tmp = (new \app\common\model\Role())->where($where)->count();
@@ -145,7 +122,6 @@ class Extend extends Base {
             $data['role_today'] = $tmp;
             $data['role_min'] = (new \app\common\model\Role())->min('role_id');
 
-            //网址库
             $where = [];
             $where['website_status'] = ['eq',1];
             $tmp = (new \app\common\model\Website())->where($where)->count();
@@ -167,8 +143,6 @@ class Extend extends Base {
         $config = config('maccms.app');
         $data_str = $config['vod_extend_area'];
         if($tid>0){
-            // 'tree_list' 这个缓存键从来没被写过（Type::setCache 只产 type_list/type_tree，v10 亦然）：
-            // PHP7 下取空只是 notice、退回全局配置，PHP8 会抛异常，而且每次都白跑一遍全量缓存重建。
             $type_list = (new \app\common\model\Type())->getCache('type_list');
             $extend = $this->typeExtendValue($type_list[$tid] ?? [], 'area');
             if ($extend !== null) {
@@ -207,8 +181,6 @@ class Extend extends Base {
         $config = config('maccms.app');
         $data_str = $config['vod_extend_lang'];
         if($tid>0){
-            // 'tree_list' 这个缓存键从来没被写过（Type::setCache 只产 type_list/type_tree，v10 亦然）：
-            // PHP7 下取空只是 notice、退回全局配置，PHP8 会抛异常，而且每次都白跑一遍全量缓存重建。
             $type_list = (new \app\common\model\Type())->getCache('type_list');
             $extend = $this->typeExtendValue($type_list[$tid] ?? [], 'lang');
             if ($extend !== null) {
@@ -246,8 +218,6 @@ class Extend extends Base {
         $config = config('maccms.app');
         $data_str = $config['vod_extend_class'];
         if($tid>0){
-            // 'tree_list' 这个缓存键从来没被写过（Type::setCache 只产 type_list/type_tree，v10 亦然）：
-            // PHP7 下取空只是 notice、退回全局配置，PHP8 会抛异常，而且每次都白跑一遍全量缓存重建。
             $type_list = (new \app\common\model\Type())->getCache('type_list');
             $extend = $this->typeExtendValue($type_list[$tid] ?? [], 'class');
             if ($extend !== null) {
@@ -285,8 +255,6 @@ class Extend extends Base {
         $config = config('maccms.app');
         $data_str = $config['vod_extend_year'];
         if($tid>0){
-            // 'tree_list' 这个缓存键从来没被写过（Type::setCache 只产 type_list/type_tree，v10 亦然）：
-            // PHP7 下取空只是 notice、退回全局配置，PHP8 会抛异常，而且每次都白跑一遍全量缓存重建。
             $type_list = (new \app\common\model\Type())->getCache('type_list');
             $extend = $this->typeExtendValue($type_list[$tid] ?? [], 'year');
             if ($extend !== null) {
@@ -324,8 +292,6 @@ class Extend extends Base {
         $config = config('maccms.app');
         $data_str = $config['vod_extend_version'];
         if($tid>0){
-            // 'tree_list' 这个缓存键从来没被写过（Type::setCache 只产 type_list/type_tree，v10 亦然）：
-            // PHP7 下取空只是 notice、退回全局配置，PHP8 会抛异常，而且每次都白跑一遍全量缓存重建。
             $type_list = (new \app\common\model\Type())->getCache('type_list');
             $extend = $this->typeExtendValue($type_list[$tid] ?? [], 'version');
             if ($extend !== null) {
@@ -364,8 +330,6 @@ class Extend extends Base {
         $config = config('maccms.app');
         $data_str = $config['vod_extend_state'];
         if($tid>0){
-            // 'tree_list' 这个缓存键从来没被写过（Type::setCache 只产 type_list/type_tree，v10 亦然）：
-            // PHP7 下取空只是 notice、退回全局配置，PHP8 会抛异常，而且每次都白跑一遍全量缓存重建。
             $type_list = (new \app\common\model\Type())->getCache('type_list');
             $extend = $this->typeExtendValue($type_list[$tid] ?? [], 'state');
             if ($extend !== null) {
@@ -418,7 +382,6 @@ class Extend extends Base {
             $start--;
         }
 
-
         if($order=='desc'){
             $tmp = array_reverse($tmp);
         }
@@ -434,7 +397,4 @@ class Extend extends Base {
 
         return ['code'=>1,'msg'=>lang('data_list'),'page'=>1,'limit'=>$num,'total'=>$total,'list'=>$list];
     }
-
-
-
 }

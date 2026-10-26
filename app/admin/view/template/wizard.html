@@ -254,7 +254,6 @@
     var mark='link',l_order='',l_by='';
 
     layui.use(['form','upload', 'layer'], function () {
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer
                 , $ = layui.jquery
@@ -266,7 +265,6 @@
 
         labelcreate();
     });
-    
 
     function showex(obj){
         $(".vs").hide();
@@ -284,7 +282,7 @@
         var c,p;
         var s='',par='';
         var rc=false;
-        
+
         switch(mark)
         {
             case 'link':
@@ -344,7 +342,6 @@
                 rc=true;
             }
         }
-
 
         if($('#page_'+mark).val() != undefined){
             if($('#page_'+mark).attr("checked")) par= par.replace('num=','pagesize=');

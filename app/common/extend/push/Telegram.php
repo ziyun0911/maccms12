@@ -1,13 +1,6 @@
 <?php
 namespace app\common\extend\push;
 
-/**
- * Telegram Bot 推送。
- *
- * 用 parse_mode=HTML，所以正文里的每一个动态片段都必须转义 ——
- * 指标键里有 `|`、路径里可能有 `<`，不转义会让 Telegram 直接拒收整条消息
- * （告警在最需要它的时候静默失败，这是最糟的失败模式）。
- */
 class Telegram
 {
     public $name = 'Telegram';
@@ -37,13 +30,6 @@ class Telegram
         return ['code' => $res['code'], 'msg' => $res['msg']];
     }
 
-    /**
-     * 纯函数，供测试对照转义行为。
-     *
-     * @param string $title
-     * @param string $content
-     * @return string
-     */
     public static function renderHtml($title, $content)
     {
         $t = htmlspecialchars((string)$title, ENT_QUOTES, 'UTF-8');

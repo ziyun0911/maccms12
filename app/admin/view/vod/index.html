@@ -1,6 +1,5 @@
 {include file="../../../app/admin/view/public/head" /}
 <style>
-    /* .layui-badge-rim uses fixed height:24px; long titles wrap and overflow the border */
     #pageListForm .vod-admin-name-link.layui-badge-rim {
         height: auto;
         min-height: 24px;
@@ -16,7 +15,7 @@
         vertical-align: middle;
         margin: 8px 0px;
     }
-    /* Status chips (连载 / 角色 等): extra vertical padding inside the pill */
+
     #pageListForm .layui-table td:nth-child(3) .layui-badge {
         padding-top: 5px;
         padding-bottom: 5px;
@@ -340,7 +339,6 @@
             }
         });
 
-        // 小屏幕下名称问题
         if ($('body').width() <= 600) {
             $('#table_th_vod_name').attr('width', '300');
         }

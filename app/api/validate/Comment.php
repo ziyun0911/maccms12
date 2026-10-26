@@ -15,7 +15,7 @@ class Comment extends Validate
     ];
 
     protected $message = [
-        
+
     ];
 
     protected $scene = [

@@ -1,10 +1,8 @@
-/* 悬浮原播放器：页面下滚越过播放器后，原播放器（同一个 DOM，播放不中断）
-   以固定小窗停在页面角落继续播放；滚回播放器位置或小窗关闭即退出悬浮。 */
+
 .mac-float-player-anchor{border:0;display:block;height:0;margin:0;padding:0;width:100%}
 
 .mac-float-player-close{display:none}
 
-/* :not() 保证网页全屏（vod-play-fullscreen.css）优先级高于悬浮 */
 #play_page .player_video.is-mac-float-player-on:not(.is-mac-web-fullscreen){
     background:#000;
     border-radius:6px;
@@ -37,7 +35,7 @@
     top:0!important;
     width:100%!important
 }
-/* 小窗里容不下剧情提示条 */
+
 #play_page .player_video.is-mac-float-player-on .fodong_box{display:none!important}
 
 #play_page .player_video.is-mac-float-player-on .mac-float-player-close{
@@ -61,11 +59,8 @@
 }
 #play_page .player_video.is-mac-float-player-on .mac-float-player-close:hover{background:rgba(0,0,0,.85)}
 
-/* 移动端避开 60px 固定底栏；:not() 与主规则保持同等优先级 */
 @media (max-width:819.98px){
     #play_page .player_video.is-mac-float-player-on:not(.is-mac-web-fullscreen){bottom:76px;right:12px}
 }
 
-/* 遗留 .extra 规则把快捷菜单的 z-index 抬到 999999991，会压在小窗上盖住播放控件。
-   悬浮时按小窗实际高度把它顶到小窗上方，两级类名选择器稳定压过单类名的遗留规则。 */
 html.mac-float-player-on .extra-fab{bottom:calc(var(--mac-float-top,0px) + 12px)}

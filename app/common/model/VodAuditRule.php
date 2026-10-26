@@ -94,9 +94,6 @@ class VodAuditRule extends Base
         return ['code' => 1, 'msg' => lang('set_ok')];
     }
 
-    /**
-     * 按 sort 升序返回启用规则（缓存 60 秒）。
-     */
     public function getEnabledRules()
     {
         $cacheKey = $GLOBALS['config']['app']['cache_flag'] . '_vod_audit_rules';

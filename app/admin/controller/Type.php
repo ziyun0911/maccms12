@@ -17,47 +17,40 @@ class Type extends Base
         $res = (new \app\common\model\Type())->listData($where,$order,'tree');
 
         $list_count =[];
-        //视频数量
         $tmp = (new \app\common\model\Vod())->field('type_id_1,type_id,count(vod_id) as cc')->where($where)->group('type_id_1,type_id')->select();
         foreach($tmp as $k=>$v){
             $list_count[$v['type_id_1']] += $v['cc'];
             $list_count[$v['type_id']] = $v['cc'];
         }
-        //文章数量
         $tmp = (new \app\common\model\Art())->field('type_id_1,type_id,count(art_id) as cc')->where($where)->group('type_id_1,type_id')->select();
         foreach($tmp as $k=>$v){
             $list_count[$v['type_id_1']] += $v['cc'];
             $list_count[$v['type_id']] = $v['cc'];
         }
 
-        //演员数量
         $tmp = (new \app\common\model\Actor())->field('type_id_1,type_id,count(actor_id) as cc')->where($where)->group('type_id_1,type_id')->select();
         foreach($tmp as $k=>$v){
             $list_count[$v['type_id_1']] += $v['cc'];
             $list_count[$v['type_id']] = $v['cc'];
         }
-        //网址数量
         $tmp = (new \app\common\model\Website())->field('type_id_1,type_id,count(website_id) as cc')->where($where)->group('type_id_1,type_id')->select();
         foreach($tmp as $k=>$v){
             $list_count[$v['type_id_1']] += $v['cc'];
             $list_count[$v['type_id']] = $v['cc'];
         }
 
-        //漫画数量
         $tmp = (new \app\common\model\Manga())->field('type_id_1,type_id,count(manga_id) as cc')->where($where)->group('type_id_1,type_id')->select();
         foreach($tmp as $k=>$v){
             $list_count[$v['type_id_1']] += $v['cc'];
             $list_count[$v['type_id']] = $v['cc'];
         }
 
-        //重新整合
         foreach($res['list'] as $k=>$v){
             $res['list'][$k]['cc'] = intval($list_count[$v['type_id']]);
             foreach($v['child'] as $k2=>$v2){
                 $res['list'][$k]['child'][$k2]['cc'] = intval($list_count[$v2['type_id']]);
             }
         }
-
 
         $this->assign('list',$res['list']);
         $this->assign('total',$res['total']);
@@ -107,7 +100,6 @@ class Type extends Base
         $this->assign('infop',$resp['info']);
         $this->assign('pid',$pid);
 
-        //内容级多语言
         $content_lang_default = mac_content_lang_default();
         $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
         $content_lang_data = [];
@@ -132,9 +124,6 @@ class Type extends Base
         return $this->fetch('admin@type/info');
     }
 
-    /**
-     * 调用已安装的翻译插件（若有）翻译单个字段。
-     */
     public function contentLangTranslate()
     {
         $text = (string)input('post.text', '');
@@ -195,7 +184,6 @@ class Type extends Base
         $param = input();
         $ids = $param['ids'];
         foreach ($ids as $k=>$id) {
-
             $data = [];
             $data['type_id'] = intval($id);
             $data['type_name'] = $param['type_name_'.$id];
@@ -284,7 +272,6 @@ class Type extends Base
                     }
                 }
 
-
                 if(!empty($type_extend)){
                     foreach($type_extend as $key=>$value){
                         $options = '';
@@ -297,7 +284,6 @@ class Type extends Base
                 return $this->success('ok',null,$extend);
             }
             return $this->error(lang('get_info_err'));
-
         }
     }
 
@@ -317,5 +303,4 @@ class Type extends Base
         }
         return $this->error(lang('param_err'));
     }
-
 }

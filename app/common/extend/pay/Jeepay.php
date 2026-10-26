@@ -1,18 +1,10 @@
 <?php
 namespace app\common\extend\pay;
 
-/**
- * JeePay 支付插件
- * 基于 Jeepay 支付网关
- */
 class Jeepay {
-
     public $name = 'JeePay';
     public $ver = '1.0';
 
-    /**
-     * 发起支付（统一下单）
-     */
     public function submit($user, $order, $param, $return_only = false)
     {
         $jeepay_config = $GLOBALS['config']['pay']['jeepay'];
@@ -21,13 +13,11 @@ class Jeepay {
         $app_id  = trim($jeepay_config['appid']);
         $app_secret = trim($jeepay_config['appkey']);
 
-        // 确定支付方式 wayCode
-        $way_code = 'ALI_WAP'; // 默认
+        $way_code = 'ALI_WAP';
         $way_codes_str = trim($jeepay_config['way_codes'] ?? '');
         $available_ways = array_filter(array_map('trim', explode(',', $way_codes_str)));
 
         if (!empty($param['paytype'])) {
-            // 前端传入的 paytype 对应 wayCode
             $paytype = strtoupper(trim($param['paytype']));
             if (in_array($paytype, $available_ways)) {
                 $way_code = $paytype;
@@ -36,13 +26,11 @@ class Jeepay {
             $way_code = $available_ways[0];
         }
 
-        // 金额转换：元 -> 分
         $amount = intval(round(floatval($order['order_price']) * 100));
         if ($amount < 1) {
             $amount = 1;
         }
 
-        // 构建回调地址（使用后台配置的站点地址，禁止使用 HTTP_HOST 防伪造）
         $site_url = trim($GLOBALS['config']['site']['site_url'] ?? '');
         if (empty($site_url)) {
             if ($return_only) {
@@ -55,7 +43,6 @@ class Jeepay {
         $notify_url = $base_url . '/index.php/payment/notify/pay_type/jeepay';
         $return_url = $base_url . '/index.php/user/bindpay';
 
-        // 构建请求参数
         $data = [
             'version'    => '1.0',
             'signType'   => 'MD5',
@@ -74,10 +61,8 @@ class Jeepay {
             'channelExtra' => json_encode(['payDataType' => 'payurl']),
         ];
 
-        // 生成签名
         $data['sign'] = $this->makeSign($data, $app_secret);
 
-        // 发送请求
         $url = $api_url . '/api/pay/unifiedOrder';
         $response = $this->httpPostJson($url, $data);
 
@@ -100,7 +85,6 @@ class Jeepay {
             exit;
         }
 
-        // 获取支付链接
         $pay_data = $result['data'] ?? [];
         $pay_url = '';
 
@@ -122,12 +106,8 @@ class Jeepay {
         mac_redirect($pay_url);
     }
 
-    /**
-     * 支付回调通知
-     */
     public function notify()
     {
-        // 只接受 POST 请求，拒绝 GET/Cookie 参数注入
         $param = $_POST;
         if (empty($param)) {
             echo 'invalid request';
@@ -137,21 +117,18 @@ class Jeepay {
         $jeepay_config = $GLOBALS['config']['pay']['jeepay'];
         $app_secret = trim($jeepay_config['appkey']);
 
-        // 取出签名
         $sign = $param['sign'] ?? '';
         if (empty($sign)) {
             echo 'sign is empty';
             exit;
         }
 
-        // 验证签名
         $calc_sign = $this->makeSign($param, $app_secret);
         if ($calc_sign !== $sign) {
             echo 'sign verify failed';
             exit;
         }
 
-        // 检查订单状态 state=2 为支付成功
         $state = intval($param['state'] ?? 0);
         $mch_order_no = $param['mchOrderNo'] ?? '';
 
@@ -160,13 +137,11 @@ class Jeepay {
             exit;
         }
 
-        // 只处理 state=2（支付成功），其他状态返回 fail 让网关继续重试
         if ($state != 2) {
             echo 'fail';
             exit;
         }
 
-        // 金额复核：防止改价攻击
         $callback_amount = intval($param['amount'] ?? 0);
         $order = \think\facade\Db::name('order')->where('order_code', $mch_order_no)->find();
         if (empty($order)) {
@@ -179,14 +154,12 @@ class Jeepay {
             exit;
         }
 
-        // 币种校验
         $currency = strtoupper(trim($param['currency'] ?? ''));
         if ($currency !== '' && $currency !== 'CNY') {
             echo 'currency mismatch';
             exit;
         }
 
-        // 支付成功，更新订单
         $res = (new \app\common\model\Order())->notify($mch_order_no, 'jeepay');
         if ($res['code'] > 1) {
             echo 'fail';
@@ -195,15 +168,6 @@ class Jeepay {
         echo 'SUCCESS';
     }
 
-    /**
-     * JeePay 签名算法
-     * 1. 删除 sign 字段
-     * 2. 删除值为 null 或空字符串的字段
-     * 3. 按参数名不区分大小写升序排序
-     * 4. 拼接 key=value& 形式
-     * 5. 末尾追加 key=appSecret
-     * 6. MD5 转大写
-     */
     private function makeSign($params, $app_secret)
     {
         unset($params['sign']);
@@ -227,9 +191,6 @@ class Jeepay {
         return strtoupper(md5($signStr));
     }
 
-    /**
-     * HTTP POST JSON 请求
-     */
     private function httpPostJson($url, $data)
     {
         $json = json_encode($data, JSON_UNESCAPED_UNICODE);
@@ -240,7 +201,6 @@ class Jeepay {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        // TLS 证书校验（默认开启，后台可关闭用于自签名证书场景）
         $verify_ssl = isset($GLOBALS['config']['pay']['jeepay']['verify_ssl'])
             ? intval($GLOBALS['config']['pay']['jeepay']['verify_ssl'])
             : 1;

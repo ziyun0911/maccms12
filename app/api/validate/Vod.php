@@ -25,17 +25,8 @@ class Vod extends Validate
         'vod_state'  => 'max:20',
         'vod_isend'  => 'number|in:0,1',
         'vod_actor'  => 'max:128',
-        // year,area,class
         'type_id_1'    => 'require|number|between:0,' . PHP_INT_MAX,
     ];
-
-//    protected $message  =   [
-//        'name.require' => '名称必须',
-//        'name.max'     => '名称最多不能超过25个字符',
-//        'age.number'   => '年龄必须是数字',
-//        'age.between'  => '年龄只能在1-120之间',
-//        'email'        => '邮箱格式错误',
-//    ];
 
     protected $scene = [
         'get_list' => [
@@ -44,7 +35,6 @@ class Vod extends Validate
             'limit',
             'orderby',
             'type_id',
-//            'type_id_1',
             'vod_letter',
             'vod_name',
             'vod_tag',

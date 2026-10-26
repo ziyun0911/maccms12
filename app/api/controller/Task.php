@@ -12,10 +12,6 @@ class Task extends Base
         $this->check_config();
     }
 
-    /**
-     * 获取任务列表及用户完成状态
-     * GET /api.php/Task/get_task_list
-     */
     public function get_task_list(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -41,10 +37,6 @@ class Task extends Base
         ]);
     }
 
-    /**
-     * 每日签到
-     * POST /api.php/Task/daily_sign
-     */
     public function daily_sign(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -56,10 +48,6 @@ class Task extends Base
         return json($res);
     }
 
-    /**
-     * 获取签到信息（含里程碑）
-     * GET /api.php/Task/get_sign_info
-     */
     public function get_sign_info(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -76,11 +64,6 @@ class Task extends Base
         ]);
     }
 
-    /**
-     * 领取签到里程碑奖励
-     * POST /api.php/Task/claim_sign_milestone
-     * @param milestone_id 里程碑ID
-     */
     public function claim_sign_milestone(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -95,7 +78,6 @@ class Task extends Base
             return json(['code' => 1001, 'msg' => lang('param_err')]);
         }
 
-        // 获取用户当前连续签到天数
         $sign_info = (new \app\common\model\SignLog())->getSignInfo($user_id);
         $serial_days = $sign_info['serial_days'];
 
@@ -103,11 +85,6 @@ class Task extends Base
         return json($res);
     }
 
-    /**
-     * 领取任务奖励
-     * POST /api.php/Task/claim_reward
-     * @param task_id 任务ID
-     */
     public function claim_reward(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -126,11 +103,6 @@ class Task extends Base
         return json($res);
     }
 
-    /**
-     * 上报每日任务进度
-     * POST /api.php/Task/report_progress
-     * @param task_action 任务动作标识 (watch_vod/share_vod/post_comment)
-     */
     public function report_progress(Request $request)
     {
         $check = (new \app\common\model\User())->checkLogin();

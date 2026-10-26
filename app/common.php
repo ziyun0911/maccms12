@@ -11,10 +11,6 @@ use think\facade\View;
 
 error_reporting(E_ERROR | E_PARSE );
 
-/**
- * 苹果CMS v12 —— 加载 app/extra/*.php 为独立配置组（承接 TP5 的 extra 配置机制）。
- * 必须在 App::initialize() 之后、HTTP 运行之前调用；由各入口文件在绑定应用后执行。
- */
 function mac_load_extra(): void
 {
     $dir = APP_PATH . 'extra' . DIRECTORY_SEPARATOR;
@@ -32,8 +28,6 @@ function mac_load_extra(): void
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'common' . DIRECTORY_SEPARATOR . 'addon' . DIRECTORY_SEPARATOR . 'helpers.php';
 
-
-
 function get_array_unique_id_list($list, $need_sort = false) {
     $list = array_unique($list);
     $list = array_map('intval', $list);
@@ -43,12 +37,6 @@ function get_array_unique_id_list($list, $need_sort = false) {
     return $list;
 }
 
-/**
- * 视频分类封面方向：使用后台「页面配置」theme[list_cover][vod]；子分类沿父链查找。
- *
- * @param int $typeId 当前分类 ID
- * @return string h|v
- */
 function mac_tpl_vod_type_cover($typeId)
 {
     $typeId = (int) $typeId;
@@ -97,11 +85,6 @@ function mac_tpl_vod_type_cover($typeId)
     return 'v';
 }
 
-/**
- * 漫画列表封面方向：theme[list_cover][manga]。
- *
- * @return string h|v
- */
 function mac_tpl_manga_cover()
 {
     $tplconfig = $GLOBALS['mctheme'];
@@ -111,11 +94,6 @@ function mac_tpl_manga_cover()
     return ($raw === 'h') ? 'h' : 'v';
 }
 
-/**
- * 小说/资讯列表封面方向：theme[list_cover][art]。
- *
- * @return string h|v
- */
 function mac_tpl_art_cover()
 {
     $tplconfig = $GLOBALS['mctheme'];
@@ -125,10 +103,6 @@ function mac_tpl_art_cover()
     return ($raw === 'h') ? 'h' : 'v';
 }
 
-/**
- * 主题「视频卡片/列表点击进播放页」是否开启（theme.playlink.btn）。
- * 与 $GLOBALS['mctheme'] / assign('tplconfig') 同源，避免模板里多层数组判断不一致。
- */
 function mac_tpl_vod_playlink_on()
 {
     $mc = isset($GLOBALS['mctheme']) && is_array($GLOBALS['mctheme']) ? $GLOBALS['mctheme'] : (config('mctheme') ?: []);
@@ -143,13 +117,6 @@ function mac_tpl_vod_playlink_on()
     return $btn === '1' || $btn === 1 || $btn === true;
 }
 
-/**
- * 播放页「热门标签墙」数据：全站 maccms.app.search_hot + 本片 vod_tag / vod_class / 分类名。
- * 须在 $GLOBALS['config'] 已由 Init 行为赋值后调用（与模板 {php} 不同，避免匿名函数内 `}` 与 Think 标签 `}` 冲突导致整块 PHP 编译失败）。
- *
- * @param array $info mac_label_vod_detail 的 info
- * @return array{enabled:bool,json:string}
- */
 function mac_vod_play_tagwall_payload($info)
 {
     $info = is_array($info) ? $info : [];
@@ -187,13 +154,6 @@ function mac_vod_play_tagwall_payload($info)
     return ['enabled' => $enabled, 'json' => $json];
 }
 
-/**
- * 首页热门推荐 Tab（latest2–latest5）：读取 theme.hotvod.tabs。
- * 无配置时返回空数组，不做默认兜底。
- *
- * @param array $theme mctheme.theme
- * @return array<int, array{id:string,name:string,icon_l:string,icon_b:string}>
- */
 function mac_theme_index_hotvod_tabs(array $theme)
 {
     $tabsCfg = isset($theme['hotvod']['tabs']) && is_array($theme['hotvod']['tabs']) ? $theme['hotvod']['tabs'] : [];
@@ -231,7 +191,6 @@ function mac_theme_index_hotvod_tabs(array $theme)
     return $out;
 }
 
-//访问日志记录，根目录创建log目录
 function slog($logs)
 {
     $ymd = date('Y-m-d-H');
@@ -241,18 +200,11 @@ function slog($logs)
     @fputs($ts, $now .' '. $logs ."\r\n");
     @fclose($ts);
 }
-//foreach($_GET as $k=>$v){ $getData .= $k.'='.$v.'&'; }
-//foreach($_POST as $k=>$v){ $postData .= $k.'='.$v.'&'; }
-//foreach($_COOKIE as $k=>$v){ $cookieData .= $k.'='.$v.'&'; }
-//$log = $_SERVER['PHP_SELF'] . '---get:' .$getData .'---post:' . $postData .'---'. json_encode($_POST).'---cookie:' . $cookieData ;
-//slog($log);
 
-// 是否IP
 function mac_string_is_ip($string) {
     return preg_match('/^(\d{1,3}\.){3}\d{1,3}(:\d{1,5})?$/', $string) === 1;
 }
 
-// 应用公共文件
 function mac_return($msg,$code=1,$data=''){
     if(is_array($msg)){
         return json_encode($msg);
@@ -333,29 +285,18 @@ function mac_arr2file($f,$arr='')
         $con = $arr;
     }
     $con = "<?php\nreturn $con;";
-    // 必须把写入结果透传给调用方：file_put_contents 失败时返回 false，
-    // 否则 configxxx 等配置页即便磁盘写入失败（磁盘满/权限/只读挂载）也会误报 save_ok。
     $res = mac_write_file($f, $con);
-    // opcache清理以实时生效配置
     if (function_exists('opcache_invalidate')) {
         opcache_invalidate($f, true);
     }
     return $res;
 }
 
-/**
- * 保存配置到 extra 文件（用于主题配置等）
- * @param string $f 文件路径
- * @param array $arr 配置数组
- * @return bool
- */
 function mac_save_config_data($f, $arr = '')
 {
     if (!is_array($arr)) {
         return false;
     }
-    // 必须透传 mac_arr2file 的写入结果：磁盘满/权限/只读挂载导致写入失败时返回 false，
-    // 否则 TplConfig 等主题配置页会在实际未落盘的情况下误报保存成功。
     return mac_arr2file($f, $arr);
 }
 
@@ -367,30 +308,11 @@ function mac_replace_text($txt,$type=1)
     return str_replace(chr(13),'#',str_replace(chr(10),'',$txt));
 }
 
-/**
- * 用 bcrypt 生成密码哈希（含每条哈希独立盐）。写入侧统一用此函数，
- * 永不再产生 md5/无盐哈希。读取侧用 mac_verify_password 兼容遗留形态。
- *
- * @param string $raw 明文密码
- * @return string 60 字符的 bcrypt 哈希（$2y$10$...）
- */
 function mac_hash_password($raw)
 {
     return password_hash((string)$raw, PASSWORD_BCRYPT);
 }
 
-/**
- * 校验明文密码是否匹配存储哈希。兼容 bcrypt 与三种遗留形态：
- *   - bcrypt（$2y$/$2a$/$2b$ 前缀）→ password_verify
- *   - md5(trim(pwd))              → hash_equals
- *   - md5(htmlspecialchars(urldecode(trim(pwd))))  → hash_equals
- *   - 极少数旧库 user_pwd 列为明文 → 直接比对
- * 全部使用常量时间比较，防时序侧信道。此函数只读，永不写回。
- *
- * @param string $raw       用户提交的明文密码
- * @param string $stored    数据库存储的哈希
- * @return bool
- */
 function mac_verify_password($raw, $stored)
 {
     $stored = (string)$stored;
@@ -398,12 +320,10 @@ function mac_verify_password($raw, $stored)
         return false;
     }
 
-    // 新形态：bcrypt
     if (strncmp($stored, '$2', 2) === 0) {
         return password_verify((string)$raw, $stored);
     }
 
-    // 遗留形态：两种 md5 变体
     $raw_str = (string)$raw;
     $formatted = htmlspecialchars(urldecode(trim($raw_str)));
     if (hash_equals($stored, md5($raw_str))) {
@@ -413,9 +333,6 @@ function mac_verify_password($raw, $stored)
         return true;
     }
 
-    // 遗留形态：极少数旧数据 user_pwd 列为明文（User::info / changePwd 历史兼容分支）。
-    // 仅当 stored 本身不是 32 位 md5 hex 时才比对明文——否则「提交等于哈希值的字符串」
-    // 会被 stored===raw 命中，重新引入 OR 分支被移除的绕过面（漏洞 8）。
     if (!preg_match('/^[0-9a-f]{32}$/', $stored) && ($stored === $raw_str || $stored === $formatted)) {
         return true;
     }
@@ -423,15 +340,6 @@ function mac_verify_password($raw, $stored)
     return false;
 }
 
-/**
- * 判断存储哈希是否需要升级为 bcrypt。
- *   - bcrypt → password_needs_rehash（成本因子变更时也触发）
- *   - md5/明文 → 永远需要升级
- * 登录成功后调用此函数；若返回 true 则用 mac_hash_password 覆写，实现惰性迁移。
- *
- * @param string $stored 数据库存储的哈希
- * @return bool
- */
 function mac_password_needs_rehash($stored)
 {
     $stored = (string)$stored;
@@ -441,23 +349,9 @@ function mac_password_needs_rehash($stored)
     if (strncmp($stored, '$2', 2) === 0) {
         return password_needs_rehash($stored, PASSWORD_BCRYPT);
     }
-    // md5 / 明文 一律需要升级
     return true;
 }
 
-/**
- * 判断密码列能否容纳 60 字符的 bcrypt 哈希。
- * 升级窗口期内（代码已升级但 DB 增量脚本未跑）user_pwd/admin_pwd 可能仍是
- * char(32)/varchar(32)，此时惰性迁移写回 60 字符 bcrypt 会在非严格 SQL 模式下
- * 被静默截断成 32 字符，导致该用户此后永久无法登录。写回前先用本函数确认列宽，
- * 不足则跳过迁移（旧 md5 哈希由 mac_verify_password 兼容，登录不受影响，
- * 迁移延后到 DB 升级完成后自然进行）。结果按 table.column 用 static 缓存，
- * 避免每次登录重复查询列信息。
- *
- * @param string $table  模型层的无前缀表名（如 'user'、'admin'）
- * @param string $column 密码列名（如 'user_pwd'、'admin_pwd'）
- * @return bool          列可容纳 >= 60 字符返回 true，否则 false
- */
 function mac_pwd_column_fits_hash($table, $column)
 {
     static $cache = array();
@@ -467,9 +361,6 @@ function mac_pwd_column_fits_hash($table, $column)
     }
     $fits = false;
     try {
-        // $table/$column 均为代码内常量，非用户输入；SHOW COLUMNS 无法参数化表名。
-        // 用 WHERE Field = '列名' 精确匹配，避免 LIKE 把列名里的 '_' 当作通配符
-        // （如 user_pwd 的 '_' 会误匹配 userXpwd 等同形列）。
         $full = config('database.connections.mysql.prefix') . $table;
         $rows = \think\facade\Db::query("SHOW COLUMNS FROM `{$full}` WHERE Field = '" . addslashes($column) . "'");
         if (!empty($rows) && isset($rows[0]['Type'])) {
@@ -477,35 +368,16 @@ function mac_pwd_column_fits_hash($table, $column)
             if (preg_match('/(?:var)?char\s*\(\s*(\d+)\s*\)/', $type, $m)) {
                 $fits = ((int)$m[1] >= 60);
             } elseif (strpos($type, 'text') !== false || strpos($type, 'blob') !== false) {
-                // text/blob 家族容量远超 60 字符
                 $fits = true;
             }
         }
     } catch (\Exception $e) {
-        // 查询失败时保守跳过迁移，宁可延后也不冒截断风险
         $fits = false;
     }
     $cache[$key] = $fits;
     return $fits;
 }
 
-/**
- * 按目标密码列的实际宽度选择哈希形态，供所有写入侧（注册/改密/后台新增管理员等）调用。
- * 升级窗口期内（代码已升级但 DB 增量脚本未跑）user_pwd/admin_pwd 可能仍是
- * char(32)/varchar(32)，此时直接写 60 字符 bcrypt 会在非严格 SQL 模式下被静默截断、
- * 严格模式下直接报错，导致新注册/改密的账号密码永久损坏。
- *   - 列宽足够（>= 60）→ 返回 mac_hash_password 的 bcrypt 哈希；
- *   - 列宽不足        → 回退返回 md5((string)$raw)。
- * 回退的 md5 形态被 mac_verify_password 兼容，账号在窗口期仍可正常登入；且
- * mac_password_needs_rehash 会将其判定为需升级，待 DB 升级加宽列后，由既有惰性
- * 迁移路径（登录成功时写回）自然升级为 bcrypt。故 md5 仅是窗口期临时形态，
- * 不构成长期弱哈希风险。
- *
- * @param string $raw    明文密码
- * @param string $table  模型层的无前缀表名（如 'user'、'admin'）
- * @param string $column 密码列名（如 'user_pwd'、'admin_pwd'）
- * @return string        列宽足够返回 60 字符 bcrypt，否则返回 32 字符 md5
- */
 function mac_hash_password_for_column($raw, $table, $column)
 {
     if (mac_pwd_column_fits_hash($table, $column)) {
@@ -520,7 +392,6 @@ function mac_compress_html($s){
         "/> *([^ ]*) *</",
         "/[\s]+/",
         "/<!--[\\w\\W\r\\n]*?-->/",
-        // "/\" /",
         "/ \"/",
         "'/\*[^*]*\*/'"
     );
@@ -528,7 +399,6 @@ function mac_compress_html($s){
         ">\\1<",
         " ",
         "",
-        //"\"",
         "\"",
         ""
     );
@@ -622,13 +492,13 @@ function mac_friend_date($time)
         return false;
     $fdate = '';
     $d = time() - intval($time);
-    $ld = $time - mktime(0, 0, 0, 0, 0, date('Y')); //得出年
-    $md = $time - mktime(0, 0, 0, date('m'), 0, date('Y')); //得出月
-    $byd = $time - mktime(0, 0, 0, date('m'), date('d') - 2, date('Y')); //前天
-    $yd = $time - mktime(0, 0, 0, date('m'), date('d') - 1, date('Y')); //昨天
-    $dd = $time - mktime(0, 0, 0, date('m'), date('d'), date('Y')); //今天
-    $td = $time - mktime(0, 0, 0, date('m'), date('d') + 1, date('Y')); //明天
-    $atd = $time - mktime(0, 0, 0, date('m'), date('d') + 2, date('Y')); //后天
+    $ld = $time - mktime(0, 0, 0, 0, 0, date('Y'));
+    $md = $time - mktime(0, 0, 0, date('m'), 0, date('Y'));
+    $byd = $time - mktime(0, 0, 0, date('m'), date('d') - 2, date('Y'));
+    $yd = $time - mktime(0, 0, 0, date('m'), date('d') - 1, date('Y'));
+    $dd = $time - mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+    $td = $time - mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
+    $atd = $time - mktime(0, 0, 0, date('m'), date('d') + 2, date('Y'));
     if ($d == 0) {
         $fdate = lang('just');
     } else {
@@ -697,7 +567,6 @@ function mac_get_rndstr($length=32,$f='')
     for($i=0; $i<$length; $i++){
         $res .= $pattern[mt_rand(0,$len)];
     }
-    // 开头为0的随机替换为1~9，优化导出格式问题
     if (str_starts_with($res, '0')) {
         $res = mt_rand(1, 9) . substr($res, 1);
     }
@@ -735,7 +604,6 @@ function mac_extends_list($flag)
         $cp = 'app\\common\\extend\\'.$flag.'\\' . $cl;
         if (class_exists($cp)) {
             $c = new $cp;
-            // 驱动显示名可按当前后台语言覆盖（admin/extend/<flag>_<class>），未定义时回退到类内 $name
             $tk = 'admin/extend/' . $flag . '_' . strtolower($cl);
             $tv = lang($tk);
             $res['ext_list'][$cl] = $tv === $tk ? $c->name : $tv;
@@ -762,7 +630,6 @@ function mac_send_sms($to,$code,$type_flag,$type_des,$msg)
     if(empty($type_flag)){
         return ['code'=>997,'msg'=>lang('tpl_not')];
     }
-
 
     $cp = 'app\\common\\extend\\sms\\' . ucfirst($GLOBALS['config']['sms']['type']);
     if (class_exists($cp)) {
@@ -800,19 +667,6 @@ function mac_send_mail($to,$title,$body,$conf=[])
     }
 }
 
-/**
- * 推送告警到指定渠道。
- *
- * driver 定位方式与 mac_send_mail() / mac_send_sms() 保持一致：
- * app\common\extend\push\<Channel>::submit()。
- *
- * @param string $channel webhook|telegram|dingtalk|wecom|serverchan
- * @param string $title
- * @param string $content
- * @param array  $context 结构化字段（webhook 会原样带进 JSON）
- * @param array  $config  monitor 配置段
- * @return array ['code'=>1|非1,'msg'=>string]
- */
 function mac_send_push($channel, $title, $content, array $context = [], array $config = [])
 {
     $channel = preg_replace('/[^a-z0-9]/', '', strtolower((string)$channel));
@@ -827,12 +681,6 @@ function mac_send_push($channel, $title, $content, array $context = [], array $c
     return $c->submit($title, $content, $context, $config);
 }
 
-/**
- * 规范化域名输入为纯主机名（可带端口），用于与 $_SERVER['HTTP_HOST'] 比对。
- * 站长常按习惯填 http://m.a.com/，原样存下来会与 HTTP_HOST 永远匹配不上；
- * 同时限定字符集，避免把引号等注入到模板输出的 JS 变量里。
- * 非法输入返回空串（等同未配置）。
- */
 function mac_domain_host($url)
 {
     $host = strtolower(trim((string)$url));
@@ -860,7 +708,6 @@ function mac_check_back_link($url)
 
     $site_url = $GLOBALS['config']['site']['site_url'];
     $site_wapurl = $GLOBALS['config']['site']['site_wapurl'];
-    // 友链校验目标为用户填写的第三方站点，可能自签/过期/域名不匹配，显式关闭校验以保兼容。
     $html = mac_curl_get($url, [], '', false);
     $msg = '';
     $code = 1;
@@ -907,7 +754,6 @@ function mac_list_to_tree($list, $pk='id',$pid = 'pid',$child = 'child',$root=0)
 
             if ($root == $parentId) {
                 $tree[] =& $list[$key];
-
             }else{
                 if (isset($refer[$parentId])) {
                     $parent =& $refer[$parentId];
@@ -1028,7 +874,6 @@ function mac_page_param($record_total, $page_size, $page_current, $page_url,$pag
     return $page_param;
 }
 
-// CurlPOST数据提交-----------------------------------------
 function mac_curl_post($url,$data,$heads=array(),$cookie='',$verify_ssl=true)
 {
     $ch = @curl_init();
@@ -1043,7 +888,6 @@ function mac_curl_post($url,$data,$heads=array(),$cookie='',$verify_ssl=true)
     if($verify_ssl){
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        // 禁跟随重定向：防止 302 空空 host 校验 / DNS rebinding（纵深防御）。
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
     }
     else{
@@ -1061,13 +905,12 @@ function mac_curl_post($url,$data,$heads=array(),$cookie='',$verify_ssl=true)
     }
     $response = @curl_exec($ch);
     $errno = curl_errno($ch);
-    curl_close($ch); //关闭curl链接
+    curl_close($ch);
     if($verify_ssl && $errno){
         return false;
     }
-    return $response;//显示返回信息
+    return $response;
 }
-// CurlPOST数据提交-----------------------------------------
 function mac_curl_get($url,$heads=array(),$cookie='',$verify_ssl=true)
 {
     $ch = @curl_init();
@@ -1082,15 +925,11 @@ function mac_curl_get($url,$heads=array(),$cookie='',$verify_ssl=true)
     curl_setopt($ch, CURLOPT_REFERER, $url);
     curl_setopt($ch, CURLOPT_POST, 0);
     if($verify_ssl){
-        // 强制对端 TLS 校验：阻断 MITM 替换升级包/校验值（漏洞 7）。
-        // CA 依赖 libcurl 系统默认（Debian/RedHat 均自带 /etc/ssl/certs/ca-certificates.crt）。
-        // 禁跟随重定向：防止 302 空空 host 校验 / DNS rebinding（纵深防御）。
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
     }
     else{
-        // 默认分支保持原行为，兼容采集/插件商店等第三方源（证书可能自签/过期/域名不匹配）。
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
     }
@@ -1102,14 +941,12 @@ function mac_curl_get($url,$heads=array(),$cookie='',$verify_ssl=true)
     }
     $response = @curl_exec($ch);
     $errno = curl_errno($ch);
-    curl_close($ch); //关闭curl链接
+    curl_close($ch);
     if($verify_ssl && $errno){
-        // 强制校验模式下 TLS 失败（对端不受信/被篡改）-> 显式失败，禁止继续升级流程。
         return false;
     }
-    return $response;//显示返回信息
+    return $response;
 }
-
 
 function mac_substring($str, $lenth, $start=0)
 {
@@ -1149,7 +986,6 @@ function mac_substring($str, $lenth, $start=0)
     return  join('',$r);
 }
 
-
 function mac_array2xml($arr,$level=1)
 {
     $s = $level == 1 ? "<xml>" : '';
@@ -1167,7 +1003,6 @@ function mac_array2xml($arr,$level=1)
     $s = preg_replace("/([\x01-\x08\x0b-\x0c\x0e-\x1f])+/", ' ', $s);
     return $level == 1 ? $s."</xml>" : $s;
 }
-
 
 function mac_xml2array($xml)
 {
@@ -1194,89 +1029,68 @@ function mac_array_filter($arr,$str)
     if(empty($arr)){
         return false;
     }
-    //方式一
     $new_str = str_replace($arr,'*',$str);
-    //$badword1 = array_combine($arr,array_fill(0,count($arr),'*'));
-    //$new_str = strtr($str, $badword1);
     return $new_str != $str;
 }
 
 function mac_parse_sql($sql='',$limit=0,$prefix=[])
 {
-    // 被替换的前缀
     $from = '';
-    // 要替换的前缀
     $to = '';
 
-    // 替换表前缀
     if (!empty($prefix)) {
         $to   = current($prefix);
         $from = current(array_flip($prefix));
     }
 
     if ($sql != '') {
-        // 纯sql内容
         $pure_sql = [];
 
-        // 多行注释标记
         $comment = false;
 
-        // 按行分割，兼容多个平台
         $sql = str_replace(["\r\n", "\r"], "\n", $sql);
         $sql = explode("\n", trim($sql));
         $cnm = base64_decode('YeeJiOadg+aJgOaciW1hZ2ljYmxhY2vvvIzmupDnoIFodHRwczovL2dpdGh1Yi5jb20vbWFnaWNibGFjaw==');
-        // 循环处理每一行
         foreach ($sql as $key => $line) {
-            // 跳过空行
             if ($line == '') {
                 continue;
             }
 
-            // 跳过以#或者--开头的单行注释
             if (preg_match("/^(#|--)/", $line)) {
                 continue;
             }
 
-            // 跳过以/**/包裹起来的单行注释
             if (preg_match("/^\/\*(.*?)\*\//", $line)) {
                 continue;
             }
 
-            // 多行注释开始
             if (substr($line, 0, 2) == '/*') {
                 $comment = true;
                 continue;
             }
 
-            // 多行注释结束
             if (substr($line, -2) == '*/') {
                 $comment = false;
                 continue;
             }
 
-            // 多行注释没有结束，继续跳过
             if ($comment) {
                 continue;
             }
 
-            // 替换表前缀
             if ($from != '') {
                 $line = str_replace('`'.$from, '`'.$to, $line);
             }
             if ($line == 'BEGIN;' || $line =='COMMIT;') {
                 continue;
             }
-            // sql语句
             array_push($pure_sql, $line);
         }
 
-        // 只返回一条语句
         if ($limit == 1) {
             return implode("",$pure_sql);
         }
 
-
-        // 以数组形式返回sql语句
         $pure_sql = implode("\n",$pure_sql);
         $pure_sql = explode(";\n", $pure_sql);
         return $pure_sql;
@@ -1405,13 +1219,10 @@ function mac_rep_pse_rnd($psearr,$txt,$id=0)
 
 function mac_txt_explain($txt, $decode = false)
 {
-    // 先将HTML实体中的#临时替换为特殊占位符
     $placeholder = '___HTML_ENTITY_HASH___';
     $txt = preg_replace('/&#(\d+);/', $placeholder . '$1;', $txt);
     $txt = preg_replace('/&#x([0-9a-fA-F]+);/', $placeholder . 'x$1;', $txt);
-    // 安全地按#分割
     $txtarr = explode('#', $txt);
-    // 还原HTML实体中的#
     foreach($txtarr as &$item) {
         $item = str_replace($placeholder, '&#', $item);
     }
@@ -1535,14 +1346,6 @@ function mac_get_client_ip()
     return $final;
 }
 
-/**
- * 判断 IP 是否落在给定的信任代理条目内。条目可以是精确 IP（IPv4/IPv6）
- * 或 CIDR 网段（如 172.16.0.0/12、2001:db8::/32）。兼容 PHP 7.0。
- *
- * @param string $ip    待判定的 IP
- * @param string $range 精确 IP 或 CIDR
- * @return bool
- */
 function mac_ip_in_cidr($ip, $range)
 {
     $ip = trim((string)$ip);
@@ -1550,7 +1353,6 @@ function mac_ip_in_cidr($ip, $range)
     if ($ip === '' || $range === '') {
         return false;
     }
-    // 无掩码：按精确 IP 比较
     if (strpos($range, '/') === false) {
         return $ip === $range;
     }
@@ -1561,7 +1363,6 @@ function mac_ip_in_cidr($ip, $range)
 
     $ipBin = @inet_pton($ip);
     $subnetBin = @inet_pton($subnet);
-    // inet_pton 失败或不同协议族（二进制长度不同）直接判否
     if ($ipBin === false || $subnetBin === false || strlen($ipBin) !== strlen($subnetBin)) {
         return false;
     }
@@ -1591,7 +1392,6 @@ function mac_get_ip_long($ip_addr = '')
 {
     $ip_addr = !empty($ip_addr) ? $ip_addr : mac_get_client_ip();
     $ip_long = sprintf('%u',ip2long($ip_addr));
-    // 排除不正确的IP
     if ($ip_long < 0 || $ip_long >= 0xFFFFFFFF) {
         $ip_long = 0;
     }
@@ -1611,7 +1411,7 @@ function mac_escape($string, $in_encoding = 'UTF-8',$out_encoding = 'UCS-2') {
     if (function_exists('mb_get_info')) {
         for($x = 0; $x < mb_strlen ( $string, $in_encoding ); $x ++) {
             $str = mb_substr ( $string, $x, 1, $in_encoding );
-            if (strlen ( $str ) > 1) { // 多字节字符
+            if (strlen ( $str ) > 1) {
                 $return .= '%u' . strtoupper ( bin2hex ( mb_convert_encoding ( $str, $out_encoding, $in_encoding ) ) );
             } else {
                 $return .= '%' . strtoupper ( bin2hex ( $str ) );
@@ -1651,7 +1451,6 @@ function mac_unescape($str)
     return $ret;
 }
 
-/*特殊字段的值转换*/
 function mac_get_mid_code($data)
 {
     $arr = [
@@ -1708,9 +1507,6 @@ function mac_get_mid($controller)
     return isset($arr[$controller]) ? $arr[$controller] : 0;
 }
 
-/**
- * 与 index/ajax/digg 一致：当前请求是否已对该内容点过赞（Cookie）
- */
 function mac_user_has_digg($mid, $id)
 {
     $mid = (int) $mid;
@@ -1727,11 +1523,6 @@ function mac_user_has_digg($mid, $id)
     return !empty(cookie($cookie)) ? 1 : 0;
 }
 
-/**
- * 登录用户是否已收藏（ulog_type=2）
- *
- * @return array{is_fav:int,fav_ulog_id:int}
- */
 function mac_user_fav_state($userId, $ulogMid, $rid)
 {
     $userId = (int) $userId;
@@ -1762,7 +1553,6 @@ function mac_get_aid($controller,$action='')
     $arr=['index'=>1,'map'=>2,'rss'=>3,'gbook'=>4,'comment'=>5,'user'=>6,'label'=>7,'vod'=>10,'art'=>20,'manga'=>120,'topic'=>30,'actor'=>80,'role'=>90,'plot'=>100,'website'=>110,'live'=>130];
     $res = isset($arr[$controller]) ? $arr[$controller] : 0;
 
-    // https://github.com/magicblack/maccms10/issues/960
     $arr=[
         'vod/type'=>11,'vod/show'=>12,'vod/search'=>13,'vod/search_hub'=>13,'vod/detail'=>14,'vod/play'=>15,'vod/down'=>16,'vod/role'=>17,'vod/plot'=>18,
         'art/type'=>21,'art/show'=>22,'art/search'=>23,'art/detail'=>24,'art/read'=>25,
@@ -1905,34 +1695,25 @@ function mac_filter_html($str)
 function mac_filter_xss($str)
 {
     $str = mac_scalar_string($str);
-    // 识别URL类型，跳过HTML实体转义
-    // 判断是否为URL格式：http://、https://、//、mac: 开头，或包含 :// 的字符串
     $trimmed_str = trim($str);
     if (!empty($trimmed_str)) {
-        // 检查是否为URL格式
         $is_url = false;
 
-        // 检查是否以常见协议开头（最严格的判断，优先级最高）
         if (preg_match('/^(https?:\/\/|ftp:\/\/|\/\/|mac:)/i', $trimmed_str)) {
             $is_url = true;
         }
-        // 检查是否包含 :// 协议标识符（包含协议但可能不是常见协议）
         elseif (strpos($trimmed_str, '://') !== false) {
             $is_url = true;
         }
-        // 注意：这个条件相对宽松，但只去除HTML标签仍然安全
         elseif (preg_match('/^[a-zA-Z0-9][a-zA-Z0-9\-\.]*\.[a-zA-Z]{2,}(\/|\?|&|=|$)/', $trimmed_str)) {
             $is_url = true;
         }
 
         if ($is_url) {
-            // URL类型：只去除HTML标签，不进行HTML实体转义
-            // strip_tags() 会去除所有HTML标签，确保安全性
             return trim(strip_tags($trimmed_str));
         }
     }
 
-    // 普通文本：正常进行XSS过滤
     return trim(htmlspecialchars(strip_tags($trimmed_str), ENT_QUOTES));
 }
 
@@ -2003,12 +1784,6 @@ function mac_like_arr($s)
     return $like_arr;
 }
 
-/**
- * 后台关键词 LIKE 条件（含 OpenCC 繁简变体）。
- *
- * @param string $wd 已过滤的关键词
- * @return array ['like', '%词%']、['like', ['%词%', ...], 'OR']，或空数组（无有效关键词）
- */
 function mac_search_wd_like($wd)
 {
     $wd = trim((string)$wd);
@@ -2069,17 +1844,13 @@ function mac_plot_list($vod_plot_name,$vod_plot_detail)
 
     $res_list = [];
     foreach($vod_plot_name_list as $k=>$v){
-
         $res_list[$k + 1] = [
                 'name' => $vod_plot_name_list[$k],
                 'detail' => $vod_plot_detail_list[$k],
         ];
     }
     return $res_list;
-
 }
-
-
 
 function mac_play_list($vod_play_from,$vod_play_url,$vod_play_server,$vod_play_note,$flag='play')
 {
@@ -2115,7 +1886,6 @@ function mac_play_list($vod_play_from,$vod_play_url,$vod_play_server,$vod_play_n
         $server = (string)$vod_play_server_list[$k];
         $urls = mac_play_list_one($vod_play_url_list[$k],$v);
 
-        // 播放器/服务器可能已在后台被删除，缺失时按未启用处理，避免整条线路抛 undefined key
         $player_info = $player_list[$v] ?? [];
         $server_info = $server_list[$server] ?? [];
         if(($player_info['status'] ?? '') == '1') {
@@ -2326,21 +2096,16 @@ function mac_find_array($text,$start,$end)
     if(empty($str)) { return false ;}
     $str=str_replace($start,"",$str);
     $str=str_replace($end,"",$str);
-    //$str=str_replace("\"\"","",$str);
-    //$str=str_replace("'","",$str);
-    //$str=str_replace(" ","",$str);
     if(empty($str)) { return false ;}
     return $str;
 }
 
-/*前台页面*/
 function mac_param_url(){
     $input = input() ;
     $param = [];
     $tmp = $_REQUEST;
     
     $input = array_merge($input,$tmp);
-    //$param['id'] = intval($input['id']);
     $param['page'] = intval($input['page']) <1 ? 1 : intval($input['page']);
     $param['ajax'] = intval($input['ajax']);
     $param['tid'] = intval($input['tid']);
@@ -2362,7 +2127,6 @@ function mac_param_url(){
     $param['area'] = htmlspecialchars(urldecode(trim($input['area'])));
     $param['year'] = htmlspecialchars(urldecode(trim($input['year'])));
     $param['lang'] = htmlspecialchars(urldecode(trim($input['lang'])));
-    // 内容语言切换参数与影视语言筛选同名（?lang=en-us）：语言码不参与 vod_lang 筛选
     if ($param['lang'] !== '' && in_array(strtolower($param['lang']), mac_content_lang_allow_list(), true)) {
         $param['lang'] = '';
     }
@@ -2441,20 +2205,11 @@ function mac_url_img($url)
     return $url;
 }
 
-/**
- * 读取「主题设计」（Theme Design）配置覆盖文件。
- * 由后台「主题设计」工具发布，用于在不修改原始模板的前提下重新配置前台主题。
- * - 预览模式（前台 URL ?td_preview=1）读取草稿版本 theme-design.draft.json，否则读取已发布版 theme-design.json。
- * - 文件位于：ROOT_PATH . 'template/' . <当前模板目录> . '/theme-design[.draft].json'
- * - 缺失/解析失败时返回空数组 []，保证前台与未配置时表现完全一致（向后兼容、绝不致命）。
- * @return array
- */
 function mac_theme_design()
 {
     static $cache = [];
 
     $preview = 0;
-    // request() 在某些上下文（如 CLI）可能不可用，做空安全处理
     if (function_exists('request')) {
         $req = request();
         if (is_object($req)) {
@@ -2486,11 +2241,6 @@ function mac_theme_design()
     return $data;
 }
 
-/**
- * 取首页某板块（section key）的设计属性，如 num / layout。
- * 用于前台数据组件在渲染时按主题设计覆盖默认的「数量 / 展示方式」。
- * 找不到返回空数组（组件即回退到自身默认）。
- */
 function mac_td_section($key)
 {
     static $map = null;
@@ -2573,7 +2323,6 @@ function mac_alphaID($in, $to_num=false, $pad_up=false, $passKey='')
             }
         }
         $out = "";
-        // 修复部分：改用逐位计算代替浮点运算
         while ($in > 0) {
             $remainder = $in % $base;
             $out = substr($key, $remainder, 1) . $out;
@@ -2603,12 +2352,10 @@ function mac_url($model,$param=[],$info=[])
     
     $is_static_mode = isset($GLOBALS['ismake']) && $GLOBALS['ismake'] == '1';
     
-    // 静态生成模式标记（用于后续URL处理）
     $replace_from = ['{id}','{en}','{page}','{type_id}','{type_en}','{type_pid}','{type_pen}','{md5}','{year}','{month}','{day}','{sid}','{nid}'];
     $replace_to = [];
     $page_sp = $config['path']['page_sp'];
     $path = '';
-
 
     switch ($model)
     {
@@ -3354,7 +3101,6 @@ function mac_url($model,$param=[],$info=[])
         }
     }
 
-    // 在静态生成模式下，对生成的URL进行后处理，去掉admin/index前缀
     if($is_static_mode && !empty($url)) {
         if(strpos($url, '/index.php/') === 0) {
             $url = preg_replace('/\/index\.php\/[^\/]+\.php\/admin\-/', '/index.php/', $url);
@@ -3387,7 +3133,6 @@ function mac_url_create($str,$type='actor',$flag='vod',$ac='search',$sp='&nbsp;'
         return '未知';
     }
     $res = [];
-    // 分割时，中文关键词允许空格分割，英文不用空格（英文名中间是空格分隔的问题）
     $base_finder = array(' / ', '/', '|', ',', '，', ',,');
     $str = str_replace($base_finder, ',', $str);
     $str = trim($str, ',');
@@ -3415,7 +3160,6 @@ function mac_url_search($param=[],$flag='vod')
 function mac_url_type($info,$param=[],$flag='type')
 {
     $tab = 'vod';
-    // TP8 兼容：老模板可能传入筛选值字符串（如 '0-9'/'其他'），PHP7 下不致命，此处按 TP5 行为降级
     if(!is_array($info)){
         $mid = $GLOBALS['mid'] ?? 1;
         if($mid == 2) $tab = 'art';
@@ -3426,7 +3170,6 @@ function mac_url_type($info,$param=[],$flag='type')
         return mac_url($tab.'/'.$flag,$param);
     }
     if($info['type_mid'] == 1){
-
     }
     else if($info['type_mid'] == 2) {
         $tab ='art';
@@ -3646,8 +3389,6 @@ function mac_url_vod_down($info,$param=[])
     return mac_url('vod/down',['sid'=>$param['sid'],'nid'=>$param['nid']],$info);
 }
 
-
-
 function mac_label_website_detail($param)
 {
     $where = [];
@@ -3701,7 +3442,6 @@ function mac_label_role_detail($param)
     $where['role_status'] = ['eq',1];
     $res = (new \app\common\model\Role())->infoData($where,'*',1);
 
-    // https://github.com/magicblack/maccms10/issues/960
     $GLOBALS['type_id'] = isset($res['info']['data']['type_id']) ? $res['info']['data']['type_id'] : 0;
     $GLOBALS['type_pid'] = isset($res['info']['data']['type_id_1']) ? $res['info']['data']['type_id_1'] : 0;
     return $res;
@@ -3802,7 +3542,6 @@ function mac_label_type($param, $type_id_specified)
         $type_id = $type_id_specified;
     } else {
         if($GLOBALS['config']['rewrite']['type_id']==1){
-
         }
         else{
             if($GLOBALS['config']['rewrite']['type_id']==2) {
@@ -3839,7 +3578,6 @@ function mac_data_count($tid=0,$range='all',$flag='vod')
     } else {
         $key = $flag . '_' . $range;
     }
-    // 新装的库里没有对应分类/类型的计数键，取不到就当 0，不能再抛 Undefined array key
     return intval($data[$key] ?? 0);
 }
 
@@ -3859,16 +3597,6 @@ function mac_get_popedom_filter($group_type_list, $type_list = [])
     return implode(',', $cha_keys);
 }
 
-/**
- * 当前访问者可见的栏目集合（导航/页脚显隐用，与 app.popedom_filter 全局开关无关）
- *
- * 口径：栏目自身有『列表』权限才可见；父栏目即使自身没授权，只要任一子孙栏目有权也可见
- * （否则子栏目能进、父栏目点进去却是空的）。group_popedom 已由 Group::setCache() 做过
- * 「父授权则子继承」，这里只补反方向的向上冒泡。多用户组（group_id 逗号串）取并集。
- *
- * @param int $popedom 权限位：1列表 2详细 3播放/阅读 4下载 5试看
- * @return array [type_id => true, ...]
- */
 function mac_get_popedom_type_visible($popedom = 1)
 {
     static $cache = [];
@@ -3911,20 +3639,12 @@ function mac_get_popedom_type_visible($popedom = 1)
     return $visible;
 }
 
-/**
- * 模板用：栏目对当前访问者是否可见（页脚栏目链接、导航）
- */
 function mac_type_nav_visible($type_id, $popedom = 1)
 {
     $visible = mac_get_popedom_type_visible($popedom);
     return isset($visible[(int)$type_id]);
 }
 
-/**
- * VIP 专属分类 = VIP 有播放/阅读权限 - (游客 ∪ 默认会员 有播放/阅读权限)
- * 仅针对播放页权限 (popedom 3)，Vod/Art/Manga 统一用 popedom 3
- * 返回 type_id 数组
- */
 function mac_get_vip_exclusive_type_ids()
 {
     $cache_flag = $GLOBALS['config']['app']['cache_flag'] ?? 'maccms';
@@ -3941,7 +3661,7 @@ function mac_get_vip_exclusive_type_ids()
     $guest_ids = [];
     $member_ids = [];
     $vip_ids = [];
-    $content_mids = [1 => 1, 2 => 1, 12 => 1]; // Vod, Art, Manga 有播放/阅读页
+    $content_mids = [1 => 1, 2 => 1, 12 => 1];
     foreach ($type_list as $type_id => $type_info) {
         $mid = $type_info['type_mid'] ?? 0;
         if (empty($content_mids[$mid])) {
@@ -3969,11 +3689,6 @@ function mac_get_vip_exclusive_type_ids()
     return $list;
 }
 
-/**
- * 为列表每行补充 type_is_vip_exclusive，供前台角标（SSR 模板 / CSR MacHomeCardRender）与接口 JSON 一致
- *
- * @param array $list 引用传递，行内需含 type_id（视频/文章/漫画分类 ID）
- */
 function mac_append_type_is_vip_exclusive_for_rows(&$list)
 {
     if ($list instanceof \think\Collection) {
@@ -3989,14 +3704,6 @@ function mac_append_type_is_vip_exclusive_for_rows(&$list)
     unset($row);
 }
 
-/**
- * 文章/漫画「阅读」实际扣费积分：与前台权限、user/ajax_buy_popedom 一致。
- * 「每数据」用 *_points；「每页/每话」优先 *_points_detail，为 0 时回退整本/整条 *_points（常见只填了 art_points 的情况）。
- *
- * @param string $pre art|manga
- * @param array  $info 详情行
- * @return int
- */
 function mac_content_read_points_amount($pre, array $info)
 {
     $pre = strtolower((string)$pre);
@@ -4016,13 +3723,6 @@ function mac_content_read_points_amount($pre, array $info)
     return (int)($info[$pre . '_points'] ?? 0);
 }
 
-/**
- * 与 model Vod::listCacheData 中按分类筛选逻辑一致：自身 type_id + 直接子分类的 type_id。
- * 用于把 (type_id=X OR type_id_1=X) 改为 type_id IN (...)，便于走 type_id 索引、避免 OR 低效扫描。
- *
- * @param int $typeId 分类 ID
- * @return int[]
- */
 function mac_vod_type_filter_ids_for_list($typeId)
 {
     $typeId = (int)$typeId;
@@ -4100,7 +3800,6 @@ function mac_escape_param($param)
     if(is_array($param)){
         foreach($param as $k=>$v){
             if(!is_numeric($v) && !empty($v)){
-
                 if($GLOBALS['config']['app']['wall_filter'] ==1){
                     $v = mac_unicode_encode($v);
                 }
@@ -4162,12 +3861,6 @@ function mac_filter_tags($rs)
 }
 
 if (!function_exists('is_really_writable')) {
-
-    /**
-     * 判断文件或文件夹是否可写
-     * @param string $file 文件或目录
-     * @return    bool
-     */
     function is_really_writable($file)
     {
         if (DIRECTORY_SEPARATOR === '/') {
@@ -4190,13 +3883,6 @@ if (!function_exists('is_really_writable')) {
     }
 }
 if (!function_exists('rmdirs')) {
-
-    /**
-     * 删除文件夹
-     * @param string $dirname  目录
-     * @param bool   $withself 是否删除自身
-     * @return boolean
-     */
     function rmdirs($dirname, $withself = true)
     {
         if (!is_dir($dirname)) {
@@ -4218,12 +3904,6 @@ if (!function_exists('rmdirs')) {
     }
 }
 if (!function_exists('copydirs')) {
-
-    /**
-     * 复制文件夹
-     * @param string $source 源文件夹
-     * @param string $dest   目标文件夹
-     */
     function copydirs($source, $dest)
     {
         if (!is_dir($dest)) {
@@ -4248,14 +3928,8 @@ if (!function_exists('copydirs')) {
 }
 
 function mac_admin_csrf_token() {
-    // 后台 CSRF 稳定令牌：整个会话生命周期内固定，不随页面渲染轮换。
-    // 旧的 Request::token()（{$Request.token}）每次渲染都会重新生成并覆盖 Session __token__，
-    // 导致多标签页/重新打开后台时先前页面的令牌失效、AJAX 被 CsrfGuard 判 403（表现为“点绑定没反应”）。
-    // 这里改用会话级固定令牌，兼容多标签同时打开后台的场景。
     $t = \think\facade\Session::get('admin_csrf');
     if (!is_string($t) || $t === '') {
-        // 优先使用 CSPRNG 生成 128-bit 令牌；random_bytes 在极少数无熵源环境会抛异常，
-        // 此时回退到旧的 md5(uniqid()+mt_rand())，确保功能不中断。
         try {
             $t = bin2hex(random_bytes(16));
         } catch (\Throwable $e) {
@@ -4288,19 +3962,6 @@ function mac_strip_tags($string) {
     return strip_tags($string);
 }
 
-// -----------------------------------------------------------------------------
-// 内容级多语言（由官方 maccms10 master 迁移，适配 ThinkPHP 8）。
-// 站点默认语言的内容照旧存在 mac_vod/mac_art/...；其它语言的可翻译字段整体存
-// mac_content_lang（按 content_type+content_id+lang_code 一行 JSON），缺失时
-// 由 mac_content_lang_overlay() 回退到默认语言原文，永不返回空字段。
-// -----------------------------------------------------------------------------
-
-/**
- * 每种内容类型允许翻译覆盖的字段。
- * 只收纯展示文案：*_en（URL 重写 slug，前台路由按库里原值匹配，翻译后链接会 404）、
- * *_letter（A-Z 首字母，用于字母筛选/排序的键）等标识/索引字段一律不在此列——
- * 与 Type::langOverlayTypeList() 的排除口径一致。
- */
 function mac_content_lang_fields($contentType)
 {
     $map = [
@@ -4318,13 +3979,6 @@ function mac_content_lang_fields($contentType)
     return isset($map[$contentType]) ? $map[$contentType] : [];
 }
 
-/**
- * 各内容类型翻译字段里需要走 mac_filter_xss() 的子集。
- * 必须与对应模型 saveData() 里的 $filter_fields 列表保持一致：默认语言字段在模型层已过滤，
- * 其它语言字段经 content_lang 侧信道写入时同样要过滤，否则等于给了绕过通道。
- * 富文本正文（*_content，topic_content 除外）与结构化字段（*_extend）不在此列，
- * 保持与模型一致。vod/link/live/task 模型本就没有 xss 过滤，返回空数组。
- */
 function mac_content_lang_xss_fields($contentType)
 {
     $map = [
@@ -4338,14 +3992,6 @@ function mac_content_lang_xss_fields($contentType)
     return isset($map[$contentType]) ? $map[$contentType] : [];
 }
 
-/**
- * 站点界面语言码（后台/模板/AI 提示词/报表用，与 mac_content_lang() 的内容语言是两个体系）。
- *
- * TP5 时代 config('default_lang') 能直接取到；TP8 把 config/app.php 的内容挂在 app. 前缀下，
- * 顶层 config('default_lang') 恒为空数组，(string) 转换后一路静默退化成默认值。
- * 站点真正的语言设置在 app/extra/maccms.php 的 app.lang（Init 中间件再同步进 app/lang 两个配置域），
- * 所以先看 $GLOBALS['config']，再看配置域，最后兜底 zh-cn。
- */
 function mac_site_lang()
 {
     $candidates = [
@@ -4361,19 +4007,6 @@ function mac_site_lang()
     return 'zh-cn';
 }
 
-/**
- * 语言包注册表 —— 语言切换列表的唯一数据源。
- *
- * 每个语言包在文件开头自述自己的元信息：
- *   lang_name 自称（简体中文 / English …）、lang_flag 国旗 emoji、lang_dir 文字方向、
- *   lang_ui 前台界面字符串包后缀（template/default/asset/language/strings_<ui>.properties，没有写空串）、
- *   lang_sort 展示次序、lang_legacy 主题旧国旗图的语言段、lang_flag_png 国旗图片候选文件名（逗号分隔）。
- * 这里按 app/lang/*.php 自动发现并读取，新增或下架一种语言只要增删语言包本身，
- * 后台切换器、前台下拉、「前台可用语言」勾选、白名单校验都会跟着变，不用再改 PHP 或模板。
- * 没写自述块的第三方包同样会出现在列表里，只是名字退回语言码、界面字符串包留空。
- *
- * 只读文件开头一段：为一取七八个键去 hydrate 四千余条译文不值当，代价是自述块必须写在包的前部。
- */
 function mac_lang_registry()
 {
     static $reg = null;
@@ -4398,7 +4031,6 @@ function mac_lang_registry()
         $pngs = array_values(array_filter(array_map('trim', explode(',', mac_lang_meta_read($head, 'lang_flag_png')))));
         $reg[$code] = [
             'code'      => $code,
-            // 没写自述块的第三方语言包也要能切过去，只是名字退回语言码本身
             'name'      => $name !== '' ? $name : strtoupper($code),
             'flag'      => mac_lang_meta_read($head, 'lang_flag'),
             'dir'       => mac_lang_meta_read($head, 'lang_dir') ?: 'ltr',
@@ -4414,7 +4046,6 @@ function mac_lang_registry()
     return $reg;
 }
 
-/** 从语言包文件开头提取一个自述键的值；未定义返回空串 */
 function mac_lang_meta_read($head, $key)
 {
     if (!preg_match('/\'' . $key . '\'\s*=>\s*\'((?:[^\'\\\\]|\\\\.)*)\'/', $head, $m)) {
@@ -4423,13 +4054,11 @@ function mac_lang_meta_read($head, $key)
     return stripcslashes(trim($m[1]));
 }
 
-/** 已注册的语言码，按注册表顺序（lang_sort 优先，同值按码） */
 function mac_lang_codes()
 {
     return array_keys(mac_lang_registry());
 }
 
-/** 单个语言的自述元信息，未注册返回 null */
 function mac_lang_meta($code)
 {
     $code = strtolower(trim((string)$code));
@@ -4437,16 +4066,11 @@ function mac_lang_meta($code)
     return $reg[$code] ?? null;
 }
 
-/** 站点支持的内容语言码：与 app/lang 下确实自述了自己的语言包同源，不再另立清单 */
 function mac_content_lang_codes()
 {
     return mac_lang_codes();
 }
 
-/**
- * 主题配置里的中文展示文案按当前内容语言输出。
- * 只映射系统内置默认值（如热门推荐、友情链接、站点标语），后台自定义文案原样返回。
- */
 function mac_tpl_text($text)
 {
     $text = (string) $text;
@@ -4503,10 +4127,6 @@ function mac_tpl_text($text)
     return isset($map[$text][$lang]) ? $map[$text][$lang] : $text;
 }
 
-/**
- * 服务端读取前台界面字符串包（template/default/asset/language/strings_<ui>.properties）。
- * 供 <title> 这类 jQuery.i18n 无法改写的节点使用，键值与前端 data-lang 共用一套。
- */
 function mac_front_string($key, $default = '')
 {
     $key = (string) $key;
@@ -4543,51 +4163,34 @@ function mac_front_string($key, $default = '')
     return isset($packs[$lang][$key]) && $packs[$lang][$key] !== '' ? $packs[$lang][$key] : $default;
 }
 
-/** 站点默认内容语言（与后台界面语言 app.lang 是两个不同的键，不要混用） */
 function mac_content_lang_default()
 {
     $val = $GLOBALS['config']['app']['content_lang_default'] ?? '';
     return in_array($val, mac_content_lang_codes(), true) ? $val : mac_content_lang_first();
 }
 
-/** 注册表里的第一种语言：内容默认语言缺失时的兜底，不再写死某个码 */
 function mac_content_lang_first()
 {
     $codes = mac_content_lang_codes();
     return empty($codes) ? '' : $codes[0];
 }
 
-/** 前台已启用的内容语言列表（后台勾选，pipe 分隔存于 app.content_lang_list，与 search_vod_rule 等同一惯例） */
 function mac_content_lang_allow_list()
 {
     $raw = $GLOBALS['config']['app']['content_lang_list'] ?? '';
     if (empty($raw)) {
         return [];
     }
-    // 与白名单求交：旧配置里可能仍带着已下架的语言码
     return array_values(array_intersect(mac_content_lang_codes(), array_filter(array_map('trim', explode('|', $raw)))));
 }
 
-/**
- * 前台语言切换列表（下拉框的唯一数据源，模板里不再硬编码语言）。
- *
- * 条目 = 后台「系统设置 > 网站参数 > 前台可用语言」勾选的语言（app.content_lang_list），
- * 与 mac_get_content_lang() 用的允许列表同源，所以列出来的每一项点下去服务端都真的会切，
- * 不会出现"点了没反应"的语言；只勾选一项时模板应整个隐藏切换器。
- * 每一项的名称/国旗/文字方向/界面字符串包都取自 mac_lang_registry()，也就是语言包自己的自述块。
- * 名称用各语言的自称（和后台复选框一致），不挂 data-lang 走界面语言翻译，
- * 免得英文界面下把 简体中文 显示成第三人称的 "Chinese"。
- * flag 只在当前主题 images/la 下确实有图时才给 URL，缺图交给模板退回 emoji。
- */
 function mac_front_lang_list()
 {
     $urlBase = (defined('MAC_PATH_TEMPLATE') && defined('MAC_PATH')) ? MAC_PATH_TEMPLATE : '';
     $dirBase = $urlBase === '' ? '' : ROOT_PATH . substr($urlBase, strlen(MAC_PATH));
 
-    // 探测路径写死 template/default：jsvar.html 里 maccms.path_tpl 也固定指到那儿，跟前端实际请求一致。
     $langDir = ROOT_PATH . 'template/default/asset/language/';
 
-    // init_content_lang() 先 setCurrent() 再取本列表，这里读到的就是本次请求生效的语言
     $current = \app\common\model\ContentLang::getCurrent();
 
     $list = [];
@@ -4611,7 +4214,6 @@ function mac_front_lang_list()
             'emoji'  => $meta['flag'],
             'legacy' => $meta['legacy'],
             'flag'   => $flag,
-            // 缺包的语言不给 ui，前端据此退回 zh，不会拉 404 后满屏 [key]
             'ui'     => $meta['ui'] !== '' && is_file($langDir . 'strings_' . $meta['ui'] . '.properties') ? $meta['ui'] : '',
             'active' => $code === $current ? 1 : 0,
         ];
@@ -4619,10 +4221,6 @@ function mac_front_lang_list()
     return $list;
 }
 
-/**
- * 解析当前请求应展示的内容语言：GET lang -> cookie -> Accept-Language -> 默认语言。
- * 仅在允许列表内的取值才会被采纳；GET 命中时顺带写回 cookie 以便后续请求保持。
- */
 function mac_get_content_lang()
 {
     $default = mac_content_lang_default();
@@ -4654,30 +4252,18 @@ function mac_get_content_lang()
         try {
             setcookie($cookieName, $candidate, time() + 86400 * 30, '/');
         } catch (\Exception $e) {
-            // cookie 写入失败（如已输出内容）不影响本次请求的语言解析
         }
     }
 
     return $candidate;
 }
 
-/**
- * 用指定语言覆盖内容行里的可翻译字段；找不到译文或字段为空时保留原文，绝不返回空值。
- * $row 需含 {$contentType}_id 主键字段。
- *
- * 默认内容语言＝原始行（mac_vod/mac_art/...）为准，不走 content_lang：采集、批量、快速编辑、
- * provide API 等写入路径只更新原始行，若默认语言也从 content_lang 取，这些路径改过之后前台会
- * 一直显示后台表单最后一次保存的旧值。只有非默认语言才做译文覆盖。
- */
 function mac_content_lang_overlay($contentType, array $row, $lang = null)
 {
-    // 未启用任何前台内容语言时直接返回：省掉每个详情页一次 mac_content_lang 查询，
-    // 也让"部署了新版代码但还没跑在线升级建表"的存量站点不会因查询缺表而白屏。
     if (empty(mac_content_lang_allow_list())) {
         return $row;
     }
     $lang = $lang ?: \app\common\model\ContentLang::getCurrent();
-    // 默认语言直接用原始行，不查 content_lang（见上方注释）。
     if ($lang === mac_content_lang_default()) {
         return $row;
     }
@@ -4701,10 +4287,6 @@ function mac_content_lang_overlay($contentType, array $row, $lang = null)
     return $row;
 }
 
-/**
- * 是否有已安装的插件注册了 content_translate 钩子（决定后台"自动翻译"按钮是否显示）。
- * maccms12 已迁移到 TP8：无 TP5 \think\Hook，改用 TP8 事件（think\facade\Event）。
- */
 function mac_content_translate_available()
 {
     if (\think\facade\Event::hasListener('content_translate')) {
@@ -4713,12 +4295,6 @@ function mac_content_translate_available()
     return \app\common\util\Translate::available();
 }
 
-/**
- * 调用翻译服务把一段文本从 $from 翻成 $to；失败或未配置时返回空字符串。
- * 优先走已注册的 content_translate 事件插件（第三方翻译插件）；没有插件注册时，
- * 使用内建多供应商适配器（app\common\util\Translate，配置见后台"翻译设置"）。
- * 约定：插件的监听方法返回翻译结果字符串表示成功处理；返回 null 表示"不处理，交给下一个"。
- */
 function mac_content_translate($text, $from, $to, $context = [])
 {
     if (trim((string)$text) === '') {
@@ -4740,7 +4316,6 @@ function mac_content_translate($text, $from, $to, $context = [])
             return $result;
         }
     }
-    // 内建适配器兜底：无插件或插件未处理时，若后台已配置翻译 API 则直接调用
     if (\app\common\util\Translate::available()) {
         $result = \app\common\util\Translate::translate($text, $from, $to);
         return is_string($result) ? $result : '';
@@ -4748,14 +4323,8 @@ function mac_content_translate($text, $from, $to, $context = [])
     return '';
 }
 
-/**
- * 后台"自动翻译"动作的每管理员限流：翻译插件通常调第三方付费 API，被盗账号或误操作
- * 会刷爆配额。默认 40 次/分钟、600 次/小时。
- * @return bool true=允许本次调用，false=已超频
- */
 function mac_content_translate_rate_limit($adminId, $perMinute = 40, $perHour = 600)
 {
-    // 没装翻译插件时没有要保护的第三方配额，直接放行（后续 mac_content_translate() 会 fast-fail）
     if (!mac_content_translate_available()) {
         return true;
     }
@@ -4778,20 +4347,9 @@ function mac_content_translate_rate_limit($adminId, $perMinute = 40, $perHour = 
     return true;
 }
 
-/**
- * 播放/下载/服务器线路配置（vodplayer|voddowner|vodserver）不落库，是 mac_arr2file() 直接写到
- * app/extra 下的 PHP 数组文件，用字符串 key（如 from）取行，没有 mac_content_lang 需要
- * 的整型 content_id，所以不走 ContentLang 模型；译文就近存在同一条目的 content_lang[lang_code] 里，
- * 找不到译文或字段为空时保留原文，绝不返回空值。
- *
- * 注意：不要在 mac_play_list() 里直接套用——它的产物会被 Vod::infoData() 写进不区分语言的
- * vod_detail 核心缓存，先建缓存的语言会把线路译文串给其它语言。调用点应在核心缓存读取「之后」，
- * 与 mac_content_lang_overlay('vod', ...) 同一位置。
- */
 function mac_config_lang_overlay(array $item, array $fields, $lang = null)
 {
     $lang = $lang ?: \app\common\model\ContentLang::getCurrent();
-    // 同 mac_content_lang_overlay()：默认语言以条目本身的字段为准，不做译文覆盖。
     if ($lang === mac_content_lang_default()) {
         return $item;
     }
@@ -4806,7 +4364,6 @@ function mac_config_lang_overlay(array $item, array $fields, $lang = null)
     return $item;
 }
 
-/** 后台界面语言码（BCP47 形式，供 <html lang> 使用）；取当前生效的语言集，而非内容语言 */
 function mac_ui_lang()
 {
     $set = strtolower((string)\think\facade\Lang::getLangSet());
@@ -4818,7 +4375,6 @@ function mac_ui_lang()
     return empty($parts) ? $first : $first . '-' . strtoupper(implode('-', $parts));
 }
 
-/** 前台 <html lang>：跟随当前内容语言，和语言切换器、界面字符串包同一个语向 */
 function mac_html_lang()
 {
     $parts = explode('-', strtolower((string)\app\common\model\ContentLang::getCurrent()));
@@ -4826,9 +4382,6 @@ function mac_html_lang()
     return empty($parts) ? $first : $first . '-' . strtoupper(implode('-', $parts));
 }
 
-/**
- * 界面文字方向：优先用语言包自述的 lang_dir，未注册的语言（没写自述块的包）退回按语言码前缀猜 RTL。
- */
 function mac_ui_lang_dir()
 {
     $set = strtolower((string)\think\facade\Lang::getLangSet());
@@ -4845,11 +4398,6 @@ function mac_ui_lang_dir()
     return 'ltr';
 }
 
-/**
- * 静态资源版本号：按文件最后修改时间生成，改完样式即时生效，不必手动调 MAC_VERSION。
- * 模板用法：<link rel="stylesheet" href="__STATIC__/css/admin.bundle.css?{:mac_asset_ver('css/admin.bundle.css')}">
- * 文件不存在时退回系统版本号，避免模板报错。
- */
 function mac_asset_ver($path)
 {
     $file = ROOT_PATH . 'static/' . ltrim((string) $path, '/');
@@ -4861,17 +4409,11 @@ function mac_asset_ver($path)
     return isset($ver['code']) ? (string) $ver['code'] : 'v10';
 }
 
-/**
- * 前台模板资源版本号。mac_asset_ver() 的根路径写死 static/，够不到
- * template/default/asset/，前台 bundle 用这个。相对 asset/，取不到文件时退回系统版本号。
- * 模板用法：<link href="{$maccms.path_tpl}asset/css/front-tail.bundle.css?{:mac_tpl_asset_ver('css/front-tail.bundle.css')}">
- */
 function mac_tpl_asset_ver($path)
 {
     $base = realpath(ROOT_PATH . 'template' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'asset');
     $rel = str_replace('\\', '/', (string) $path);
     $file = $base === false ? false : realpath($base . '/' . ltrim($rel, '/'));
-    // realpath 之后必须仍落在 asset/ 内，挡掉 ../ 穿越
     if ($file !== false && strpos(str_replace('\\', '/', $file), str_replace('\\', '/', $base) . '/') === 0
         && is_file($file)) {
         $time = (int) filemtime($file);

@@ -1,6 +1,5 @@
 {include file="../../../app/admin/view/public/head" /}
 <style>
-/* label 默认约 80px，四字文案会换行；与 input-block 左边距成对加宽 */
 .page-container .layui-form-label {
     width: 100px;
     white-space: nowrap;
@@ -83,7 +82,6 @@
         var layer = layui.layer;
         var confirmed = false;
 
-        // 发送前预览：弹出确认框展示标题/内容/链接，确认后才真正提交
         document.getElementById('btnPreview').addEventListener('click', function(){
             var title = (document.getElementsByName('notify_title')[0].value || '').trim();
             var content = (document.getElementsByName('notify_content')[0].value || '').trim();

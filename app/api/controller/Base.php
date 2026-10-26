@@ -10,26 +10,15 @@ class Base extends All
     public function __construct()
     {
         parent::__construct();
-        // 前台 AJAX 走同一套内容语言：cookie 里的选择要在 API 响应里生效
         \app\common\model\ContentLang::setCurrent(mac_get_content_lang());
         $this->label_user();
         $config = $GLOBALS['config']['site'];
         $this->assign($config);
 
-        //站点关闭中
         if($config['site_status'] == 0){
-
         }
     }
 
-    /**
-     * 统一搜索建议：Meilisearch + 与列表一致的已发布/回收过滤；无命中时 MySQL LIKE 回退。
-     *
-     * @param string      $kind    vod|art|actor|topic|role|website|manga
-     * @param string|null $urlFlag mac_url_search 第二参数，默认与 $kind 相同
-     *
-     * @return \think\response\Json
-     */
     protected function jsonSuggestByKind(Request $request, $kind, $urlFlag = null)
     {
         if ($GLOBALS['config']['app']['search'] != '1') {
@@ -48,5 +37,4 @@ class Base extends All
 
         return json($res);
     }
-
 }

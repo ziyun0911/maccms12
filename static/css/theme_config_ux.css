@@ -1,7 +1,4 @@
-/**
- * 模板主题配置 — 列表排序 & 分类选择 UI
- * 方向：简洁、高级、高效（后台工具感，非营销页）
- */
+
 .theme-config-ux {
     --tc-ink: #1a1d21;
     --tc-muted: #5c6570;
@@ -20,7 +17,6 @@
     --tc-font: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
 }
 
-/* —— 表单项：label 列宽随文案自适应（--tc-form-label-w 由 JS 按最长 label 计算）—— */
 .theme-config-ux .layui-form-item:not(.js-sortable-item) {
     display: flex;
     flex-wrap: wrap;
@@ -123,7 +119,6 @@
     }
 }
 
-/* —— 可排序列表 —— */
 .theme-config-ux .js-sortable-list {
     position: relative;
     display: flex;
@@ -334,7 +329,6 @@ body.theme-sortable-active .sortable-handle--rail::before {
     }
 }
 
-/* —— 分类选择器 —— */
 .theme-config-ux .type-picker-field {
     display: inline-block;
     vertical-align: top;
@@ -401,7 +395,6 @@ body.theme-sortable-active .sortable-handle--rail::before {
     max-width: 320px;
 }
 
-/* —— 分类弹窗（挂 body，需自带主题变量）—— */
 .type-picker-layer.layui-layer,
 .type-picker-popup {
     --tc-accent: #40cc92;
@@ -422,7 +415,6 @@ body.theme-sortable-active .sortable-handle--rail::before {
     pointer-events: auto;
 }
 
-/* Layui 关闭钮用 sprite 图，勿覆盖 background，改用伪元素绘制 × */
 .type-picker-layer .layui-layer-setwin a {
     display: flex !important;
     align-items: center;
@@ -580,7 +572,6 @@ body.theme-sortable-active .sortable-handle--rail::before {
     color: #fff;
 }
 
-/* 多选：顶部已选分类 */
 .type-picker-selected-bar {
     flex-shrink: 0;
     margin-bottom: 10px;
@@ -707,7 +698,6 @@ body.theme-sortable-active .sortable-handle--rail::before {
     -webkit-overflow-scrolling: touch;
 }
 
-/* 树形分类列表 */
 .type-picker-popup-list--tree .type-picker-tree-item {
     position: relative;
 }
@@ -879,7 +869,6 @@ body.theme-sortable-active .sortable-handle--rail::before {
     text-align: center;
 }
 
-/* 单行导航分类（非列表） */
 .theme-config-ux .theme-nav-picker-block {
     max-width: 520px;
 }
@@ -911,7 +900,6 @@ body.theme-sortable-active .sortable-handle--rail::before {
     max-width: 400px;
 }
 
-/* 分类封面配置：layui 下拉层不被下一行卡片遮挡 */
 .theme-config-ux fieldset.vod-list-cover-typography .layui-field-box,
 .theme-config-ux fieldset.vod-list-cover-typography .theme-list-panel,
 .theme-config-ux fieldset.vod-list-cover-typography .js-sortable-list,
@@ -920,7 +908,6 @@ body.theme-sortable-active .sortable-handle--rail::before {
     overflow: visible;
 }
 
-/* 仅抬 dl 的 z-index 无效：下拉在父行 stacking context 内，需抬升整行 */
 .theme-config-ux .js-sortable-list .js-sortable-item:has(.layui-form-selected),
 .theme-config-ux .js-sortable-list .js-sortable-item.tc-select-open {
     z-index: 100;

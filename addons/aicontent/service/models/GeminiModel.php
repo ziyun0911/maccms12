@@ -2,10 +2,6 @@
 
 namespace addons\aicontent\service\models;
 
-/**
- * Google Gemini integration.
- * API docs: https://ai.google.dev/api/generate-content
- */
 class GeminiModel extends BaseModel
 {
     const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/';
@@ -31,8 +27,6 @@ class GeminiModel extends BaseModel
 
         if ($response['status'] !== 200) {
             $error = $this->parseJson($response['body']);
-            // Use only the parsed message — never echo the raw body, which may contain
-            // reflected URL fragments that expose the API key in error logs.
             $msg   = $error['error']['message'] ?? 'Unknown Gemini API error';
             throw new \RuntimeException("Gemini API error [{$response['status']}]: {$msg}");
         }

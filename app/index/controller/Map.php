@@ -1,7 +1,6 @@
 <?php
 namespace app\index\controller;
 
-
 class Map extends Base
 {
     public function __construct()
@@ -13,5 +12,4 @@ class Map extends Base
     {
         return $this->label_fetch('map/index');
     }
-
 }

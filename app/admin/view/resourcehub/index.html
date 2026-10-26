@@ -142,7 +142,6 @@ var RH_LANG = {
 layui.use(['jquery','layer'], function(){
     var $ = layui.jquery, layer = layui.layer;
 
-    // 清理重复分类（两步式：先预览再确认）
     $('#btnCleanDupTypes').on('click', function(){
         var loading = layer.load(1);
         $.get(RH_URLS.previewDupTypes, {}, function(res){
@@ -153,7 +152,6 @@ layui.use(['jquery','layer'], function(){
                 return;
             }
 
-            // 构建预览表格
             var html = '<div style="padding:15px;max-height:500px;overflow-y:auto;">';
             html += '<p style="color:#FF5722;margin-bottom:10px;">⚠️ ' + RH_LANG.dup_select_hint + '</p>';
             html += '<table class="layui-table" lay-size="sm"><thead><tr><th>'+RH_LANG.col_keep+'</th><th>ID</th><th>{:lang("name")}</th><th>'+RH_LANG.col_ref_count+'</th><th>'+RH_LANG.col_child_count+'</th><th>'+RH_LANG.col_maintained+'</th></tr></thead><tbody>';
@@ -183,7 +181,6 @@ layui.use(['jquery','layer'], function(){
                 content: html,
                 btn: [RH_LANG.btn_confirm_clean, ''],
                 yes: function(index){
-                    // 收集用户选择
                     var actions = [];
                     for(var g=0; g<groups.length; g++){
                         var keepId = parseInt($('input[name="keep_'+g+'"]:checked').val());

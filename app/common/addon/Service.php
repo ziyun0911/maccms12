@@ -6,9 +6,6 @@ use ReflectionMethod;
 use think\facade\Cache;
 use think\facade\Db;
 
-/**
- * 插件生命周期服务：启停、卸载、SQL 导入与钩子清单刷新。
- */
 class Service
 {
     public static function check(string $name): array
@@ -123,9 +120,6 @@ class Service
         }
     }
 
-    /**
-     * 重新生成 app/extra/addons.php 钩子清单。
-     */
     public static function refresh(): bool
     {
         $hooks = [];

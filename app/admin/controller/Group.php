@@ -39,7 +39,6 @@ class Group extends Base
         if (Request()->isPost()) {
             $param = input('post.');
 
-            // VIP 活动价时段：datetime-local 输入(_input) 转 unix 时间戳存库
             foreach (['day', 'week', 'month', 'year'] as $pl) {
                 foreach (['start', 'end'] as $se) {
                     $col = 'group_activity_' . $se . '_time_' . $pl;
@@ -66,7 +65,6 @@ class Group extends Base
         $res = (new \app\common\model\Group())->infoData($where);
 
         $info = $res['info'];
-        // VIP 活动价时段：unix 时间戳转 datetime-local 输入串(_input) 供表单回显
         if (is_array($info)) {
             foreach (['day', 'week', 'month', 'year'] as $pl) {
                 foreach (['start', 'end'] as $se) {
@@ -76,7 +74,6 @@ class Group extends Base
             }
         }
         $this->assign('info',$info);
-
 
         $type_tree = (new \app\common\model\Type())->getCache('type_tree');
         $this->assign('type_tree',$type_tree);
@@ -91,7 +88,6 @@ class Group extends Base
         $ids = $param['ids'];
 
         if(!empty($ids)){
-
             if(strpos(','.$ids.',', ','.$GLOBALS['config']['user']['reg_group'].',')!==false){
                 return $this->error(lang('admin/group/reg_group_del_err'));
             }
@@ -126,6 +122,4 @@ class Group extends Base
         }
         return $this->error(lang('param_err'));
     }
-
-
 }

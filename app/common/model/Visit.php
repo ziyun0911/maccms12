@@ -3,14 +3,11 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Visit extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'visit';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -104,5 +101,4 @@ class Visit extends Base {
         }
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
 }

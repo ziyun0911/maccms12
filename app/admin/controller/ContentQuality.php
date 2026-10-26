@@ -3,16 +3,8 @@ namespace app\admin\controller;
 
 use think\facade\Db;
 
-/**
- * 内容质量看板 —— 分数列表 + 待清理 + 推荐位建议。
- *
- * 新后台控制器：view_path 指向 view，且 fetch() 必须用模块相对形式。
- * 用跨模块前缀形式（module 前缀 + @ + controller/action）的 fetch 会绕过 view_path，
- * 硬解析到旧的 application/admin/view/。
- */
 class ContentQuality extends Base
 {
-    /** 待清理 / 推荐位建议列表各取多少条 */
     const SIDE_LIST_LIMIT = 10;
 
     public function __construct()
@@ -50,9 +42,6 @@ class ContentQuality extends Base
             ->page($page, $limit)
             ->select();
 
-        // 待清理：分数最低的 N 条；推荐位建议：分数最高的 N 条。均只受 mid 筛选影响，不受分数区间筛选影响。
-        // 冷启动内容（is_cold_start=1）尚无行为/互动数据，总分是完整度+新鲜度重新归一得出，不具备参考意义，
-        // 两个建议侧列表都只应基于有真实信号的数据，故排除冷启动行；主列表不受影响，仍展示全部记录。
         $sideWhere = $mid > 0 ? ['mid' => $mid] : [];
         $sideWhere['is_cold_start'] = 0;
         $cleanList = Db::name('ContentQuality')
@@ -66,7 +55,6 @@ class ContentQuality extends Base
             ->limit(self::SIDE_LIST_LIMIT)
             ->select();
 
-        // TP8 的 select() 返回 think\Collection，array_merge 只接受数组
         $listRows = $list instanceof \think\Collection ? $list->all() : (array)$list;
         $cleanRows = $cleanList instanceof \think\Collection ? $cleanList->all() : (array)$cleanList;
         $recommendRows = $recommendList instanceof \think\Collection ? $recommendList->all() : (array)$recommendList;
@@ -87,9 +75,6 @@ class ContentQuality extends Base
         return $this->fetch('content_quality/index');
     }
 
-    /**
-     * 批量查出内容名称（vod/art 各自 IN 查询一次），供模板按 mid_contentId 取名展示。
-     */
     private function buildNameMap($rows)
     {
         $vodIds = [];
@@ -118,11 +103,6 @@ class ContentQuality extends Base
         return $map;
     }
 
-    /**
-     * 「标为推荐」——硬性产品规则：推荐位建议只能由人工在 vod/art 编辑页确认，
-     * 本方法绝不写 vod_level / art_level，只确认该内容确有质量评分记录并返回提示。
-     * 人工采纳请通过推荐列表中的编辑链接跳转到内容编辑页手动调整推荐位。
-     */
     public function markRecommend()
     {
         $param = input('post.');
@@ -141,13 +121,9 @@ class ContentQuality extends Base
             return json(['code' => 0, 'msg' => lang('admin/content_quality/not_found')]);
         }
 
-        // 注意：此处刻意不做任何写操作（不建表记录、不改 vod_level/art_level）。
         return json(['code' => 1, 'msg' => lang('admin/content_quality/mark_recommend_ok')]);
     }
 
-    /**
-     * 校验 CSRF token。本页可连续点多行提交且不刷新，共用一个令牌，所以只比对不销毁。
-     */
     private function checkAjaxToken($param)
     {
         $token = isset($param['__token__']) ? (string)$param['__token__'] : '';

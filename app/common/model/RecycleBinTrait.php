@@ -3,13 +3,8 @@ namespace app\common\model;
 
 use think\facade\Db;
 
-/**
- * 软删除回收站：{prefix}_recycle_time 为 0 表示正常，>0 为移入回收站的时间戳
- * where 中可使用 _recycle：active（默认）、recycle、all
- */
 trait RecycleBinTrait
 {
-    /** @return string 如 vod_recycle_time；返回空字符串表示不使用回收站 */
     abstract protected function getRecycleTimeField(): string;
 
     protected function ensureRecycleColumnExists()
@@ -24,7 +19,6 @@ trait RecycleBinTrait
             return;
         }
         try {
-            // MySQL SHOW 语句在 PDO 原生预处理下不支持占位符，必须拼接字面量
             $rows = Db::query("SHOW COLUMNS FROM `" . str_replace('`', '``', $table) . "` LIKE '" . addslashes($f) . "'");
         } catch (\Exception $e) {
             $done[$table] = true;

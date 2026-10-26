@@ -128,14 +128,11 @@
 </div>
 {include file="../../../app/admin/view/public/foot" /}
 <script type="text/javascript">
-
     layui.use(['form', 'layer'], function () {
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer
                 , $ = layui.jquery;
 
-        // 验证
         form.verify({
             from: function (value) {
                 if (value == "") {
@@ -149,7 +146,6 @@
             }
         });
 
-        // 内容级多语言：单字段自动翻译（保存随主表单一起提交，不单独 ajax 保存）
         $('.cl-translate-btn').on('click', function () {
             var $btn = $(this);
             var lang = $btn.data('lang');

@@ -7,10 +7,6 @@ use addons\aicontent\model\AiTask;
 use addons\aicontent\service\ModelFactory;
 use addons\aicontent\Aicontent;
 
-/**
- * Backend admin controller for the AI Content Assistant plugin.
- * Routes under: /addons/aicontent/admin/
- */
 class Admin extends Controller
 {
     protected $noNeedLogin  = [];
@@ -20,12 +16,6 @@ class Admin extends Controller
     {
         parent::_initialize();
 
-        // Verify MaCMS admin session.
-        // MaCMS requires renaming admin.php (e.g. to manage.php / abcd.php).
-        // The actual entry filename is only known at runtime via $_SERVER['SCRIPT_NAME']
-        // and exposed as the JS global ADMIN_PATH — there is no cookie for it.
-        // For non-AJAX requests we therefore return a plain JSON error + exit,
-        // since we cannot reliably construct the login URL.
         if (session('admin_auth') !== '1' || empty(session('admin_info'))) {
             echo json_encode(['code' => 0, 'message' => lang('Session expired. Please log in to the admin panel and try again.')]);
             exit;
@@ -41,10 +31,6 @@ class Admin extends Controller
         }
     }
 
-    /**
-     * Dashboard — task history and stats.
-     * GET /addons/aicontent/admin/index
-     */
     public function index()
     {
         $page    = (int) input('page', 1);
@@ -67,17 +53,11 @@ class Admin extends Controller
         ]);
     }
 
-    /**
-     * Manual content generation form.
-     * GET  /addons/aicontent/admin/generate
-     * POST /addons/aicontent/admin/generate (handled by Api controller)
-     */
     public function generate()
     {
         $config    = addon_config('aicontent');
         $providers = ModelFactory::getProviders();
 
-        // Build models-per-provider JSON for JS dynamic dropdown
         $modelsMap = [];
         foreach (array_keys($providers) as $slug) {
             $modelsMap[$slug] = ModelFactory::getModelsForProvider($slug);
@@ -91,10 +71,6 @@ class Admin extends Controller
         ]);
     }
 
-    /**
-     * View a single task result.
-     * GET /addons/aicontent/admin/view?id=123
-     */
     public function view()
     {
         $id   = (int) input('id');
@@ -115,10 +91,6 @@ class Admin extends Controller
         ]);
     }
 
-    /**
-     * Delete a task record.
-     * POST /addons/aicontent/admin/delete
-     */
     public function delete()
     {
         $id   = (int) input('id');

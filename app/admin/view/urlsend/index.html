@@ -123,7 +123,6 @@
             , form = layui.form
             , layer = layui.layer;
 
-
         element.on('tab(tb1)', function () {
             $.cookie('urlsend_tab', this.getAttribute('lay-id'));
         });
@@ -131,8 +130,6 @@
         if ($.cookie('urlsend_tab') != null) {
             element.tabChange('tb1', $.cookie('urlsend_tab'));
         }
-
-
 
     });
     function post(p) {
@@ -151,7 +148,6 @@
             $('.layui-tab-item').first().addClass('layui-show');
         }
     });
-
 </script>
 </body>
 

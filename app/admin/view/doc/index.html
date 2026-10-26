@@ -41,8 +41,6 @@ jQuery(function ($) {
     $('#docFilter').on('input keyup', function () {
         var kw = $.trim(this.value).toLowerCase();
         var hit = 0;
-        // 一次遍历同时决定行和卡的显隐；不能用 :visible 判断——分组卡刚被隐藏时
-        // 里面的行即使 display 恢复也查不出可见，卡片会永远翻不回来
         $groups.each(function () {
             var $group = $(this), shown = 0;
             $group.find('.doc-row').each(function () {

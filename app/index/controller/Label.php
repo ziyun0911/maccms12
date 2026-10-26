@@ -1,14 +1,8 @@
 <?php
 namespace app\index\controller;
 
-
 class Label extends Base
 {
-    /**
-     * 排行榜独立页：分类列表与首页 module/index_theme_vars 中 $index_rank_types 规则一致，
-     * 便于调用相同的 vod/get_rank 接口并得到同一批栏目。
-     * 优先级：theme.rank.hid（与首页一致）> theme.rank.id（旧独立页配置）> 等价于 hid 为空时的 parent。
-     */
     protected function labelRankTypesForPage(): array
     {
         $mc = isset($GLOBALS['mctheme']) && is_array($GLOBALS['mctheme'])
@@ -73,11 +67,6 @@ class Label extends Base
         return $out;
     }
 
-    /**
-     * 自定义页入口：URL 里的动作名即模板名（label/<action>.html），各主题自带哪些文件不同，
-     * 所以不逐个定义方法。TP8 的 think\route\Dispatch 用 is_callable 判定动作，未定义的动作
-     * 会落到 __call；若仍让未定义动作直接抛给框架，前台就会显示「方法不存在」调试页。
-     */
     public function __call($name, $arguments)
     {
         return $this->label_page($name);
@@ -97,19 +86,16 @@ class Label extends Base
         $file = str_replace('\\', '/', (string) $file);
         if (strpos($file, '/') !== false
             || !file_exists($GLOBALS['MAC_ROOT_TEMPLATE'] . 'label/' . $file . '.html')) {
-            // 当前主题没有这个自定义页：给站点自己的 404，而不是框架报错页
             $this->page_error(lang('illegal_request'));
         }
 
         if ($file === 'rank') {
-            // 空列表交给前端按当前界面语言渲染“全站”
             $types = $this->labelRankTypesForPage();
             $mc = isset($GLOBALS['mctheme']) && is_array($GLOBALS['mctheme'])
                 ? $GLOBALS['mctheme']
                 : (config('mctheme') ?: ['theme' => []]);
             $rankCfg = (isset($mc['theme']['rank']) && is_array($mc['theme']['rank'])) ? $mc['theme']['rank'] : [];
             $vodNum = max(1, min(50, (int) ($rankCfg['num'] ?? 6)));
-            // 未配置标题时留空，由前端取 string_rank，避免写死中文兜底
             $rankTitleSuffix = isset($rankCfg['title']) ? trim((string) $rankCfg['title']) : '';
             $this->assign('label_rank_types', $types);
             $this->assign('label_rank_config', [

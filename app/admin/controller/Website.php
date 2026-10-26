@@ -89,7 +89,6 @@ class Website extends Base
     {
         $param = input();
         if (!empty($param)) {
-
             mac_echo('<style type="text/css">body{font-size:12px;color: #333333;line-height:21px;}span{font-weight:bold;color:#FF0000}</style>');
 
             if(empty($param['ck_del']) && empty($param['ck_level']) && empty($param['ck_status']) && empty($param['ck_lock']) && empty($param['ck_hits']) ){
@@ -126,7 +125,6 @@ class Website extends Base
                     $where['website_name'] = $like;
                 }
             }
-
 
             if($param['ck_del'] == 1){
                 $res = (new \app\common\model\Website())->delData($where);
@@ -181,7 +179,6 @@ class Website extends Base
                 }
                 mac_echo($des);
                 $res2 = (new \app\common\model\Website())->where($where2)->update($update);
-
             }
             $param['page']++;
             $url = url('website/batch') .'?'. http_build_query($param);
@@ -232,7 +229,6 @@ class Website extends Base
         $type_tree = (new \app\common\model\Type())->getCache('type_tree');
         $this->assign('type_tree',$type_tree);
 
-        //内容级多语言
         $content_lang_default = mac_content_lang_default();
         $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
         $content_lang_data = [];
@@ -251,9 +247,6 @@ class Website extends Base
         return $this->fetch('admin@website/info');
     }
 
-    /**
-     * 调用已安装的翻译插件（若有）翻译单个字段。
-     */
     public function contentLangTranslate()
     {
         $text = (string)input('post.text', '');
@@ -312,9 +305,6 @@ class Website extends Base
         if ($col == 'type_id' && $val==''){
             return $this->error(lang('select_type_must'));
         }
-        // 与 batch() 同一套白名单：目标分类必须存在且属于网址模块(type_mid=11)。
-        // field() 同样是一次改整批数据的入口，表单可被直接构造，写进不存在或跨模块的
-        // type_id 后前台按分类取数会整批丢失。取一次缓存供下面复用。
         $type_pid = 0;
         if($col == 'type_id'){
             $type_list = (new \app\common\model\Type())->getCache();
@@ -361,5 +351,4 @@ class Website extends Base
         $res = (new \app\common\model\Website())->updateToday($flag);
         return json($res);
     }
-
 }

@@ -57,5 +57,4 @@ class Plog extends Base
         }
         return $this->error(lang('param_err'));
     }
-
 }

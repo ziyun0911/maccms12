@@ -1,18 +1,11 @@
 <?php
 namespace app\common\util;
 
-/**
- * Server-side UEditor AI: calls upstream using ai_seo only (never exposed to browser).
- */
 class UeditorAiProxy
 {
     const ANTHROPIC_VERSION = '2023-06-01';
     const MAX_PROMPT_CHARS = 32000;
 
-    /**
-     * @param array $ai ai_seo from maccms
-     * @return array{ok:bool,text:string,error:string,log_detail:string}
-     */
     public static function complete(array $ai, $systemPrompt, $userPrompt)
     {
         $systemPrompt = self::clip((string) $systemPrompt);

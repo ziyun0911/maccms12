@@ -38,9 +38,6 @@ class TaskLog extends Base {
         return ['code' => 1, 'msg' => lang('del_ok')];
     }
 
-    /**
-     * 获取或创建用户的每日任务记录
-     */
     public function getOrCreateDaily($user_id, $task_id, $task_action, $date = null)
     {
         $date = $date ?: date('Y-m-d');
@@ -69,17 +66,11 @@ class TaskLog extends Base {
         return $data;
     }
 
-    /**
-     * 获取用户新手任务记录（固定日期 2000-01-01）
-     */
     public function getOrCreateNewbie($user_id, $task_id, $task_action)
     {
         return $this->getOrCreateDaily($user_id, $task_id, $task_action, '2000-01-01');
     }
 
-    /**
-     * 增加每日任务进度
-     */
     public function addProgress($user_id, $task_action, $increment = 1)
     {
         $task = Db::name('Task')->where(['task_action' => $task_action, 'task_status' => 1])->find();
@@ -103,9 +94,6 @@ class TaskLog extends Base {
         return ['code' => 1, 'msg' => 'ok', 'info' => $log];
     }
 
-    /**
-     * 领取任务奖励
-     */
     public function claimReward($user_id, $task_id)
     {
         $task = Db::name('Task')->where(['task_id' => $task_id, 'task_status' => 1])->find();
@@ -130,7 +118,6 @@ class TaskLog extends Base {
             return ['code' => 1004, 'msg' => lang('task/already_claimed')];
         }
 
-        // 发放积分（事务保护，与 SignLog::doSign / SignMilestone::claimMilestone 一致）
         $points = $task['task_points'];
 
         Db::startTrans();
@@ -146,7 +133,6 @@ class TaskLog extends Base {
                 throw new \Exception('user_points');
             }
 
-            // 积分日志 plog_type=11 任务/签到奖励（与 SignLog::doSign 一致；9 保留为提现）
             $plog = [
                 'user_id' => $user_id,
                 'plog_type' => 11,
@@ -167,15 +153,11 @@ class TaskLog extends Base {
         return ['code' => 1, 'msg' => lang('task/claim_ok'), 'info' => ['points' => $points]];
     }
 
-    /**
-     * 获取用户今日所有任务状态
-     */
     public function getUserTaskStatus($user_id, $user_info = [])
     {
         $tasks = (new \app\common\model\Task())->getActiveTasks();
         $today = date('Y-m-d');
 
-        // 取今日每日任务记录
         $daily_logs = Db::name('TaskLog')->where([
             'user_id' => $user_id,
             'log_date' => $today,
@@ -185,7 +167,6 @@ class TaskLog extends Base {
             $daily_map[$l['task_id']] = $l;
         }
 
-        // 取新手任务记录
         $newbie_logs = Db::name('TaskLog')->where([
             'user_id' => $user_id,
             'log_date' => '2000-01-01',
@@ -195,7 +176,6 @@ class TaskLog extends Base {
             $newbie_map[$l['task_id']] = $l;
         }
 
-        // 组装每日任务
         $daily_result = [];
         foreach ($tasks['daily'] as $t) {
             $log = isset($daily_map[$t['task_id']]) ? $daily_map[$t['task_id']] : null;
@@ -204,14 +184,12 @@ class TaskLog extends Base {
             $daily_result[] = $t;
         }
 
-        // 组装新手任务（检测型策略A）
         $newbie_result = [];
         foreach ($tasks['newbie'] as $t) {
             $log = isset($newbie_map[$t['task_id']]) ? $newbie_map[$t['task_id']] : null;
             $detected = $this->detectNewbieCompletion($t['task_action'], $user_info);
 
             if ($detected && (!$log || $log['log_status'] == 0)) {
-                // 检测到已完成，自动更新记录
                 $log_record = $this->getOrCreateNewbie($user_id, $t['task_id'], $t['task_action']);
                 Db::name('TaskLog')->where('log_id', $log_record['log_id'])->update([
                     'log_progress' => $t['task_target'],
@@ -226,7 +204,6 @@ class TaskLog extends Base {
             $newbie_result[] = $t;
         }
 
-        // 今日已获积分
         $today_earned = (int)Db::name('TaskLog')->where([
             'user_id' => $user_id,
             'log_date' => $today,
@@ -240,9 +217,6 @@ class TaskLog extends Base {
         ];
     }
 
-    /**
-     * 检测新手任务是否已完成（策略A - 零侵入）
-     */
     protected function detectNewbieCompletion($action, $user_info)
     {
         if (empty($user_info)) return false;

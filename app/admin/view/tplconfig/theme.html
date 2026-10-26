@@ -2581,7 +2581,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                             line-height: 1.7;
                                             color: #667085;
                                         }
-                                    </style>
+</style>
                                     <script type="application/json" id="ad-slots-json">{:json_encode($tplconfig['theme']['ad_slots'] ?? [], JSON_UNESCAPED_UNICODE)}</script>
 
                                     <div class="layui-tab layui-tab-card" lay-filter="adSlotTab">
@@ -2736,7 +2736,6 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
 <script type="text/javascript" src="__STATIC__/js/theme_config_ux.js?{$MAC_VERSION}"></script>
 <script type="text/javascript">
     layui.use(['form', 'upload', 'layer', 'element'], function () {
-            // 操作对象
             var form = layui.form
                 , layer = layui.layer
                 , upload = layui.upload
@@ -2812,7 +2811,6 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                 $(".showpic").css("display", "none");
             });
 
-            // 首页模块动态增删
             function rebuildHomeModuleNames() {
                 var $items = $('#home-module-list .home-module-item');
                 $items.each(function (index) {
@@ -2860,7 +2858,6 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                 rebuildHomeModuleNames();
                 afterListMutation($clone);
             });
-            // 初始重排一次，防止因配置不完整导致索引不一致
             rebuildHomeModuleNames();
 
             function rebuildHotvodTabNames() {
@@ -2901,7 +2898,6 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
             });
             rebuildHotvodTabNames();
 
-            // 分类列表封面方向（theme[list_cover]）
             function rerenderVodListCoverSelects() {
                 var $list = $('#vod-list-cover-list');
                 $list.find('.layui-form-select').remove();
@@ -2948,8 +2944,6 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
             });
             rebuildVodListCoverNames();
 
-
-            // 全部分类动态增删（最多 20 条）
             function rebuildAllmenuNames() {
                 var $items = $('#allmenu-list .allmenu-item');
                 $items.each(function (index) {
@@ -2992,7 +2986,6 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
             });
             rebuildAllmenuNames();
 
-            // 底部导航动态增删（最多 4 条）
             function rebuildBnavNames() {
                 var $items = $('#bnav-list .bnav-item');
                 $items.each(function (index) {
@@ -3084,7 +3077,6 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
             });
             rebuildBnavNames();
 
-            // 广告位配置（ad_slots）动态表格
             var adSlotsData = {};
             try {
                 adSlotsData = JSON.parse($('#ad-slots-json').text() || '{}');

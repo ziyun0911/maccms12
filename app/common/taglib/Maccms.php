@@ -4,7 +4,6 @@ use think\template\TagLib;
 use think\facade\Db;
 
 class Maccms extends Taglib {
-
 	protected $tags = [
 	    'link'=> ['attr'=>'order,by,type,not,start,num,cachetime'],
         'area'=> ['attr'=>'order,start,num'],
@@ -62,8 +61,6 @@ class Maccms extends Taglib {
         if(empty($tag['key'])){
             $tag['key'] = 'key';
         }
-        // foreach标签强化
-        // https://github.com/magicblack/maccms10/issues/984
         $parse_addon = '';
         if(!empty($tag['offset'])){
             $parse_addon .= ' offset="'.$tag['offset'].'"';

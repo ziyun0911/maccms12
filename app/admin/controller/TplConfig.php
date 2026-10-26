@@ -4,9 +4,6 @@ namespace app\admin\controller;
 
 class TplConfig extends Base
 {
-    /**
-     * 默认模板主题配置
-     */
     public function theme()
     {
         if (request()->isPost()) {
@@ -52,7 +49,6 @@ class TplConfig extends Base
             if (isset($tplconfig['list_cover']['vod']) && is_array($tplconfig['list_cover']['vod'])) {
                 $vodRows = $tplconfig['list_cover']['vod'];
             } elseif (isset($tplconfig['type']['list_cover']) && is_array($tplconfig['type']['list_cover'])) {
-                // 兼容旧结构，避免历史配置迁移期间丢失
                 $vodRows = $tplconfig['type']['list_cover'];
             }
             $listCoverVod = [];
@@ -176,7 +172,6 @@ class TplConfig extends Base
             if ($res === false) {
                 return $this->error(lang('save_err'));
             }
-            // 与 ThinkPHP 配置、$GLOBALS 同步，当前请求内模板与 mac_tpl_* 立即生效
             \think\facade\Config::set($tplconfig_new, 'mctheme');
             $GLOBALS['mctheme'] = $tplconfig_new;
             return $this->success(lang('save_ok'));
@@ -197,9 +192,6 @@ class TplConfig extends Base
         return $this->fetch('admin@tplconfig/theme');
     }
 
-    /**
-     * 主题配置页分类选择器：按 type_mid 分组的选项（1=视频 2=文章 12=漫画，all=全部）
-     */
     protected function buildThemeTypeOptions(array $type_tree)
     {
         $midLabels = [
@@ -256,9 +248,6 @@ class TplConfig extends Base
         return $groups;
     }
 
-    /**
-     * 主题配置页 JS 文案（分类选择器、排序等）
-     */
     protected function assignThemeUxI18n()
     {
         $this->assign('theme_ux_i18n_json', json_encode([
@@ -301,9 +290,6 @@ class TplConfig extends Base
         ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP));
     }
 
-    /**
-     * type_id => {id, name, mid}，供前端回显 Tab 与失效 ID
-     */
     protected function buildThemeTypeIndex(array $type_tree)
     {
         $index = [];
@@ -331,10 +317,6 @@ class TplConfig extends Base
         return $index;
     }
 
-    /**
-     * 广告位配置规范化（固定结构）：
-     * slot => ['ad_type_id' => ?, 'ad_data' => [ ... ]]
-     */
     protected function normalizeAdSlots($adSlots)
     {
         if (!is_array($adSlots)) {
@@ -373,7 +355,6 @@ class TplConfig extends Base
                 }
                 $item['area'] = $meta['area'];
 
-                // 至少有一个有效业务字段才保留，避免空行写入配置
                 $hasPayload = false;
                 $payloadFields = ['url', 'image', 'code', 'text', 'name', 'note'];
                 foreach ($payloadFields as $k) {
@@ -387,9 +368,6 @@ class TplConfig extends Base
         return $normalized;
     }
 
-    /**
-     * 列表封面 Tab：封面比例、漫画/资讯/直播方向等表单默认值（服务端渲染，勿在模板写 {php}）
-     */
     protected function assignThemeListCoverViewVars(array $tplconfig)
     {
         $theme = isset($tplconfig['theme']) && is_array($tplconfig['theme']) ? $tplconfig['theme'] : array();
@@ -407,9 +385,6 @@ class TplConfig extends Base
         $this->assign('posterRatioV_H', max(1, min(999, (int) (isset($coverRatio['v_h']) ? $coverRatio['v_h'] : 29))));
     }
 
-    /**
-     * 直播列表封面方向：优先 live_default；兼容旧版 list_cover.live 按分类配置（取首个有效值）
-     */
     protected function resolveLiveListCoverDefault(array $listCover)
     {
         if (isset($listCover['live_default'])) {

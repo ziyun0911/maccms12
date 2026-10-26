@@ -1,12 +1,8 @@
 <?php
 namespace app\index\controller;
 
-/**
- * PWA：动态 manifest、根作用域 Service Worker、离线壳页。
- */
 class Pwa extends Base
 {
-    /** manifest / sw / offline 在站点维护或微信引导时仍须可用 */
     protected function check_site_status()
     {
     }
@@ -33,7 +29,6 @@ class Pwa extends Base
         $icon192 = mac_url_img($tplBase . '/asset/img/pwa/icon-192.png');
         $icon512 = mac_url_img($tplBase . '/asset/img/pwa/icon-512.png');
 
-        // scope / id 用不含 query 的安装目录，确保应用身份稳定（子目录安装亦正确）
         $scope = MAC_PATH;
         if ($scope === '' || $scope === '/') {
             $scope = '/';
@@ -68,7 +63,6 @@ class Pwa extends Base
             ];
         }
 
-        // handle_links / capture_links：避免浏览器把站内链接（含后台打开前台）劫持进已安装 PWA
         $manifest = [
             'name' => $name,
             'short_name' => $shortName,

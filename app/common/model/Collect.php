@@ -8,15 +8,11 @@ use think\Request;
 use app\common\validate\Vod as VodValidate;
 
 class Collect extends Base {
-
-    // 设置数据表（不含前缀）
     protected $name = 'collect';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -78,14 +74,8 @@ class Collect extends Base {
         return ['code'=>1,'msg'=>lang('del_ok')];
     }
 
-    /**
-     * 缓存清理标志位，确保一次请求内只清理一次
-     */
     private $_cacheClearedFlag = false;
 
-    /**
-     * 采集完成后自动清理缓存
-     */
     private function collectCacheClear()
     {
         if ($this->_cacheClearedFlag) {
@@ -251,7 +241,6 @@ class Collect extends Base {
         $type_list = (new \app\common\model\Type())->getCache('type_list');
         $bind_list = config('bind');
 
-
         $key = 0;
         $array_data = [];
         foreach($xml->list->video as $video){
@@ -263,7 +252,6 @@ class Collect extends Base {
                 $array_data[$key]['type_id'] = 0;
             }
             $array_data[$key]['vod_id'] = (string)$video->id;
-            //$array_data[$key]['type_id'] = (string)$video->tid;
             $array_data[$key]['vod_name'] = (string)$video->name;
             $array_data[$key]['vod_sub'] = (string)$video->subname;
             $array_data[$key]['vod_remarks'] = (string)$video->note;
@@ -285,12 +273,10 @@ class Collect extends Base {
             if($array_data[$key]['vod_serial']){
                 $array_data[$key]['vod_isend'] = 0;
             }
-            //格式化地址与播放器
             $array_from = [];
             $array_url = [];
             $array_server=[];
             $array_note=[];
-            //videolist|list播放列表不同
             if(isset($video->dl->dd) && $count=count($video->dl->dd)){
                 for($i=0; $i<$count; $i++){
                     $array_from[$i] = (string)$video->dl->dd[$i]['flag'];
@@ -325,7 +311,6 @@ class Collect extends Base {
 
         $array_type = [];
         $key=0;
-        //分类列表
         if($param['ac'] == 'list'){
             foreach($xml->class->ty as $ty){
                 $array_type[$key]['type_id'] = (string)$ty->attributes()->id;
@@ -397,12 +382,10 @@ class Collect extends Base {
             }
 
             if(!empty($v['dl'])) {
-                //格式化地址与播放器
                 $array_from = [];
                 $array_url = [];
                 $array_server = [];
                 $array_note = [];
-                //videolist|list播放列表不同
                 foreach ($v['dl'] as $k2 => $v2) {
                     $array_from[] = $k2;
                     $urls = explode('#', $v2);
@@ -421,7 +404,6 @@ class Collect extends Base {
 
         $array_type = [];
         $key=0;
-        //分类列表
         if($param['ac'] == 'list'){
             foreach($json['class'] as $k=>$v){
                 $array_type[$key]['type_id'] = $v['type_id'];
@@ -436,20 +418,17 @@ class Collect extends Base {
 
     private function sortPlayUrls($urls) {
         $sorted = [];
-        $datePartMap = []; // 用于存储同一日期的上下期
+        $datePartMap = [];
 
         foreach ($urls as $url) {
-            // 匹配纯数字集数：第1集、EP1、E1等
             if (preg_match('/(?:第|EP|E)?(\d+)(?:集|话|回)?/', $url, $matches)) {
                 $episode = (int)$matches[1];
                 $sorted[$episode] = $url;
             }
-            // 匹配日期+上下期格式：20250120上、20250120下、20250120中
             elseif (preg_match('/(\d{8})([上中下])/', $url, $matches)) {
-                $datePart = $matches[1]; // 20250120
-                $part = $matches[2];     // 上/中/下
+                $datePart = $matches[1];
+                $part = $matches[2];
 
-                // 优先级：下 > 中 > 上
                 if (!isset($datePartMap[$datePart])) {
                     $datePartMap[$datePart] = ['part' => $part, 'url' => $url];
                 } else {
@@ -464,7 +443,6 @@ class Collect extends Base {
             }
         }
 
-        // 将过滤后的日期上下期加入排序结果
         foreach ($datePartMap as $item) {
             $sorted[] = $item['url'];
         }
@@ -473,12 +451,8 @@ class Collect extends Base {
         return array_values($sorted);
     }
 
-    /**
-     * 统计播放组集数
-     */
     private function getPlayGroupEpisodeCount($v, $play_group_episode_count = [])
     {
-        // 如果播放地址更新没有统计集数，则在这里统计
         if (empty($play_group_episode_count) && !empty($v['vod_play_from'])) {
             $tmp_play_from_arr = explode('$$$', $v['vod_play_from']);
             $tmp_play_url_arr = explode('$$$', $v['vod_play_url']);
@@ -493,15 +467,11 @@ class Collect extends Base {
         return $play_group_episode_count;
     }
 
-    /**
-     * 找出集数最多的播放组
-     */
     private function findMaxEpisodePlayGroup($play_group_episode_count)
     {
         if (empty($play_group_episode_count)) {
             return '';
         }
-        // 找出集数最多的播放组
         $max_episode_count = 0;
         $max_episode_play_from = '';
         foreach ($play_group_episode_count as $play_from => $episode_count) {
@@ -514,16 +484,12 @@ class Collect extends Base {
         return $max_episode_play_from;
     }
 
-    /**
-     * 根据播放组获取备注
-     */
     private function getRemarksByPlayGroup($v, $update, $max_episode_play_from)
     {
         if (empty($max_episode_play_from)) {
             return null;
         }
 
-        // 使用更新后的 vod_play_note，如果已经在前面更新过
         $current_play_note = isset($update['vod_play_note']) ? $update['vod_play_note'] : $v['vod_play_note'];
         $play_from_arr = explode('$$$', $v['vod_play_from']);
         $play_note_arr = explode('$$$', $current_play_note);
@@ -533,7 +499,6 @@ class Collect extends Base {
             return $play_note_arr[$max_play_key];
         }
 
-        // 如果找不到对应的备注，但有API传递的备注，则使用API备注
         if (!empty($v['vod_remarks'])) {
             return $v['vod_remarks'];
         }
@@ -541,35 +506,25 @@ class Collect extends Base {
         return null;
     }
 
-    /**
-     * 处理视频备注更新逻辑
-     * 根据集数最多的播放组来更新备注
-     */
     private function handleVodRemarksUpdate($v, $info, $update, $play_group_episode_count)
     {
-        // 优先使用 API 明确传递的备注（如果不为空且与当前不同）
         $should_use_api_remarks = !empty($v['vod_remarks']) && $v['vod_remarks'] != $info['vod_remarks'];
 
-        // 如果 API 明确传递了不同的备注，直接使用
         if ($should_use_api_remarks) {
             return $v['vod_remarks'];
         }
 
-        // 根据播放组来更新备注
         $play_group_episode_count = $this->getPlayGroupEpisodeCount($v, $play_group_episode_count);
 
         if (!empty($play_group_episode_count)) {
-            // 找出集数最多的播放组
             $max_episode_play_from = $this->findMaxEpisodePlayGroup($play_group_episode_count);
 
-            // 获取对应播放组的备注
             $remarks = $this->getRemarksByPlayGroup($v, $update, $max_episode_play_from);
             if ($remarks !== null) {
                 return $remarks;
             }
         }
 
-        // 如果以上都没有找到合适的备注，但有API传递的备注且与当前不同，则使用API备注
         if (!empty($v['vod_remarks']) && $v['vod_remarks'] != $info['vod_remarks']) {
             return $v['vod_remarks'];
         }
@@ -577,27 +532,16 @@ class Collect extends Base {
         return null;
     }
 
-    /**
-     * 同步图片
-     *
-     * @param $pic_status int 是否同步。为1时，同步图片
-     * @param $pic_url
-     * @param string $flag
-     * @return array
-     */
     private function syncImages($pic_status, $pic_url, $flag = 'vod')
     {
         $img_url_downloaded = $pic_url;
         if ($pic_status == 1) {
-            // 清理失败标记，获取真实URL
             $clean_url = str_replace('#err', '', $pic_url);
             $config = (array)config('maccms.upload');
             $img_url_downloaded = (new \app\common\model\Image())->down_load($clean_url, $config, $flag);
             if ($img_url_downloaded == $clean_url || strpos($img_url_downloaded, '#err') !== false) {
-                // 下载失败，显示老图信息
                 $des = '<a href="' . $clean_url . '" target="_blank">' . $clean_url . '</a><font color=red>'.lang('download_err').'!</font>';
             } else {
-                // 下载成功，显示新图信息
                 if (str_starts_with($img_url_downloaded, 'upload/')) {
                     $link = MAC_PATH . $img_url_downloaded;
                 } else {
@@ -650,8 +594,6 @@ class Collect extends Base {
             } elseif (mac_array_filter($filter_arr,$v['vod_name']) !==false) {
                 $des = lang('model/collect/name_in_filter_err');
             } elseif ($filter_year_list && !in_array(intval($v['vod_year']), $filter_year_list)) {
-                // 采集时，过滤年份
-                // https://github.com/magicblack/maccms10/issues/1057
                 $color = 'orange';
                 $des = 'year [' . intval($v['vod_year']) . '] not in: ' . join(',', $filter_year_list);
             } else {
@@ -670,13 +612,9 @@ class Collect extends Base {
                 if(empty($v['vod_letter'])){
                     $v['vod_letter'] = strtoupper(substr($v['vod_en'],0,1));
                 }
-                // 使用资源站的添加时间，更新时间保持当前
-                // https://github.com/magicblack/maccms10/issues/780
                 if (empty($v['vod_time_add']) || strlen($v['vod_time_add']) != 10) {
                     $v['vod_time_add'] = time();
                 }
-                // 支持外部自定义修改时间
-                // https://github.com/magicblack/maccms10/issues/862
                 $v['vod_time'] = time();
                 if (!empty($v['vod_time_update']) && strlen($v['vod_time_update']) == 10) {
                     $v['vod_time'] = (int)$v['vod_time_update'];
@@ -799,7 +737,6 @@ class Collect extends Base {
                     $where['vod_douban_id'] = intval($v['vod_douban_id']);
                 }
 
-                // 安全回退：如果 $where 为空（所有 inrule 字段都为空值），则使用 vod_name 作为判断依据
                 if (empty($where) && !empty($v['vod_name'])) {
                     $where['vod_name'] = mac_filter_xss($v['vod_name']);
                 }
@@ -810,7 +747,6 @@ class Collect extends Base {
                         'vod_actor'    => $where['vod_actor'],
                         'vod_director' => $where['vod_director'],
                     ];
-                    // 结果太大时，筛选更耗时。仅在结果数量较小时，才加入
                     $GLOBALS['blend']['vod_id'] = null;
                     if ($vod_search_enabled && count($search_actor_id_list) <= $vs_max_id_count) {
                         $GLOBALS['blend']['vod_id'] = $search_actor_id_list;
@@ -824,7 +760,6 @@ class Collect extends Base {
                 if(empty($v['vod_down_url'])){
                     $v['vod_down_url'] = '';
                 }
-                //验证地址
                 $cj_play_from_arr = explode('$$$',$v['vod_play_from'] );
                 $cj_play_url_arr = explode('$$$',$v['vod_play_url']);
                 $cj_play_server_arr = explode('$$$',$v['vod_play_server']);
@@ -833,7 +768,6 @@ class Collect extends Base {
                 $cj_down_url_arr = explode('$$$',$v['vod_down_url']);
                 $cj_down_server_arr = explode('$$$',$v['vod_down_server']);
                 $cj_down_note_arr = explode('$$$',$v['vod_down_note']);
-
 
                 $collect_filter=[];
                 foreach($cj_play_from_arr as $kk=>$vv){
@@ -914,7 +848,6 @@ class Collect extends Base {
                             if (!empty($GLOBALS['blend']['vod_id'])) {
                                 $query->whereOr('vod_id', 'IN', $GLOBALS['blend']['vod_id']);
                             } else {
-                                // TP8 兼容：blend vod_actor 为 ['like',[...],'OR']，需拆成多个 whereOr
                                 $blendActors = $GLOBALS['blend']['vod_actor'][1] ?? [];
                                 if (!empty($blendActors) && is_array($blendActors)) {
                                     foreach ($blendActors as $actorPattern) {
@@ -925,13 +858,11 @@ class Collect extends Base {
                         })
                         ->find();
                 }
-                // 优化自动生成TAG https://github.com/magicblack/maccms10/issues/1178
                 if ($config['tag'] == 1 && empty($v['vod_tag']) && empty($info['vod_tag'])) {
                     $v['vod_tag'] = mac_filter_xss(mac_get_tag($v['vod_name'], $v['vod_content']));
                 }
 
                 if (!$info) {
-                    // 新增
                     if ($param['opt'] == 2) {
                         $des= lang('model/collect/not_check_add');
                     } else {
@@ -960,7 +891,6 @@ class Collect extends Base {
                         }
                     }
                 } else {
-                    // 更新
                     if(empty($config['uprule'])){
                         $des = lang('model/collect/uprule_empty');
                     }
@@ -975,7 +905,6 @@ class Collect extends Base {
 
                         $update = [];
                         $ec=false;
-                        // 记录每个播放组的集数，用于后续选择集数最多的播放组
                         $play_group_episode_count = [];
 
                         if($param['filter'] ==1 || $param['filter']==3){
@@ -999,7 +928,6 @@ class Collect extends Base {
                                 $cj_play_url = $cj_play_url_arr[$k2];
                                 $cj_play_server = $cj_play_server_arr[$k2];
                                 $cj_play_note = $cj_play_note_arr[$k2];
-                                // 统计该播放组的集数
                                 $episode_count = empty($cj_play_url) ? 0 : count(explode('#', $cj_play_url));
                                 $play_group_episode_count[$cj_play_from] = $episode_count;
                                 if ($cj_play_url == $info['vod_play_url']) {
@@ -1007,7 +935,6 @@ class Collect extends Base {
                                 } elseif (empty($cj_play_from)) {
                                     $des .= lang('model/collect/playfrom_empty');
                                 } elseif (strpos('$$$'.$info['vod_play_from'].'$$$', '$$$'.$cj_play_from.'$$$') === false) {
-                                    // 新类型播放组，加入
                                     $color = 'green';
                                     $des .= lang('model/collect/playgroup_add_ok',[$cj_play_from]);
                                     if(!empty($old_play_from)){
@@ -1022,7 +949,6 @@ class Collect extends Base {
                                     $old_play_note .= "" . $cj_play_note;
                                     $ec=true;
                                 }  elseif (!empty($cj_play_url)) {
-                                    // 同类型播放组
                                     $arr1 = explode("$$$", $old_play_url);
                                     $arr2 = explode("$$$", $old_play_from);
                                     $arr_note = explode("$$$", $old_play_note);
@@ -1032,7 +958,6 @@ class Collect extends Base {
                                     } else {
                                         $color = 'green';
                                         $des .= lang('model/collect/playgroup_update_ok',[$cj_play_from]);
-                                        // 根据「地址二更规则」配置，替换或合并
                                         if ($config['urlrole'] == 1) {
                                             $tmp1 = explode('#',$arr1[$play_key]);
                                             $tmp2 = explode('#',$cj_play_url);
@@ -1070,7 +995,6 @@ class Collect extends Base {
                                 $cj_down_server = $cj_down_server_arr[$k2];
                                 $cj_down_note = $cj_down_note_arr[$k2];
 
-
                                 if ($cj_down_url == $info['vod_down_url']) {
                                     $des .= lang('model/collect/downurl_same');
                                 } elseif (empty($cj_down_from)) {
@@ -1099,9 +1023,6 @@ class Collect extends Base {
                                     } else {
                                         $color = 'green';
                                         $des .= lang('model/collect/downgroup_update_ok',[$cj_down_from]);
-                                        // 根据「地址二更规则」配置，替换或合并
-                                        // “采集参数配置--地址二更规则”配置需要对下载地址生效
-                                        // https://github.com/magicblack/maccms10/issues/893
                                         if ($config['urlrole'] == 1) {
                                             $tmp1 = explode('#',$arr1[$down_key]);
                                             $tmp2 = explode('#',$cj_down_url);
@@ -1127,8 +1048,6 @@ class Collect extends Base {
 
                         if (strpos(',' . $config['uprule'], 'c')!==false && !empty($v['vod_serial']) && $v['vod_serial']!=$info['vod_serial']) {
                             $update['vod_serial'] = $v['vod_serial'];
-                            // 连载数如果均为整数，则取较大值
-                            // https://github.com/magicblack/maccms10/issues/878
                             if (floor($v['vod_serial']) == $v['vod_serial'] && floor($info['vod_serial']) == $info['vod_serial']) {
                                 $update['vod_serial'] = max($v['vod_serial'], $info['vod_serial']);
                             }
@@ -1209,13 +1128,11 @@ class Collect extends Base {
                             $res = (new \app\common\model\Vod())->where($where)->update($update);
                             $color = 'green';
                             if ($res === false) {
-
                             }
                         }
                         else{
                             $des = lang('model/collect/not_need_update');
                         }
-
                     }
                 }
                 if(Cache::has('vod_repeat_table_created_time')){
@@ -1343,7 +1260,6 @@ class Collect extends Base {
 
         $array_type = [];
         $key=0;
-        //分类列表
         if($param['ac'] == 'list'){
             foreach($json['class'] as $k=>$v){
                 $array_type[$key]['type_id'] = $v['type_id'];
@@ -1418,7 +1334,6 @@ class Collect extends Base {
 
         $array_type = [];
         $key=0;
-        //分类列表
         if($param['ac'] == 'list'){
             foreach($json['class'] as $k=>$v){
                 $array_type[$key]['type_id'] = $v['type_id'];
@@ -1445,7 +1360,6 @@ class Collect extends Base {
         $filter_arr = explode(',',$config['filter']); $filter_arr = array_filter($filter_arr);
         $pse_rnd = explode('#',$config['words']); $pse_rnd = array_filter($pse_rnd);
         $pse_syn = mac_txt_explain($config['thesaurus'], true);
-
 
         foreach($data['data'] as $k=>$v){
             $color='red';
@@ -1491,7 +1405,6 @@ class Collect extends Base {
                 $v['art_up'] = intval($v['art_up']);
                 $v['art_down'] = intval($v['art_down']);
 
-
                 $v['art_score'] = floatval($v['art_score']);
                 $v['art_score_all'] = intval($v['art_score_all']);
                 $v['art_score_num'] = intval($v['art_score_num']);
@@ -1535,7 +1448,6 @@ class Collect extends Base {
                     $where['type_id'] = $v['type_id'];
                 }
 
-                //验证地址
                 $cj_title_arr = explode('$$$',$v['art_title'] );
                 $cj_note_arr = explode('$$$',$v['art_note']);
                 $cj_content_arr = explode('$$$',$v['art_content']);
@@ -1552,7 +1464,6 @@ class Collect extends Base {
                 $v['art_note'] = join('$$$', (array)$tmp_note_arr);
                 $v['art_content'] = join('$$$', (array)$tmp_content_arr);
 
-
                 $info = (new \app\common\model\Art())->where($where)->find();
                 if (!$info) {
                     $tmp = $this->syncImages($config_sync_pic, $v['art_pic'],'art');
@@ -1561,14 +1472,11 @@ class Collect extends Base {
                     $msg = $tmp['msg'];
                     $res = (new \app\common\model\Art())->insert($v);
                     if($res===false){
-
                     }
                     $color ='green';
                     $des= lang('model/collect/add_ok');
                 }
                 else {
-
-
                     if(empty($config['uprule'])){
                         $des = lang('model/collect/uprule_empty');
                     }
@@ -1613,7 +1521,6 @@ class Collect extends Base {
                                 $update['art_blurb'] = $v['art_blurb'];
                             }
 
-
                             if(count($update)>0){
                                 $update['art_time'] = time();
                                 $where = [];
@@ -1621,14 +1528,12 @@ class Collect extends Base {
                                 $res = (new \app\common\model\Art())->where($where)->update($update);
                                 $color = 'green';
                                 if($res===false){
-
                                 }
                             }
                             else{
                                 $des = lang('model/collect/not_need_update');
                             }
                         }
-
                     }
                 }
             }
@@ -1752,7 +1657,6 @@ class Collect extends Base {
 
         $array_type = [];
         $key=0;
-        //分类列表
         if($param['ac'] == 'list'){
             foreach($json['class'] as $k=>$v){
                 $array_type[$key]['type_id'] = $v['type_id'];
@@ -1781,7 +1685,6 @@ class Collect extends Base {
         $pse_syn = mac_txt_explain($config['thesaurus'], true);
 
         foreach($data['data'] as $k=>$v){
-
             $color='red';
             $des='';
             $msg='';
@@ -1873,12 +1776,10 @@ class Collect extends Base {
                     $msg = $tmp['msg'];
                     $res = (new \app\common\model\Actor())->insert($v);
                     if($res===false){
-
                     }
                     $color ='green';
                     $des= lang('model/collect/add_ok');
                 } else {
-
                     if(empty($config['uprule'])){
                         $des = lang('model/collect/uprule_empty');
                     }
@@ -1916,14 +1817,12 @@ class Collect extends Base {
                                 $res = (new \app\common\model\Actor())->where($where)->update($update);
                                 $color = 'green';
                                 if($res===false){
-
                                 }
                             }
                             else{
                                 $des = lang('model/collect/not_need_update');
                             }
                         }
-
                     }
                 }
             }
@@ -2035,7 +1934,6 @@ class Collect extends Base {
             $array_data[$key] = $v;
         }
 
-
         $res = ['code'=>1, 'msg'=>'ok', 'page'=>$array_page, 'data'=>$array_data ];
         return $res;
     }
@@ -2055,7 +1953,6 @@ class Collect extends Base {
         $pse_syn = mac_txt_explain($config['thesaurus'], true);
 
         foreach($data['data'] as $k=>$v){
-
             $color='red';
             $des='';
             $msg='';
@@ -2155,12 +2052,10 @@ class Collect extends Base {
 
                 if($blend===false){
                     $vod_info = (new \app\common\model\Vod())->where($where2)->find();
-
                 }
                 else{
                     $vod_info = (new \app\common\model\Vod())->where($where2)
                         ->where(function($query){
-                            // TP8 兼容：blend vod_director/vod_actor 均为 ['like',[...],'OR']，需拆开
                             $blendDirectors = $GLOBALS['blend']['vod_director'][1] ?? [];
                             if (!empty($blendDirectors) && is_array($blendDirectors)) {
                                 $first = true;
@@ -2196,12 +2091,10 @@ class Collect extends Base {
                         $msg = $tmp['msg'];
                         $res = (new \app\common\model\Role())->insert($v);
                         if ($res === false) {
-
                         }
                         $color = 'green';
                         $des = lang('model/collect/add_ok');
                     } else {
-
                         if(empty($config['uprule'])){
                             $des = lang('model/collect/uprule_empty');
                         }
@@ -2233,18 +2126,15 @@ class Collect extends Base {
                                     $res = (new \app\common\model\Role())->where($where)->update($update);
                                     $color = 'green';
                                     if ($res === false) {
-
                                     }
                                 }
                                 else{
                                     $des = lang('model/collect/not_need_update');
                                 }
                             }
-
                         }
                     }
                 }
-
             }
             if($show==1) {
                 mac_echo( ($k + 1) . $v['role_name'] . "<font color=$color>" .$des .'</font>'. $msg . '');
@@ -2366,7 +2256,6 @@ class Collect extends Base {
 
         $array_type = [];
         $key=0;
-        //分类列表
         if($param['ac'] == 'list'){
             foreach($json['class'] as $k=>$v){
                 $array_type[$key]['type_id'] = $v['type_id'];
@@ -2395,7 +2284,6 @@ class Collect extends Base {
         $pse_syn = mac_txt_explain($config['thesaurus'], true);
 
         foreach($data['data'] as $k=>$v){
-
             $color='red';
             $des='';
             $msg='';
@@ -2477,8 +2365,6 @@ class Collect extends Base {
                 if (strpos($config['inrule'], 'b')!==false) {
                     $where['type_id'] = $v['type_id'];
                 }
-                // 采集网址入库重复规则建议增加跳转url
-                // https://github.com/magicblack/maccms10/issues/1071
                 if (strpos($config['inrule'], 'c')!==false) {
                     $where['website_jumpurl'] = $v['website_jumpurl'];
                 }
@@ -2490,12 +2376,10 @@ class Collect extends Base {
                     $msg = $tmp['msg'];
                     $res = (new \app\common\model\Website())->insert($v);
                     if($res===false){
-
                     }
                     $color ='green';
                     $des= lang('model/collect/add_ok');
                 } else {
-
                     if(empty($config['uprule'])){
                         $des = lang('model/collect/uprule_empty');
                     }
@@ -2533,14 +2417,12 @@ class Collect extends Base {
                                 $res = (new \app\common\model\Website())->where($where)->update($update);
                                 $color = 'green';
                                 if($res===false){
-
                                 }
                             }
                             else{
                                 $des = lang('model/collect/not_need_update');
                             }
                         }
-
                     }
                 }
             }
@@ -2652,7 +2534,6 @@ class Collect extends Base {
             $array_data[$key] = $v;
         }
 
-
         $res = ['code'=>1, 'msg'=>'ok', 'page'=>$array_page, 'data'=>$array_data ];
         return $res;
     }
@@ -2672,7 +2553,6 @@ class Collect extends Base {
         $pse_syn = mac_txt_explain($config['thesaurus'], true);
 
         foreach($data['data'] as $k=>$v){
-
             $color='red';
             $des='';
             $msg='';
@@ -2766,7 +2646,6 @@ class Collect extends Base {
                     $des = lang('model/collect/not_found_rel_data');
                 }
                 else {
-
                     $v['comment_rid'] = $rel_id;
                     $info=false;
 
@@ -2778,12 +2657,10 @@ class Collect extends Base {
                         $msg = isset($tmp['msg']) ? $tmp['msg'] : '';
                         $res = (new \app\common\model\Comment())->insert($v);
                         if ($res === false) {
-
                         }
                         $color = 'green';
                         $des = lang('model/collect/add_ok');
                     } else {
-
                         if(empty($config['uprule'])){
                             $des = lang('model/collect/uprule_empty');
                         }
@@ -2803,18 +2680,15 @@ class Collect extends Base {
                                     $res = (new \app\common\model\Comment())->where($where)->update($update);
                                     $color = 'green';
                                     if ($res === false) {
-
                                     }
                                 }
                                 else{
                                     $des = lang('model/collect/not_need_update');
                                 }
                             }
-
                         }
                     }
                 }
-
             }
             if($show==1) {
                 mac_echo( ($k + 1) . $v['comment_content'] . "<font color=$color>" .$des .'</font>'. $msg . '');
@@ -2875,10 +2749,6 @@ class Collect extends Base {
         }
     }
 
-    /**
-     * 检查url合法性
-     * https://github.com/magicblack/maccms10/issues/763
-     */
     private function checkCjUrl($url)
     {
         $result = parse_url($url);
@@ -2985,7 +2855,6 @@ class Collect extends Base {
                 $array_data[$key]['manga_isend'] = 0;
             }
             
-            // 格式化章節
             $array_from = [];
             $array_url = [];
             $array_server=[];
@@ -3017,7 +2886,6 @@ class Collect extends Base {
 
         $array_type = [];
         $key=0;
-        //分类列表
         if($param['ac'] == 'list'){
             foreach($xml->class->ty as $ty){
                 $array_type[$key]['type_id'] = (string)$ty->attributes()->id;
@@ -3089,7 +2957,6 @@ class Collect extends Base {
                     
                     $res = (new \app\common\model\Manga())->insert($v);
                     if($res===false){
-
                     }
                     $color ='green';
                     $des= lang('model/collect/add_ok');

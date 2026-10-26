@@ -7,18 +7,18 @@ var MAC = {
     'Url': document.URL,
     'Title': document.title,
     'UserAgent': function () {
-        var ua = navigator.userAgent;//navigator.appVersion
+        var ua = navigator.userAgent;
         return {
-            'mobile': !!ua.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
-            'ios': !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
-            'android': ua.indexOf('Android') > -1 || ua.indexOf('Linux') > -1, //android终端或者uc浏览器
-            'iPhone': ua.indexOf('iPhone') > -1 || ua.indexOf('Mac') > -1, //是否为iPhone或者QQHD浏览器
-            'iPad': ua.indexOf('iPad') > -1, //是否iPad
-            'trident': ua.indexOf('Trident') > -1, //IE内核
-            'presto': ua.indexOf('Presto') > -1, //opera内核
-            'webKit': ua.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
-            'gecko': ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') == -1, //火狐内核
-            'weixin': ua.indexOf('MicroMessenger') > -1 //是否微信 ua.match(/MicroMessenger/i) == "micromessenger",
+            'mobile': !!ua.match(/AppleWebKit.*Mobile.*/),
+            'ios': !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
+            'android': ua.indexOf('Android') > -1 || ua.indexOf('Linux') > -1,
+            'iPhone': ua.indexOf('iPhone') > -1 || ua.indexOf('Mac') > -1,
+            'iPad': ua.indexOf('iPad') > -1,
+            'trident': ua.indexOf('Trident') > -1,
+            'presto': ua.indexOf('Presto') > -1,
+            'webKit': ua.indexOf('AppleWebKit') > -1,
+            'gecko': ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') == -1,
+            'weixin': ua.indexOf('MicroMessenger') > -1
         };
     }(),
     'Copy': function (s) {
@@ -186,13 +186,13 @@ var MAC = {
             MAC.Verify.Focus();
             MAC.Verify.Click();
         },
-        'Focus': function () {//验证码框焦点
+        'Focus': function () {
             $('body').on("focus", ".mac_verify", function () {
                 $(this).removeClass('mac_verify').after(MAC.Verify.Show());
                 $(this).unbind();
             });
         },
-        'Click': function () {//点击刷新
+        'Click': function () {
             $('body').on('click', 'img.mac_verify_img', function () {
                 $(this).attr('src', maccms.path + '/index.php/verify/index.html?r=' + Math.random());
             });
@@ -485,7 +485,6 @@ var MAC = {
             var position = $('.mac_history').position();
             $('.mac_history_box').css({ 'left': position.left, 'top': (position.top + h) });
 
-
             if ($(".mac_history_set").attr('data-name')) {
                 var $that = $(".mac_history_set");
                 MAC.History.Set($that.attr('data-name'), $that.attr('data-link'), $that.attr('data-pic'));
@@ -550,7 +549,6 @@ var MAC = {
         'Click': function () {
             $('body').on('click', 'a.mac_ulog', function (e) {
 
-                //是否需要验证登录
                 if (MAC.User.IsLogin == 0) {
                     MAC.User.Login();
                     return;

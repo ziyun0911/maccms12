@@ -49,12 +49,10 @@
 
 <script type="text/javascript">
     layui.use(['form', 'layer'], function () {
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer
                 , $ = layui.jquery;
 
-        // 验证
         form.verify({
             comment_content: function (value) {
                 if (value == "") {
@@ -62,7 +60,6 @@
                 }
             }
         });
-
 
     });
 </script>

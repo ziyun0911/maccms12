@@ -125,7 +125,6 @@ $(function(){
 				return;
 			}
 			var $btn = $(this);
-			// ajax_buy_popedom 强制 POST；参数走 body，jQuery 默认带 X-Requested-With 可过同站 CSRF 过渡
 			var reqUrl = ((typeof maccms !== 'undefined' && maccms.base_url) ? maccms.base_url : '') + '/index.php/user/ajax_buy_popedom.html';
 			$btn.addClass('disabled');
 			$.ajax({
@@ -178,7 +177,7 @@ $(function(){
 				if(ajaxUrl && typeof MAC.Pop !== 'undefined' && MAC.Pop.Show){
 					ensureUpgradeCssLoaded(function(){
 						var fullUrl = (ajaxUrl.indexOf('http')===0 || ajaxUrl.indexOf('//')===0) ? ajaxUrl : ((typeof maccms!=='undefined' && maccms.base_url) ? maccms.base_url.replace(/\/$/,'') : location.origin) + (ajaxUrl.indexOf('/')===0 ? ajaxUrl : '/'+ajaxUrl);
-						/* PC 加宽；高度由内容 + CSS max-height 控制（MAC.Pop.Show 第二参数未用于 mac_pop） */
+
 						MAC.Pop.Show(720, 620, macI18n('user_upgrade', '升级会员'), fullUrl, function(r){
 							$('.mac_pop_bg').addClass('mac_pop_bg--upgrade');
 							$('.mac_pop').addClass('mac_pop_upgrade_sheet');

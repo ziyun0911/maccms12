@@ -20,5 +20,4 @@ class Visit extends Validate
         'add'  =>  ['user_id','visit_ip','visit_time'],
         'edit'  =>  ['user_id','visit_ip','visit_time'],
     ];
-
 }

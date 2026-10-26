@@ -1,7 +1,6 @@
 <?php
 namespace app\index\controller;
 
-
 class Rss extends Base
 {
     public function index()
@@ -43,5 +42,4 @@ class Rss extends Base
     {
         return response($html, 200, ['Content-Type' => 'text/xml; charset=utf-8']);
     }
-
 }

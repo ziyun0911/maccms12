@@ -28,9 +28,6 @@ class Follow extends Base
         return false;
     }
 
-    /**
-     * 原子化频率检查：Redis 后端用 SETNX，文件缓存回退到 has+set
-     */
     private function _rateCheck($key, $interval)
     {
         try {
@@ -170,10 +167,6 @@ class Follow extends Base
         ]);
     }
 
-    /**
-     * 公开用户资料：游客可读。
-     * 关注 / 私信等写操作仍各自要求登录，本接口不放宽任何写权限。
-     */
     public function profile(Request $request)
     {
         $param = $request->param();

@@ -2,7 +2,6 @@
 
 namespace app\api\controller;
 
-
 use think\facade\Cache;
 use think\facade\Db;
 use think\Request;
@@ -15,23 +14,14 @@ class Topic extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     *  获取列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -42,7 +32,6 @@ class Topic extends Base
         }
         $offset = isset($param['offset']) ? (int)$param['offset'] : 0;
         $limit = isset($param['limit']) ? (int)$param['limit'] : 20;
-        // 查询条件组装
         $where = [];
         $where['topic_status'] = ['eq', 1];
 
@@ -54,11 +43,9 @@ class Topic extends Base
             $where['topic_time'] = ['>', (int)$param['time_start']];
         }
 
-        // 数据获取
         $total = (new \app\common\model\Topic())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
-            // 排序
             $order = "topic_time DESC";
             if (!empty($param['orderby'])) {
                 $order = 'topic_' . $param['orderby'] . " DESC";
@@ -73,7 +60,6 @@ class Topic extends Base
             }
             unset($v);
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -86,15 +72,8 @@ class Topic extends Base
         ]);
     }
 
-    /**
-     *  获取列表与推荐信息视频文章
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_detail(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -108,7 +87,6 @@ class Topic extends Base
 
         if ($result)
         {
-            // 处理图片 URL
             $result['topic_pic'] = mac_url_img($result['topic_pic'] ?? '');
 
             $topic_rel_vod = [];
@@ -152,7 +130,6 @@ class Topic extends Base
             $result['user_has_up'] = mac_user_has_digg(3, $tid);
         }
 
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -160,18 +137,6 @@ class Topic extends Base
         ]);
     }
 
-    /**
-     * 获取推荐/精选专题
-     * 对应首页精选专题区块
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   ids - 可选，专题 ID 列表（逗号分隔），与 num 个格子顺序一一对应；0 或无效表示该格占位
-     *   num - 可选，数量，默认5；传 ids 时表示期望返回行数（与首页七巧板一致）
-     *   by  - 可选，排序字段，默认 time，可选: time,hits（仅未传 ids 时生效）
-     */
     public function get_recommend(Request $request)
     {
         $param = $request->param();
@@ -290,10 +255,6 @@ class Topic extends Base
         ]);
     }
 
-    /**
-     * 搜索建议/自动完成（与列表同一套 Meili + 已发布过滤）
-     * api.php/topic/suggest?wd=关键词&limit=10
-     */
     public function suggest(Request $request)
     {
         return $this->jsonSuggestByKind($request, 'topic');

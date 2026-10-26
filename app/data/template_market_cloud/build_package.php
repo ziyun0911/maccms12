@@ -1,13 +1,4 @@
 <?php
-/**
- * 将本地 template/{dir} 打包为可发布的主题 zip（排除 php 等不安全扩展）
- *
- * 用法：
- *   php application/data/template_market_cloud/build_package.php --dir=ai_cinema_v1
- *   php application/data/template_market_cloud/build_package.php --dir=ai_cinema_v1 --out=./packages/ai-cinema-v1/package.zip
- *
- * 主题包根目录需包含 html/；可选 config.defaults.json 供安装后合并 mctheme 默认值。
- */
 
 if (PHP_SAPI !== 'cli') {
     fwrite(STDERR, "CLI only\n");
@@ -61,7 +52,6 @@ $iterator = new RecursiveIteratorIterator(
 
 $prefix = $dir . '/';
 foreach ($iterator as $file) {
-    /** @var SplFileInfo $file */
     $rel = str_replace('\\', '/', substr($file->getPathname(), strlen($src) + 1));
     if ($rel === false || $rel === '') {
         continue;

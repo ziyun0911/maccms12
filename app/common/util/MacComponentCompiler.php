@@ -1,29 +1,13 @@
 <?php
 namespace app\common\util;
 
-/**
- * MacComponentCompiler — compiles a Prism page-definition (a JSON tree of component
- * instances) into a MacCMS template: a chain of {include ...} calls wrapped by the
- * base layout. Dependency-free (no ThinkPHP), so it can run standalone or be wired
- * into a console command.
- *
- * The component registry is DISCOVERED by scanning the co-located
- * html/components/**\/*.schema.json files — there is no central manifest. Container
- * vs leaf is detected on disk (<name>_open.html ⇒ container). Each {include} emits
- * exactly the [tokens] its partial uses, filled from the page def + schema defaults,
- * so no literal [prop] ever leaks. `columns` props (cols[]/stack_at) are translated
- * to the CSS-ready cols_template/stack the partial expects.
- *
- *   $c = new MacComponentCompiler('/path/to/template/prism/html');
- *   file_put_contents($dir.'/index/index.html', $c->compile($pageDefArray));
- */
 class MacComponentCompiler
 {
     private $htmlDir;
     private $compDir;
-    private $registry = [];   // name => ['props'=>[k=>default], 'variants'=>[...], 'category'=>'']
-    private $partials = [];   // basename => true
-    private $tokens   = [];   // basename => [token,...]  (the [name] placeholders in the partial)
+    private $registry = [];
+    private $partials = [];
+    private $tokens   = [];
 
     public function __construct($htmlDir)
     {
@@ -46,7 +30,6 @@ class MacComponentCompiler
         return $out;
     }
 
-    // ── emit ──────────────────────────────────────────────────────────────
     private function emit(array $block, $depth)
     {
         $name = isset($block['component']) ? $block['component'] : null;
@@ -103,7 +86,6 @@ class MacComponentCompiler
         return $kids;
     }
 
-    // ── props ─────────────────────────────────────────────────────────────
     private function mergeProps($name, array $block)
     {
         $given  = isset($block['props']) && is_array($block['props']) ? $block['props'] : [];
@@ -142,7 +124,6 @@ class MacComponentCompiler
         return $cat === 'atom' ? 'atoms' : ($cat ?: 'atoms');
     }
 
-    // ── discovery ─────────────────────────────────────────────────────────
     private function loadRegistry()
     {
         foreach ($this->rglob($this->compDir, '.schema.json') as $f) {

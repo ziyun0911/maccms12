@@ -8,8 +8,6 @@ class Live extends Base
         parent::__construct();
     }
 
-    // ==================== 频道管理 ====================
-
     public function index()
     {
         $param = input();
@@ -31,7 +29,6 @@ class Live extends Base
         $order = 'live_sort desc, live_id desc';
         $res = (new \app\common\model\Live())->listData($where, $order, $param['page'], $param['limit']);
 
-        // 分类列表（用于筛选下拉）
         $cate_list = (new \app\common\model\Live())->categoryList(['cate_status' => 1]);
 
         $this->assign('list', $res['list']);
@@ -79,7 +76,6 @@ class Live extends Base
 
         $cate_list = (new \app\common\model\Live())->categoryList(['cate_status' => 1]);
 
-        //内容级多语言
         $content_lang_default = mac_content_lang_default();
         $content_lang_enabled = array_values(array_unique(array_merge([$content_lang_default], mac_content_lang_allow_list())));
         $content_lang_data = [];
@@ -100,9 +96,6 @@ class Live extends Base
         return $this->fetch('admin@live/info');
     }
 
-    /**
-     * 调用已安装的翻译插件（若有）翻译单个字段。
-     */
     public function contentLangTranslate()
     {
         $text = (string)input('post.text', '');
@@ -160,8 +153,6 @@ class Live extends Base
         }
         return $this->error(lang('param_err'));
     }
-
-    // ==================== 分类管理 ====================
 
     public function category()
     {

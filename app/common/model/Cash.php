@@ -3,18 +3,14 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Cash extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'cash';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
-
 
     public function listData($where,$order,$page=1,$limit=20,$start=0)
     {
@@ -102,7 +98,6 @@ class Cash extends Base {
             return ['code'=>1004,'msg'=>lang('save_err').'：'.$this->getError() ];
         }
 
-        //更新用户表
         $update=[];
         $update['user_points'] = $GLOBALS['user']['user_points'] - $tx_points;
         $update['user_points_froze'] = $GLOBALS['user']['user_points_froze'] + $tx_points;
@@ -130,7 +125,6 @@ class Cash extends Base {
                 return ['code'=>1001,'msg'=>lang('del_err').'：'.$this->getError() ];
             }
 
-            //如果未审核则恢复冻结积分
             if($v['cash_status'] ==0){
                 $where=[];
                 $where['user_id'] = $v['user_id'];
@@ -184,15 +178,12 @@ class Cash extends Base {
             if(false === $res){
                 return ['code'=>1005,'msg'=>'更新用户积分失败：'.$this->getError() ];
             }
-            //积分日志
             $data = [];
             $data['user_id'] = $v['user_id'];
             $data['plog_type'] = 9;
             $data['plog_points'] = $v['cash_points'];
             $result = (new \app\common\model\Plog())->saveData($data);
-
         }
         return ['code'=>1,'msg'=>'审核成功'];
     }
-
 }

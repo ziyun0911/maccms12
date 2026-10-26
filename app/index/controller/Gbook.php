@@ -7,7 +7,6 @@ class Gbook extends Base
     public function __construct()
     {
         parent::__construct();
-        //关闭中
         if($GLOBALS['config']['gbook']['status'] == 0){
             echo 'gbook is close';
             exit;
@@ -70,9 +69,6 @@ class Gbook extends Base
         }
 
         $param['gbook_content']= htmlentities(mac_filter_words($param['gbook_content']));
-        // if(!preg_match('/[^\x00-\x80]/',$param['gbook_content'])){
-        //     return ['code'=>1005,'msg'=>lang('index/require_cn')];
-        // }
 
         $param['gbook_reply'] = '';
 
@@ -112,5 +108,4 @@ class Gbook extends Base
             return json($res);
         }
     }
-
 }

@@ -2,10 +2,6 @@
 
 namespace addons\aicontent\service\models;
 
-/**
- * Anthropic Claude integration.
- * API docs: https://docs.anthropic.com/en/api/messages
- */
 class ClaudeModel extends BaseModel
 {
     const API_URL = 'https://api.anthropic.com/v1/messages';

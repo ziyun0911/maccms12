@@ -1,16 +1,10 @@
 <?php
 namespace app\common\util;
 
-/**
- * 后台「安全体检」：检测安全开关、cache_flag、crypto_secret、site_url 等项。
- */
 class SecurityHealthCheck
 {
     const WEAK_CACHE_FLAGS = ['', 'maccms', 'mac'];
 
-    /**
-     * @return array{items: list<array<string,mixed>>, summary: array<string,mixed>}
-     */
     public static function run(array $config = null)
     {
         if ($config === null) {
@@ -39,9 +33,6 @@ class SecurityHealthCheck
         ];
     }
 
-    /**
-     * @param array<string,mixed> $app
-     */
     protected static function checkToggle(array $app, $key, $failLevel, $fixAction)
     {
         $enabled = isset($app[$key]) && (string)$app[$key] === '1';
@@ -58,9 +49,6 @@ class SecurityHealthCheck
         ];
     }
 
-    /**
-     * @param array<string,mixed> $app
-     */
     protected static function checkCacheFlag(array $app)
     {
         $flag = isset($app['cache_flag']) ? strtolower(trim((string)$app['cache_flag'])) : '';
@@ -77,9 +65,6 @@ class SecurityHealthCheck
         ];
     }
 
-    /**
-     * @param array<string,mixed> $app
-     */
     protected static function checkCryptoSecret(array $app)
     {
         $secret = isset($app['admin_audit_crypto_secret']) ? trim((string)$app['admin_audit_crypto_secret']) : '';
@@ -107,9 +92,6 @@ class SecurityHealthCheck
         ];
     }
 
-    /**
-     * @param array<string,mixed> $site
-     */
     protected static function checkSiteUrl(array $site)
     {
         $url = isset($site['site_url']) ? trim((string)$site['site_url']) : '';
@@ -155,9 +137,6 @@ class SecurityHealthCheck
         return false;
     }
 
-    /**
-     * @param list<array<string,mixed>> $items
-     */
     protected static function summarize(array $items)
     {
         $counts = ['green' => 0, 'yellow' => 0, 'red' => 0];
@@ -182,11 +161,6 @@ class SecurityHealthCheck
         ];
     }
 
-    /**
-     * 一键修复：仅修改 app 块内允许的安全项，不覆盖 site 等其它配置。
-     *
-     * @return array{ok: bool, msg: string, changed: list<string>}
-     */
     public static function applyFix($action, array $config = null)
     {
         if ($config === null) {

@@ -81,13 +81,11 @@ class Manga extends Base
         $data = (new \app\common\model\Manga())->infoData($where);
         if ($data['code'] == 1 && !empty($data['info'])) {
             $info = &$data['info'];
-            // 处理图片 URL
             $info['manga_pic'] = mac_url_img($info['manga_pic'] ?? '');
             $info['manga_pic_thumb'] = mac_url_img($info['manga_pic_thumb'] ?? '');
             $info['manga_pic_slide'] = mac_url_img($info['manga_pic_slide'] ?? '');
             $info['manga_link'] = mac_url_manga_detail($info);
 
-            // 与前台模板一致：保留 model->infoData 生成的 manga_page_list（含 sid / urls / nid）
             if (!empty($info['manga_page_list']) && is_array($info['manga_page_list'])) {
                 foreach ($info['manga_page_list'] as $sid => &$grp) {
                     if (empty($grp['urls']) || !is_array($grp['urls'])) {
@@ -118,10 +116,6 @@ class Manga extends Base
         return json($data);
     }
 
-    /**
-     * 单话阅读数据（供 uni-app / SPA 原生渲染，非 web-view）
-     * GET api.php/manga/get_chapter 参数：id manga_id，sid nid 与前台 play 一致
-     */
     public function get_chapter(Request $request)
     {
         $param = $request->param();
@@ -178,9 +172,6 @@ class Manga extends Base
             }
         }
 
-        // 阅读历史改由前端在正文实际打开后，显式调用受登录态+CSRF 保护的 POST 接口
-        // （api.php/user/add_ulog）写入；此 GET 内容接口只读，不再写入任何记录，
-        // 以杜绝预加载/爬虫/第三方页面用 Cookie 携带发起 GET 即污染已读集合。
         $canRead = ($popedom['code'] == 1) ? 1 : 0;
         $out     = [
             'can_read'       => $canRead,
@@ -201,18 +192,6 @@ class Manga extends Base
         return json(['code' => 1, 'msg' => 'ok', 'info' => $out]);
     }
 
-    /**
-     * 获取热门漫画
-     * 对应首页热门漫画区块，按月度点击量排序
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   num   - 可选，数量，默认6
-     *   start - 可选，偏移量，默认0
-     *   by    - 可选，排序字段，默认 hits_month，可选: hits,hits_day,hits_week,hits_month,time
-     */
     public function get_hot(Request $request)
     {
         $param = $request->param();
@@ -252,16 +231,6 @@ class Manga extends Base
         ]);
     }
 
-    /**
-     * 获取最新漫画
-     * 对应首页最新漫画区块
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   num - 可选，数量，默认24
-     */
     public function get_latest(Request $request)
     {
         $param = $request->param();
@@ -296,10 +265,6 @@ class Manga extends Base
         ]);
     }
 
-    /**
-     * 搜索建议/自动完成（与列表同一套 Meili + 已发布/回收过滤）
-     * api.php/manga/suggest?wd=关键词&limit=10
-     */
     public function suggest(Request $request)
     {
         return $this->jsonSuggestByKind($request, 'manga');

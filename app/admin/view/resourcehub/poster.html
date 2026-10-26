@@ -86,29 +86,24 @@ layui.use(['layer'], function(){
         selected_films: '{:lang("admin/resourcehub/selected_films")}'
     };
 
-    // 选择/取消选择
     $('.poster-item').on('click', function(){
         $(this).toggleClass('selected');
     });
 
-    // 筛选标签
     $('.filter-tabs .layui-btn').on('click', function(){
         var filter = $(this).data('filter');
         window.location.href = '{:url("resource_hub/poster")}?filter=' + filter;
     });
 
-    // 全选已推荐
     $('#selectAllRecommended').on('click', function(){
         $('.poster-item.recommended').addClass('selected');
         layer.msg(LANG.selected_films.replace('%d', $('.poster-item.recommended').length));
     });
 
-    // 清除选择
     $('#clearSelection').on('click', function(){
         $('.poster-item').removeClass('selected');
     });
 
-    // 设为推荐
     $('#setRecommend').on('click', function(){
         var ids = [];
         $('.poster-item.selected').each(function(){ ids.push($(this).data('id')); });
@@ -122,7 +117,6 @@ layui.use(['layer'], function(){
         });
     });
 
-    // 取消推荐
     $('#cancelRecommend').on('click', function(){
         var ids = [];
         $('.poster-item.selected').each(function(){ ids.push($(this).data('id')); });

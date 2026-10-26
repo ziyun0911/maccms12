@@ -18,5 +18,4 @@ class Website extends Validate
         'add'  =>  ['website_name','type_id'],
         'edit'  =>  ['website_name','type_id'],
     ];
-
 }

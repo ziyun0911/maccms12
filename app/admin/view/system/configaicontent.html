@@ -50,7 +50,6 @@
         <div class="layui-form-item">
             <label class="layui-form-label">{:lang('admin/system/ai_api_key')}：</label>
             <div class="layui-input-block">
-                <!-- 绝不回填真实 key 到 HTML。留空 = 保留旧值，由 System::configaicontent() 处理。 -->
                 <input type="password" name="ai_content[api_key]" value="" autocomplete="new-password"
                        placeholder="{:lang('admin/system/ai_key_placeholder')}" class="layui-input">
             </div>

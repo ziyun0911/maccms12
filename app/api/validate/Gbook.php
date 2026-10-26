@@ -21,7 +21,7 @@ class Gbook extends Validate
     ];
 
     protected $message = [
-        
+
     ];
 
     protected $scene = [

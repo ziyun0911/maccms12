@@ -1,7 +1,6 @@
 <?php
 
 return array(
-    // Default AI Provider
     array(
         'name'    => 'default_provider',
         'title'   => lang('AI Provider'),
@@ -21,7 +20,6 @@ return array(
         'ok'      => '',
         'extend'  => 'id="ai-provider-select" lay-filter="ai-provider-select"',
     ),
-    // Default Model
     array(
         'name'    => 'default_model',
         'title'   => lang('Model Name'),
@@ -35,7 +33,6 @@ return array(
         'extend'  => '',
     ),
 
-    // --- API Keys ---
     array(
         'name'    => 'claude_key',
         'title'   => lang('Claude Key'),
@@ -109,7 +106,6 @@ return array(
         'extend'  => 'data-provider="glm"',
     ),
 
-    // --- Generation Settings ---
     array(
         'name'    => 'max_tokens',
         'title'   => lang('Max Tokens'),
@@ -147,7 +143,6 @@ return array(
         'extend'  => '',
     ),
 
-    // --- Output Language ---
     array(
         'name'    => 'language',
         'title'   => lang('Language'),

@@ -3,7 +3,6 @@ namespace app\index\controller;
 use think\captcha\facade\Captcha;
 use app\common\controller\All;
 
-
 class Verify extends All
 {
     public function __construct()
@@ -26,5 +25,4 @@ class Verify extends All
             return 1;
         }
     }
-
 }

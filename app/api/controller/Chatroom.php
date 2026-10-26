@@ -15,21 +15,8 @@ class Chatroom extends Base
 
     public function index()
     {
-
     }
 
-    /**
-     * 获取聊天室消息列表（支持增量拉取）
-     *
-     * GET /api.php/chatroom/get_list
-     * 参数:
-     *   vod_id   - 必须，影片ID
-     *   after_id - 可选，上次获取的最后一条chat_id（增量拉取）
-     *   limit    - 可选，数量，默认50，最大100
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
         $param = $request->param();
@@ -41,7 +28,6 @@ class Chatroom extends Base
             ]);
         }
 
-        // 轮询频率限制：登录用户 2s，匿名用户 3s
         $user = $this->_checkLoginForApi();
         $user_id = $user ? $user['user_id'] : null;
         $interval = $user_id ? 2 : 3;
@@ -58,20 +44,8 @@ class Chatroom extends Base
         return json($res);
     }
 
-    /**
-     * 发送聊天消息
-     *
-     * POST /api.php/chatroom/send
-     * 参数:
-     *   vod_id  - 必须，影片ID
-     *   content - 必须，聊天内容（最长500字）
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function send(Request $request)
     {
-        // 检查登录
         $user = $this->_checkLoginForApi();
         if (!$user) {
             return json(['code' => 1010, 'msg' => lang('chatroom/login_required')]);
@@ -93,7 +67,6 @@ class Chatroom extends Base
             return json(['code' => 1002, 'msg' => lang('chatroom/content_empty')]);
         }
 
-        // IP黑名单检查
         $blacks = config('blacks');
         if (!empty($blacks['black_ip_list']) && is_array($blacks['black_ip_list'])) {
             $ip = mac_get_client_ip();
@@ -102,7 +75,6 @@ class Chatroom extends Base
             }
         }
 
-        // 频率限制
         if (!(new \app\common\model\Chatroom())->checkSendRate($user['user_id'], $vod_id, 3)) {
             return json(['code' => 1003, 'msg' => lang('chatroom/rate_limit')]);
         }
@@ -118,19 +90,8 @@ class Chatroom extends Base
         return json($res);
     }
 
-    /**
-     * 举报聊天消息
-     *
-     * POST /api.php/chatroom/report
-     * 参数:
-     *   chat_id - 必须，聊天消息ID
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function report(Request $request)
     {
-        // 检查登录
         $user = $this->_checkLoginForApi();
         if (!$user) {
             return json(['code' => 1010, 'msg' => lang('chatroom/login_required')]);
@@ -154,12 +115,10 @@ class Chatroom extends Base
             return json(['code' => 1002, 'msg' => lang('chatroom/msg_not_found')]);
         }
 
-        // 已禁用的消息无需再举报
         if (isset($info['info']['chat_status']) && $info['info']['chat_status'] != 1) {
             return json(['code' => 1003, 'msg' => lang('chatroom/disabled')]);
         }
 
-        // 同一用户同一消息 24 小时内只能举报一次（Cache 去重）
         $cache_key = 'chatroom_report_' . $user['user_id'] . '_' . $chat_id;
         if (\think\facade\Cache::get($cache_key)) {
             return json(['code' => 1, 'msg' => lang('chatroom/already_reported')]);
@@ -171,10 +130,6 @@ class Chatroom extends Base
         return json(['code' => 1, 'msg' => lang('chatroom/report_ok')]);
     }
 
-    /**
-     * 检查用户登录状态（API用）
-     * @return array|false
-     */
     private function _checkLoginForApi()
     {
         $res = (new \app\common\model\User())->checkLogin();

@@ -1,4 +1,3 @@
-/*后台图标*/
 
 body {
     background-color: #fff;
@@ -239,7 +238,6 @@ body {
     cursor: pointer;
 }
 
-/* CSS hover tip（替代 Preline / layer.tips） */
 .mac-hover-tip {
     position: relative;
     cursor: help;
@@ -278,12 +276,10 @@ body {
     overflow: inherit !important;
 }
 
-/* 仅最外层 Tab 内容区加内边距，避免嵌套 .layui-tab（如 maccms-inner-tab-vertical）被重复套一层 */
 .page-container > .layui-tab > .layui-tab-content {
     padding: 15px 30px 0 30px;
 }
 
-/*登录面板*/
 .login-body {
     background: url(../images/signin_bg.png) 100% 100% no-repeat;
     display: flex;
@@ -375,8 +371,6 @@ body {
     color: #ccc;
 }
 
-
-/*主面板*/
 .layui-form-item {
     margin-bottom: 10px;
 }
@@ -455,7 +449,6 @@ body {
     color: #5c90d2;
 }
 
-
 .hideMenu {
     float: left;
     width: 20px;
@@ -491,14 +484,6 @@ body {
 .showMenu .layui-layout-admin .layui-footer {
     left: -2px;
 }
-
-
-/*#B_history {*/
-/*    top: 0;*/
-/*    position: absolute;*/
-/*    border-bottom: none;*/
-/*    left: 80px;*/
-/*}*/
 
 #top_tabs_box {
     padding-top: 5px;
@@ -582,7 +567,6 @@ body {
     line-height: 40px;
 }
 
-
 .closeBox {
     position: absolute;
     right: 0;
@@ -597,7 +581,6 @@ body {
     line-height: 40px;
 }
 
-/*页面操作*/
 .closeBox .layui-nav-child {
     top: 42px;
     left: -12px;
@@ -622,7 +605,6 @@ body {
     top: 1px;
     left: 0;
 }
-
 
 .bread-crumbs {
     display: block;
@@ -660,7 +642,6 @@ body {
     min-height: 550px;
 }
 
-/* 全屏 */
 .tool-btns {
     position: absolute;
     right: 15px;
@@ -694,7 +675,6 @@ body {
     margin: 0;
 }
 
-/* 页面工具栏 */
 .page-toolbar {
     display: block;
     overflow: hidden;
@@ -735,7 +715,6 @@ body {
     border-radius: 0 0 5px 5px;
 }
 
-/*分页*/
 .pagination {
     overflow: hidden;
     display: block;
@@ -764,7 +743,6 @@ body {
     border-color: #393e49;
 }
 
-/* 角色权限设置 */
 .role-list-form dl {
     display: block;
 }
@@ -801,7 +779,6 @@ body {
     display: inline-block;
 }
 
-/* 系统菜单管理 */
 .menu-hd {
     font-size: 14px;
     font-weight: 400;
@@ -910,12 +887,6 @@ body {
     left: 688px
 }
 
-/*.layui-nav-child dd:hover {*/
-/*    background-color: #009688;*/
-/*    color: #fff;*/
-/*}*/
-
-/*数据列表页排序字段*/
 .input-sort {
     height: 24px;
     line-height: 24px;
@@ -925,7 +896,6 @@ body {
     color: #666;
 }
 
-/*模块、插件、支付平台列表*/
 .module-list-info {
     display: block;
     overflow: hidden;
@@ -966,7 +936,6 @@ body {
     color: #2a95de;
 }
 
-/*弹窗底部bar*/
 .pop-bottom-bar {
     position: fixed;
     left: 0;
@@ -1022,7 +991,6 @@ body {
     line-height: 22px;
 }
 
-/*themes*/
 .themes {}
 
 .themes li {
@@ -1053,7 +1021,6 @@ body {
     margin-top: 10px;
 }
 
-/* 锁屏 */
 .lock-screen {
     padding: 20px;
     overflow: hidden;
@@ -1090,7 +1057,6 @@ body {
     margin-left: 20px;
 }
 
-/* 漂浮图 */
 .showpic {
     position: absolute;
     width: 120px;
@@ -1103,7 +1069,6 @@ body {
     z-index: 99999;
 }
 
-/* 升级窗体 */
 .update {
     background: #ffffff;
     padding: 10px;
@@ -1117,7 +1082,6 @@ body {
     font-weight: bold;
 }
 
-/*插件中心*/
 .addon {
     position: relative;
     padding: 4px;
@@ -1139,7 +1103,6 @@ body {
     height: 200px;
 }
 
-/*金刚狼*/
 .layui-mobile.site-tree-mobile {
     position: absolute;
     left: 2%;
@@ -1246,7 +1209,6 @@ body {
         display: none;
     }
 }
-
 
 .wapmenu {
     display: none;
@@ -1394,7 +1356,6 @@ body {
     padding: 0 15px;
 }
 
-/* VOD/ART list: ops column — one row, no LayUI margin + flex gap double spacing */
 .layui-table td.mac-table-opt-cell {
     vertical-align: middle;
     white-space: nowrap;
@@ -1410,7 +1371,6 @@ body {
     margin-left: 0 !important;
 }
 
-/* VOD/ART list row: compact, identical ops (same box as layui-btn-xs, without class-order bugs) */
 .layui-table .mac-table-opt-btns .layui-btn {
     height: 22px !important;
     min-height: 22px !important;
@@ -1420,7 +1380,6 @@ body {
     box-sizing: border-box !important;
 }
 
-/* ========== 内层竖向 Tab：系统配置多子项，避免双横条堆叠 ========== */
 .maccms-inner-tab-vertical {
     display: flex;
     flex-direction: row;
@@ -1470,7 +1429,7 @@ body {
 
 .maccms-inner-tab-vertical .layui-tab-title .layui-this {
     color: #fff;
-    /* 与 layui 默认主按钮 .layui-btn（#40CC92）一致 */
+
     background: #40CC92;
     font-weight: 500;
 }
@@ -1537,7 +1496,6 @@ body {
     }
 }
 
-/* 与 .page-container .layui-tab-content 配合时，消减嵌套内边距“双边距”感 */
 .page-container .layui-tab .layui-tab-item:has(> form .maccms-inner-tab-vertical),
 .page-container .layui-tab .layui-tab-item:has(> .maccms-inner-tab-vertical) {
     margin-left: -22px;
@@ -1548,7 +1506,6 @@ body {
     box-sizing: border-box;
 }
 
-/* 采集参数合并页：外层 Tab 内容区不要左右内边距；内层竖向卡片区不再做负边距补位 */
 .page-container > .layui-tab[lay-filter="tb_access"] > .layui-tab-content {
     padding-left: 0;
     padding-right: 0;
@@ -1563,7 +1520,6 @@ body {
     box-sizing: border-box;
 }
 
-/* 该页主按钮与竖向导航选中色统一（避免局部仍用旧色） */
 .page-container .layui-tab[lay-filter="tb_access"] .maccms-inner-tab-vertical + .layui-form-item.center .layui-btn[type="submit"] {
     background-color: #40CC92;
     border-color: #40CC92;

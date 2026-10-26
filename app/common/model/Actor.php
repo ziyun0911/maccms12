@@ -8,14 +8,11 @@ use app\common\util\MeilisearchListBridge;
 use app\common\util\MeilisearchSync;
 
 class Actor extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'actor';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -52,7 +49,6 @@ class Actor extends Base {
             $total = $this->where($where)->count();
         }
         $list = Db::name('Actor')->field($field)->where($where)->where($where2)->orderRaw($order)->limit($limit_str)->select();
-        //分类
         $type_list = (new \app\common\model\Type())->getCache('type_list');
 
         foreach($list as $k=>$v){
@@ -117,7 +113,6 @@ class Actor extends Base {
             $param = mac_search_len_check($param);
             $totalshow = 1;
             if(!empty($param['id'])) {
-                //$type = intval($param['id']);
             }
             if(!empty($param['ids'])){
                 $ids = $param['ids'];
@@ -180,7 +175,6 @@ class Actor extends Base {
             else{
                 $pageurl = mac_url($pageurl,$param);
             }
-
         }
 
         $where['actor_status'] = ['eq',1];
@@ -383,7 +377,6 @@ class Actor extends Base {
                 return ['code' => 1002, 'msg' => lang('obtain_err')];
             }
             $info = $info->toArray();
-            //分类
             if (!empty($info['type_id'])) {
                 $type_list = (new \app\common\model\Type())->getCache('type_list');
                 $info['type'] = $type_list[$info['type_id']];
@@ -448,7 +441,6 @@ class Actor extends Base {
         unset($data['uptime']);
         unset($data['uptag']);
 
-        // xss过滤
         $filter_fields = [
             'actor_name',
             'actor_en',
@@ -551,5 +543,4 @@ class Actor extends Base {
 
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
 }

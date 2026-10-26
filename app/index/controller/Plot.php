@@ -12,7 +12,6 @@ class Plot extends Base
 
     public function index()
     {
-        // https://github.com/magicblack/maccms10/issues/960
         $param = mac_param_url();
         $this->assign('param',$param);
         return $this->label_fetch('plot/index');
@@ -55,5 +54,4 @@ class Plot extends Base
         $info = $this->label_vod_detail();
         return response($this->label_fetch('plot/rss'), 200, ['Content-Type' => 'text/xml; charset=utf-8']);
     }
-
 }

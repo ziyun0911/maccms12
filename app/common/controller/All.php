@@ -12,13 +12,10 @@ class All
 {
     use Jump;
 
-    /** @var \think\View 视图实例 */
     protected $view;
 
-    /** @var \think\Request 请求实例 */
     protected $request;
 
-    /** @var array 已分配给模板的 maccms 变量，供模板回退时改写资源路径 */
     protected $maccms = [];
 
     var $_ref;
@@ -41,7 +38,6 @@ class All
         addon_hook('action_begin', $this->request);
     }
 
-    // 多应用组件在全局中间件之后调用 loadLangPack() 会把语言重置为默认值，这里按站点设置重新应用
     protected function applySiteLang()
     {
         $langSet = (string) config('maccms.app.lang');
@@ -49,7 +45,6 @@ class All
             return;
         }
 
-        // Init 中间件里的 setLangSet 只改 range 不加载语言包，range 恰好匹配时仍需补载全局包
         if (Lang::getLangSet() !== $langSet) {
             Lang::switchLangSet($langSet);
         }
@@ -60,7 +55,6 @@ class All
         }
     }
 
-    // ---- TP8 视图方法（think\Controller 已移除，由本基类提供）----
     protected function assign($name, $value = '')
     {
         $this->view->assign($name, $value);
@@ -85,7 +79,6 @@ class All
             return $this->view->fetch($template);
         }
 
-        // 当前主题缺少模板时回退到 default 主题，避免抛出 TemplateNotFoundException 变成 500
         $rel = str_replace(['/', ':'], DIRECTORY_SEPARATOR, $tpl) . '.html';
         $fallbackRoot = ROOT_PATH . 'template/default/html/';
         if (is_file($fallbackRoot . $rel) && !empty($this->maccms)) {
@@ -126,18 +119,8 @@ class All
         return $this->request->isPost();
     }
 
-    /**
-     * 表单验证（TP5 think\Controller::validate 语义，供 $this->validate 调用）
-     * @param array $data  数据
-     * @param array $rules 规则（支持 "field|label" => "rule" 写法）
-     * @param array $message 错误提示
-     * @param array $field 字段标签
-     * @return true|string 通过返回 true，否则返回第一条错误信息
-     */
     protected function validate($data, $rules = [], $message = [], $field = [])
     {
-        // TP8 think-validate 已移除 TP5 的 field() 方法，仅保留 rule()/message()/batch() 等。
-        // 规则键 "field|label" 写法拆出真实字段名（label 不参与，消息中直接使用字段名）。
         $newRules   = [];
         $newMessage = $message;
         foreach ((array) $rules as $key => $rule) {
@@ -159,11 +142,9 @@ class All
 
     protected function load_page_cache($tpl,$type='html')
     {
-        // 开启防红防封时，首页不使用缓存，确保每次都进行浏览器检查
         if($tpl == 'index/index' && !empty($GLOBALS['config']['app']['browser_junmp']) && $GLOBALS['config']['app']['browser_junmp'] == 1) {
             return;
         }
-        // 发布页走 Index::fetch_site_publish_view，不经此处 tpl；保留兼容旧 tpl 名
         if ($tpl == 'index/publish' || $tpl == 'index/publish_group') {
             return;
         }
@@ -172,8 +153,6 @@ class All
             $cach_name = $_SERVER['HTTP_HOST']. '_'. MAC_MOB . '_'. $GLOBALS['config']['app']['cache_flag']. '_' . \app\common\model\ContentLang::getCurrent() . '_' .$tpl .'_'. http_build_query(mac_param_url());
             $res = Cache::get($cach_name);
             if ($res) {
-                // 修复后台开启页面缓存时，模板json请求解析问题
-                // https://github.com/magicblack/maccms10/issues/965
                 if($type=='json' || str_contains(request()->header('accept'), 'application/json')){
                     $res = json_encode($res);
                 }
@@ -185,8 +164,6 @@ class All
 
     protected function label_fetch($tpl,$loadcache=1,$type='html')
     {
-        // 埋点必须在 load_page_cache() 之前 —— 后者命中缓存会直接 echo+die，
-        // 放后面的话所有缓存命中的 PV 全部丢失。
         $this->analytics_track();
 
         if($loadcache==1){
@@ -196,8 +173,6 @@ class All
         if($GLOBALS['config']['app']['compress'] == 1){
             $html = mac_compress_html($html);
         }
-        // 埋点必须在 Cache::set() 之前注入，否则写入缓存的 HTML 不含 beacon，
-        // 缓存命中的页面永远不上报 stay_ms（详见 analytics_inject 注释）。
         $html = $this->analytics_inject($html);
         if(defined('ENTRANCE') && ENTRANCE == 'index' && $GLOBALS['config']['app']['cache_page'] ==1  && $GLOBALS['config']['app']['cache_time_page'] && empty($GLOBALS['__tpl_not_found'])){
             $cach_name = $_SERVER['HTTP_HOST']. '_'. MAC_MOB . '_'. $GLOBALS['config']['app']['cache_flag']. '_' . \app\common\model\ContentLang::getCurrent() . '_' . $tpl .'_'. http_build_query(mac_param_url());
@@ -220,17 +195,11 @@ polyfill;
         return $html;
     }
 
-    /**
-     * 服务端埋点。mid/rid/type_id 直接从 request 推导 ——
-     * 前端 beacon 只能从 ?tid= 猜 type_id，而 maccms 的 URL 根本不带 tid，
-     * 所以分类维度一直是空的。控制器上下文里这三个值是准的。
-     */
     protected function analytics_track()
     {
         if (!AnalyticsServerTracker::isEnabled()) {
             return;
         }
-        // 静态生成（admin/Make）不是真实访客请求，不能写埋点；ismake 是 Make.php 设的可靠信号
         if (!defined('ENTRANCE') || ENTRANCE != 'index' || !empty($GLOBALS['ismake'])) {
             return;
         }
@@ -251,7 +220,6 @@ polyfill;
                 $rid = $id;
                 $typeId = intval($this->analytics_type_of($mid, $rid));
             } elseif ($ac === 'index' || $ac === 'type' || $ac === 'show') {
-                // 列表页：id 本身就是分类 id
                 $typeId = $id;
             }
         }
@@ -264,7 +232,6 @@ polyfill;
         if (!isset($map[$mid])) {
             return 0;
         }
-        // type_id 基本不变，按 mid:rid 缓存 1 小时，避免热门内容每次访问（含页面缓存命中）都查一次库
         $cacheKey = 'ana_tid_' . intval($mid) . '_' . intval($rid);
         $cached = Cache::get($cacheKey);
         if ($cached !== null && $cached !== false) {
@@ -279,14 +246,6 @@ polyfill;
         return $typeId;
     }
 
-    /**
-     * 注入 MAC_ANA_SS 开关位与 beacon 脚本。
-     * 用的是与上面 polyfill 完全相同的机制（PHP 侧改写 HTML），不碰 template/。
-     *
-     * MAC_ANA_SS=1：本次是动态渲染，服务端已记 pageview，beacon 只回填 stay_ms。
-     * MAC_ANA_SS=0：静态生成（ENTRANCE=='admin'，Make.php 产出的 HTML 由 nginx 直出，
-     *               PHP 不执行），beacon 必须走完整上报。
-     */
     protected function analytics_inject($html)
     {
         if (!AnalyticsServerTracker::isEnabled()) {
@@ -342,24 +301,16 @@ polyfill;
         }
         $this->maccms = $maccms;
         $this->assign( ['maccms'=>$maccms] );
-        // 默认模板主题配置
         $this->assign('tplconfig', $GLOBALS['mctheme']);
         $this->assign('mac_vod_playlink', mac_tpl_vod_playlink_on() ? 1 : 0);
     }
 
-    /**
-     * 未命中动作/未命中控制器的兜底。TP8 的 think\route\Dispatch 用 is_callable 判定动作，
-     * 定义 __call 后框架就不会再抛「method/controller not exists」调试页 —— 那页连 GET/POST/
-     * Cookie/Session 一起打印。配合 config/route.php 的 empty_controller 指向各模块 MyError。
-     * 前台普通请求走主题 404 页；AJAX 与 api/其它入口统一返回 {code:1001} JSON + HTTP 404。
-     */
     public function __call($name, $arguments)
     {
         $msg = lang('page_not_found');
         $ajax = $this->request && $this->request->isAjax();
         switch (defined('ENTRANCE') ? ENTRANCE : '') {
             case 'admin':
-                // 后台 AJAX 沿用 jump 的 {code:0} JSON（HTTP 200），普通请求返回 404 错误页
                 $res = $this->error($msg);
                 return $res instanceof \think\Response ? $res : response((string) $res, 404);
             case 'index':
@@ -383,7 +334,6 @@ polyfill;
         $this->assign('wait',$wait);
         $this->assign('msg',$msg);
         $tpl = 'jump';
-        // 站内已存在的配置可能带路径段：page_404 只认字面量模板名，否则回退 public/jump
         $page404 = isset($GLOBALS['config']['app']['page_404']) ? (string) $GLOBALS['config']['app']['page_404'] : '';
         if($page404 !== '' && preg_match('/^[A-Za-z0-9_-]{1,64}$/', $page404)){
             $tpl = $page404;
@@ -396,7 +346,6 @@ polyfill;
 
     protected function label_user()
     {
-        // api 模块需填充 $GLOBALS['user']，供 check_user_popedom 等与前台一致的阅读权限判断
         if (ENTRANCE != 'index' && ENTRANCE != 'api') {
             return;
         }
@@ -408,8 +357,6 @@ polyfill;
         $group_list = (new \app\common\model\Group())->getCache();
 
         $has_cookie_auth = !empty($user_id) && !empty($user_name) && !empty($user_check);
-        // API 同时支持 Bearer JWT；即使没有 Cookie 也必须执行 checkLogin，
-        // 让后续 check_user_popedom 与接口控制器使用同一个已验证身份。
         if($has_cookie_auth || ENTRANCE == 'api'){
             $res = (new \app\common\model\User())->checkLogin();
             if($res['code'] == 1){
@@ -427,7 +374,6 @@ polyfill;
         else{
             $user['group'] = $group_list[1];
         }
-        // 顶栏 VIP 徽标等：与会员组逻辑一致（付费组 max(group_id)>=3），不依赖未使用的 is_member cookie
         $user['vip_nav'] = 0;
         if (!empty($user['user_id']) && !empty($user['group_id'])) {
             $gids = array_map('intval', explode(',', (string)$user['group_id']));
@@ -442,15 +388,12 @@ polyfill;
         $GLOBALS['user'] = $user;
         $this->assign('user',$user);
 
-        // 为已登录用户生成 session 内稳定的 CSRF token（非一次性销毁，适配 AJAX 场景）
         if (!empty($user['user_id']) && !session('?csrf_token')) {
             session('csrf_token', bin2hex(random_bytes(16)));
         }
         $csrfToken = '';
         if (session('?csrf_token')) {
             $csrfToken = (string)session('csrf_token');
-            // 通过 cookie 暴露给前端（双重提交模式），非 httponly 以便 JS 读取
-            // SameSite 由 app_end 的 CookieSameSite 行为统一补写，读取 config.cookie.samesite
             cookie('csrf_token', $csrfToken, ['httponly' => false]);
         }
         $this->assign('csrf_token', $csrfToken);
@@ -462,9 +405,6 @@ polyfill;
         $this->assign('comment',$comment);
     }
 
-    /**
-     * 详情页：将 AI SEO 或默认字段合并到 maccms，供模板使用 page_detail_* 变量
-     */
     protected function mergeDetailSeoIntoMaccms($mid, array $info, $seoAi)
     {
         $cfg = isset($GLOBALS['config']['ai_seo']) ? $GLOBALS['config']['ai_seo'] : [];
@@ -521,7 +461,6 @@ polyfill;
     {
         $param = mac_filter_words($param);
         $param = mac_search_len_check($param);
-        // vod/search 各个参数下都可能出现回显关键词
         if(!empty($GLOBALS['config']['app']['wall_filter'])){
             $param = mac_escape_param($param);
         }
@@ -598,7 +537,6 @@ polyfill;
         $this->assign('comment',$comment);
         return $info;
     }
-
 
     protected function label_role($total='')
     {
@@ -783,8 +721,6 @@ polyfill;
 
                 if($popedom['code']>1){
                     $this->assign('obj',$info);
-
-                    // 不再跳转确认页，直接进入阅读页，由模板内的权限引导进行购买/充值
                 }
             } else {
                 $popedom = $this->check_user_popedom($info['type_id'], 2);
@@ -890,7 +826,6 @@ polyfill;
             $info['vod_tpl_down'] = $info['type']['type_tpl_down'];
         }
 
-
         $trysee = 0;
         $vod_popedom_locked = false;
         $popedom = ['code' => 1, 'msg' => '', 'trysee' => 0, 'confirm' => 0];
@@ -908,20 +843,16 @@ polyfill;
                 $popedom =  $this->check_user_popedom($info['type_id'], 4,$param,$flag,$info);
             }
 
-            // 整部积分=1；按集=其它。按集下载不走整页锁，改为逐集打标
             $is_whole_points = (!empty($GLOBALS['config']['user']['vod_points_type']) && $GLOBALS['config']['user']['vod_points_type'] == '1');
 
             if($pe==0 && $popedom['code']>1 && empty($popedom["trysee"])){
                 $info['player_info']['flag'] = $flag;
 
                 if ($flag == 'down' && !$is_whole_points) {
-                    // 分集：继续走正常渲染，末尾 applyVodDownEpisodeLocks
                     $this->assign('obj', $info);
                 } else {
-                    // 整部下载无权限：保留集名供预览，清空真实地址
                     if ($flag == 'down' && !empty($info['vod_down_list']) && is_array($info['vod_down_list'])) {
                         foreach ($info['vod_down_list'] as $dk => $dgroup) {
-                            // 组级 url 是整组全集明文拼接串，一并清空防泄露
                             $info['vod_down_list'][$dk]['url'] = '';
                             if (empty($dgroup['urls']) || !is_array($dgroup['urls'])) {
                                 continue;
@@ -935,7 +866,6 @@ polyfill;
 
                     $this->assign('obj',$info);
 
-                    // 不再跳转确认页，直接进入播放页/下载页，由模板内的权限引导进行购买/充值
                     $vod_popedom_locked = true;
                 }
             }
@@ -943,7 +873,6 @@ polyfill;
         $this->assign('popedom',$popedom);
 
         if (!empty($vod_popedom_locked)) {
-            // 与 check_user_popedom 一致：整片积分模式用 vod_points
             $lock_points = intval(isset($info['vod_points_'.$flag]) ? $info['vod_points_'.$flag] : 0);
             if (isset($GLOBALS['config']['user']['vod_points_type']) && $GLOBALS['config']['user']['vod_points_type'] == '1') {
                 $lock_points = intval(isset($info['vod_points']) ? $info['vod_points'] : 0);
@@ -976,7 +905,6 @@ polyfill;
                     'vod_class'    => $info['vod_class'],
                 ],
             ];
-            // 无权限时仍生成上/下集播放页链接，便于游客切换集数（各集仍受权限门控）
             if ($param['nid'] > 1) {
                 $player_info['link_pre'] = $urlfun($info, ['sid' => $param['sid'], 'nid' => $param['nid'] - 1]);
             }
@@ -1080,7 +1008,6 @@ polyfill;
         $this->assign('vod_play_tagwall_enabled', $__vodTagwall['enabled']);
         $this->assign('vod_play_tagwall_json', $__vodTagwall['json']);
 
-        // 按集下载：逐集锁定未购买条目（整部模式不进此分支）
         if ($flag == 'down' && (empty($GLOBALS['config']['user']['vod_points_type']) || $GLOBALS['config']['user']['vod_points_type'] != '1')) {
             $info = $this->applyVodDownEpisodeLocks($info);
             if (empty($info['player_info']) || !is_array($info['player_info'])) {
@@ -1089,14 +1016,11 @@ polyfill;
             $info['player_info']['flag'] = 'down';
             $ep_points = intval(isset($info['vod_points_down']) ? $info['vod_points_down'] : 0);
             $info['player_info']['points'] = $ep_points;
-            // 防止 player_data 泄露未购集真实地址
             $cur_sid = intval(isset($param['sid']) ? $param['sid'] : 0);
             $cur_nid = intval(isset($param['nid']) ? $param['nid'] : 0);
             if (!empty($info['vod_down_list'][$cur_sid]['urls'][$cur_nid]['locked'])) {
                 $info['player_info']['url'] = '';
             }
-            // url_next 对应下一集(nid+1)，按下一集自身是否 locked 独立判定：
-            // 当前集已购、下一集未购时，不得因“跟随当前集”而泄露下一集真实地址
             if (!empty($info['vod_down_list'][$cur_sid]['urls'][$cur_nid + 1]['locked'])) {
                 $info['player_info']['url_next'] = '';
             }
@@ -1106,7 +1030,6 @@ polyfill;
             }
             $this->assign('obj', $info);
             $this->assign('down_pay_ep', 1);
-            // 按集模式重写 player_data，去掉可能已写入的明文 url
             if ($pe == 0) {
                 $this->assign('player_data', '<script type="text/javascript">var player_aaaa=' . json_encode($info['player_info']) . '</script>');
             }
@@ -1115,9 +1038,6 @@ polyfill;
         return $info;
     }
 
-    /**
-     * 按集下载：未购买的集清空 url 并标记 locked=1（防源码泄露）
-     */
     protected function applyVodDownEpisodeLocks($info)
     {
         if (empty($info['vod_down_list']) || !is_array($info['vod_down_list'])) {
@@ -1130,7 +1050,6 @@ polyfill;
         $max_gid = max(array_map('intval', $group_ids));
         $points = intval(isset($info['vod_points_down']) ? $info['vod_points_down'] : 0);
 
-        // VIP 或未设置下载积分：不锁
         if ($max_gid >= 3 || $points <= 0) {
             foreach ($info['vod_down_list'] as $dk => $dgroup) {
                 if (empty($dgroup['urls']) || !is_array($dgroup['urls'])) {
@@ -1176,7 +1095,6 @@ polyfill;
                     $info['vod_down_list'][$dk]['urls'][$uk]['locked'] = 0;
                 }
             }
-            // 组级 url 是整组全集明文拼接串，本组存在未购集则一并清空防泄露
             if ($has_locked) {
                 $info['vod_down_list'][$dk]['url'] = '';
             }
@@ -1185,9 +1103,6 @@ polyfill;
         return $info;
     }
 
-    /**
-     * 用户组/积分阅读与播放权限（前台 index 与 api 模块共用）
-     */
     protected function check_user_popedom($type_id, $popedom, $param = [], $flag = '', $info = [], $trysee = 0)
     {
         $user = $GLOBALS['user'];
@@ -1350,7 +1265,6 @@ polyfill;
             }
             if ($popedom == 4) {
                 if (max($group_ids) == 1 && $points > 0) {
-                    // 游客也需带回 points，供下载/播放页内嵌购买门展示「确认购买」
                     return ['code' => 4001, 'msg' => lang('controller/charge_data'), 'points' => $points, 'confirm' => 1, 'trysee' => 0];
                 } elseif (max($group_ids) == 2 && $points > 0) {
                     $where = [];
@@ -1423,9 +1337,6 @@ polyfill;
         return ['code' => 1, 'msg' => lang('controller/popedom_ok')];
     }
 
-    /**
-     * 校验正文访问权限后记录真实阅读章节，供 index/api 控制器共用。
-     */
     protected function record_read_chapter($userId, $mid, $rid, $sid, $nid)
     {
         $userId = intval($userId);
@@ -1437,7 +1348,6 @@ polyfill;
             return ['code' => 1001, 'msg' => lang('param_err')];
         }
 
-        // 不信任调用方单独传入的 userId；重新确认当前 Cookie/JWT 身份并同步权限上下文。
         if (intval($GLOBALS['user']['user_id'] ?? 0) !== $userId) {
             $auth = (new \app\common\model\User())->checkLogin();
             if ($auth['code'] !== 1 || intval($auth['info']['user_id'] ?? 0) !== $userId) {

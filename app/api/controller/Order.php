@@ -6,12 +6,6 @@ use app\common\util\CsrfGuard;
 use think\facade\Db;
 use think\Request;
 
-/**
- * 充值订单管理 API
- *
- * 提供订单列表、详情、状态查询（创建订单走 index 模块 POST user/buy）。
- * 所有接口均需用户登录（Cookie/Session 认证）。
- */
 class Order extends Base
 {
     use PublicApi;
@@ -23,9 +17,6 @@ class Order extends Base
         $this->check_config();
     }
 
-    /**
-     * 辅助：检查登录
-     */
     private function _checkLogin()
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -42,13 +33,6 @@ class Order extends Base
         return ['ok' => true, 'user_id' => $uid, 'user' => $user, 'response' => null];
     }
 
-    /**
-     * 创建充值订单
-     * POST /api.php/order/create
-     *
-     * @param  price  float  必填，充值金额（单位：元）
-     * @return JSON   {code:1, msg:'订单创建成功', info:{order_code, order_price, order_points, order_time}}
-     */
     public function create(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -80,8 +64,6 @@ class Order extends Base
             return json(['code' => 1002, 'msg' => '最小充值金额不能低于' . $pay_config['min'] . '元']);
         }
 
-        // 服务端定价：可选优惠券抵扣。券只减现金，不减积分：
-        // order_points 按用户选择的充值金额（原价）×scale 计，order_price 记折扣后实付金额。
         $couponUserId = intval($param['coupon_user_id'] ?? 0);
         $priced = (new \app\common\model\Coupon())->calculateOrderPrice('recharge', $price, [
             'user_id'        => $auth['user_id'],
@@ -101,8 +83,6 @@ class Order extends Base
         $data['order_price']  = $payPrice;
         $data['order_time']   = time();
         $data['order_points'] = $orderPoints;
-        // order_remarks 是 text NOT NULL，MySQL 的 TEXT 不能有 DEFAULT，
-        // 省略该列会在严格模式（STRICT_TRANS_TABLES）下报 1364 导致建单失败
         $data['order_remarks'] = '';
         if (!empty($priced['info']['snapshot'])) {
             $data['order_remarks'] = json_encode($priced['info']['snapshot'], JSON_UNESCAPED_UNICODE);
@@ -113,12 +93,10 @@ class Order extends Base
             return json($res);
         }
 
-        // 预占券到本订单（无券订单跳过）
         if ($couponUserId > 0) {
             $orderId = intval(\think\facade\Db::name('Order')->where('order_code', $data['order_code'])->value('order_id'));
             $resv = (new \app\common\model\CouponUser())->reserveForOrder($couponUserId, $auth['user_id'], $orderId, $data['order_code']);
             if ($resv['code'] > 1) {
-                // 预占失败：清理刚创建的废弃订单，避免污染用户订单列表
                 \think\facade\Db::name('Order')->where('order_code', $data['order_code'])->delete();
                 return json($resv);
             }
@@ -136,15 +114,6 @@ class Order extends Base
         ]);
     }
 
-    /**
-     * 获取用户订单列表
-     * GET /api.php/order/get_list?page=1&limit=20&status=
-     *
-     * @param  page    int     可选，页码，默认1
-     * @param  limit   int     可选，每页条数，默认20，最大100
-     * @param  status  int     可选，订单状态筛选（0=未支付，1=已支付）
-     * @return JSON    {code:1, msg:'获取成功', info:{page, pagecount, limit, total, list:[...]}}
-     */
     public function get_list(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -177,14 +146,6 @@ class Order extends Base
         ]);
     }
 
-    /**
-     * 获取订单详情
-     * GET /api.php/order/get_detail?order_id=1  或 ?order_code=PAYxxx
-     *
-     * @param  order_id    int     可选，订单ID（与 order_code 二选一）
-     * @param  order_code  string  可选，订单号
-     * @return JSON        {code:1, msg:'获取成功', info:{...}}
-     */
     public function get_detail(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -212,13 +173,6 @@ class Order extends Base
         return json($res);
     }
 
-    /**
-     * 查询订单支付状态
-     * GET /api.php/order/check_status?order_code=PAYxxx
-     *
-     * @param  order_code  string  必填，订单号
-     * @return JSON        {code:1, msg:'...', info:{order_code, order_status, order_status_text, order_pay_type, order_pay_time}}
-     */
     public function check_status(Request $request)
     {
         $auth = $this->_checkLogin();

@@ -18,5 +18,4 @@ class Admin extends Validate
         'add'  =>  ['admin_name','admin_pwd'],
         'edit'  =>  ['admin_name'],
     ];
-
 }

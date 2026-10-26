@@ -13,7 +13,6 @@ class Cj extends Base
         parent::__construct();
     }
 
-    //列表
     public function index()
     {
         $param = input();
@@ -36,7 +35,6 @@ class Cj extends Base
 
         return $this->fetch('admin@cj/index');
     }
-
 
     public function info()
     {
@@ -106,7 +104,6 @@ class Cj extends Base
         }
         $this->assign('program_config',$program_config);
 
-
         $node_field = array('title'=>lang('title'),'type'=>lang('type'), 'content'=>lang('content'));
         $customize_config = [];
         if(!empty($res['info']['customize_config'])){
@@ -136,8 +133,6 @@ class Cj extends Base
         $this->col_url($param);
     }
 
-
-    //采集网址
     public function col_url($param=[]) {
         if(empty($param)){
             $param = input();
@@ -214,7 +209,6 @@ class Cj extends Base
         return $this->fetch('admin@cj/col_url');
     }
 
-    //采集文章
     public function col_content($param=[]) {
         if(empty($param)){
             $param = input();
@@ -282,7 +276,6 @@ class Cj extends Base
         }
     }
 
-
     public function publish()
     {
         $param = input();
@@ -323,7 +316,6 @@ class Cj extends Base
         $this->assign('info',$info);
         $this->assign('title',lang('admin/cj/title'));
         return $this->fetch('admin@cj/show');
-
     }
 
     public function content_del()
@@ -412,7 +404,6 @@ class Cj extends Base
                     $data['data'][$k][$a] = $content_data[$b];
                 }
                 if($b=='type' && !is_numeric($content_data[$b])) {
-
                     if($node['mid'] ==2 ) {
                         $data['data'][$k][$a] = $inter['arttype'][$content_data[$b]];
                     }
@@ -421,7 +412,6 @@ class Cj extends Base
                     }
                 }
             }
-
 
             if($node['mid'] == '2'){
                 $res = (new \app\common\model\Collect())->art_data([],$data,0);
@@ -446,7 +436,6 @@ class Cj extends Base
             exit;
         }
 
-
         if ($total_page > $param['page']){
             mac_echo(lang('server_rest'));
             $param['page'] ++;
@@ -459,8 +448,6 @@ class Cj extends Base
         }
     }
 
-
-    //序列网址测试
     public function show_url()
     {
         $param = input();

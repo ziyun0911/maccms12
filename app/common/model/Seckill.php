@@ -81,10 +81,6 @@ class Seckill extends Base {
         return ['code' => 1, 'msg' => lang('set_ok')];
     }
 
-    /**
-     * 秒杀购买（原子扣库存 + 扣积分 + 发放权益）
-     * 错误码：1002 不存在 / 1003 离线 / 1004 未开始 / 1005 已结束 / 1006 超每人限购 / 1007 售罄 / 1008 积分不足 / 1009 发放失败
-     */
     public function buy($seckill_id, $user_id)
     {
         $seckill_id = intval($seckill_id);
@@ -95,7 +91,6 @@ class Seckill extends Base {
 
         Db::startTrans();
         try {
-            // SELECT ... FOR UPDATE 行锁
             $seckill = $this->where('seckill_id', $seckill_id)->lock(true)->find();
             if (empty($seckill)) {
                 Db::rollback();
@@ -115,15 +110,12 @@ class Seckill extends Base {
                 Db::rollback();
                 return ['code' => 1005, 'msg' => lang('seckill/ended')];
             }
-            // 每人限购。当前版本固定为 1：校验器 in:1、后台强制赋 1、uk_seckill_user(seckill_id,user_id)
-            // 唯一索引三处共同锁死。将来要放开 N 件，必须先去掉该唯一索引。
             $perUser = max(1, intval($seckill['seckill_per_user']));
             $myCount = Db::name('seckill_user')->where('seckill_id', $seckill_id)->where('user_id', $user_id)->count();
             if ($myCount >= $perUser) {
                 Db::rollback();
                 return ['code' => 1006, 'msg' => lang('seckill/per_user_limit')];
             }
-            // 库存校验：seckill_total 恒为上限（校验器强制 >= 1），与下面的原子扣减条件语义一致
             if (intval($seckill['seckill_sold']) >= intval($seckill['seckill_total'])) {
                 Db::rollback();
                 return ['code' => 1007, 'msg' => lang('seckill/sold_out')];
@@ -134,7 +126,6 @@ class Seckill extends Base {
                 return ['code' => 1008, 'msg' => lang('seckill/price_invalid')];
             }
 
-            // 取用户（锁行）
             $user = Db::name('user')->where('user_id', $user_id)->lock(true)->find();
             if (empty($user)) {
                 Db::rollback();
@@ -145,7 +136,6 @@ class Seckill extends Base {
                 return ['code' => 1008, 'msg' => lang('model/user/potins_not_enough')];
             }
 
-            // 扣积分（条件更新）
             $aff = Db::name('user')->where('user_id', $user_id)
                 ->where('user_points', '>=', $pricePoints)
                 ->setDec('user_points', $pricePoints);
@@ -154,7 +144,6 @@ class Seckill extends Base {
                 return ['code' => 1008, 'msg' => lang('model/user/potins_not_enough')];
             }
 
-            // 扣库存（原子）
             $affStock = $this->where('seckill_id', $seckill_id)
                 ->where('seckill_sold', '<', Db::raw('seckill_total'))
                 ->setInc('seckill_sold', 1);
@@ -163,7 +152,6 @@ class Seckill extends Base {
                 return ['code' => 1007, 'msg' => lang('seckill/sold_out')];
             }
 
-            // 写秒杀记录
             $orderCode = 'SK' . mac_get_uniqid_code();
             try {
                 Db::name('seckill_user')->insertGetId([
@@ -177,7 +165,6 @@ class Seckill extends Base {
                 return ['code' => 1006, 'msg' => lang('seckill/per_user_limit')];
             }
 
-            // 积分日志（plog_type = 13 秒杀消耗）
             $plog = [
                 'user_id'  => $user_id,
                 'plog_type' => 13,
@@ -190,7 +177,6 @@ class Seckill extends Base {
                 return $plogRes;
             }
 
-            // 发放权益
             $grantRes = $this->grantBenefit($seckill, $user, $orderCode);
             if ($grantRes['code'] > 1) {
                 Db::rollback();
@@ -201,16 +187,11 @@ class Seckill extends Base {
             return ['code' => 1, 'msg' => lang('seckill/buy_ok'), 'info' => ['order_code' => $orderCode, 'seckill_price_points' => $pricePoints]];
         } catch (\Exception $e) {
             Db::rollback();
-            // 异常细节（SQL / 表名 / 字段）只进日志，不回传给前端
             \think\facade\Log::error('Seckill buy failed seckill_id=' . $seckill_id . ' user_id=' . $user_id . ' err=' . $e->getMessage());
             return ['code' => 1010, 'msg' => lang('save_err')];
         }
     }
 
-    /**
-     * 发放秒杀权益：target_type=vip_group 时按 seckill_target_long 折算天数调用 User::grantVipDays
-     * 目标不受支持时必须失败（由调用方回滚），不得扣了积分却不发放任何权益。
-     */
     private function grantBenefit($seckill, $user, $orderCode)
     {
         $targetType = trim($seckill['seckill_target_type']);

@@ -3,15 +3,10 @@ namespace app\common\addon;
 
 use think\facade\View;
 
-/**
- * 插件控制器基类（TP8 原生实现）。
- */
 abstract class Controller
 {
-    /** @var \think\Request */
     protected $request;
 
-    /** @var string 插件名称 */
     protected $addon;
 
     protected $noNeedLogin = [];
@@ -28,9 +23,6 @@ abstract class Controller
     {
     }
 
-    /**
-     * 渲染插件视图：addons/{addon}/view/{template}.html
-     */
     protected function fetch(string $template = '', array $vars = [])
     {
         $viewPath = root_path('addons') . $this->addon . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR;
@@ -39,7 +31,6 @@ abstract class Controller
             $vars['title'] = ucfirst($this->addon);
         }
 
-        // {extend}/{include} 由模板引擎按 view_path 解析，不支持 admin@module 写法，需转成相对路径
         $file = $viewPath . str_replace(['/', ':'], DIRECTORY_SEPARATOR, $template) . '.html';
         if (is_file($file)) {
             $content = file_get_contents($file);

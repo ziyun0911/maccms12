@@ -10,9 +10,6 @@ class Assistant extends Base
         parent::__construct();
     }
 
-    /**
-     * JSON chat endpoint (raw JSON body).
-     */
     public function chat()
     {
         if (!$this->request->isPost()) {
@@ -43,9 +40,6 @@ class Assistant extends Base
         return json($out);
     }
 
-    /**
-     * Whether the floating widget should call the API (still requires enabled + key for real replies).
-     */
     public function ping()
     {
         $svc = new AdminAssistantService();

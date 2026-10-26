@@ -24,16 +24,6 @@
         return parseInt(res.code, 10) || 0;
     }
 
-    /**
-     * List page: batch AI SEO for checked rows (current page only) + per-row button.
-     *
-     * opts.$, opts.layer, opts.postUrl required.
-     * opts.form — optional layui.form for checkbox render.
-     * opts.lang — see templates
-     * opts.skipCheckbox — default #ai_seo_skip_existing
-     * opts.batchButton — default #btn_ai_seo_batch
-     * opts.rowButtonSelector — default .j-ai-seo-row
-     */
     w.initAiSeoListPage = function (opts) {
         opts = opts || {};
         var $ = opts.$ || (w.layui && w.layui.jquery);
@@ -65,7 +55,6 @@
             });
         }
 
-        /** After success, keep tr data-seo-status in sync for "skip already processed" on next batch */
         function markRowSeoOptimized(id) {
             $('.checkbox-ids')
                 .filter(function () {
@@ -76,9 +65,6 @@
                 .attr('data-seo-status', '1');
         }
 
-        /**
-         * @param {object} pbOpts — cancelBtnText, onUserClose (layer end: user closed or Cancel btn; not used after normal complete)
-         */
         function openProgressLayer(total, pbOpts) {
             pbOpts = pbOpts || {};
             var cancelTxt = pbOpts.cancelBtnText || 'Cancel';

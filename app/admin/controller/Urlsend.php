@@ -34,7 +34,6 @@ class Urlsend extends Base
         $extends = mac_extends_list('urlsend');
         $this->assign('extends',$extends);
 
-
         $this->assign('title',lang('admin/urlsend/title'));
         return $this->fetch('admin@urlsend/index');
     }
@@ -81,7 +80,6 @@ class Urlsend extends Base
 
                 if($ac2=='today'){
                     $where['art_'.$col_time] = ['gt',$today];
-
                 }
                 if(!empty($ids)){
                     $where['art_id'] = ['in',$ids];
@@ -100,7 +98,6 @@ class Urlsend extends Base
 
                 if($ac2=='today'){
                     $where['topic_'.$col_time] = ['gt',$today];
-
                 }
                 if(!empty($ids)){
                     $where['topic_id'] = ['in',$ids];
@@ -119,7 +116,6 @@ class Urlsend extends Base
 
                 if($ac2=='today'){
                     $where['actor_'.$col_time] = ['gt',$today];
-
                 }
                 if(!empty($ids)){
                     $where['actor_id'] = ['in',$ids];
@@ -137,7 +133,6 @@ class Urlsend extends Base
 
                 if($ac2=='today'){
                     $where['role_'.$col_time] = ['gt',$today];
-
                 }
                 if(!empty($ids)){
                     $where['role_id'] = ['in',$ids];
@@ -155,7 +150,6 @@ class Urlsend extends Base
 
                 if($ac2=='today'){
                     $where['website_'.$col_time] = ['gt',$today];
-
                 }
                 if(!empty($ids)){
                     $where['website_id'] = ['in',$ids];
@@ -173,7 +167,6 @@ class Urlsend extends Base
 
                 if($ac2=='today'){
                     $where['manga_'.$col_time] = ['gt',$today];
-
                 }
                 if(!empty($ids)){
                     $where['manga_id'] = ['in',$ids];
@@ -207,7 +200,6 @@ class Urlsend extends Base
         return $res;
     }
 
-
     public function push($pp=[])
     {
         if(!empty($pp)){
@@ -229,7 +221,6 @@ class Urlsend extends Base
             if ($data['page'] >= $data['pagecount']) {
                 mac_echo(lang('admin/urlsend/complete'));
                 if(ENTRANCE=='admin') {
-
                 }
             }
             else {
@@ -242,11 +233,9 @@ class Urlsend extends Base
                     $this->push($this->_param);
                 }
             }
-
         }
         else{
             return $this->error(lang('param_err'));
         }
     }
-
 }

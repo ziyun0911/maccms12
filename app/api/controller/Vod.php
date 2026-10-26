@@ -2,7 +2,6 @@
 
 namespace app\api\controller;
 
-
 use think\facade\Cache;
 use think\facade\Db;
 use think\Request;
@@ -14,23 +13,14 @@ class Vod extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     *  获取视频列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -41,7 +31,6 @@ class Vod extends Base
         }
         $offset = isset($param['offset']) ? (int)$param['offset'] : 0;
         $limit = isset($param['limit']) ? (int)$param['limit'] : 20;
-        // 查询条件组装（与前台分类一致：父类下视频多为子类 type_id + 父类 type_id_1）
         $where = [];
         $where['vod_status'] = ['eq', 1];
         if (isset($param['type_id'])) {
@@ -53,9 +42,6 @@ class Vod extends Base
         if (isset($param['id'])) {
             $where['vod_id'] = (int)$param['id'];
         }
-//        if (isset($param['type_id_1'])) {
-//            $where['type_id_1'] = (int)$param['type_id_1'];
-//        }
         if (!empty($param['vod_letter'])) {
             $where['vod_letter'] = $param['vod_letter'];
         }
@@ -95,20 +81,16 @@ class Vod extends Base
                 $where['vod_actor'] = ['like', mac_like_arr($an), 'OR'];
             }
         }
-        // 数据获取
         $total = (new \app\common\model\Vod())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
-            // 排序
             $order = "vod_time DESC";
             if (!empty($param['orderby'])) {
                 $order = 'vod_' . $param['orderby'] . " DESC";
             }
             $field = 'vod_id,vod_en,vod_name,vod_sub,vod_pic,vod_actor,vod_hits,vod_hits_day,vod_hits_week,vod_hits_month,vod_time,vod_remarks,vod_score,vod_area,vod_year,vod_class,vod_lang,vod_version,vod_state,vod_blurb,vod_points_play,vod_isend,type_id,type_id_1';
-//            $list = model('Vod')->getListByCond($offset, $limit, $where, $order, $field, []);
             $list = (new \app\common\model\Vod())->getListByCond($offset, $limit, $where, $order, $field);
 
-            // 补充 vod_pic、vod_link；主题「进播放页」时补充 vod_play_link（与 mac_url_vod_play 一致，避免前端拼 URL 与伪静态不一致）
             $playlinkOn = mac_tpl_vod_playlink_on();
             foreach ($list as &$v) {
                 $v['vod_pic'] = mac_url_img($v['vod_pic'] ?? '');
@@ -121,10 +103,8 @@ class Vod extends Base
             }
             unset($v);
 
-            // 与 model Vod::listData 一致：mac_get_vip_exclusive_type_ids()（会员组播放权限 popedom 3）
             mac_append_type_is_vip_exclusive_for_rows($list);
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -137,15 +117,6 @@ class Vod extends Base
         ]);
     }
 
-    /**
-     * 视频详细信息
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
     public function get_detail(Request $request)
     {
         $param = $request->param();
@@ -162,13 +133,11 @@ class Vod extends Base
             return json(['code' => 1001, 'msg' => '数据不存在']);
         }
 
-        // 处理图片 URL
         $res['vod_pic'] = mac_url_img($res['vod_pic']);
         $res['vod_pic_thumb'] = mac_url_img($res['vod_pic_thumb'] ?? '');
         $res['vod_pic_slide'] = mac_url_img($res['vod_pic_slide'] ?? '');
         $res['vod_link'] = mac_url_vod_detail($res);
 
-        // 解析播放源列表 vod_play_list
         $playList = [];
         if (!empty($res['vod_play_from']) && !empty($res['vod_play_url'])) {
             $playerConfig = config('maccms.player') ?: [];
@@ -204,7 +173,6 @@ class Vod extends Base
         }
         $res['vod_play_list'] = $playList;
 
-        // 解析下载源列表
         $downList = [];
         if (!empty($res['vod_down_from']) && !empty($res['vod_down_url'])) {
             $froms = explode('$$$', $res['vod_down_from']);
@@ -234,11 +202,9 @@ class Vod extends Base
         }
         $res['vod_down_list'] = $downList;
 
-        // 清理原始大字段（可选）
         unset($res['vod_play_url'], $res['vod_play_server'], $res['vod_play_note']);
         unset($res['vod_down_url'], $res['vod_down_server'], $res['vod_down_note']);
 
-        // 与 get_list / model Vod 一致：mac_get_vip_exclusive_type_ids()
         $detailWrap = [$res];
         mac_append_type_is_vip_exclusive_for_rows($detailWrap);
         $res = $detailWrap[0];
@@ -250,7 +216,6 @@ class Vod extends Base
         $res['fav_ulog_id'] = $fav['fav_ulog_id'];
         $res['user_has_up'] = mac_user_has_digg(1, $vid);
 
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -258,14 +223,6 @@ class Vod extends Base
         ]);
     }
 
-    /**
-     * 获取视频的年份
-     *
-     * @return \think\response\Json
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
     public function get_year(Request $request)
     {
         $param = $request->param();
@@ -284,7 +241,6 @@ class Vod extends Base
                 array_push($return,$item['vod_year']);
             }
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -295,14 +251,6 @@ class Vod extends Base
         ]);
     }
 
-    /**
-     * 获取该视频类型名称
-     *
-     * @return \think\response\Json
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
     public function get_class(Request $request)
     {
         $param = $request->param();
@@ -321,7 +269,6 @@ class Vod extends Base
                 array_push($return,$item['vod_class']);
             }
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -332,14 +279,6 @@ class Vod extends Base
         ]);
     }
 
-    /**
-     * 获取该视频类型的地区
-     *
-     * @return \think\response\Json
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
     public function get_area(Request $request)
     {
         $param = $request->param();
@@ -358,7 +297,6 @@ class Vod extends Base
                 array_push($return,$item['vod_area']);
             }
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -369,18 +307,6 @@ class Vod extends Base
         ]);
     }
 
-    /**
-     * 获取 Banner 推荐影片
-     * 对应首页 Banner 轮播区，取推荐等级高的影片
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   num   - 可选，数量，默认5
-     *   start - 可选，偏移量，默认0（换一换分页）
-     *   level - 可选，推荐等级，默认9，多个用逗号分隔
-     */
     public function get_banner(Request $request)
     {
         $param = $request->param();
@@ -431,7 +357,6 @@ class Vod extends Base
             $favUid = isset($favMap[$vodId]) ? intval($favMap[$vodId]) : 0;
             $v['is_fav'] = $favUid > 0 ? 1 : 0;
             $v['fav_uid'] = $favUid;
-            // 清理 HTML 标签
             $v['vod_content'] = strip_tags($v['vod_content']);
             if (mb_strlen($v['vod_content']) > 100) {
                 $v['vod_content'] = mb_substr($v['vod_content'], 0, 100) . '...';
@@ -450,20 +375,6 @@ class Vod extends Base
         ]);
     }
 
-    /**
-     * 获取热门推荐影片
-     * 对应首页热门推荐 Tab 区块，按月度点击量排序
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   num     - 可选，数量，默认6
-     *   type_id - 可选，分类ID，不传则查全站
-     *   start   - 可选，偏移量，默认0
-     *   level   - 可选，推荐等级筛选，多个用逗号分隔，如 "1,2,3,4,5,6,7,8,9"
-     *   by      - 可选，排序字段，默认 hits_month，可选: hits,hits_day,hits_week,hits_month,score,time
-     */
     public function get_hot(Request $request)
     {
         $param = $request->param();
@@ -473,7 +384,6 @@ class Vod extends Base
         $level = isset($param['level']) ? trim($param['level']) : '';
         $by = isset($param['by']) ? trim($param['by']) : 'hits_month';
 
-        // 验证排序字段
         $allowBy = ['hits', 'hits_day', 'hits_week', 'hits_month', 'score', 'time'];
         if (!in_array($by, $allowBy)) {
             $by = 'hits_month';
@@ -482,7 +392,6 @@ class Vod extends Base
         $where = [];
         $where['vod_status'] = ['eq', 1];
         if ($typeId > 0) {
-            // 同时匹配 type_id 和 type_id_1（父分类）
             $where['type_id|type_id_1'] = ['eq', $typeId];
         }
         if (!empty($level)) {
@@ -514,19 +423,6 @@ class Vod extends Base
         ]);
     }
 
-    /**
-     * 按分类获取最新影片
-     * 对应首页各分类区块的最新影片列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   type_id - 必须，分类ID
-     *   num     - 可选，数量，默认24
-     *
-     * info.today_new_count：当前分类（含子类）下，vod_time_add 或 vod_time 任一落在服务器当天自然日内的条数（去重按行，每条视频计 1）
-     */
     public function get_latest_by_type(Request $request)
     {
         $param = $request->param();
@@ -559,7 +455,6 @@ class Vod extends Base
             }
         }
 
-        // 仅列表所需字段；去掉 vod_director、vod_trysee 等，减轻行缓冲与 IO
         $fields = 'vod_id,vod_name,vod_sub,vod_pic,vod_actor,vod_score,vod_remarks,vod_year,vod_area,vod_class,vod_lang,vod_version,vod_state,vod_blurb,vod_time,vod_isend,vod_points_play,type_id,type_id_1';
 
         $list = Db::name('vod')
@@ -608,18 +503,6 @@ class Vod extends Base
         return json($payload);
     }
 
-    /**
-     * 获取排行榜数据
-     * 对应首页热播排行榜区块
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 参数说明:
-     *   type_id - 可选，分类ID，不传则查全站
-     *   num     - 可选，数量，默认10
-     *   by      - 可选，排序字段，默认 hits_month
-     */
     public function get_rank(Request $request)
     {
         $param = $request->param();
@@ -664,11 +547,6 @@ class Vod extends Base
         ]);
     }
 
-    /**
-     * 更新/获取点击数
-     * api.php/vod/update_hits?id=1&type=update
-     * type: update=更新并返回; 默认=只获取
-     */
     public function update_hits(Request $request)
     {
         $param = $request->param();
@@ -719,11 +597,6 @@ class Vod extends Base
         ]]);
     }
 
-    /**
-     * 影片顶/踩
-     * api.php/vod/digg?id=1&type=up
-     * type: up=顶; down=踩; 仅查询不传type
-     */
     public function digg(Request $request)
     {
         $param = $request->param();
@@ -743,11 +616,6 @@ class Vod extends Base
         return json(['code' => 1, 'msg' => 'ok', 'data' => ['up' => $res['info']['vod_up'] ?? 0, 'down' => $res['info']['vod_down'] ?? 0]]);
     }
 
-    /**
-     * 影片评分
-     * api.php/vod/update_score?id=1&score=8
-     * score: 1-10 评分值；不传只获取当前评分
-     */
     public function update_score(Request $request)
     {
         $param = $request->param();
@@ -771,20 +639,11 @@ class Vod extends Base
         return json(['code' => 1, 'msg' => 'ok', 'data' => ['score' => $info['vod_score'] ?? 0, 'score_num' => $info['vod_score_num'] ?? 0, 'score_all' => $info['vod_score_all'] ?? 0]]);
     }
 
-    /**
-     * 搜索建议/自动完成
-     * api.php/vod/suggest?wd=战狼&limit=10
-     */
     public function suggest(Request $request)
     {
         return $this->jsonSuggestByKind($request, 'vod');
     }
 
-    /**
-     * 验证播放/下载密码
-     * api.php/vod/verify_pwd?id=1&pwd=123&type=4
-     * type: 1=访问密码 4=播放密码 5=下载密码
-     */
     public function verify_pwd(Request $request)
     {
         $param = $request->param();
@@ -803,10 +662,6 @@ class Vod extends Base
         return json(['code' => 1, 'msg' => 'ok']);
     }
 
-    /**
-     * 获取播放页信息（含源列表、权限检查）
-     * api.php/vod/get_play_info?id=1&sid=1&nid=1
-     */
     public function get_play_info(Request $request)
     {
         $param = $request->param();
@@ -818,12 +673,10 @@ class Vod extends Base
         $res = (new \app\common\model\Vod())->infoData($where);
         if ($res['code'] > 1) return json($res);
         $info = $res['info'];
-        // 解析播放源
         $playList = mac_play_list(
             $info['vod_play_from'] ?? '', $info['vod_play_url'] ?? '',
             $info['vod_play_server'] ?? '', $info['vod_play_note'] ?? '', 'play'
         );
-        // 取当前集播放地址
         $currentPlay = $playList[$sid]['urls'][$nid] ?? null;
         return json(['code' => 1, 'msg' => 'ok', 'info' => [
             'vod_id'    => intval($info['vod_id']),
@@ -843,10 +696,6 @@ class Vod extends Base
         ]]);
     }
 
-    /**
-     * 获取下载页信息
-     * api.php/vod/get_down_info?id=1&sid=1&nid=1
-     */
     public function get_down_info(Request $request)
     {
         $param = $request->param();

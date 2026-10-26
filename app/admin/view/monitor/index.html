@@ -130,7 +130,6 @@
         queue: "{:lang('admin/monitor/m_fpm_queue')}"
     };
 
-    // 拿不到的指标整块隐藏，不画一条恒为 0 的假曲线
     function hideIfSkipped(cardId, prefix) {
         for (var k in SKIPPED) {
             if (k.indexOf(prefix) === 0) {
@@ -176,8 +175,6 @@
         GROUPS.forEach(function (g, i) {
             if (!instances[i]) { return; }
             MonitorCharts.load(g.keys, currentRange, function (data, err) {
-                // 加载失败必须说出来，不能留一个空坐标框 ——
-                // 站长会以为是页面坏了，而不是「这段时间没采到数据」
                 if (err || !data) {
                     instances[i].showError(err || MONITOR_I18N.load_failed);
                     return;

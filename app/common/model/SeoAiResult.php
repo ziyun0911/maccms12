@@ -11,7 +11,6 @@ class SeoAiResult extends Base
     public function createTableIfNotExists()
     {
         $table = config('database.connections.mysql.prefix') . $this->name;
-        // MySQL SHOW 语句在 PDO 原生预处理下不支持占位符，必须拼接字面量
         $exists = Db::query("SHOW TABLES LIKE '" . addslashes($table) . "'");
         if (!empty($exists)) {
             return;
@@ -63,7 +62,6 @@ class SeoAiResult extends Base
                 return $row;
             }
 
-            // Backward compatibility: old rows keyed by numeric obj_id only.
             $row = $this->where([
                 'seo_mid' => $mid,
                 'seo_obj_id' => $objId,
@@ -107,7 +105,6 @@ class SeoAiResult extends Base
 
         $old = $this->where(['seo_mid' => $mid, 'seo_obj_uuid' => $objUuid])->find();
         if (empty($old)) {
-            // Backward compatibility with old numeric-only key.
             $old = $this->where(['seo_mid' => $mid, 'seo_obj_id' => $objId])->find();
         }
         if (empty($old)) {
@@ -125,7 +122,6 @@ class SeoAiResult extends Base
 
         $table = config('database.connections.mysql.prefix') . $this->name;
         $tq = '`' . str_replace('`', '``', $table) . '`';
-        // MySQL SHOW 语句在 PDO 原生预处理下不支持占位符，必须拼接字面量
         $cols = Db::query("SHOW COLUMNS FROM {$tq} LIKE 'seo_obj_uuid'");
         if (empty($cols)) {
             Db::execute("ALTER TABLE {$tq} ADD COLUMN `seo_obj_uuid` char(36) NOT NULL DEFAULT '' COMMENT '内容UUID' AFTER `seo_obj_id`");

@@ -54,15 +54,12 @@
 {include file="../../../app/admin/view/public/foot" /}
 
 <script type="text/javascript">
-
     layui.use(['form','upload', 'layer'], function () {
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer
                 , $ = layui.jquery
                 , upload = layui.upload;;
 
-        // 验证
         form.verify({
             actor_name: function (value) {
                 if (value == "") {
@@ -165,7 +162,6 @@
         getExtend('{$info.type_id}')
     },1000);
     {/if}
-
 </script>
 
 </body>

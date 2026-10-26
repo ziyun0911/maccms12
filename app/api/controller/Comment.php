@@ -12,20 +12,12 @@ class Comment extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     *  获取列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
         $param = array_merge(
@@ -100,12 +92,6 @@ class Comment extends Base
         ]);
     }
 
-    /**
-     * 单条评论输出给前端（含头像 URL、表情 HTML、时间展示文案）
-     *
-     * @param array $row
-     * @param bool  $isReply
-     */
     protected function commentRowForApi(array $row, $isReply)
     {
         $uid = isset($row['user_id']) ? (int) $row['user_id'] : 0;
@@ -121,11 +107,6 @@ class Comment extends Base
         return $row;
     }
 
-    /**
-     * 提交评论
-     * api.php/comment/submit (POST)
-     * 参数: comment_mid, comment_rid, comment_content, [comment_pid=0]
-     */
     public function submit(Request $request)
     {
         $param = $request->param();
@@ -139,8 +120,6 @@ class Comment extends Base
         $cookie = 'comment_timespan';
         if (!empty(cookie($cookie))) return json(['code' => 1005, 'msg' => lang('frequently')]);
 
-        // 解析已验证身份：仅当 JWT 或签名 Cookie 校验通过才认账，绝不直接信任可伪造的 user_id Cookie，
-        // 否则攻击者可伪造 Cookie 把留言/风控 comment 事件归到任意用户名下。
         $authUser = null;
         $check = (new \app\common\model\User())->checkLogin();
         if (isset($check['code']) && intval($check['code']) === 1 && !empty($check['info'])) {
@@ -169,7 +148,6 @@ class Comment extends Base
         $data['comment_status'] = ($GLOBALS['config']['comment']['audit'] == 1) ? 0 : 1;
         $res = (new \app\common\model\Comment())->saveData($data);
         cookie($cookie, 't', 30);
-        // 风控日志（issue #149）：登录用户发表评论埋点（游客评论 user_id=0 不记）
         if (isset($res['code']) && intval($res['code']) === 1 && intval($data['user_id']) > 0) {
             \app\common\model\UserAccessLog::record('comment', [
                 'user_id' => intval($data['user_id']),
@@ -187,10 +165,6 @@ class Comment extends Base
         return json($res);
     }
 
-    /**
-     * 举报评论
-     * api.php/comment/report?id=1
-     */
     public function report(Request $request)
     {
         $param = $request->param();
@@ -203,10 +177,6 @@ class Comment extends Base
         return json(['code' => 1, 'msg' => 'ok']);
     }
 
-    /**
-     * 评论顶/踩
-     * api.php/comment/digg?id=1&type=up
-     */
     public function digg(Request $request)
     {
         $param = $request->param();

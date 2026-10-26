@@ -4,13 +4,8 @@ namespace app\common\util;
 
 use think\facade\Db;
 
-/**
- * API 搜索建议：Meilisearch + filterPublishedKind + refinePrimaryIdsForPublished，
- * 与列表/详情同一套已发布/未回收过滤；失败时回退 model listData（含各模型 recycle 合并）。
- */
 class ApiMeilisearchSuggest
 {
-    /** @var array<string, array<string, mixed>> */
     private static $kindMeta = [
         'vod' => [
             'model' => 'Vod',
@@ -85,11 +80,6 @@ class ApiMeilisearchSuggest
         ],
     ];
 
-    /**
-     * @param string $kind vod|art|actor|topic|role|website|manga
-     *
-     * @return array<string, mixed>|null
-     */
     private static function meta($kind)
     {
         $k = strtolower((string)$kind);
@@ -102,15 +92,6 @@ class ApiMeilisearchSuggest
         return '%' . addcslashes((string)$wd, '%_\\') . '%';
     }
 
-    /**
-     * Meili 命中后按顺序拉取 DB 行（status=1 + recycle=0 若存在列）。
-     *
-     * @param string          $kind 小写 kind 或与 meta 一致的前缀
-     * @param int[]           $ids
-     * @param array|null      $meta 已解析的 meta，避免重复查表
-     *
-     * @return array<int, array<string, mixed>>
-     */
     public static function orderedDbRowsByIds($kind, array $ids, array $meta = null)
     {
         $k = strtolower((string)$kind);
@@ -162,14 +143,6 @@ class ApiMeilisearchSuggest
         return $ordered;
     }
 
-    /**
-     * @param string     $kind
-     * @param string     $wd
-     * @param int        $limit
-     * @param array|null $meta 已解析的 meta（小写 kind），避免 suggest 路径重复 meta()
-     *
-     * @return array<int, array<string, mixed>>
-     */
     public static function meiliOrderedDbRows($kind, $wd, $limit, array $meta = null)
     {
         $k = strtolower((string)$kind);
@@ -200,14 +173,6 @@ class ApiMeilisearchSuggest
         return self::orderedDbRowsByIds($k, $ids, $m);
     }
 
-    /**
-     * @param string     $kind
-     * @param string     $wd
-     * @param int        $limit
-     * @param array|null $meta 已解析的 meta
-     *
-     * @return array{code:int,msg:string,page:int,pagecount:int,limit:int,total:int,list:array}
-     */
     public static function fallbackListDataRes($kind, $wd, $limit, array $meta = null)
     {
         $k = strtolower((string)$kind);
@@ -234,12 +199,6 @@ class ApiMeilisearchSuggest
         return $model->listData($where, $order, 1, $limit, 0, $field, $addition, 1);
     }
 
-    /**
-     * @param string               $kind
-     * @param array<string, mixed> $v
-     *
-     * @return array<string, mixed>
-     */
     public static function toSlimItem($kind, array $v)
     {
         $k = strtolower((string)$kind);
@@ -305,13 +264,6 @@ class ApiMeilisearchSuggest
         }
     }
 
-    /**
-     * @param string $kind
-     * @param string $wd
-     * @param int    $limit
-     *
-     * @return array{code:int,msg:string,page:int,pagecount:int,limit:int,total:int,list:array}
-     */
     public static function suggestListDataRes($kind, $wd, $limit)
     {
         $k = strtolower((string)$kind);
@@ -350,14 +302,6 @@ class ApiMeilisearchSuggest
         return $res;
     }
 
-    /**
-     * 前台 Ajax suggest：列表项为 id/name/en/pic（与历史模板一致），数据路径与 API 一致（Meili + refine + 未回收；否则 MySQL + status + LIKE）。
-     *
-     * @param string $kind       vod|art|topic|actor|role|website
-     * @param string $orderMode  SearchService::suggestOrder 的 mode（仅 MySQL 回退时生效）
-     *
-     * @return array{code:int,msg:string,page?:int,pagecount?:int,limit:int,total?:int,list:array}
-     */
     public static function ajaxSuggestResult($kind, $wd, $limit, $orderMode)
     {
         $k = strtolower((string)$kind);
@@ -408,12 +352,6 @@ class ApiMeilisearchSuggest
         return $res;
     }
 
-    /**
-     * @param string               $kind vod|art|topic|actor|role|website
-     * @param array<string, mixed> $row  表字段行（非 as 别名）
-     *
-     * @return array{id:int,name:string,en:string,pic:string}
-     */
     private static function rowToAjaxSuggestItem($kind, array $row)
     {
         switch ($kind) {

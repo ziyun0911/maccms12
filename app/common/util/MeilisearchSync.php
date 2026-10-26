@@ -4,9 +4,6 @@ namespace app\common\util;
 
 use think\facade\Db;
 
-/**
- * 写入 / 删除 Meilisearch 文档及全量同步。
- */
 class MeilisearchSync
 {
     public static function afterVodSave($vodId)
@@ -35,7 +32,6 @@ class MeilisearchSync
                 MeilisearchService::addDocuments([$doc]);
             }
         } catch (\Throwable $e) {
-            // 静默失败，避免影响后台保存
         }
     }
 
@@ -269,9 +265,6 @@ class MeilisearchSync
         MeilisearchService::deleteDocument('website_' . (int)$websiteId);
     }
 
-    /**
-     * @return array{ok:bool,msg:string,vod?:int,art?:int,manga?:int,topic?:int,actor?:int,role?:int,website?:int}
-     */
     public static function fullReindex($batch = 400)
     {
         if (!MeilisearchService::enabled()) {

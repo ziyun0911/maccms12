@@ -1,11 +1,8 @@
-/* mac_* 样式 */
 
-/*延时加载*/
 .lazy {
 	background: url('../images/home/loading.gif') center no-repeat
 }
 
-/*滑动显示*/
 .mac_drop_box {
 	text-align: left;
 	margin-top: 8px;
@@ -54,7 +51,6 @@
 	left: 170px;
 }
 
-/*用户滑动*/
 .mac_user_box {
 	width: 224px;
 	margin-left: -20px;
@@ -134,7 +130,6 @@
 	cursor: pointer;
 }
 
-/*历史记录*/
 .mac_history_box {
 	width: 180px;
 	margin-left: -20px;
@@ -180,9 +175,6 @@
 	color: white;
 }
 
-
-
-/*验证码*/
 .mac_verify_img {
 	width: 70px;
 	height: 30px;
@@ -218,7 +210,6 @@
 	*zoom: 1;
 }
 
-/*-Pages-*/
 .mac_pages {
 	text-align: center;
 	padding: 4px 0;
@@ -273,10 +264,6 @@
 	color: var(--theme-text);
 }
 
-/*-/Page-*/
-
-
-/*文章顶踩图标*/
 .mac_art_digg {
 	width: 400px;
 	margin: 0px auto;
@@ -343,8 +330,6 @@
 	background-position: 0 -270px;
 }
 
-
-/*搜索下拉*/
 .mac_results {
 	background-color: #FFFFFF;
 	overflow: hidden;
@@ -394,10 +379,6 @@
 	color: #333333;
 }
 
-
-
-
-/*普通评分*/
 .mac_score {
 	height: 60px;
 }
@@ -460,8 +441,6 @@
 	height: 21px
 }
 
-
-/*星星评分*/
 .mac_star {
 	font-weight: normal;
 	width: 240px;
@@ -505,14 +484,12 @@
 	background: url("../images/home/starrating.gif") 0 -35px no-repeat;
 }
 
-/*评论*/
 .mac_comment {
 	margin-top: 5px;
 	padding: 10px;
 	padding-left: 10px;
 	font-family: "Microsoft YaHei";
 }
-
 
 .mac_comment .clearfix::after {
 	height: 0px;
@@ -572,10 +549,6 @@
 	cursor: pointer;
 	z-index: 2;
 }
-
-/* .mac_comment .input_wrap .face.curr {
-	background: #fff;
-} */
 
 .mac_comment .input_wrap .face-box {
 	display: none;
@@ -876,7 +849,6 @@
 	margin-left: 0;
 }
 
-/*留言气泡版本*/
 .reply_box .mac_msg_l {
 	padding: 10px 1%;
 	float: left;
@@ -1087,8 +1059,6 @@
 	background: #3883e6;
 }
 
-
-/*顶踩图标*/
 .mac_comment i.icon-ding,
 .mac_digg i.icon-ding {
 	background: url("../images/home/up1.png") center no-repeat;
@@ -1109,7 +1079,6 @@
 	background: url("../images/home/dw2.png") center no-repeat;
 }
 
-/*顶踩页面*/
 .mac_digg a {
 	margin-right: 10px;
 	color: #999;
@@ -1119,7 +1088,6 @@
 	color: #333;
 }
 
-/*登录页面*/
 .mac_login {
 	width: 400px;
 	height: 250px;
@@ -1168,7 +1136,7 @@
 .mac_login .mac_login_form .login_form_group input.mac_u_verify {
 	float: left;
 	width: 70%;
-	/* background: url("../images/home/u_verify.png") 8px 9px no-repeat; */
+
 }
 
 .mac_login .mac_login_form .login_form_group img.mac_verify_img {
@@ -1207,7 +1175,6 @@
 	background: #40CC92;
 }
 
-/*弹出层*/
 .mac_pop_bg {
 	position: fixed;
 	z-index: 129;
@@ -1344,7 +1311,7 @@
 	background: #FEF9C3;
 	border-radius: 12px;
 	border: 2px solid #FEF08A;
-	animation: fadeIn 0.5s; /* 增加出现动画 */
+	animation: fadeIn 0.5s;
 }
 
 @keyframes fadeIn {
@@ -1363,7 +1330,6 @@
 	font-size: 14px;
 }
 
-/*跳转信息*/
 .mac_msg_jump {
 	width: 90%;
 	max-width: 624px;

@@ -25,26 +25,6 @@ class AnalyticsAggregator
         return self::aggregateHour($hourTs);
     }
 
-    /**
-     * 按天统计独立访客（UV），供后台首页「本日 / 近七日用户访问」直接读取。
-     * uv 口径与 aggregateDay() 保持一致：count(distinct visitor_id)。
-     *
-     * 取数优先级：
-     *   1. 历史日优先读已聚合的 analytics_day_overview（analytics_day 定时任务产出）。
-     *      明细表 pageview 上没有 (stat_date, visitor_id) 复合索引，count(distinct visitor_id)
-     *      只能靠 idx_stat_date 定位后回表，长范围会临时表+filesort；后台首页每次打开都要查，
-     *      不能直接扫明细（同 admin/controller/Analytics.php 的封顶思路）。
-     *   2. 聚合没覆盖的日子才回退扫明细表。正常站点只有「今天」落在这里。
-     *
-     * 「今天」永远走明细实时算，不信 day_overview 里今天的行：管理员手动触发
-     * mode=day&date=今天 会把半天的数据落库，之后首页就会一直停在那个半截数字。
-     *
-     * 日期桶零填充：无数据的日子返回 0，而不是直接跳格，否则前端折线图会错位。
-     *
-     * @param string $startDate Y-m-d
-     * @param string $endDate   Y-m-d
-     * @return array ['days'=>['Y-m-d',...],'count'=>[int,...],'sum'=>int]
-     */
     public static function dailyUv($startDate, $endDate)
     {
         $startTs = strtotime($startDate . ' 00:00:00');
@@ -52,21 +32,15 @@ class AnalyticsAggregator
         if ($startTs === false || $endTs === false || $startTs <= 0) {
             return ['days' => [], 'count' => [], 'sum' => 0];
         }
-        // 起止倒置（前端乱传）时退化为单日桶，不能让逐日循环跑不完
         if ($endTs < $startTs) {
             $endTs = $startTs;
         }
-        // 扫描窗口封顶 31 天，与 admin/controller/Analytics.php 对同一张 pageview 大表的
-        // 既有约定一致：聚合表没覆盖的日子要回退扫明细，而 count(distinct visitor_id)
-        // 无对应复合索引，长范围会触发临时表+filesort。存量站升级当天聚合表还是空的，
-        // 整个区间都会落到明细上，放宽窗口等于把后台首页变成慢查询入口。
         $maxTs = strtotime('+30 day', $startTs);
         if ($endTs > $maxTs) {
             $endTs = $maxTs;
         }
 
         $days = [];
-        // 用 strtotime('+1 day') 而不是 +86400，跨夏令时才不会丢日子
         for ($ts = $startTs; $ts <= $endTs; $ts = strtotime('+1 day', $ts)) {
             $days[] = date('Y-m-d', $ts);
         }
@@ -85,11 +59,9 @@ class AnalyticsAggregator
                 }
             }
         } catch (\Exception $e) {
-            // 聚合表缺失只是失去加速，回退扫明细即可，不能让整个指标取不到
             $map = [];
         }
 
-        // 只对聚合没覆盖的日子查明细，用 IN 走 idx_stat_date，不去扫已覆盖的日子
         $missing = [];
         foreach ($days as $day) {
             if (!isset($map[$day])) {
@@ -216,10 +188,6 @@ class AnalyticsAggregator
             self::insertDayDimsByCategory($statDate, $start, $end, $now);
 
             Db::name('AnalyticsContentDay')->where('stat_date', $statDate)->delete();
-            // 分组 key 必须与 mac_analytics_content_day 的主键 (stat_date, mid, content_id) 一致，
-            // 否则同一 mid+rid 出现两个 type_id（改分类/前端埋点 type_id=0 混入）时会产生两条
-            // 主键相同的 insert，第二条报重复键错误，被下面的 catch 整天 rollback。
-            // type_id 用 max() 折叠成一个代表值，优先取真实分类而不是 0。
             $contentRows = Db::name('AnalyticsPageview')
                 ->alias('p')
                 ->join('analytics_session s', 's.session_id = p.session_id', 'left')
@@ -230,9 +198,6 @@ class AnalyticsAggregator
                 ->group('p.mid,p.rid')
                 ->select();
 
-            // 内容级转化/互动只能来自 mac_ulog —— mac_order 没有任何 mid/rid 字段，
-            // 它是充值订单表，与「买了哪部片」无关。
-            // ulog_type: 1=积分解锁/购买 2=收藏 3=想看
             $ulogRows = Db::name('Ulog')
                 ->field('ulog_mid as mid,ulog_rid as content_id,ulog_type,count(*) as cnt,ifnull(sum(ulog_points),0) as points')
                 ->where('ulog_time', 'between', [$start, $end])
@@ -257,8 +222,6 @@ class AnalyticsAggregator
                 }
             }
 
-            // 内容行取「有 pageview」与「有 ulog 互动」两者的并集：收藏/购买可能发生在列表页，
-            // 当天该内容没有任何 detail 页 pageview，若只以 pageview 建行会把这笔转化静默丢弃。
             $pvKeys = [];
             foreach ($contentRows as $row) {
                 $pvKeys[intval($row['mid']) . ':' . intval($row['content_id'])] = true;
@@ -286,7 +249,6 @@ class AnalyticsAggregator
                 ];
             }
 
-            // ulog-only 行（当天无 pageview）：先按 mid 批量回填 type_id，避免逐行查询(N+1)
             $ulogOnlyKeys = [];
             foreach ($ulogMap as $k => $extra) {
                 if (!isset($pvKeys[$k])) {
@@ -315,7 +277,6 @@ class AnalyticsAggregator
                 ];
             }
 
-            // 分块批量写入，缩短事务持有时间、减少数据库往返
             foreach (array_chunk($batch, 500) as $chunk) {
                 Db::name('AnalyticsContentDay')->insertAll($chunk);
             }
@@ -400,10 +361,6 @@ class AnalyticsAggregator
         }
     }
 
-    /**
-     * 按内容 key（"mid:content_id"）批量回填 type_id，返回 [key => type_id]。
-     * 按 mid 分组后每个模块一次 whereIn 查询，取代逐行查询，消除 N+1。
-     */
     private static function lookupContentTypeIds($keys)
     {
         $modelMap = [1 => ['Vod', 'vod_id'], 2 => ['Art', 'art_id'], 8 => ['Manga', 'manga_id']];
@@ -420,7 +377,6 @@ class AnalyticsAggregator
         foreach ($byMid as $mid => $ids) {
             list($modelName, $pk) = $modelMap[$mid];
             $ids = array_values(array_unique($ids));
-            // column('type_id', $pk) 返回 [pk值 => type_id]
             $rows = Db::name($modelName)->where($pk, 'in', $ids)->column('type_id', $pk);
             foreach ($ids as $cid) {
                 $result[$mid . ':' . $cid] = isset($rows[$cid]) ? intval($rows[$cid]) : 0;

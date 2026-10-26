@@ -1,7 +1,6 @@
 <?php
 
 return [
-    // General
     'AI Content Assistant'                  => 'AI Content Assistant',
     'AI Content Assistant — Configuration'  => 'AI Content Assistant — Configuration',
     'AI Content Assistant - Dashboard'      => 'AI Content Assistant - Dashboard',
@@ -19,7 +18,6 @@ return [
     'Open Plugin'                           => 'Open Plugin',
     'Default Settings'                      => 'Default Settings',
 
-    // Status
     'Pending'   => 'Pending',
     'Done'      => 'Done',
     'Error'     => 'Error',
@@ -28,7 +26,6 @@ return [
     'Completed' => 'Completed',
     'Errors'    => 'Errors',
 
-    // Stats / table headers
     'Total Tasks'      => 'Total Tasks',
     'ID'               => 'ID',
     'Content'          => 'Content',
@@ -39,17 +36,14 @@ return [
     'Actions'          => 'Actions',
     'Provider'         => 'Provider',
 
-    // Content types
     'Video'   => 'Video',
     'Article' => 'Article',
     'Topic'   => 'Topic',
 
-    // Pagination
     'Prev' => 'Prev',
     'Next' => 'Next',
     'Page' => 'Page',
 
-    // Form labels
     'Content Type'   => 'Content Type',
     'Title'          => 'Title',
     'Genre / Type'   => 'Genre / Type',
@@ -65,7 +59,6 @@ return [
     'Timeout (s)'    => 'Timeout (s)',
     'API Key'        => 'API Key',
 
-    // Placeholders
     'Video or article title'            => 'Video or article title',
     'e.g. Action, Romance, Documentary' => 'e.g. Action, Romance, Documentary',
     'e.g. 2024'                         => 'e.g. 2024',
@@ -73,7 +66,6 @@ return [
     'Main cast, comma-separated'        => 'Main cast, comma-separated',
     'Director name'                     => 'Director name',
 
-    // Result / view labels
     'SEO Title'        => 'SEO Title',
     'Description'      => 'Description',
     'Tags'             => 'Tags',
@@ -84,18 +76,15 @@ return [
     'Task ID'          => 'Task ID',
     'Generate Content with AI' => 'Generate Content with AI',
 
-    // Config page help text
     'Only the key for your selected provider is required. Other fields are hidden.'
         => 'Only the key for your selected provider is required. Other fields are hidden.',
     'Select provider, then choose a model from the right dropdown.'
         => 'Select provider, then choose a model from the right dropdown.',
     'Recommended: 800–2000.' => 'Recommended: 800–2000.',
 
-    // config.php field titles
     'Model Name'   => 'Model Name',
     'Language'     => 'Language',
 
-    // config.php tips
     'Default AI provider for content generation.'   => 'Default AI provider for content generation.',
     'Claude: claude-sonnet-4-6 | OpenAI: gpt-4o | Gemini: gemini-2.0-flash | DeepSeek: deepseek-chat | Qwen: qwen-turbo | GLM: glm-4'
         => 'Claude: claude-sonnet-4-6 | OpenAI: gpt-4o | Gemini: gemini-2.0-flash | DeepSeek: deepseek-chat | Qwen: qwen-turbo | GLM: glm-4',
@@ -110,7 +99,6 @@ return [
     'HTTP timeout in seconds for AI API calls.'      => 'HTTP timeout in seconds for AI API calls.',
     'Language for AI generated content.'             => 'Language for AI generated content.',
 
-    // API key labels
     'Claude Key'   => 'Claude Key',
     'OpenAI Key'   => 'OpenAI Key',
     'Gemini Key'   => 'Gemini Key',
@@ -118,7 +106,6 @@ return [
     'Qwen Key'     => 'Qwen Key',
     'GLM Key'      => 'GLM Key',
 
-    // Providers
     'Claude (Anthropic)' => 'Claude (Anthropic)',
     'OpenAI (GPT)'       => 'OpenAI (GPT)',
     'Google Gemini'      => 'Google Gemini',
@@ -126,7 +113,6 @@ return [
     'Alibaba Qwen'       => 'Alibaba Qwen',
     'Zhipu GLM'          => 'Zhipu GLM',
 
-    // Language options
     'Chinese Simplified (简体中文)'  => 'Chinese Simplified (简体中文)',
     'Chinese Traditional (繁體中文)' => 'Chinese Traditional (繁體中文)',
     'English'                        => 'English',
@@ -137,7 +123,6 @@ return [
     'Spanish (Español)'              => 'Spanish (Español)',
     'Portuguese (Português)'         => 'Portuguese (Português)',
 
-    // Controller messages
     'Unauthorized. Please log in to the admin panel.' => 'Unauthorized. Please log in to the admin panel.',
     'Please log in first.'            => 'Please log in first.',
     'Invalid request token.'          => 'Invalid request token.',
@@ -164,12 +149,10 @@ return [
     'Task not found'                  => 'Task not found.',
     'Deleted successfully'            => 'Deleted successfully.',
 
-    // UI confirm / misc
     'No tasks yet. Click "New Generation" to get started.' => 'No tasks yet. Click "New Generation" to get started.',
     'Delete this task record?'        => 'Delete this task record?',
     'Please enter the API key first.' => 'Please enter the API key first.',
 
-    // JS strings (injected via window.AI_LANG)
     'Write something in this field first, then click AI to enhance it.'
         => 'Write something in this field first, then click AI to enhance it.',
     'Enhanced!'          => 'Enhanced!',

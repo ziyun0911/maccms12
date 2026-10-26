@@ -3,18 +3,14 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Ulog extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'ulog';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
-
 
     public function listData($where,$order,$page=1,$limit=20,$start=0)
     {
@@ -35,7 +31,6 @@ class Ulog extends Base {
             }
 
             if($v['ulog_mid']==12){
-                // 漫画收藏 / 历史
                 $manga_info = (new \app\common\model\Manga())->infoData(['manga_id'=>['eq',$v['ulog_rid']]],'*',1);
                 if (!empty($manga_info['info'])) {
                     if (intval($v['ulog_type']) === 4 && intval($v['ulog_sid']) > 0 && intval($v['ulog_nid']) > 0) {
@@ -149,16 +144,6 @@ class Ulog extends Base {
         return ['code'=>1,'msg'=>lang('data_list'),'page'=>$page,'pagecount'=>ceil($total/$limit),'limit'=>$limit,'total'=>$total,'list'=>$list];
     }
 
-    /**
-     * 继续观看列表（带播放进度）
-     * 基于播放历史记录 ulog_mid=1 且 ulog_type=4，按最近播放时间倒序
-     *
-     * @param int   $user_id 用户ID
-     * @param int   $page    页码
-     * @param int   $limit   每页条数
-     * @param array $options 可选项 hide_finished=1 时过滤已看完(percent>=95)的记录
-     * @return array ['code'=>1,'page'=>..,'pagecount'=>..,'limit'=>..,'total'=>..,'list'=>[...]]
-     */
     public function continueWatchData($user_id, $page = 1, $limit = 12, $options = [])
     {
         $user_id = intval($user_id);
@@ -175,7 +160,6 @@ class Ulog extends Base {
             'ulog_mid'  => ['eq', 1],
             'ulog_type' => ['eq', 4],
         ];
-        // 已看完定义：duration>0 且 point/duration >= 95%
         $finished_sql = '(ulog_duration <= 0 OR ulog_point * 100 < ulog_duration * 95)';
 
         $total_query = Db::name('Ulog')->where($where);
@@ -195,7 +179,6 @@ class Ulog extends Base {
 
         $list = [];
         if (!empty($rows)) {
-            // 批量取影片信息，避免 N+1 查询；已删除的影片自动过滤
             $vod_ids = [];
             foreach ($rows as $v) {
                 $vod_ids[intval($v['ulog_rid'])] = intval($v['ulog_rid']);
@@ -228,7 +211,6 @@ class Ulog extends Base {
                     }
                 }
 
-                // 解析集数名称，如 "第08集"
                 $episode_name = '';
                 if ($sid > 0 && $nid > 0 && !empty($vod['vod_play_url'])) {
                     $play_url_arr = explode('$$$', $vod['vod_play_url']);
@@ -241,7 +223,6 @@ class Ulog extends Base {
                     }
                 }
 
-                // 续播直达链接；无 sid/nid 时退回详情页
                 if ($sid > 0 && $nid > 0) {
                     $link_play = mac_url_vod_play($vod, ['sid' => $sid, 'nid' => $nid]);
                 } else {
@@ -305,10 +286,6 @@ class Ulog extends Base {
         return ['code'=>1,'msg'=>lang('obtain_ok'),'info'=>$info];
     }
 
-    /**
-     * 记录小说/漫画实际打开过的章节。
-     * 小说固定 sid=1、nid=页码；漫画使用来源 sid 与话数 nid。
-     */
     public function recordReadChapter($userId, $mid, $rid, $sid, $nid)
     {
         $validated = $this->validateReadChapter($userId, $mid, $rid, $sid, $nid);
@@ -351,9 +328,6 @@ class Ulog extends Base {
         }
     }
 
-    /**
-     * 返回单一作品真实到访过的章节集合及最近阅读位置。
-     */
     public function readChapterData($userId, $mid, $rid, $sid = 0)
     {
         $userId = intval($userId);
@@ -467,21 +441,11 @@ class Ulog extends Base {
         ];
     }
 
-    /**
-     * 判断用户是否已拥有某项权限（已购买）。
-     * 与 infoData 的区别：仅对视频下载(mid=1,type=5)忽略 ulog_points（价格），
-     * 使「金币购买(记原价)」与「额度兑换(记0)」都能命中同一下载权限记录；
-     * 其余类型保持含价格的精确匹配，避免 0 价记录（观看进度/收藏）被误判为已购。
-     * ulog_time 一律不参与匹配。
-     */
     public function hasBought($where)
     {
         if (empty($where) || !is_array($where)) {
             return false;
         }
-        // 仅视频下载(mid=1,type=5)放宽价格匹配：额度兑换记 ulog_points=0、金币购买记原价都应算已购。
-        // 其余类型（播放 type=4 的观看进度、文章/漫画 type=1 收藏等 0 价记录）保持精确匹配（含价格），
-        // 防「免费内容事后被站长改为付费」后残留的 0 价记录被误判为已购而白嫖。
         $isVideoDownload = (intval(isset($where['ulog_mid']) ? $where['ulog_mid'] : 0) == 1
             && intval(isset($where['ulog_type']) ? $where['ulog_type'] : 0) == 5);
         unset($where['ulog_time']);
@@ -493,9 +457,6 @@ class Ulog extends Base {
 
     public function saveData($data)
     {
-        // 优先采用调用方已验证的 user_id（Web 取 $GLOBALS['user']、API 取 checkLogin/JWT 结果）；
-        // 仅在未提供时才回退 Cookie。JWT 场景没有 user_id Cookie，若无条件覆盖会把已认证用户的
-        // 购买/收藏记录错误写成 user_id=0 而校验失败。
         if (empty($data['user_id'])) {
             $data['user_id'] = intval(cookie('user_id'));
         } else {
@@ -524,7 +485,6 @@ class Ulog extends Base {
             return ['code'=>1004,'msg'=>lang('save_err').'：'.$this->getError() ];
         }
 
-        // 收藏(ulog_type=2)且为新增时写动态
         if (empty($data['ulog_id']) && intval($data['ulog_type']) === 2) {
             try {
                 $dyn_text = '';
@@ -582,5 +542,4 @@ class Ulog extends Base {
         }
         return ['code'=>1,'msg'=>lang('set_ok')];
     }
-
 }

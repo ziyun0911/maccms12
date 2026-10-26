@@ -9,7 +9,6 @@ class SignMilestone extends Base
         parent::__construct();
     }
 
-    // 里程碑列表
     public function data()
     {
         $param = input();
@@ -35,7 +34,6 @@ class SignMilestone extends Base
         return $this->fetch('admin@sign_milestone/index');
     }
 
-    // 里程碑编辑
     public function info()
     {
         if (request()->isPost()) {
@@ -62,7 +60,6 @@ class SignMilestone extends Base
         return $this->fetch('admin@sign_milestone/info');
     }
 
-    // 删除里程碑
     public function del()
     {
         $param = input();
@@ -79,7 +76,6 @@ class SignMilestone extends Base
         return $this->error(lang('param_err'));
     }
 
-    // 修改状态
     public function field()
     {
         $param = input();

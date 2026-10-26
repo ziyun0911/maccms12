@@ -78,7 +78,6 @@
         if (u === '') {
             return '';
         }
-        // http(s) 或单斜杠站内路径；拒绝协议相对 //evil
         if (/^https?:\/\//i.test(u) || /^\/[^\/]/.test(u) || u === '/') {
             return escHtml(u);
         }

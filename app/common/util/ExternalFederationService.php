@@ -124,9 +124,6 @@ class ExternalFederationService
         return $ext;
     }
 
-    /**
-     * Short description for UI: prefer provider snippet, else subtitle/date/score/host.
-     */
     private function composePublicSnippet(array $row)
     {
         $s = trim(strip_tags((string)(isset($row['item_snippet']) ? $row['item_snippet'] : '')));

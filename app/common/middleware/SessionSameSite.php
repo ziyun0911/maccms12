@@ -5,13 +5,6 @@ use Closure;
 use think\Request;
 use think\Response;
 
-/**
- * 苹果CMS v12 —— Session SameSite 中间件
- *
- * TP8 会话由 think\middleware\SessionInit 依据 config/session.php 启动，
- * 该配置已含 samesite=Lax。此中间件保留为兼容层：若会话尚未启动，
- * 则按配置显式应用 PHP 7.3+ 的 session_set_cookie_params。
- */
 class SessionSameSite
 {
     public function handle(Request $request, Closure $next)
@@ -31,13 +24,13 @@ class SessionSameSite
                         $secure = isset($cfg['secure']) ? (bool)$cfg['secure'] : (bool)ini_get('session.cookie_secure');
                         $httponly = array_key_exists('httponly', $cfg) ? (bool)$cfg['httponly'] : (bool)ini_get('session.cookie_httponly');
                         session_set_cookie_params([
-                            'lifetime' => $lifetime,
-                            'path'     => $path,
-                            'domain'   => $domain,
-                            'secure'   => $secure,
-                            'httponly' => $httponly,
-                            'samesite' => $ss,
-                        ]);
+                                'lifetime' => $lifetime,
+                                'path'     => $path,
+                                'domain'   => $domain,
+                                'secure'   => $secure,
+                                'httponly' => $httponly,
+                                'samesite' => $ss,
+                            ]);
                     }
                 }
             }

@@ -2,23 +2,8 @@
 
 namespace app\common\util;
 
-/**
- * 系统设置中心导航。
- *
- * 后台框架（左侧栏）与系统信息页（概览卡片）共用同一份分组数据，
- * 避免两处各自维护一份设置项定义。调用方通过 $can 回调注入当前
- * 管理员的 system/* 权限判断。
- */
 class SystemSettingsMenu
 {
-    /**
-     * 读取多级配置，任意层级缺失时返回默认值。
-     *
-     * @param array  $config
-     * @param string $path
-     * @param mixed  $default
-     * @return mixed
-     */
     public static function get($config, $path, $default = null)
     {
         $node = $config;
@@ -31,13 +16,6 @@ class SystemSettingsMenu
         return $node;
     }
 
-    /**
-     * 由“是否启用 + 是否配置完整”推导导航状态。
-     *
-     * @param bool $enabled
-     * @param bool $configured
-     * @return string on|off|warn
-     */
     public static function featureState($enabled, $configured)
     {
         if (!$enabled) {
@@ -46,13 +24,6 @@ class SystemSettingsMenu
         return $configured ? 'on' : 'warn';
     }
 
-    /**
-     * 读取语言包中的说明文字并压成一行，缺失时返回空串。
-     *
-     * @param string $key
-     * @param int    $limit
-     * @return string
-     */
     public static function tip($key, $limit = 140)
     {
         $text = lang($key);
@@ -60,7 +31,6 @@ class SystemSettingsMenu
             return '';
         }
         $text = str_replace(['<br>', '<br/>', '<br />'], ' ', $text);
-        // 邮件/短信模板说明里带有 {$maccms.***} 之类的占位符，不适合展示在导航摘要中
         $text = preg_replace('/\{\$[^}]*\}/u', '', $text);
         if (!is_string($text)) {
             return '';
@@ -75,13 +45,6 @@ class SystemSettingsMenu
         return $text;
     }
 
-    /**
-     * 构建设置中心导航项（按 $can 过滤）。
-     *
-     * @param array         $config
-     * @param callable|null $can 接收 action 名，返回 bool；为空表示全部可见
-     * @return array
-     */
     public static function build($config, ?callable $can = null)
     {
         $groupNames = [
@@ -100,11 +63,9 @@ class SystemSettingsMenu
             'warn' => lang('admin/safety/checkup_badge_warn'),
         ];
 
-        // 会员互动：评论 / 留言任一开启即视为已启用
         $commentOn = (string)self::get($config, 'comment.status', '0') === '1'
             || (string)self::get($config, 'gbook.status', '0') === '1';
 
-        // 内容接入
         $interfaceOn = (string)self::get($config, 'interface.status', '0') === '1';
         $apiOn = false;
         foreach (['vod', 'art', 'actor', 'role', 'website', 'manga', 'publicapi'] as $module) {
@@ -114,14 +75,11 @@ class SystemSettingsMenu
             }
         }
 
-        // 资源、链接与播放
         $uploadMode = trim((string)self::get($config, 'upload.mode', ''));
         $rewriteOn = (string)self::get($config, 'rewrite.status', '0') === '1';
 
-        // 对接与账号
         $weixinOn = (string)self::get($config, 'weixin.status', '0') === '1';
 
-        // 邮件与短信
         $emailType = trim((string)self::get($config, 'email.type', 'phpmailer'));
         $emailHost = $emailType !== ''
             ? trim((string)self::get($config, 'email.' . $emailType . '.host', ''))
@@ -143,7 +101,6 @@ class SystemSettingsMenu
         $pushReady = trim((string)self::get($config, 'push.vapid_public', '')) !== ''
             && trim((string)self::get($config, 'push.vapid_private', '')) !== '';
 
-        // AI 与 SEO
         $seoOn = (string)self::get($config, 'ai_seo.enabled', '0') === '1';
         $seoReady = trim((string)self::get($config, 'ai_seo.api_key', '')) !== '';
         $coverOn = (string)self::get($config, 'ai_cover.enabled', '0') === '1';
@@ -160,7 +117,6 @@ class SystemSettingsMenu
         $analyticsOn = (string)self::get($config, 'analytics.server_track', '0') === '1'
             || (string)self::get($config, 'analytics.track_region', '0') === '1';
 
-        // 系统
         $assistantOn = (string)self::get($config, 'admin_assistant.enabled', '0') === '1';
         $userAccessOn = (string)self::get($config, 'monitor.user_access_log_enabled', '0') === '1';
 
@@ -343,7 +299,6 @@ class SystemSettingsMenu
                 'tip'        => isset($def['tip']) ? $def['tip'] : '',
                 'icon'       => $def['icon'],
                 'action'     => $def['action'],
-                // 同控制器内跳转，与各设置页表单 action 的生成方式保持一致
                 'url'        => (string)url('system/' . $def['action'], $query),
                 'state'      => $state,
                 'state_text' => isset($stateText[$state]) ? $stateText[$state] : '',

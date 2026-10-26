@@ -4,14 +4,8 @@ namespace app\common\util;
 
 use think\facade\Db;
 
-/**
- * 在 listCacheData 中用 Meilisearch 替换关键词 LIKE（保守条件，不满足则回退 MySQL）。
- */
 class MeilisearchListBridge
 {
-    /**
-     * @return array|null {where, order, total}
-     */
     public static function applyForVod($where, $wd, $name, $tag, $class, $actor, $director, $page, $num, $start, $currentOrder)
     {
         if (!MeilisearchService::enabled() || $wd === '' || trim($wd) === '') {
@@ -80,9 +74,6 @@ class MeilisearchListBridge
         return ['where' => $nw, 'order' => $order, 'total' => $total];
     }
 
-    /**
-     * @return array|null
-     */
     public static function applyForArt($where, $wd, $name, $tag, $class, $page, $num, $start, $currentOrder)
     {
         if (!MeilisearchService::enabled() || $wd === '' || trim($wd) === '') {
@@ -151,9 +142,6 @@ class MeilisearchListBridge
         return ['where' => $nw, 'order' => $order, 'total' => $total];
     }
 
-    /**
-     * @return array|null
-     */
     public static function applyForManga($where, $wd, $name, $tag, $class, $page, $num, $start, $currentOrder)
     {
         if (!MeilisearchService::enabled() || $wd === '' || trim($wd) === '') {
@@ -222,9 +210,6 @@ class MeilisearchListBridge
         return ['where' => $nw, 'order' => $order, 'total' => $total];
     }
 
-    /**
-     * @return array|null
-     */
     public static function applyForTopic($where, $wd, $tag, $class, $page, $num, $start, $currentOrder)
     {
         if (!MeilisearchService::enabled() || $wd === '' || trim($wd) === '') {
@@ -293,9 +278,6 @@ class MeilisearchListBridge
         return ['where' => $nw, 'order' => $order, 'total' => $total];
     }
 
-    /**
-     * @return array|null
-     */
     public static function applyForActor($where, $wd, $name, $page, $num, $start, $currentOrder)
     {
         if (!MeilisearchService::enabled() || $wd === '' || trim($wd) === '') {
@@ -364,9 +346,6 @@ class MeilisearchListBridge
         return ['where' => $nw, 'order' => $order, 'total' => $total];
     }
 
-    /**
-     * @return array|null
-     */
     public static function applyForRole($where, $wd, $name, $actor, $page, $num, $start, $currentOrder)
     {
         if (!MeilisearchService::enabled() || $wd === '' || trim($wd) === '') {
@@ -435,9 +414,6 @@ class MeilisearchListBridge
         return ['where' => $nw, 'order' => $order, 'total' => $total];
     }
 
-    /**
-     * @return array|null
-     */
     public static function applyForWebsite($where, $wd, $name, $tag, $class, $page, $num, $start, $currentOrder)
     {
         if (!MeilisearchService::enabled() || $wd === '' || trim($wd) === '') {
@@ -622,9 +598,6 @@ class MeilisearchListBridge
         return $w;
     }
 
-    /**
-     * @return string|null Meilisearch filter expression
-     */
     private static function buildVodFilter(array $w)
     {
         $parts = ['kind = "vod"', 'recycle = 0', 'status = 1'];
@@ -1093,9 +1066,6 @@ class MeilisearchListBridge
         return implode(' AND ', $parts);
     }
 
-    /**
-     * @return int|null
-     */
     private static function parseEq($cond)
     {
         if (!is_array($cond) || !isset($cond[0])) {
@@ -1107,9 +1077,6 @@ class MeilisearchListBridge
         return null;
     }
 
-    /**
-     * @return string|false '' if no condition
-     */
     private static function thinkCondToMeili($field, $cond, $numeric = true)
     {
         if ($cond === null) {
@@ -1137,9 +1104,6 @@ class MeilisearchListBridge
         return false;
     }
 
-    /**
-     * @return string|false
-     */
     private static function thinkStringInOrEq($meiliField, $cond)
     {
         if (!is_array($cond)) {
@@ -1162,9 +1126,6 @@ class MeilisearchListBridge
         return false;
     }
 
-    /**
-     * @return string|false
-     */
     private static function thinkTimeToMeili($cond, $meiliField)
     {
         if (!is_array($cond) || !isset($cond[0])) {
@@ -1176,26 +1137,11 @@ class MeilisearchListBridge
         return false;
     }
 
-    /**
-     * 与 MySQL 已发布、未回收行对齐，避免索引滞后时出现「Meili 有命中、列表为空」。
-     * 供 API suggest、内部联想等与列表同一套过滤复用。
-     *
-     * @param int[]  $ids
-     * @param string $kind vod|art|manga|topic|actor|role|website
-     *
-     * @return int[]
-     */
     public static function refinePrimaryIdsForPublished(array $ids, $kind)
     {
         return self::refineMeiliPrimaryIds($ids, $kind);
     }
 
-    /**
-     * @param int[]  $ids
-     * @param string $kind vod|art|manga|topic|actor|role|website
-     *
-     * @return int[]
-     */
     private static function refineMeiliPrimaryIds(array $ids, $kind)
     {
         $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static function ($v) {
@@ -1246,12 +1192,6 @@ class MeilisearchListBridge
         return $out;
     }
 
-    /**
-     * @param array<int, array> $hitRows
-     * @param int[]             $ids
-     *
-     * @return bool true 表示应回退 MySQL（Meili 有行但无法用于列表）
-     */
     private static function shouldAbortMeiliForStaleHits(array $hitRows, array $ids)
     {
         return !empty($hitRows) && empty($ids);

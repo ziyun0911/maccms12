@@ -5,18 +5,14 @@ use think\facade\Cache;
 use app\common\util\Pinyin;
 
 class Type extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'type';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
-
 
     public function countData($where)
     {
@@ -36,7 +32,6 @@ class Type extends Base {
             $total = $this->where($where)->count();
         }
         else{
-
         }
         $tmp = Db::name('Type')->where($where)->order($order)->limit($limit_str)->select();
 
@@ -64,17 +59,10 @@ class Type extends Base {
                     $list[$k]['childids'] = $type_list[$v['type_id']]['childids'] ?? '';
                 }
                 else {
-                    // 没有子分类的顶级栏目（例如新增的一级分类）在 $childs 里没有键，
-                    // TP5/PHP7 只是个 notice，TP8 会把 warning 直接抛成 ErrorException 打断缓存重建。
                     $list[$k]['childids'] = join(',', (array)($childs[$v['type_id']] ?? []));
                 }
             }
             else {
-                // $where 过滤时父级常常不在本次结果集里（导航按 parent 只取子分类），
-                // v10 直接取 $list[$pid] 落空，靠 PHP7 的 notice + 全局 error_reporting 抑制
-                // 得到 null；这里回退到全量 type 缓存，父级真正不存在时才留 null。
-                // 不能用 '' 之类的字符串兜底：mac_url 和模板都会 $info['type_1']['type_id']
-                // 直接取下标，字符串下标在 PHP8 是不可抑制的 TypeError，会把整页打成 500。
                 $parent = $list[$v['type_pid']] ?? null;
                 if ($parent === null && !empty($where)) {
                     $parent = $load_type_list()[$v['type_pid']] ?? null;
@@ -118,7 +106,6 @@ class Type extends Base {
         $page=1;
         $where = [];
 
-
         if(empty($num)){
             $num = 20;
         }
@@ -159,7 +146,7 @@ class Type extends Base {
                 $type_info = $this->getCacheInfo($param['id']);
                 $doid = $param['id'];
                 $childs = $type_info['childids'];
-                if($type_info['type_pid']>0){//二级分类->一级
+                if($type_info['type_pid']>0){
                     $doid = $type_info['type_pid'];
                     $type_info1 = $this->getCacheInfo($doid);
                     $childs = $type_info1['childids'];
@@ -176,7 +163,6 @@ class Type extends Base {
                 $type_info = $this->getCacheInfo($param['id']);
                 $parent = intval($type_info['type_id']);
                 if($type_info['type_pid'] !=0){
-                    //$parent = $type_info['type_pid'];
                 }
             }
             $where['type_pid'] = ['in',$parent];
@@ -184,7 +170,6 @@ class Type extends Base {
         if(!empty($not)){
             $where['type_id'] = ['not in',$not];
         }
-        // 按名称查询：仅展示名称在列表中的分类，查不到的不展示
         if(!empty($names)){
             $name_arr = array_map('trim', explode(',', $names));
             $name_arr = array_filter($name_arr);
@@ -210,8 +195,6 @@ class Type extends Base {
         $by = 'type_'.$by;
         $order = 'type_pid asc,'. $by . ' ' . $order;
 
-        // 内容级多语言：{maccms:type} 导航标签走这里而非 getCache()，缓存 key 要带上当前内容语言，
-        // 否则先渲染的语言会把译文/原文串给其它语言
         $lang = \app\common\model\ContentLang::getCurrent();
         $cach_name = $GLOBALS['config']['app']['cache_flag']. '_' .md5('type_listcache_'.$lang.'_'.http_build_query($where).'_'.$order.'_'.$num.'_'.$start);
         $res = Cache::get($cach_name);
@@ -219,7 +202,6 @@ class Type extends Base {
             $cachetime = $GLOBALS['config']['app']['cache_time'];
         }
         if($GLOBALS['config']['app']['cache_core']==0 || empty($res)) {
-            // 展示字段的译文覆盖要在 tree 组装之前，按 type_id 平铺替换后再转树
             $res = $this->listData($where,$order,$format,$mid,$num,$start,0);
             $res['list'] = $this->langOverlayTypeList(array_values($res['list']), $lang);
             if($format=='tree'){
@@ -247,13 +229,11 @@ class Type extends Base {
         $info = mac_content_lang_overlay('type', $info);
 
         if(!empty($info['type_extend'])){
-            //overlay 回填的 type_extend 可能已是数组（译文按数组存进 content_lang.data）
             $info['type_extend'] = is_array($info['type_extend']) ? $info['type_extend'] : json_decode($info['type_extend'],true);
         }
         else{
             $info['type_extend'] = json_decode('{"type":"","area":"","lang":"","year":"","star":"","director":"","state":"","version":""}',true);
         }
-
 
         return ['code'=>1,'msg'=>lang('obtain_ok'),'info'=>$info];
     }
@@ -272,7 +252,6 @@ class Type extends Base {
             $data['type_en'] = Pinyin::get($data['type_name']);
         }
 
-        // xss过滤
         $filter_fields = [
             'type_name',
             'type_en',
@@ -391,15 +370,12 @@ class Type extends Base {
         $key = $GLOBALS['config']['app']['cache_flag']. '_'.'type_tree';
         Cache::set($key,$type_tree);
 
-        // 内容级多语言：为每个已启用且非默认的前台内容语言各存一份 overlay 过的变体，
-        // 前台 getCache('type_list'/'type_tree') 命中语言键；分类增删改后 setCache() 一并重建。
         $langs = mac_content_lang_allow_list();
         $default = mac_content_lang_default();
         foreach ($langs as $lang) {
             if ($lang === $default) {
                 continue;
             }
-            // 必须保留 type_id 键：getCacheInfo() 按 type_id 取行，重排键会让语言变体取到错行
             $langList = $this->langOverlayTypeList($list, $lang);
             Cache::set($GLOBALS['config']['app']['cache_flag']. '_'. $lang . '_type_list', $langList);
             Cache::set($GLOBALS['config']['app']['cache_flag']. '_'. $lang . '_type_tree', mac_list_to_tree($langList,'type_id','type_pid'));
@@ -410,8 +386,6 @@ class Type extends Base {
     {
         $prefix = $GLOBALS['config']['app']['cache_flag'];
 
-        // 前台切到非默认内容语言时优先取 overlay 变体（后台/采集 getCurrent()==default，自然取原缓存）
-        // 仅对 setCache() 真正构建了变体的 flag 生效，避免其它 flag 白跑一遍 setCache()
         $lang = \app\common\model\ContentLang::getCurrent();
         if (in_array($flag, ['type_list', 'type_tree'], true)
             && $lang !== mac_content_lang_default()
@@ -425,7 +399,6 @@ class Type extends Base {
             if (!empty($cache)) {
                 return $cache;
             }
-            // 变体缺失（升级窗口期）时回退默认语言缓存，保持导航不空
         }
         $key = $GLOBALS['config']['app']['cache_flag']. '_'.$flag;
         $cache = Cache::get($key);
@@ -443,7 +416,6 @@ class Type extends Base {
             return $type_list[$id] ?? [];
         }
         else{
-
             foreach($type_list as $k=>$v){
                 if($v['type_en'] == $id){
                     return $type_list[$k];
@@ -453,12 +425,6 @@ class Type extends Base {
         return [];
     }
 
-    /**
-     * 把分类列表里的纯展示字段替换成指定内容语言的译文（内容级多语言）。
-     * 只覆盖 type_name/type_title/type_key/type_des/type_extend：type_en 是 URL slug、
-     * getCacheInfo() 与路由按它匹配，type_pid/childids 等结构字段也必须保持原值。
-     * $lang 为空时取当前请求语言；非默认且已启用才生效，否则原样返回。
-     */
     protected function langOverlayTypeList(array $list, $lang = null)
     {
         $lang = $lang ?: \app\common\model\ContentLang::getCurrent();
@@ -482,7 +448,6 @@ class Type extends Base {
                 }
                 $orig = $row[$f] ?? null;
                 $row[$f] = ($f === 'type_extend' && !is_array($tr)) ? json_decode($tr, true) : $tr;
-                // cover（封面比例）是非翻译的展示设置，译文里没有这个键，保留原值
                 if ($f === 'type_extend' && is_array($orig) && isset($orig['cover'])) {
                     if (!is_array($row[$f])) {
                         $row[$f] = [];
@@ -494,7 +459,6 @@ class Type extends Base {
         };
         foreach ($list as $k => $row) {
             $row = $apply($row);
-            // 子分类里冗余的父级副本（模板常用 $vo.type_1.type_name）也同步覆盖
             if (!empty($row['type_1']) && is_array($row['type_1'])) {
                 $row['type_1'] = $apply($row['type_1']);
             }
@@ -502,7 +466,4 @@ class Type extends Base {
         }
         return $list;
     }
-
-
-
 }

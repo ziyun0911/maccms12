@@ -2,7 +2,6 @@
 namespace app\common\extend\email;
 
 class Phpmailer {
-
     public $name = 'PhpMailer';
     public $ver = '1.0';
 
@@ -13,7 +12,6 @@ class Phpmailer {
             $config['nick'] =  $GLOBALS['config']['email']['nick'];
         }
         $mail = new \phpmailer\src\PHPMailer();
-        //$mail->SMTPDebug = 2;
         $mail->isSMTP();
         $mail->SMTPAuth = true;
         $mail->CharSet = "UTF-8";

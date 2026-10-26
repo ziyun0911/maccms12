@@ -3,17 +3,6 @@ namespace app\common\util;
 
 use think\facade\Db;
 
-/**
- * 服务端埋点。挂在 All::label_fetch() 首行（页面缓存短路之前），
- * 因此页面缓存命中时依然会记录 —— 缓存的是 HTML，PHP 照常执行。
- *
- * 与前端 beacon 的分工（见 static/js/analytics_beacon.js）：
- *   服务端 = pageview 行的唯一创建者（mid/rid/type_id/region/referer 它才拿得准）
- *   前端   = 只回填 stay_ms（页面停留时间只有浏览器知道）
- * 去重靠注入的 window.MAC_ANA_SS 开关位，不靠时间窗猜测。
- *
- * 这里的每一个异常都必须被吞掉：埋点挂了顶多丢一条数据，不能把整站带崩。
- */
 class AnalyticsServerTracker
 {
     const VISITOR_COOKIE = 'mac_ana_vid';
@@ -62,8 +51,6 @@ class AnalyticsServerTracker
                 return;
             }
             $request = request();
-            // 必须与前端 beacon 上报的 location.pathname + location.search 逐字节一致：
-            // Task 7 的 page_leave -> stay_ms 回填按 path 做匹配，url(true) 会带上域名导致永远匹配不上。
             $path = mb_substr((string)$request->url(), 0, 512);
             if ($path === '') {
                 return;
@@ -86,14 +73,13 @@ class AnalyticsServerTracker
                 'mid' => max(0, intval($mid)),
                 'rid' => max(0, intval($rid)),
                 'type_id' => max(0, intval($typeId)),
-                'stay_ms' => 0, // 由前端 beacon 的 page_leave 回填
+                'stay_ms' => 0,
                 'prev_path' => '',
                 'referer_host' => AnalyticsUa::refererHost((string)$request->header('referer')),
                 'ts' => $ts,
                 'stat_date' => date('Y-m-d', $ts),
             ]);
         } catch (\Throwable $e) {
-            // 埋点失败绝不影响页面渲染
             trace('AnalyticsServerTracker::track ' . $e->getMessage(), 'error');
         }
     }
@@ -127,12 +113,10 @@ class AnalyticsServerTracker
         $update = [
             'exit_path' => $path,
             'ended_at' => $ts,
-            'page_count' => Db::raw('page_count+1'), // 原子自增，避免并发下读改写丢更新
-            // 走到 UPDATE 分支说明该会话至少已有第 2 次 pageview，按定义不再是跳出
+            'page_count' => Db::raw('page_count+1'),
             'is_bounce' => 0,
             'duration_sec' => $startedAt > 0 ? max(0, $ts - $startedAt) : intval($row['duration_sec']),
         ];
-        // 登录态可能在会话中途才建立，补上
         if ($userId > 0 && intval($row['user_id']) === 0) {
             $update['user_id'] = $userId;
         }

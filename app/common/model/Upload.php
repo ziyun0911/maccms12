@@ -6,7 +6,6 @@ use app\common\util\Image as Gd;
 use think\facade\Log;
 
 class Upload extends Base {
-
     public function api($file_path,$config)
     {
         if(empty($config)){
@@ -74,9 +73,7 @@ class Upload extends Base {
             $pre='';
         }
 
-        // 上传附件路径
         $_upload_path = ROOT_PATH . 'upload' . '/' . $param['flag'] . '/' ;
-        // 附件访问路径
         $_save_path = 'upload'. '/' . $param['flag'] . '/';
         if($param['flag']=='user'){
             $uniq = $param['user_id'] % 10;
@@ -116,17 +113,12 @@ class Upload extends Base {
             $_save_name = $n_dir . '/' . md5(microtime(true));
         }
 
-
         if(!empty($base64_img)){
             if(preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64_img, $result)){
                 $img_ext = strtolower($result[2]);
                 if(in_array($img_ext, explode(',', $upload_image_ext))){
-                    // $type 是附件分类（image/file/media），和文件上传分支保持一致；
-                    // 直接写图片格式会让附件库按类型筛选时永远看不到这条记录。
                     $type = 'image';
                     if (strpos($_save_name, '.') === false) {
-                        // 文件分支由 move() 补扩展名，base64 分支手写不补就会留下无扩展名图片，
-                        // 后面缩略图名也会多出一个悬空的点。
                         $_save_name .= '.' . $img_ext;
                     }
                     $abs_path = Gd::locate($_save_path . $_save_name, false);
@@ -166,8 +158,6 @@ class Upload extends Base {
                 return self::upload_return(lang('admin/upload/forbidden_ext'), $param['from']);
             }
 
-            // TP8 的 UploadedFile::move() 只认 $name 的 basename（TP5 会把整段相对路径拼上去），
-            // 所以日期子目录要自己建，目录和文件名分开传。
             $sub_dir = dirname($_save_name);
             if ($sub_dir === '.' || $sub_dir === '') {
                 $sub_dir = '';
@@ -195,7 +185,6 @@ class Upload extends Base {
             $_save_name = ($sub_dir === '' ? '' : $sub_dir . '/') . $save_name;
             unset($upfile);
         }
-
 
         $resource = fopen($abs_path, 'rb');
         $fileSize = filesize($abs_path);
@@ -328,7 +317,6 @@ class Upload extends Base {
         return self::upload_return(lang('admin/upload/upload_success'), $param['from'], 1, $data);
     }
 
-
     private function upload_return($info='',$from='',$status=0,$data=[])
     {
         $arr = [];
@@ -351,5 +339,4 @@ class Upload extends Base {
         }
         return $arr;
     }
-
 }

@@ -7,12 +7,6 @@ use think\exception\HttpResponseException;
 use think\Request;
 use think\Response;
 
-/**
- * 苹果CMS v12 —— 防爬虫中间件
- * （由 TP5 的 common\behavior\AntiScrape 迁移）
- *
- * 开放 API 与前台 Ajax 的 IP 频率限制。
- */
 class AntiScrape
 {
     public function handle(Request $request, Closure $next)
@@ -72,7 +66,6 @@ class AntiScrape
             return;
         }
 
-        // 监控 cron 端点必须写死（站长运行期配置可能缺失该豁免项）
         $exempt = ['timming/index', 'monitor/cron'];
         $extra = isset($app['anti_scrape_api_exempt']) ? trim((string)$app['anti_scrape_api_exempt']) : '';
         if ($extra !== '') {
@@ -105,9 +98,6 @@ class AntiScrape
         }
     }
 
-    /**
-     * @return array{0:string,1:string} controller, action lower
-     */
     private function pathControllerAction(Request $req)
     {
         $pi = strtolower(trim((string)$req->pathinfo(), '/'));

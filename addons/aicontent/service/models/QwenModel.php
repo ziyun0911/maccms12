@@ -2,10 +2,6 @@
 
 namespace addons\aicontent\service\models;
 
-/**
- * Alibaba Qwen (通义千问) integration via DashScope API.
- * API docs: https://help.aliyun.com/zh/dashscope/developer-reference/api-details
- */
 class QwenModel extends BaseModel
 {
     const API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';

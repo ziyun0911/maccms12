@@ -18,15 +18,10 @@ class Base extends All
     {
         parent::__construct();
 
-        // Base 只给子控制器复用的工具方法，本身没有 action。TP8 只看 is_callable 判 action
-        // （vendor/topthink/framework/src/think/route/Dispatch.php:169，因为有 __call 恒为 true），
-        // 直连 /admin.php/Base/* 会真的执行这些工具方法：带必填参数的在进方法体前就抛
-        // 「方法参数错误」500，_cache_clear 这类还会把清缓存跑一遍，所以整条路由挡掉。
         if ($this->_cl === 'Base') {
             throw new \think\exception\HttpResponseException($this->error(lang('illegal_request')));
         }
 
-        // 校验Update.php文件完整性；放行 Update 控制器自身，避免 hash 失配时升级 UI 也被锁死
         if ($this->_cl != 'Update') {
             $update_file = APP_PATH . 'admin/controller/Update.php';
             $expected_hash = config('version.update_hash');
@@ -35,17 +30,13 @@ class Base extends All
             }
         }
 
-        //判断用户登录状态
         if(in_array($this->_cl,['Index']) && in_array($this->_ac,['login'])) {
-
         }
         elseif(ENTRANCE=='api' && in_array($this->_cl,['Timming']) && in_array($this->_ac,['index'])){
-
         }
         else {
             $res = (new \app\common\model\Admin())->checkLogin();
             if ($res['code'] > 1) {
-                // 构造函数中的 return 不会中断 TP8 调度，必须抛出响应异常，否则未登录也会渲染后台页面
                 throw new \think\exception\HttpResponseException($this->redirect('index/login'));
             }
             $this->_admin = $res['info'];
@@ -65,7 +56,6 @@ class Base extends All
         $c = strtolower($c);
         $a = strtolower($a);
 
-        // UEditor AI proxy: logged-in admin only; API key never sent to browser.
         if ($c === 'upload' && ($a === 'ueditor_ai' || $a === 'ueditorai')) {
             return true;
         }
@@ -81,7 +71,6 @@ class Base extends All
             return true;
         }
 
-        // 安全体检一键修复：已授权 checkup 的子管理员可 POST fix（fix 为 auth.php 中 show=0 隐藏项）
         if ($c === 'safety' && $a === 'fix') {
             $authStr = ',' . (string)$this->_admin['admin_auth'] . ',';
             if (strpos($authStr, ',safety/fix,') !== false || strpos($authStr, ',safety/checkup,') !== false) {
@@ -89,7 +78,6 @@ class Base extends All
             }
         }
 
-        // 备份上传对象存储：已授权 database/export 的子管理员可执行
         if ($c === 'database' && $a === 'uploadstorage') {
             $authStr = ',' . strtolower((string)$this->_admin['admin_auth']) . ',';
             if (strpos($authStr, ',database/uploadstorage,') !== false
@@ -99,7 +87,6 @@ class Base extends All
             }
         }
 
-        // 插件云市场：已授权插件列表的子管理员可拉目录；安装/刷新仍走独立权限点
         if ($c === 'addon' && $a === 'cloudcatalog') {
             $authStr = ',' . (string)$this->_admin['admin_auth'] . ',';
             if (strpos($authStr, ',addon/cloudcatalog,') !== false
@@ -109,7 +96,6 @@ class Base extends All
             }
         }
 
-        // 内容级多语言：自动翻译按钮（子管理员对内容模块有 info 权限即可调用该 ajax）
         if ($a === 'contentlangtranslate') {
             $authStr = ',' . (string)$this->_admin['admin_auth'] . ',';
             foreach (['vod/info', 'art/info', 'manga/info', 'topic/info', 'actor/info',
@@ -120,7 +106,6 @@ class Base extends All
             }
         }
 
-        // 系统设置中心：拥有任意 system/* 权限的管理员可进入，页面内再按项过滤可见功能
         if ($c === 'system' && $a === 'index') {
             if ((string)$this->_admin['admin_id'] === '1') {
                 return true;
@@ -145,7 +130,6 @@ class Base extends All
     public function _cache_clear()
     {
         if(ENTRANCE=='admin') {
-            //播放器配置缓存
             $vodplayer = config('vodplayer');
             $voddowner = config('voddowner');
             $vodserver = config('vodserver');
@@ -225,8 +209,6 @@ class Base extends All
             return $this->error(lang('admin/batch/io_need_zip'));
         }
         $fields = Db::name(ucfirst($table))->getTableFields();
-        // Db::name() 没绑模型，select() 里每条本来就是普通数组；这里只把 think\Collection
-        // 摊成 array 交给 BulkTableIo::export*Download()，它的第 3 参声明的是 array。
         $list = Db::name(ucfirst($table))->where($where)->order("{$table}_id desc")->limit($max)->select()->toArray();
         $base = $table.'_export_' . date('Ymd_His');
         if ($format === 'xlsx') {
@@ -308,5 +290,4 @@ class Base extends All
         }
         return $this->success($msg);
     }
-
 }

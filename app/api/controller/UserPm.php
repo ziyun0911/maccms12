@@ -28,9 +28,6 @@ class UserPm extends Base
         return false;
     }
 
-    /**
-     * 原子化频率检查：Redis 后端用 SETNX，文件缓存回退到 has+set
-     */
     private function _rateCheck($key, $interval)
     {
         try {
@@ -67,7 +64,6 @@ class UserPm extends Base
             return json(['code' => 1002, 'msg' => lang('pm/content_empty')]);
         }
 
-        // 原子化频率限制（Redis SETNX 优先，避免并发 TOCTOU）
         if (!$this->_rateCheck('pm_rate_' . $user['user_id'], 3)) {
             return json(['code' => 1003, 'msg' => lang('pm/rate_limit')]);
         }
@@ -94,7 +90,6 @@ class UserPm extends Base
         $page = isset($param['page']) ? max(1, intval($param['page'])) : 1;
         $limit = isset($param['limit']) ? min(100, max(1, intval($param['limit']))) : 50;
 
-        // mark read
         (new \app\common\model\UserPm())->markRead($user['user_id'], $peer_uid);
 
         $res = (new \app\common\model\UserPm())->conversation($user['user_id'], $peer_uid, $page, $limit);

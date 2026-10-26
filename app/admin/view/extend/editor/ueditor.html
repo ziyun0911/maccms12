@@ -2,7 +2,6 @@
 $ue_ai_csrf = \app\common\util\UeditorAiCsrf::token();
 {/php}
 <script type="text/javascript">
-    /* 统一去掉 __STATIC__ 末尾 / 再拼路径，避免有无尾斜杠时出现 // 或缺 / */
     window.UEDITOR_HOME_URL = {:json_encode(rtrim('__STATIC__', '/').'/ueditor/')};
 </script>
 <script type="text/javascript" src="{:rtrim('__STATIC__', '/').'/ueditor/ueditor.config.js'}"></script>
@@ -15,7 +14,7 @@ $ue_ai_csrf = \app\common\util\UeditorAiCsrf::token();
         w.UEDITOR_CONFIG.ai.driver = 'ProxyOnly';
         w.UEDITOR_CONFIG.ai.driverConfig = { url: '', key: '', model: '' };
         w.UE_AI_CSRF = {:json_encode($ue_ai_csrf, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)};
-        /* 部分环境下 PHP setcookie 在 headers_sent 后无效；用 JS 写入与 session 一致的 CSRF，供同源 fetch 携带 */
+
         try {
             var _ueTok = w.UE_AI_CSRF || '';
             if (_ueTok) {
@@ -31,20 +30,20 @@ $ue_ai_csrf = \app\common\util\UeditorAiCsrf::token();
             proxyUrl: ueAiProxyUrl,
             csrf: w.UE_AI_CSRF || ''
         };
-        /* 顶层键：对话框常挂在 top，读不到内容 iframe 的 window，但可通过 editor 引用读实例 options */
+
         w.UEDITOR_CONFIG.aiProxyUrl = ueAiProxyUrl;
         w.UEDITOR_CONFIG.aiCsrfToken = w.UE_AI_CSRF || '';
-        /* 固定引用：loadServerConfig 合并配置时可能替换 UEDITOR_CONFIG.ai 对象，不能依赖其上的匿名函数 */
+
         var ueAiDriverRequest = function (param) {
             w.__MACCMS_UE_AI_DO_FETCH__(ueAiProxyUrl, w.UE_AI_CSRF || '', param);
         };
         w.UEDITOR_CONFIG.ai.driverRequest = ueAiDriverRequest;
         w.__MACCMS_UE_AI_DRIVER_REQUEST__ = ueAiDriverRequest;
-        /* UEDITOR_CONFIG.ai 可能被合并/替换；UE 命名空间对象稳定，供对话框父窗口 internal.js 同源链发现 */
+
         if (typeof UE !== 'undefined' && UE) {
             UE.__MACCMS_UE_AI_DRIVER_REQUEST__ = ueAiDriverRequest;
         }
-        /* Layui 等内容页在子 iframe 内，UEditor 对话框常挂在 top：把桥接同步到各层同源 window，供 dialogs/ai 发现 */
+
         (function mirrorAiBridgeToAncestors() {
             var dr = ueAiDriverRequest;
             function copyTo(target) {
@@ -92,7 +91,7 @@ $ue_ai_csrf = \app\common\util\UeditorAiCsrf::token();
                     copyTo(t);
                 }
             } catch (e2) {}
-            /* 再写一次 top：避免与内容 iframe 的 parent 链异常时漏挂 */
+
             try {
                 var t2 = w.top;
                 if (t2 && t2 !== w) {
@@ -103,7 +102,7 @@ $ue_ai_csrf = \app\common\util\UeditorAiCsrf::token();
     })(window);
     window.UEDITOR_CONFIG.serverUrl = "{:url('upload/upload')}?from=ueditor&flag={$cl|strtolower}_editor&input=upfile&ueditor_theme=new";
     var EDITOR = UE;
-    /* 把代理请求挂到每个编辑器实例上，保证 dialogs/ai 里 editor.getOpt('ai') 能拿到 driverRequest */
+
     (function () {
         try {
             if (typeof UE === 'undefined' || typeof UE.getEditor !== 'function') {
@@ -127,7 +126,7 @@ $ue_ai_csrf = \app\common\util\UeditorAiCsrf::token();
                 }
                 var pu = typeof window.UE_AI_PROXY_URL === 'string' ? window.UE_AI_PROXY_URL : '';
                 var cs = window.UE_AI_CSRF || '';
-                /* 须与代理 URL 解耦：H8 仅用 serverUrl 时也要能带上 CSRF；否则 body/cookie 皆空会触发 invalid_token */
+
                 ed.options.aiCsrfToken = cs;
                 ed._macAiUeProxy = ed._macAiUeProxy || {};
                 ed._macAiUeProxy.csrf = cs;

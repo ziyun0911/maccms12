@@ -2,7 +2,6 @@
 namespace app\common\extend\editor;
 
 class Ueditor {
-
     public $name = 'Ueditor';
     public $ver = '1.0';
 

@@ -7,7 +7,6 @@
     <div class="col-xs-12">
         <div class="panel panel-default">
 
-            <!-- Stats Row -->
             <div class="panel-heading">
                 <h3 class="panel-title">
                     <i class="fa fa-magic"></i> {:lang('AI Content Assistant')}
@@ -53,7 +52,6 @@
                     </div>
                 </div>
 
-                <!-- Task History Table -->
                 <table class="table table-striped table-hover table-condensed">
                     <thead>
                         <tr>
@@ -121,7 +119,6 @@
                     </tbody>
                 </table>
 
-                <!-- Simple pagination -->
                 {if $total > 20}
                 <div class="text-center">
                     <a href="?page={$page - 1}" class="btn btn-default btn-sm {if $page <= 1}disabled{/if}">{:lang('Prev')}</a>

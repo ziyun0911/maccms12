@@ -59,7 +59,6 @@ class Annex extends Base
             return $this->error(lang('illegal_request'));
         }
 
-
         $uppath = substr($path,0,strrpos($path,"@"));
 
         $ischild = 0;
@@ -68,7 +67,6 @@ class Annex extends Base
         }
         $this->assign('uppath',$uppath);
         $this->assign('ischild',$ischild);
-
 
         $num_path = 0;
         $num_file = 0;
@@ -79,20 +77,16 @@ class Annex extends Base
         $pp = str_replace('@','/',$path);
 
         if(is_dir('.'.$pp)){
-
             $farr = glob('.'.$pp.'/*');
             if($farr){
                 foreach($farr as $f){
-
                     if ( is_dir($f) ){
-
                         if(strpos($filters,",".$f.",")<=0){
                             $num_path++;
                             $tmp_path = str_replace('./upload/','@upload/',$f);
                             $tmp_path = str_replace('/','@',$tmp_path);
 
                             $tmp_name = str_replace($path.'@','',$tmp_path);
-
 
                             $files[] = ['isfile'=>0,'name'=>$tmp_name,'path'=>$tmp_path];
                         }
@@ -115,7 +109,6 @@ class Annex extends Base
                             $files[] = ['isfile'=>1,'name'=>$tmp_name,'path'=>$tmp_path, 'size'=>$fsize, 'time'=>$ftime];
                         }
                     }
-
                 }
             }
         }
@@ -354,6 +347,4 @@ class Annex extends Base
         $this->assign('title', lang('admin/annex/init_data'));
         return $this->fetch('admin@annex/init');
     }
-
-
 }

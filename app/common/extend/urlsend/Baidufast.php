@@ -4,7 +4,6 @@ namespace app\common\extend\urlsend;
 use think\facade\Cache;
 
 class Baidufast {
-
     public $name = '百度推送快速';
     public $ver = '1.0';
 
@@ -99,5 +98,4 @@ class Baidufast {
 
         return ['code'=>1,'msg'=>'推送'.$json['remain'].'条；剩余可推送'.$json['success'].'条.' ];
     }
-
 }

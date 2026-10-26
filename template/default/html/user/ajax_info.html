@@ -93,11 +93,10 @@
 	});
     function copyText(url) {
       var input = document.getElementById(url);
-      input.select(); 
-      document.execCommand("copy"); // 执行浏览器复制命令
+      input.select();
+      document.execCommand("copy");
       MAC.alert(typeof MAC !== 'undefined' && MAC.GetLang ? MAC.GetLang('copy_success') : (lang==1?'Copy succeeded':"复制成功"));
     }
-
 </script>
 
 {include file="public/foot" /}

@@ -12,23 +12,14 @@ class Website extends Base
     {
         parent::__construct();
         $this->check_config();
-
     }
 
     public function index()
     {
-
     }
 
-    /**
-     *  获取列表
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_list(Request $request)
     {
-        // 参数校验
         $param = $request->param();
         $validate = validate($request->controller());
         if (!$validate->scene($request->action())->check($param)) {
@@ -39,7 +30,6 @@ class Website extends Base
         }
         $offset = isset($param['offset']) ? (int)$param['offset'] : 0;
         $limit = isset($param['limit']) ? (int)$param['limit'] : 20;
-        // 查询条件组装
         $where = [];
 
         if (isset($param['type_id'])) {
@@ -90,11 +80,9 @@ class Website extends Base
             $where['website_time'] = ['>', (int)$param['time_start']];
         }
 
-        // 数据获取
         $total = (new \app\common\model\Website())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
-            // 排序
             $order = "website_time DESC";
             if (strlen($param['orderby']) > 0) {
                 $order = 'website_' . $param['orderby'] . " DESC";
@@ -102,7 +90,6 @@ class Website extends Base
             $field = '*';
             $list = (new \app\common\model\Website())->getListByCond($offset, $limit, $where, $order, $field, []);
         }
-        // 返回
         return json([
             'code' => 1,
             'msg'  => '获取成功',
@@ -115,11 +102,6 @@ class Website extends Base
         ]);
     }
 
-    /**
-     * 查询详情
-     *
-     * @return \think\response\Json
-     */
     public function get_detail(Request $request)
     {
         $param = $request->param();
@@ -162,10 +144,6 @@ class Website extends Base
         ]);
     }
 
-    /**
-     * 搜索建议/自动完成（与列表同一套 Meili + 已发布过滤）
-     * api.php/website/suggest?wd=关键词&limit=10
-     */
     public function suggest(Request $request)
     {
         return $this->jsonSuggestByKind($request, 'website');

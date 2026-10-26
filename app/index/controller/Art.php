@@ -82,13 +82,9 @@ class Art extends Base
         return response($this->label_fetch('art/rss'), 200, ['Content-Type' => 'text/xml; charset=utf-8']);
     }
 
-    /**
-     * 小说阅读器视图：以文章分页为章节进行阅读
-     */
     public function read()
     {
         $info = $this->label_art_detail([], 0, true);
         return $this->label_fetch('art/read');
     }
-
 }

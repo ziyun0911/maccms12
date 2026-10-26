@@ -18,5 +18,4 @@ class Art extends Validate
         'add'  =>  ['art_name','type_id'],
         'edit'  =>  ['art_name','type_id'],
     ];
-
 }

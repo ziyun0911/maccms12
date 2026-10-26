@@ -18,5 +18,4 @@ class Actor extends Validate
         'add'  =>  ['actor_name','type_id'],
         'edit'  =>  ['actor_name','type_id'],
     ];
-
 }

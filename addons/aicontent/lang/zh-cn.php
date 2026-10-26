@@ -1,7 +1,6 @@
 <?php
 
 return [
-    // General
     'AI Content Assistant'                  => 'AI内容助理',
     'AI Content Assistant — Configuration'  => 'AI内容助理 — 配置',
     'AI Content Assistant - Dashboard'      => 'AI内容助理 - 控制台',
@@ -19,7 +18,6 @@ return [
     'Open Plugin'                           => '打开插件',
     'Default Settings'                      => '默认设置',
 
-    // Status
     'Pending'   => '等待中',
     'Done'      => '已完成',
     'Error'     => '出错',
@@ -28,7 +26,6 @@ return [
     'Completed' => '已完成',
     'Errors'    => '出错',
 
-    // Stats / table headers
     'Total Tasks'      => '总任务数',
     'ID'               => 'ID',
     'Content'          => '内容',
@@ -39,17 +36,14 @@ return [
     'Actions'          => '操作',
     'Provider'         => '提供商',
 
-    // Content types
     'Video'   => '视频',
     'Article' => '文章',
     'Topic'   => '话题',
 
-    // Pagination
     'Prev' => '上一页',
     'Next' => '下一页',
     'Page' => '第',
 
-    // Form labels
     'Content Type'   => '内容类型',
     'Title'          => '标题',
     'Genre / Type'   => '类型 / 分类',
@@ -65,7 +59,6 @@ return [
     'Timeout (s)'    => '超时（秒）',
     'API Key'        => 'API密钥',
 
-    // Placeholders
     'Video or article title'          => '视频或文章标题',
     'e.g. Action, Romance, Documentary' => '如：动作、爱情、纪录片',
     'e.g. 2024'                       => '如：2024',
@@ -73,7 +66,6 @@ return [
     'Main cast, comma-separated'      => '主演，逗号分隔',
     'Director name'                   => '导演姓名',
 
-    // Result / view labels
     'SEO Title'        => 'SEO标题',
     'Description'      => '简介描述',
     'Tags'             => '标签',
@@ -84,18 +76,15 @@ return [
     'Task ID'          => '任务ID',
     'Generate Content with AI' => '使用AI生成内容',
 
-    // Config page help text
     'Only the key for your selected provider is required. Other fields are hidden.'
         => '只需填写所选提供商的密钥，其他字段已隐藏。',
     'Select provider, then choose a model from the right dropdown.'
         => '选择提供商后，从右侧下拉菜单选择模型。',
     'Recommended: 800–2000.' => '建议：800–2000。',
 
-    // config.php field titles
     'Model Name'   => '模型名称',
     'Language'     => '语言',
 
-    // config.php tips
     'Default AI provider for content generation.'   => '默认AI提供商，用于生成内容。',
     'Claude: claude-sonnet-4-6 | OpenAI: gpt-4o | Gemini: gemini-2.0-flash | DeepSeek: deepseek-chat | Qwen: qwen-turbo | GLM: glm-4'
         => 'Claude: claude-sonnet-4-6 | OpenAI: gpt-4o | Gemini: gemini-2.0-flash | DeepSeek: deepseek-chat | Qwen: qwen-turbo | GLM: glm-4',
@@ -110,7 +99,6 @@ return [
     'HTTP timeout in seconds for AI API calls.'     => 'AI API调用的超时时间（秒）。',
     'Language for AI generated content.'            => 'AI生成内容的输出语言。',
 
-    // API key labels
     'Claude Key'   => 'Claude 密钥',
     'OpenAI Key'   => 'OpenAI 密钥',
     'Gemini Key'   => 'Gemini 密钥',
@@ -118,7 +106,6 @@ return [
     'Qwen Key'     => 'Qwen 密钥',
     'GLM Key'      => 'GLM 密钥',
 
-    // Providers
     'Claude (Anthropic)' => 'Claude (Anthropic)',
     'OpenAI (GPT)'       => 'OpenAI (GPT)',
     'Google Gemini'      => 'Google Gemini',
@@ -126,7 +113,6 @@ return [
     'Alibaba Qwen'       => '阿里云通义千问',
     'Zhipu GLM'          => '智谱AI',
 
-    // Language options (Output Language select)
     'Chinese Simplified (简体中文)'  => '简体中文',
     'Chinese Traditional (繁體中文)' => '繁體中文',
     'English'                        => 'English',
@@ -137,7 +123,6 @@ return [
     'Spanish (Español)'              => 'Español',
     'Portuguese (Português)'         => 'Português',
 
-    // Controller messages
     'Unauthorized. Please log in to the admin panel.' => '未授权，请登录后台管理。',
     'Please log in first.'            => '请先登录。',
     'Invalid request token.'          => '无效的请求令牌。',
@@ -164,12 +149,10 @@ return [
     'Task not found'                  => '任务不存在。',
     'Deleted successfully'            => '删除成功。',
 
-    // UI confirm / misc
     'No tasks yet. Click "New Generation" to get started.' => '暂无任务。点击"新建生成"开始使用。',
     'Delete this task record?'        => '确定删除此任务记录？',
     'Please enter the API key first.' => '请先输入API密钥。',
 
-    // JS strings (injected via window.AI_LANG)
     'Write something in this field first, then click AI to enhance it.'
         => '请先在此处输入内容，再点击AI进行增强。',
     'Enhanced!'         => '增强成功！',

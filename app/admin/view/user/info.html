@@ -139,15 +139,12 @@
 
 <script type="text/javascript">
     layui.use(['form', 'layer', 'upload',  'laydate'], function () {
-        // 操作对象
         var form = layui.form
                 , layer = layui.layer
                 , $ = layui.jquery
              ,laydate = layui.laydate
             ,upload = layui.upload;
 
-
-        // 验证
         form.verify({
             user_name: function (value) {
                 if (value == "") {
@@ -161,7 +158,6 @@
             }
         });
 
-        //日期范围
         laydate.render({
             elem: '#user_end_time',
             type: 'datetime',
@@ -228,12 +224,7 @@
             $(".showpic").css("display","none");
         });
 
-
     });
-
-
-
-
 </script>
 
 </body>

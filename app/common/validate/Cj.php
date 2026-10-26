@@ -22,5 +22,4 @@ class Cj extends Validate
         'add'  =>  ['name','sourcecharset'],
         'edit'  =>  ['name','sourcecharset'],
     ];
-
 }

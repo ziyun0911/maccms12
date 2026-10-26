@@ -1139,7 +1139,6 @@
 {include file="../../../app/admin/view/public/foot" /}
 <script type="text/javascript" src="__STATIC__/js/jquery.cookie.js"></script>
 <script type="text/javascript">
-    // 「播放器参数配置」页签里的配色快捷按钮
     function setColor(v) {
         switch (v) {
             case 2:
@@ -1158,7 +1157,6 @@
         $("#mac_colors").val(v);
     }
 
-    // 「URL地址配置」页签里把路由后缀写回同名输入框；此前只定义在已下线的 configurl.html 上
     function sethtmldir(id, value) {
         if (value) {
             $("input[name='" + id + "']").val(value);
@@ -1166,7 +1164,6 @@
     }
 
     layui.use(['element', 'form', 'upload', 'layer'], function () {
-        // 操作对象
         var element = layui.element
             , form = layui.form
             , layer = layui.layer
@@ -1295,8 +1292,6 @@
             $(".showpic").css("display", "none");
         });
 
-
-        // Banner upload
         var bannerContainer = $('#banner-inputs-container');
         var hiddenBannerInput = $('#hidden_site_banner');
 
@@ -1326,7 +1321,7 @@
             $(this).closest('.layui-form-item').remove();
             updateHiddenBannerInput();
         });
-        
+
         bannerContainer.on('input', '.banner-url-input', function() {
             updateHiddenBannerInput();
         });
@@ -1342,7 +1337,6 @@
 
         initBannerInputs();
 
-        // 地址发布页 — 域名组（结构化表单 → 服务端组装 JSON）
         (function () {
             var $pgc = $('#publish-groups-container');
             var publishGroupsNextIndex = 0;
@@ -1497,7 +1491,6 @@
         });
     }
 
-    // 内容级多语言：默认语言必须包含在启用的前台内容语言列表中
     function syncContentLangControls() {
         var defVal = $('select[name="app[content_lang_default]"]').val();
         $('input[name="app[content_lang_list][]"]').each(function () {
@@ -1516,8 +1509,6 @@
         syncContentLangControls();
     });
     syncContentLangControls();
-
-
 </script>
 
 </body>

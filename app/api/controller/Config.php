@@ -13,9 +13,6 @@ class Config extends Base
         $this->check_config();
     }
 
-    /**
-     * 解析当前 PC 模板目录（与 Init 行为一致：优先 site_tpl_dir，否则 template_dir）
-     */
     private function resolveTemplateDir()
     {
         $config = config('maccms');
@@ -51,26 +48,11 @@ class Config extends Base
         return json($res)->options(['json_encode_param' => JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE]);
     }
 
-    /**
-     * 获取预留参数
-     * 后台 网站参数配置 -> 预留参数 分页中的所有设置项
-     * 包含：播放器排序、加密方式、热门搜索、各类扩展分类/地区/年份/语言、
-     *       过滤词、自定义参数（extra_var）等
-     *
-     * 逗号分隔的字段会自动转为数组
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     *
-     * 示例：
-     *   GET /api/config/get_extra_var          => 返回预留参数分页的所有配置
-     */
     public function get_extra_var(Request $request)
     {
         $config = config('maccms');
         $app = isset($config['app']) ? $config['app'] : [];
 
-        // 将逗号分隔的字符串转为数组，过滤空值
         $toArray = function($val) {
             if (empty($val)) return [];
             return array_values(array_filter(array_map('trim', explode(',', $val)), function($v) {
@@ -78,7 +60,6 @@ class Config extends Base
             }));
         };
 
-        // 预留参数分页中的所有字段（逗号分隔的转为数组）
         $data = [
             'player_sort'        => isset($app['player_sort']) ? $app['player_sort'] : '',
             'encrypt'            => isset($app['encrypt']) ? $app['encrypt'] : '0',
@@ -95,7 +76,6 @@ class Config extends Base
             'filter_words'       => $toArray(isset($app['filter_words']) ? $app['filter_words'] : ''),
         ];
 
-        // 自定义参数（extra_var 解析为 key-value）
         $extra = isset($config['extra']) && is_array($config['extra']) ? $config['extra'] : [];
         if (empty($extra) && !empty($app['extra_var'])) {
             $extra_var = str_replace(array(chr(10), chr(13)), array('', '#'), $app['extra_var']);
@@ -118,22 +98,11 @@ class Config extends Base
         ])->options(['json_encode_param' => JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE]);
     }
 
-    /**
-     * 获取前台所需的完整配置
-     * 包含：站点基本信息 + 模板主题配置（tplconfig）
-     *
-     * 前端首页初始化时调用一次即可拿到所有配置信息，
-     * 包括各区块的显示/隐藏开关、标题、数量、导航ID等。
-     *
-     * @param Request $request
-     * @return \think\response\Json
-     */
     public function get_tpl_config(Request $request)
     {
         $config      = config('maccms');
         $templateDir = $this->resolveTemplateDir();
 
-        // 读取模板目录的 config.json（tplconfig）
         $tplconfig = [];
         $configFile = './template/' . $templateDir . '/config.json';
         if (file_exists($configFile)) {
@@ -144,7 +113,6 @@ class Config extends Base
             }
         }
 
-        // 站点基本信息
         $site = [
             'site_name'        => $config['site']['site_name'] ?? '',
             'site_url'         => $config['site']['site_url'] ?? '',
@@ -157,14 +125,12 @@ class Config extends Base
             'template_dir'     => $templateDir,
         ];
 
-        // 功能开关
         $features = [
             'user_status'    => intval($config['user']['status'] ?? 0),
             'gbook_status'   => intval($config['gbook']['status'] ?? 0),
             'comment_status' => intval($config['comment']['status'] ?? 0),
         ];
 
-        // 搜索相关
         $search = [
             'search_hot' => $config['app']['search_hot'] ?? '',
         ];
@@ -181,13 +147,6 @@ class Config extends Base
         ])->options(['json_encode_param' => JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE]);
     }
 
-    /**
-     * 获取与 PC 模板一致的「主题配置」
-     * GET /api.php/config/get_mctheme
-     *
-     * 对应前台 assign 的 $tplconfig 数据源：config('mctheme')（application/extra/mctheme.php + 后台主题落盘）。
-     * 含 theme.ad_slots、theme.ads 等，供 SPA 渲染广告位、首页模块开关。
-     */
     public function get_mctheme(Request $request)
     {
         $mctheme = config('mctheme');
@@ -204,12 +163,6 @@ class Config extends Base
         ])->options(['json_encode_param' => JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE]);
     }
 
-    /**
-     * 枚举当前模板「广告目录」下的 *.js 文件及可访问 URL
-     * GET /api.php/config/get_ads_files
-     *
-     * 目录：template/{模板目录}/{ads_dir}/ ，ads_dir 来自站点配置（默认 ads），与 MAC_PATH_ADS 一致。
-     */
     public function get_ads_files(Request $request)
     {
         $config      = config('maccms');

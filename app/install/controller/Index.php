@@ -6,19 +6,10 @@ use think\facade\Db;
 use think\facade\Lang;
 use think\Request;
 
-/**
- * 苹果CMS v12 —— 安装控制器（ThinkPHP 8）
- */
 class Index extends All
 {
-
-    /**
-     * 构造方法
-     * @access public
-     */
     public function __construct()
     {
-        // 仅安装脚本可进入
         if (!defined('BIND_MODULE') || BIND_MODULE != 'install') {
             header('HTTP/1.1 403 Forbidden');
             exit();
@@ -79,10 +70,6 @@ class Index extends All
         }
     }
 
-    /**
-     * 第二步：环境检测
-     * @return mixed
-     */
     private function step2()
     {
         $data = [];
@@ -93,10 +80,6 @@ class Index extends All
         return $this->fetch('install@index/step2');
     }
 
-    /**
-     * 第三步：初始化配置
-     * @return mixed
-     */
     private function step3()
     {
         $install_dir = $_SERVER["SCRIPT_NAME"];
@@ -105,10 +88,6 @@ class Index extends All
         return $this->fetch('install@index/step3');
     }
 
-    /**
-     * 第四步：执行安装（连接检测 / 生成数据库配置）
-     * @return mixed
-     */
     private function step4()
     {
         if ($this->request->isPost()) {
@@ -132,27 +111,22 @@ class Index extends All
             $cover = $data['cover'];
             unset($data['cover']);
 
-            // TP8 的 Db::connect() 只接受连接名（字符串），不接受配置数组，故此处用 PDO 直连
             try {
                 $pdo = self::pdoConnect($data);
             } catch (\Exception $e) {
                 return $this->error(lang('install/database_connect_err') . '：' . $e->getMessage());
             }
 
-            // 生成数据库配置文件（TP8 connections.mysql 结构）
             $res = self::mkDatabase($data);
             if ($res !== true) {
                 return $res;
             }
 
-            // 把刚写入的 config/database.php 热更新进框架 Config（TP8 think\Db 从框架 Config 读库配置，
-            // 不能用 Db::setConfig(数组) 覆盖，否则会破坏其 Config 对象）
             $written = include ROOT_PATH . 'config/database.php';
             if (is_array($written)) {
                 \think\facade\Config::set($written, 'database');
             }
 
-            // 不覆盖检测是否已存在数据库
             if (!$cover) {
                 $database = $data['database'];
                 $stmt = $pdo->prepare('SELECT SCHEMA_NAME FROM information_schema.schemata WHERE schema_name = ? LIMIT 1');
@@ -161,7 +135,6 @@ class Index extends All
                     return $this->success(lang('install/database_name_haved'), '');
                 }
             }
-            // 创建数据库
             $dbQuoted = '`' . str_replace('`', '``', $data['database']) . '`';
             try {
                 $pdo->exec("CREATE DATABASE IF NOT EXISTS {$dbQuoted} DEFAULT CHARACTER SET utf8mb4");
@@ -175,11 +148,6 @@ class Index extends All
         }
     }
 
-    /**
-     * 用原始 PDO 建立数据库连接（TP8 Db::connect 只接受连接名）
-     * @param array $cfg 含 hostname/hostport/username/password/database 的连接配置
-     * @return \PDO
-     */
     private function pdoConnect(array $cfg)
     {
         $host = isset($cfg['hostname']) ? $cfg['hostname'] : '127.0.0.1';
@@ -187,7 +155,6 @@ class Index extends All
         $user = isset($cfg['username']) ? $cfg['username'] : '';
         $pass = isset($cfg['password']) ? $cfg['password'] : '';
         $db   = isset($cfg['database']) ? $cfg['database'] : '';
-        // 连接测试与建库阶段目标库可能尚不存在，故不拼 dbname，仅连服务器
         $dsn  = "mysql:host={$host};port={$port};charset=utf8mb4";
         return new \PDO($dsn, $user, $pass, [
             \PDO::ATTR_ERRMODE   => \PDO::ERRMODE_EXCEPTION,
@@ -196,10 +163,6 @@ class Index extends All
         ]);
     }
 
-    /**
-     * 第五步：数据库安装
-     * @return mixed
-     */
     private function step5()
     {
         $account = input('post.account');
@@ -211,8 +174,6 @@ class Index extends All
         if (empty($config['database']) || empty($config['username'])) {
             return $this->error(lang('install/please_test_connect'));
         }
-        // 把 config/database.php 热更新进框架 Config（think\Db 从框架 Config 读库配置），
-        // 使后续 Db::execute / model 使用刚安装的库
         $dbFile = include ROOT_PATH . 'config/database.php';
         if (is_array($dbFile)) {
             \think\facade\Config::set($dbFile, 'database');
@@ -246,7 +207,6 @@ class Index extends All
         }
         $config_new['site']['install_dir'] = $install_dir;
 
-        // AI 搜索反滥用配置：全新安装写入默认值
         if (!isset($config_new['ai_search']) || !is_array($config_new['ai_search'])) {
             $config_new['ai_search'] = [];
         }
@@ -267,7 +227,6 @@ class Index extends All
             $config_new['trusted_proxies'] = '';
         }
 
-        // 行为分析配置
         if (!isset($config_new['analytics']) || !is_array($config_new['analytics'])) {
             $config_new['analytics'] = [];
         }
@@ -295,7 +254,6 @@ class Index extends All
             $config_new['analytics']['quality_rank_enabled'] = '0';
         }
 
-        // AI 内容标注配置
         if (!isset($config_new['ai_content']) || !is_array($config_new['ai_content'])) {
             $config_new['ai_content'] = [];
         }
@@ -317,7 +275,6 @@ class Index extends All
             }
         }
 
-        // 监控与告警配置
         if (!isset($config_new['monitor']) || !is_array($config_new['monitor'])) {
             $config_new['monitor'] = [];
         }
@@ -366,7 +323,6 @@ class Index extends All
             $config_new['monitor']['cron_token'] = mac_get_rndstr(32);
         }
 
-        // PWA Web Push 配置
         if (!isset($config_new['push']) || !is_array($config_new['push'])) {
             $config_new['push'] = [];
         }
@@ -382,13 +338,11 @@ class Index extends All
             }
         }
 
-        // 更新程序配置文件
         $res = mac_arr2file(APP_PATH . 'extra/maccms.php', $config_new);
         if ($res === false) {
             return $this->error(lang('write_err_config'));
         }
 
-        // 定时任务幂等注入（自包含，不依赖 common.php）
         {
             $_timming_file = APP_PATH . 'extra/timming.php';
             $_timming = config('timming');
@@ -464,7 +418,6 @@ class Index extends All
             unset($_timming_file, $_timming, $_timming_defaults, $_timming_changed, $_k, $_task);
         }
 
-        // 导入系统初始数据库结构
         $sql_file = APP_PATH . 'install/sql/install.sql';
         if (file_exists($sql_file)) {
             $sql = file_get_contents($sql_file);
@@ -480,7 +433,6 @@ class Index extends All
                 }
             }
         }
-        // 初始化数据
         if ($initdata == '1') {
             $sql_file = APP_PATH . 'install/sql/initdata.sql';
             if (file_exists($sql_file)) {
@@ -499,7 +451,6 @@ class Index extends All
             }
         }
 
-        // 注册管理员账号
         $data = [
             'admin_name' => $account,
             'admin_pwd' => $password,
@@ -511,16 +462,11 @@ class Index extends All
         }
         file_put_contents(APP_PATH . 'data/install/install.lock', date('Y-m-d H:i:s'));
 
-        // 获取站点根目录
         $root_dir = request()->baseFile();
         $root_dir = preg_replace(['/install.php$/'], [''], $root_dir);
         return $this->success(lang('install/is_ok'), $root_dir . 'admin.php');
     }
 
-    /**
-     * 环境检测
-     * @return array
-     */
     private function checkNnv()
     {
         $items = [
@@ -534,10 +480,6 @@ class Index extends All
         return $items;
     }
 
-    /**
-     * 目录权限检查
-     * @return array
-     */
     private function checkDir()
     {
         $items = [
@@ -572,10 +514,6 @@ class Index extends All
         return $items;
     }
 
-    /**
-     * 函数及扩展检查
-     * @return array
-     */
     private function checkFunc()
     {
         $items = [
@@ -602,10 +540,6 @@ class Index extends All
         return $items;
     }
 
-    /**
-     * 读取已生成的数据库配置（config/database.php）
-     * @return array
-     */
     private function readDbConfig()
     {
         $file = ROOT_PATH . 'config/database.php';
@@ -622,11 +556,6 @@ class Index extends All
         return $cfg;
     }
 
-    /**
-     * 生成数据库配置文件（TP8 connections.mysql 结构）
-     * @param array $data
-     * @return mixed true 成功，否则返回错误响应
-     */
     private function mkDatabase(array $data)
     {
         $code = <<<INFO
@@ -689,7 +618,6 @@ return [
 ];
 INFO;
         file_put_contents(ROOT_PATH . 'config/database.php', $code);
-        // 判断写入是否成功
         $config = include ROOT_PATH . 'config/database.php';
         $mysql = isset($config['connections']['mysql']) ? $config['connections']['mysql'] : [];
         if (empty($mysql['database']) || $mysql['database'] != $data['database']) {

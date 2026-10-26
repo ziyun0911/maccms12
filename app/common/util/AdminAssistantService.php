@@ -3,9 +3,6 @@ namespace app\common\util;
 
 use think\facade\Cache;
 
-/**
- * Admin-only help bot: retrieves local markdown knowledge, optional env snapshot, calls OpenAI-compatible chat.
- */
 class AdminAssistantService
 {
     const KNOWLEDGE_DIR = 'data/admin_assistant';
@@ -60,11 +57,6 @@ class AdminAssistantService
         return (string)$cfg['enabled'] === '1' && trim((string)$cfg['api_key']) !== '';
     }
 
-    /**
-     * @param string $question
-     * @param array $history [['role'=>'user'|'assistant','content'=>''], ...]
-     * @return array{code:int,msg?:string,reply?:string,citations?:array}
-     */
     public function chat($question, array $history = [])
     {
         $cfg = $this->getMergedConfig();
@@ -313,9 +305,6 @@ class AdminAssistantService
         return json_encode($safe, JSON_UNESCAPED_UNICODE);
     }
 
-    /**
-     * All menu/* strings from application/lang/{locale}.php — must match sidebar labels for that locale.
-     */
     private function buildMenuI18nBlock()
     {
         $raw = mac_site_lang();
@@ -327,7 +316,6 @@ class AdminAssistantService
         if (!is_file($path)) {
             return "locale={$langId}\n(menu language file missing)";
         }
-        /** @var array $dict */
         $dict = include $path;
         if (!is_array($dict)) {
             return "locale={$langId}\n(menu language file invalid)";

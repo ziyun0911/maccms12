@@ -1,14 +1,8 @@
 <?php
 namespace app\common\util;
 
-/**
- * 地址发布页：门闸判定、Cookie、域名组解析、URL 消毒与生成。
- */
 class PublishPage
 {
-    /**
-     * 是否为「首页根入口」：应显示地址发布页（与 Index::index 首页第一页一致，且无常见列表筛选参数）。
-     */
     public static function isFrontDoor()
     {
         if (!defined('ENTRANCE') || ENTRANCE !== 'index') {
@@ -44,33 +38,21 @@ class PublishPage
         return true;
     }
 
-    /**
-     * 地址发布页门闸：用户已确认进入主站时写入的 Cookie 名。
-     */
     public static function cookieName()
     {
         return 'mac_publish_entered';
     }
 
-    /**
-     * 是否已写入「进入主站」Cookie（门闸跳过时读取）。
-     */
     public static function hasEnteredCookie()
     {
         return (string) cookie(self::cookieName()) === '1';
     }
 
-    /**
-     * 标记用户已进入主站（sitehome 落地时写入，默认 365 天）。
-     */
     public static function setEnteredCookie()
     {
         cookie(self::cookieName(), '1', ['expire' => 31536000, 'path' => '/']);
     }
 
-    /**
-     * 禁止 CDN / 反向代理 / 浏览器缓存当前响应（发布页、门闸根入口等）。
-     */
     public static function sendNoStoreHeaders()
     {
         if (headers_sent()) {
@@ -80,9 +62,6 @@ class PublishPage
         header('Pragma: no-cache');
     }
 
-    /**
-     * 「进入主站」落地 URL（sitehome 路由，与 route.php / 伪静态规则一致）。
-     */
     public static function siteHomeUrl()
     {
         $cfg = isset($GLOBALS['config']) && is_array($GLOBALS['config']) ? $GLOBALS['config'] : [];
@@ -109,7 +88,6 @@ class PublishPage
             $pathSeg = 'index/home' . $dotExt;
         }
 
-        // 未开启路由解析时须走 index.php/pathinfo，否则 /index/home.html 类短链易 404
         if ($rewrite === 0 || !$routeOn) {
             $url = ($base === '' ? '' : $base) . '/index.php/' . $pathSeg;
         } else {
@@ -126,9 +104,6 @@ class PublishPage
         return $url;
     }
 
-    /**
-     * 站点根 base href（供 index/home 等较深 pathinfo 下修正相对资源路径）。
-     */
     public static function documentBaseHref()
     {
         $macPath = defined('MAC_PATH') ? (string) MAC_PATH : '/';
@@ -151,9 +126,6 @@ class PublishPage
         return $domain !== '' ? $domain . $path : $path;
     }
 
-    /**
-     * 在 index/home 等路径下渲染主题首页时注入 base 标签，避免 template/… 被解析到 index.php/index/… 下。
-     */
     public static function wrapThemeHomeHtml($html)
     {
         $html = (string) $html;
@@ -169,11 +141,6 @@ class PublishPage
         return ($count > 0) ? $replaced : $html;
     }
 
-    /**
-     * 域名组详情页 URL。
-     *
-     * @param string $slug 组标识 [a-z0-9_-]
-     */
     public static function groupUrl($slug)
     {
         $slug = preg_replace('/[^a-zA-Z0-9_-]/', '', (string) $slug);
@@ -220,11 +187,6 @@ class PublishPage
         return $url;
     }
 
-    /**
-     * 将后台多行文本解析为按钮列表。每行：显示文字|URL
-     *
-     * @return array<int, array{name:string,url:string}>
-     */
     public static function parseLinks($raw)
     {
         $raw = (string) $raw;
@@ -253,9 +215,6 @@ class PublishPage
         return $out;
     }
 
-    /**
-     * 允许 http(s) 绝对 URL、或站内相对路径（以 / 或 ./ 开头）；拒绝 javascript:、data: 等。
-     */
     public static function sanitizeUrl($url)
     {
         $url = trim((string) $url);
@@ -276,11 +235,6 @@ class PublishPage
         return '';
     }
 
-    /**
-     * 解析并校验站点「域名组」JSON。失败返回空数组。
-     *
-     * @return array<int, array{id:string,title:string,hint:string,urls:array<int,string>}>
-     */
     public static function parseGroups($raw)
     {
         $raw = trim((string) $raw);
@@ -333,11 +287,6 @@ class PublishPage
         return $out;
     }
 
-    /**
-     * 将后台表单提交的域名组结构化数组编码为 JSON 字符串。
-     *
-     * @param mixed $rows POST 中的 site[publish_groups] 数组
-     */
     public static function buildGroupsJsonFromUiPost($rows)
     {
         if (!is_array($rows)) {
@@ -395,12 +344,6 @@ class PublishPage
         return json_encode($built, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
-    /**
-     * 在已规范化组列表中按 id 取一组；无则 null。
-     *
-     * @param array<int, array{id:string,title:string,hint:string,urls:array<int,string>}> $groups
-     * @return array{id:string,title:string,hint:string,urls:array<int,string>}|null
-     */
     public static function findGroupById(array $groups, $id)
     {
         $id = (string) $id;
@@ -415,9 +358,6 @@ class PublishPage
         return null;
     }
 
-    /**
-     * 发布页 <html lang>：由站点应用语言映射为 BCP 47。
-     */
     public static function htmlLangAttr()
     {
         $lang = mac_site_lang();
@@ -439,9 +379,6 @@ class PublishPage
         return $parts[0];
     }
 
-    /**
-     * 发布页 Logo：优先后台 site_logo，否则 static 默认图。
-     */
     public static function logoUrl()
     {
         $raw = isset($GLOBALS['config']['site']['site_logo']) ? trim((string) $GLOBALS['config']['site']['site_logo']) : '';
@@ -454,9 +391,6 @@ class PublishPage
         return MAC_PATH . 'static/images/logo.jpg';
     }
 
-    /**
-     * 发布页文档标题：站点名 + 页面标题。
-     */
     public static function pageTitle($siteName, $pageTitle)
     {
         $siteName = trim((string) $siteName);
@@ -470,9 +404,6 @@ class PublishPage
         return $siteName . ' - ' . $pageTitle;
     }
 
-    /**
-     * 发布页门闸是否开启（读取已保存站点配置）。
-     */
     public static function isPublishGateEnabled()
     {
         $site = [];
@@ -487,11 +418,6 @@ class PublishPage
         return !empty($site['site_publish_status']) && (string) $site['site_publish_status'] === '1';
     }
 
-    /**
-     * ThinkPHP 路由项目标 controller/action（三元组首项）。
-     *
-     * @param mixed $entry
-     */
     public static function routeTarget($entry)
     {
         if (!is_array($entry) || !isset($entry[0])) {
@@ -500,12 +426,6 @@ class PublishPage
         return trim((string) $entry[0]);
     }
 
-    /**
-     * 保存 URL 规则时合并发布页路由：门闸开则仅缺失时注入；门闸关则移除系统默认残留。
-     *
-     * @param array<string, mixed> $route 不含 __pattern__ 的路由数组
-     * @return array<string, mixed>
-     */
     public static function mergePublishRoutes(array $route)
     {
         $defaults = [

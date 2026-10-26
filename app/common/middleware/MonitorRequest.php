@@ -7,16 +7,8 @@ use app\common\util\MonitorMetric;
 use think\Request;
 use think\Response;
 
-/**
- * 苹果CMS v12 —— 请求级指标埋点中间件
- * （由 TP5 的 common\behavior\MonitorRequest 迁移）
- *
- * 通过 register_shutdown_function 在所有终止路径（正常/异常/exit/fatal）上记录指标，
- * 请求路径上零 DB 写入，仅累加到缓存分钟桶，由 cron 端点落库。
- */
 class MonitorRequest
 {
-    /** 防止重复注册 */
     private static $registered = false;
 
     public function handle(Request $request, Closure $next)
@@ -27,15 +19,11 @@ class MonitorRequest
                 register_shutdown_function([__CLASS__, 'record']);
             }
         } catch (\Throwable $e) {
-            // 监控永远不能弄坏网站
         }
 
         return $next($request);
     }
 
-    /**
-     * 进程结束时记录本次请求的指标。
-     */
     public static function record()
     {
         try {
@@ -46,19 +34,16 @@ class MonitorRequest
                 ? $GLOBALS['config']['monitor']
                 : [];
 
-            // 杀手开关
             if (empty($cfg['req_metrics_enabled']) || (string)$cfg['req_metrics_enabled'] !== '1') {
                 return;
             }
 
             $req = request();
 
-            // 不统计 cron 端点自己
             if (self::isCronEndpoint($req)) {
                 return;
             }
 
-            // 抽样
             $rate = isset($cfg['req_sample_rate']) ? (int)$cfg['req_sample_rate'] : 100;
             $rate = min(100, max(1, $rate));
             if ($rate < 100 && mt_rand(1, 100) > $rate) {
@@ -107,7 +92,6 @@ class MonitorRequest
             MonitorBucket::add($delta);
             self::recordIp($req, $cfg, $cls, $w);
         } catch (\Throwable $e) {
-            // 监控永远不能弄坏网站
         }
     }
 

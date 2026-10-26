@@ -139,10 +139,6 @@
     });
     contentChart.render();
 
-    // top_paths 漏斗图：vendored ApexCharts v3.50 无 sankey 图（grep 零命中），且不引入新前端库；
-    // top_paths 本身是按 pv 降序的热门页面列表，天然呈漏斗形，故用 ApexCharts funnel
-    // （chart.type:'bar' + plotOptions.bar.isFunnel:true + horizontal + distributed）呈现。
-    // top_flows（prev->path 边数据，非漏斗形）保留上方现有表格，不受影响。
     var topPaths = report.behavior.top_paths || [];
     if (topPaths.length) {
         var pathNames = [];

@@ -87,7 +87,6 @@ class SeoAi
 
     private static function generateAndSave($payload)
     {
-        // Ensure SEO output follows current system language setting.
         $payload['target_lang'] = self::resolveTargetLanguage();
         $sourceHash = sha1(json_encode($payload));
         $result = self::runGenerator($payload);
@@ -104,7 +103,6 @@ class SeoAi
             'error' => $result['error'],
             'status' => $result['status'],
         ];
-        // 写库失败不能沿用生成结果的状态码：调用方据此统计成败，报告成功却什么都没存。
         try {
             (new \app\common\model\SeoAiResult())->saveByObject($payload['mid'], $payload['obj_id'], $saveData);
         } catch (\Throwable $e) {
@@ -145,7 +143,6 @@ class SeoAi
             'Content-Type: application/json',
             'Authorization: Bearer ' . trim($ai['api_key']),
         ];
-        // api_base 用户可配置指向自建网关/代理，可能自签证书，显式关闭校验以保兼容。
         $respBody = mac_curl_post($url, json_encode($post, JSON_UNESCAPED_UNICODE), $headers, '', false);
         if ($respBody === false || $respBody === '') {
             return self::fallbackResult($payload, $provider, $model, 'empty ai response');
@@ -202,11 +199,8 @@ class SeoAi
 
     private static function resolveTargetLanguage()
     {
-        // 站点界面语言。$payload['lang'] 是影片的原产语言字段（国语/英语…），
-        // 与「用哪种语言写 SEO 文案」无关，旧代码把它当语言兜底是错的，这里不再使用。
         $sysLang = mac_site_lang();
 
-        // Keep prompt language explicit for stable multilingual output.
         $langMap = [
             'zh-cn' => 'Chinese (Simplified)',
             'zh-hans' => 'Chinese (Simplified)',
@@ -251,7 +245,6 @@ class SeoAi
         }
 
         return [
-            // 2 marks fallback SEO content, distinct from AI-success status 1.
             'status' => 2,
             'provider' => $provider ?: 'fallback',
             'model' => $model ?: 'fallback',
@@ -292,5 +285,4 @@ class SeoAi
         }
         return mb_substr($text, 0, $len, 'UTF-8');
     }
-
 }

@@ -66,20 +66,20 @@
 			if(event.keyCode==13){ $('#btnLogin').click(); }
 		});
 		$('#btn_submit').click(function() {
-			if ($('#user_name').val()  == '') { 
+			if ($('#user_name').val()  == '') {
 				showToast(MAC.GetLang('string_login_sryh'));
-				$("#user_name").focus(); 
-				return false; 
+				$("#user_name").focus();
+				return false;
 			}
-			if ($('#user_pwd').val()  == '') { 
+			if ($('#user_pwd').val()  == '') {
 				showToast(MAC.GetLang('string_login_srmm'));
-				$("#user_pwd").focus(); 
-				return false; 
+				$("#user_pwd").focus();
+				return false;
 			}
 			if ($('#verify').val()  == '') {
 				showToast(MAC.GetLang('string_login_sryzm'));
-				$("#verify").focus(); 
-				return false; 
+				$("#verify").focus();
+				return false;
 			}
 
 			$.ajax({
@@ -106,7 +106,6 @@
 
 		});
 	});
-
 </script>
 
 </body>

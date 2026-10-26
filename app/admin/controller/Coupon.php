@@ -27,7 +27,6 @@ class Coupon extends Base
             $where['coupon_type'] = ['eq', $param['type']];
         }
         $now = time();
-        // validity 过滤：active 包含永不过期(coupon_end_time=0)
         if (($param['validity'] ?? '') === 'active') {
             $where['coupon_end_time'] = [['eq', 0], ['egt', $now], 'or'];
         } elseif (($param['validity'] ?? '') === 'expired') {
@@ -67,11 +66,9 @@ class Coupon extends Base
             }
             $info = $res['info'];
         }
-        // datetime-local 格式转换
         $info['coupon_start_time_input'] = !empty($info['coupon_start_time']) ? date('Y-m-d\TH:i:s', intval($info['coupon_start_time'])) : '';
         $info['coupon_end_time_input'] = !empty($info['coupon_end_time']) ? date('Y-m-d\TH:i:s', intval($info['coupon_end_time'])) : '';
 
-        // 适用目标：仅 VIP 组（group_id >= 3）可被限定
         $group_list = (new \app\common\model\Group())->getCache('group_list');
         $vip_groups = [];
         if (is_array($group_list)) {
@@ -99,7 +96,6 @@ class Coupon extends Base
     {
         $param = input('post.');
         $param['coupon_name'] = htmlspecialchars(urldecode(trim($param['coupon_name'] ?? '')));
-        // datetime-local 转时间戳
         if (!empty($param['coupon_start_time_input'])) {
             $param['coupon_start_time'] = strtotime($param['coupon_start_time_input']);
             unset($param['coupon_start_time_input']);
@@ -108,8 +104,6 @@ class Coupon extends Base
             $param['coupon_end_time'] = strtotime($param['coupon_end_time_input']);
             unset($param['coupon_end_time_input']);
         }
-        // 适用目标 JSON。必须无条件重算：全部取消勾选时表单不会提交这两个字段，
-        // 若只在 isset 时才写回，旧的限定条件会残留下来解不掉。
         $target = [];
         if (!empty($param['coupon_target_groups'])) {
             $target['groups'] = array_map('intval', (array)$param['coupon_target_groups']);
@@ -122,7 +116,6 @@ class Coupon extends Base
         }
         $param['coupon_target'] = empty($target) ? '' : json_encode($target, JSON_UNESCAPED_UNICODE);
         unset($param['coupon_target_groups'], $param['coupon_target_longs']);
-        // 每人限领强制为1
         $param['coupon_per_user'] = 1;
 
         $res = (new \app\common\model\Coupon())->saveData($param);

@@ -21,10 +21,8 @@ class Ajax extends Base
 
     public function index()
     {
-
     }
 
-    //加载最多不超过20页数据，防止非法采集。每页条数可以是10,20,30
     public function data()
     {
         $mid = $this->_param['mid'];
@@ -180,9 +178,6 @@ class Ajax extends Base
         return json($res);
     }
 
-    /**
-     * 热门搜索词（聚合自 search_query_log）+ 后台配置的备选热词。
-     */
     public function search_hot()
     {
         if ($GLOBALS['config']['app']['search'] != '1') {
@@ -213,9 +208,6 @@ class Ajax extends Base
         return json($payload);
     }
 
-    /**
-     * 登录用户搜索历史（需在搜索落地页触发过记录）。
-     */
     public function search_history()
     {
         if ($GLOBALS['config']['app']['search'] != '1') {
@@ -230,9 +222,6 @@ class Ajax extends Base
         return json(['code' => 1, 'list' => $list]);
     }
 
-    /**
-     * 清空登录用户搜索历史。
-     */
     public function search_history_clear()
     {
         if ($GLOBALS['config']['app']['search'] != '1') {
@@ -296,20 +285,17 @@ class Ajax extends Base
         $info = $res['info'];
 
         if($type == 'update'){
-            //初始化值
             $update[$pre.'_hits'] = $info[$pre.'_hits'];
             $update[$pre.'_hits_day'] = $info[$pre.'_hits_day'];
             $update[$pre.'_hits_week'] = $info[$pre.'_hits_week'];
             $update[$pre.'_hits_month'] = $info[$pre.'_hits_month'];
             $new = getdate();
             $old = getdate($info[$pre.'_time_hits']);
-            //月
             if($new['year'] == $old['year'] && $new['mon'] == $old['mon']){
                 $update[$pre.'_hits_month'] ++;
             }else{
                 $update[$pre.'_hits_month'] = 1;
             }
-            //周
             $weekStart = mktime(0,0,0,$new["mon"],$new["mday"],$new["year"]) - ($new["wday"] * 86400);
             $weekEnd = mktime(23,59,59,$new["mon"],$new["mday"],$new["year"]) + ((6 - $new["wday"]) * 86400);
             if($info[$pre.'_time_hits'] >= $weekStart && $info[$pre.'_time_hits'] <= $weekEnd){
@@ -317,13 +303,11 @@ class Ajax extends Base
             }else{
                 $update[$pre.'_hits_week'] = 1;
             }
-            //日
             if($new['year'] == $old['year'] && $new['mon'] == $old['mon'] && $new['mday'] == $old['mday']){
                 $update[$pre.'_hits_day'] ++;
             }else{
                 $update[$pre.'_hits_day'] = 1;
             }
-            //更新数据库
             $update[$pre.'_hits'] = $update[$pre.'_hits']+1;
             $update[$pre.'_time_hits'] = time();
             $model->where($where)->update($update);
@@ -372,27 +356,23 @@ class Ajax extends Base
         $info = $res['info'];
         $id = $info[$pre.'_id'];
 
-        //来路访问记录验证
         $res = (new \app\common\model\Website())->visit($this->_param);
         if($res['code']>1){
             return json($res);
         }
 
         if($type == 'update'){
-            //初始化值
             $update[$pre.'_referer'] = $info[$pre.'_referer'];
             $update[$pre.'_referer_day'] = $info[$pre.'_referer_day'];
             $update[$pre.'_referer_week'] = $info[$pre.'_referer_week'];
             $update[$pre.'_referer_month'] = $info[$pre.'_referer_month'];
             $new = getdate();
             $old = getdate($info[$pre.'_time_referer']);
-            //月
             if($new['year'] == $old['year'] && $new['mon'] == $old['mon']){
                 $update[$pre.'_referer_month'] ++;
             }else{
                 $update[$pre.'_referer_month'] = 1;
             }
-            //周
             $weekStart = mktime(0,0,0,$new["mon"],$new["mday"],$new["year"]) - ($new["wday"] * 86400);
             $weekEnd = mktime(23,59,59,$new["mon"],$new["mday"],$new["year"]) + ((6 - $new["wday"]) * 86400);
             if($info[$pre.'_time_referer'] >= $weekStart && $info[$pre.'_time_referer'] <= $weekEnd){
@@ -400,13 +380,11 @@ class Ajax extends Base
             }else{
                 $update[$pre.'_referer_week'] = 1;
             }
-            //日
             if($new['year'] == $old['year'] && $new['mon'] == $old['mon'] && $new['mday'] == $old['mday']){
                 $update[$pre.'_referer_day'] ++;
             }else{
                 $update[$pre.'_referer_day'] = 1;
             }
-            //更新数据库
             $update[$pre.'_referer'] = $update[$pre.'_referer']+1;
             $update[$pre.'_time_referer'] = time();
             $model->where($where)->update($update);
@@ -543,7 +521,6 @@ class Ajax extends Base
             return json(['code'=>1003,'msg'=>lang('index/pwd_frequently')]);
         }
 
-
         if($mid=='1'){
             $where=[];
             $where['vod_id'] = ['eq',$id];
@@ -583,10 +560,6 @@ class Ajax extends Base
         return json(['code'=>1,'msg'=>'ok']);
     }
 
-    /**
-     * 漫画猜你喜欢 - 换一换 AJAX 接口
-     * 参数: id=当前漫画ID, tid=分类ID(可选), num=数量(默认9)
-     */
     public function guess_manga()
     {
         $id = intval($this->_param['id'] ?? 0);
@@ -632,10 +605,6 @@ class Ajax extends Base
         return json(['code' => 1, 'msg' => lang('data_list'), 'list' => $list]);
     }
 
-    /**
-     * 文章猜你喜欢 - 换一换 AJAX 接口
-     * 参数: id=当前文章ID, tid=分类ID(可选), num=数量(默认9)
-     */
     public function guess_art()
     {
         $id = intval($this->_param['id'] ?? 0);
@@ -678,10 +647,6 @@ class Ajax extends Base
         return json(['code' => 1, 'msg' => lang('data_list'), 'list' => $list]);
     }
 
-    /**
-     * 首页热门 tab 分段加载
-     * 参数: tab=2..7
-     */
     public function home_hot_tab()
     {
         $tab = intval(input('param.tab/d', 0));
@@ -697,9 +662,6 @@ class Ajax extends Base
         return json(['code' => 1, 'msg' => 'ok', 'data' => $data]);
     }
 
-    /**
-     * 构造首页主题变量（供首页 AJAX 片段使用）
-     */
     protected function buildIndexThemeVars()
     {
         $tplconfig = isset($GLOBALS['mctheme']) && is_array($GLOBALS['mctheme'])
@@ -956,7 +918,6 @@ class Ajax extends Base
         return json(['code'=>1,'msg'=>lang('ok')]);
     }
 
-    // AI chat search endpoint for custom chat template
     public function ai_chat()
     {
         $service = new AiChatService();
@@ -1009,7 +970,6 @@ class Ajax extends Base
             ]);
         }
 
-        // --- Auth gate: default require_login; anonymous captcha when allowed ---
         $requireLogin = (string)(isset($aiCfg['require_login']) ? $aiCfg['require_login'] : '1');
         $userId = intval(session('user_id'));
         $isAnon = ($userId <= 0);
@@ -1037,7 +997,6 @@ class Ajax extends Base
             }
         }
 
-        // --- Global daily budget (IP-agnostic) ---
         $budget = AiChatRateLimit::checkDailyBudget($aiCfg);
         if (!$budget['allowed']) {
             header('HTTP/1.1 503 Service Unavailable');
@@ -1048,7 +1007,6 @@ class Ajax extends Base
             ]);
         }
 
-        // --- Circuit breaker ---
         $circuit = AiChatRateLimit::checkCircuit($aiCfg);
         if (!$circuit['closed']) {
             header('HTTP/1.1 503 Service Unavailable');
@@ -1109,7 +1067,6 @@ class Ajax extends Base
         ];
     }
 
-
     private function safeHashEquals($knownString, $userString)
     {
         if (function_exists('hash_equals')) {
@@ -1128,5 +1085,4 @@ class Ajax extends Base
         }
         return $res === 0;
     }
-
 }

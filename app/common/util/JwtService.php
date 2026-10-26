@@ -3,14 +3,8 @@ namespace app\common\util;
 
 use think\Request;
 
-/**
- * HS256 JWT（签名防篡改；payload 为 Base64 非加密，敏感数据勿写入 claims）。
- */
 class JwtService
 {
-    /**
-     * 是否配置了足够长的 JWT 对称密钥（启用 JWT 的前置条件）。
-     */
     public static function hasStrongSecret()
     {
         $app = isset($GLOBALS['config']['app']) && is_array($GLOBALS['config']['app'])
@@ -21,9 +15,6 @@ class JwtService
         return strlen($s) >= 32;
     }
 
-    /**
-     * 仅返回已配置的强密钥；不再使用 cache_flag/表前缀派生（避免可预测签名密钥）。
-     */
     public static function getSecret()
     {
         $app = isset($GLOBALS['config']['app']) && is_array($GLOBALS['config']['app'])
@@ -83,12 +74,6 @@ class JwtService
         return '';
     }
 
-    /**
-     * @param int    $userId
-     * @param string $userRandom 当前 user_random，登出/改密后变更即可使旧令牌失效
-     *
-     * @return string
-     */
     public static function encode($userId, $userRandom)
     {
         $userId = (int)$userId;
@@ -117,9 +102,6 @@ class JwtService
         return $head . '.' . $body . '.' . $sig;
     }
 
-    /**
-     * @return array<string,mixed>|null
-     */
     public static function decodeAndVerify($jwt)
     {
         if (!self::hasStrongSecret()) {

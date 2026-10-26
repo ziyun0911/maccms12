@@ -4,20 +4,12 @@ namespace app\common\util;
 
 use think\facade\Cache;
 
-/**
- * AI 模板云端市场（完整主题包）
- * 与 ResourceHub 资源站采集独立：独立 URL、缓存键、RS256 验签公钥。
- */
 class TemplateCloudService
 {
     const CACHE_CATALOG = 'template_market_catalog';
     const CACHE_CATALOG_HASH = 'template_market_catalog_hash';
     const CACHE_CATALOG_BACKUP = 'template_market_catalog_backup';
 
-    /**
-     * 内置验签公钥（与 application/data/template_market_cloud/catalog_public.pem 一致）
-     * 轮换密钥时同步更新此常量与 PEM 文件。
-     */
     const CATALOG_PUBLIC_KEY_PEM = <<<'PEM'
 -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtTvyr02aeVgtmMGllloL
@@ -30,7 +22,6 @@ r3gytub7Cp91/w5DeEVTYg27w0BWb4yWgqlypKpgYYEz0aLLfwNtLvzXXlF1TZ0w
 -----END PUBLIC KEY-----
 PEM;
 
-    /** @var array */
     protected $config;
 
     public function __construct()
@@ -51,11 +42,6 @@ PEM;
         return (int) ($this->config['status'] ?? 0) === 1;
     }
 
-    /**
-     * 拉取云端主题目录（RS256 验签 + 缓存）
-     * @param bool $force 忽略缓存强制拉取
-     * @return array{items:array,error:string}
-     */
     public function fetchCatalog($force = false)
     {
         if (!$this->isEnabled()) {
@@ -110,11 +96,6 @@ PEM;
         }
     }
 
-    /**
-     * 下载并安装完整主题包到 template/{dir}/
-     * @param array $item 目录项（须来自已验签目录）
-     * @return array{code:int,msg:string,data:array}
-     */
     public function installPackage(array $item)
     {
         if (!class_exists('ZipArchive')) {
@@ -224,9 +205,6 @@ PEM;
         ];
     }
 
-    /**
-     * 切换站点当前 PC 模板
-     */
     public function activateTemplate($dir)
     {
         $dir = $this->sanitizeDir($dir);
@@ -261,9 +239,6 @@ PEM;
         return ['code' => 1, 'msg' => lang('admin/template_market/activate_ok')];
     }
 
-    /**
-     * 已安装模板目录（含本地自带与云端安装）
-     */
     public function listLocalTemplates()
     {
         $dirs = [];
@@ -300,10 +275,6 @@ PEM;
         return is_array($site) ? (string) ($site['template_dir'] ?? '') : '';
     }
 
-    /**
-     * 解析并验签目录；失败返回 null
-     * @return array|null
-     */
     protected function parseVerifiedCatalog($raw)
     {
         $payload = json_decode($raw, true);
@@ -392,10 +363,6 @@ PEM;
         return (bool) preg_match('/^sha256:[a-f0-9]{64}$/', $hash);
     }
 
-    /**
-     * 安全远端 GET：禁止跟随重定向，复核最终 URL，仅允许公网目标
-     * @return string|false
-     */
     protected function fetchRemoteSecure($url, $timeout = 30)
     {
         if (!$this->validateRemoteUrl($url)) {
@@ -605,10 +572,6 @@ PEM;
         @rmdir($path);
     }
 
-    /**
-     * 将已有模板移出 web 目录至 runtime 备份区；清理旧版留在 template/ 下的 .bak 目录
-     * @return string|false 无旧模板返回 ''；成功返回备份路径；失败返回 false
-     */
     protected function relocateExistingTemplate($target, $dir)
     {
         $this->purgeLegacyWebBackups($dir);
@@ -626,9 +589,6 @@ PEM;
         return $backupPath;
     }
 
-    /**
-     * 删除历史版本在 template/ 下生成的 .bak.YmdHis 目录（web 可访问）
-     */
     protected function purgeLegacyWebBackups($dir)
     {
         $pattern = ROOT_PATH . 'template' . DS . $dir . '.bak.*';

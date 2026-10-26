@@ -3,14 +3,11 @@ namespace app\common\model;
 use think\facade\Db;
 
 class Card extends Base {
-    // 设置数据表（不含前缀）
     protected $name = 'card';
 
-    // 定义时间戳字段名
     protected $createTime = '';
     protected $updateTime = '';
 
-    // 自动完成
     protected $auto       = [];
     protected $insert     = [];
     protected $update     = [];
@@ -97,7 +94,6 @@ class Card extends Base {
         return ['code'=>1,'msg'=>lang('save_ok')];
     }
 
-
     public function delData($where)
     {
         $res = $this->where($where)->delete();
@@ -131,7 +127,6 @@ class Card extends Base {
         $where=[];
         $where['card_no'] = ['eq',$card_no];
         $where['card_pwd'] = ['eq',$card_pwd];
-        //$where['card_sale_status'] = ['eq',1];
         $where['card_use_status'] = ['eq',0];
 
         $info = $this->where($where)->find();
@@ -145,7 +140,6 @@ class Card extends Base {
         if($res===false){
             return ['code' => 1003, 'msg' =>lang('model/card/update_user_points_err')];
         }
-        //积分日志
         $data = [];
         $data['user_id'] = $user_info['user_id'];
         $data['plog_type'] = 1;

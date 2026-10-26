@@ -6,12 +6,6 @@ use think\facade\Db;
 use think\Request;
 use app\common\util\CsrfGuard;
 
-/**
- * 支付/充值 API
- *
- * 提供支付配置查询、发起支付、支付回调通知、卡密充值、
- * 积分购买内容权限、会员升级等功能。
- */
 class Payment extends Base
 {
     use PublicApi;
@@ -20,19 +14,12 @@ class Payment extends Base
     public function __construct()
     {
         parent::__construct();
-        // notify 回调不做 API 开关检查，其他方法需要
         $ac = request()->action();
         if ($ac !== 'notify') {
             $this->check_config();
         }
     }
 
-    /**
-     * 支付通道是否已在后台填齐必填项（与 extend/pay 内实际使用字段一致）
-     *
-     * @param string $key 小写，如 alipay、weixin
-     * @param array  $cfg pay 下单项配置
-     */
     public static function isPayChannelReady($key, array $cfg)
     {
         $key = strtolower((string) $key);
@@ -56,11 +43,6 @@ class Payment extends Base
         }
     }
 
-    /**
-     * 与后台支付设置（extend/pay 扩展 Tab + maccms.pay）一致：不硬编码通道、不与扩展重复
-     *
-     * @return array<int, array{key:string,name:string,enabled:int,paytypes?:array}>
-     */
     public static function payMethodsForConfig(array $payConfig)
     {
         $extends = mac_extends_list('pay');
@@ -129,9 +111,6 @@ class Payment extends Base
         return $methods;
     }
 
-    /**
-     * 辅助：检查登录
-     */
     private function _checkLogin()
     {
         $check = (new \app\common\model\User())->checkLogin();
@@ -148,12 +127,6 @@ class Payment extends Base
         return ['ok' => true, 'user_id' => $uid, 'user' => $user, 'response' => null];
     }
 
-    /**
-     * 获取支付配置（可用支付方式列表）
-     * GET /api.php/payment/get_config
-     *
-     * @return JSON  {code:1, msg:'获取成功', info:{min, scale, methods, card_config, is_login, user_points}}
-     */
     public function get_config(Request $request)
     {
         $pay_config = config('maccms.pay');
@@ -164,7 +137,6 @@ class Payment extends Base
 
         $methods = self::payMethodsForConfig($pay_config);
 
-        // 卡密充值
         $card_config = [
             'enabled'  => !empty($pay_config['card']['url']) ? 1 : 0,
             'card_url' => $pay_config['card']['url'] ?? '',
@@ -183,20 +155,6 @@ class Payment extends Base
             ],
         ]);
     }
-    /**
-     * 发起支付（跳转第三方支付）
-     * POST /api.php/payment/gopay
-     *
-     * @param  order_code  string  必填，订单号
-     * @param  order_id    int     必填，订单ID
-     * @param  payment     string  必填，支付方式（alipay/weixin/codepay/epay/zhapay 等）
-     * @return JSON        {code:1, msg:'...', info:{payment, payment_data:{...}}}
-     *
-     * 说明：
-     * - 微信支付返回 code_url（用于生成二维码）
-     * - 支付宝等返回 pay_url（构造好的跳转链接）或 html（表单HTML）
-     * - 前端根据 payment 类型决定展示方式
-     */
     public function gopay(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -225,7 +183,6 @@ class Payment extends Base
             return json(['code' => 1002, 'msg' => lang('api/payment/payment_disabled')]);
         }
 
-        // 核实订单
         $where = [];
         $where['order_id']   = $order_id;
         $where['order_code'] = $order_code;
@@ -240,21 +197,17 @@ class Payment extends Base
 
         $order_info = $res['info'];
 
-        // 调用支付扩展
         $cp = 'app\\common\\extend\\pay\\' . ucfirst($payment);
         if (!class_exists($cp)) {
             return json(['code' => 1005, 'msg' => lang('api/payment/payment_missing', [$payment])]);
         }
 
-        // API 模式：传入 return_only=true，让支付扩展返回 HTML 而非 echo+die
         $c = new $cp;
         $payment_res = $c->submit($auth['user'], $order_info, $param, true);
 
-        // 根据不同支付方式构建返回
         $payment_data = [];
 
         if ($payment === 'weixin' && is_array($payment_res) && !empty($payment_res['code_url'])) {
-            // 微信支付：返回二维码 URL
             $payment_data = [
                 'type'     => 'qrcode',
                 'code_url' => $payment_res['code_url'],
@@ -264,13 +217,11 @@ class Payment extends Base
         } elseif ($payment === 'weixin' && $payment_res === false) {
             return json(['code' => 1006, 'msg' => lang('api/payment/weixin_qr_fail')]);
         } elseif (is_string($payment_res) && !empty($payment_res)) {
-            // 支付宝返回 HTML 表单 / 其他支付返回 JS 跳转脚本
             $payment_data = [
                 'type' => 'html',
                 'html' => $payment_res,
             ];
         } elseif (is_array($payment_res)) {
-            // 其他返回数组的支付方式
             $payment_data = [
                 'type' => 'data',
                 'data' => $payment_res,
@@ -294,14 +245,6 @@ class Payment extends Base
         ]);
     }
 
-    /**
-     * 支付回调通知（第三方支付服务器调用）
-     * GET/POST /api.php/payment/notify?pay_type=alipay
-     *
-     * 说明：此接口由第三方支付平台异步调用，不需要用户登录。
-     * 可将回调地址配置为 /api.php/payment/notify/pay_type/{type}
-     * 或 /api.php/payment/notify?pay_type={type}
-     */
     public function notify()
     {
         $param = input();
@@ -315,7 +258,6 @@ class Payment extends Base
         $pay_config = config('maccms.pay');
         $cfg = (isset($pay_config[$pay_type]) && is_array($pay_config[$pay_type])) ? $pay_config[$pay_type] : [];
 
-        // 使用统一的通道完整性校验
         if (!self::isPayChannelReady($pay_type, $cfg)) {
             echo lang('index/payment_status');
             exit;
@@ -331,14 +273,6 @@ class Payment extends Base
         }
     }
 
-    /**
-     * 卡密充值
-     * POST /api.php/payment/use_card
-     *
-     * @param  card_no   string  必填，充值卡卡号
-     * @param  card_pwd  string  必填，充值卡密码
-     * @return JSON      {code:1, msg:'充值成功，增加积分【xxx】'}
-     */
     public function use_card(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -358,17 +292,6 @@ class Payment extends Base
         return json($res);
     }
 
-    /**
-     * 积分购买内容权限（观看/下载/阅读付费内容）
-     * POST /api.php/payment/buy_popedom
-     *
-     * @param  mid   int  必填，模型（1=视频, 2=文章）
-     * @param  id    int  必填，资源ID（vod_id 或 art_id）
-     * @param  type  int  必填，操作类型（1=文章阅读, 4=播放, 5=下载）
-     * @param  sid   int  可选，播放源编号
-     * @param  nid   int  可选，集编号
-     * @return JSON  {code:1, msg:'购买成功'}
-     */
     public function buy_popedom(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -390,9 +313,7 @@ class Payment extends Base
         $data['ulog_type'] = intval($param['type']);
         $data['user_id']   = $auth['user_id'];
 
-        // 查询资源信息以获取所需积分
         if ($param['type'] == '1') {
-            // 文章
             $where = ['art_id' => $data['ulog_rid']];
             $res = (new \app\common\model\Art())->infoData($where);
             if ($res['code'] > 1) {
@@ -405,7 +326,6 @@ class Payment extends Base
                 $data['ulog_nid'] = 0;
             }
         } else {
-            // 视频
             $where = ['vod_id' => $data['ulog_rid']];
             $res = (new \app\common\model\Vod())->infoData($where);
             if ($res['code'] > 1) {
@@ -420,8 +340,6 @@ class Payment extends Base
         }
         $data['ulog_points'] = intval($res['info'][$col]);
 
-        // 检查是否已购买：视频下载(mid=1,type=5)走 hasBought，兼容额度兑换记 ulog_points=0；
-        // 其余类型保持原精确匹配，避免播放进度记录(type=4,points=0)被误判为已购。
         $isDownload = (intval($param['mid']) == 1 && intval($param['type']) == 5);
         $owned = $isDownload
             ? (new \app\common\model\Ulog())->hasBought($data)
@@ -432,7 +350,6 @@ class Payment extends Base
 
         if (intval($param['mid']) == 1 && intval($param['type']) == 5 && $data['ulog_points'] > 0 && intval($auth['user']['user_down_quota'] ?? 0) > 0) {
             $quotaRes = (new \app\common\model\User())->consumeDownQuota($auth['user_id'], $data);
-            // 风控埋点（buy）：下载额度兑换成功同样属于「购买」行为，需与积分购买一致地记录。
             if (isset($quotaRes['code']) && intval($quotaRes['code']) === 1) {
                 \app\common\model\UserAccessLog::record('buy', [
                     'user_id'   => intval($auth['user_id']),
@@ -444,7 +361,6 @@ class Payment extends Base
             return json($quotaRes);
         }
 
-        // 检查积分是否足够（先做快速检查，事务内再做原子扣除）
         if ($data['ulog_points'] > $auth['user']['user_points']) {
             return json([
                 'code' => 1005,
@@ -456,10 +372,8 @@ class Payment extends Base
             ]);
         }
 
-        // 使用事务 + 条件更新防止并发刷积分
         Db::startTrans();
         try {
-            // 带条件的原子扣除：只有积分足够时才扣除
             $affected = Db::name('user')
                 ->where('user_id', $auth['user_id'])
                 ->where('user_points', '>=', $data['ulog_points'])
@@ -470,7 +384,6 @@ class Payment extends Base
                 return json(['code' => 1005, 'msg' => lang('api/payment/points_insufficient')]);
             }
 
-            // 积分日志：扣分凭证必须写入成功，否则出现「已扣分但无扣分日志」的账目黑洞，整单回滚。
             $plog = [];
             $plog['user_id']     = $auth['user_id'];
             $plog['plog_type']   = 8;
@@ -481,17 +394,11 @@ class Payment extends Base
                 return json(['code' => 1006, 'msg' => lang('api/payment/operation_retry')]);
             }
 
-            // 分销佣金：reward() 依赖 $GLOBALS['user'] 解析上级关系，这里用已验证用户回填，
-            // 确保 JWT（无 Cookie）购买也能正确分销；用完必须立即还原全局，避免污染后续读取
-            // $GLOBALS['user']['group'] 的消费者（Art/Manga/Type）——照搬 common/model/User.php:1148 既有范式。
-            // strict 模式下佣金链（mac_user / mac_plog，均 InnoDB）任一必要写入失败即返回错误码，
-            // 交由本方法 Db::rollback() 撤销。
             $prevUser = isset($GLOBALS['user']) ? $GLOBALS['user'] : null;
             $GLOBALS['user'] = $auth['user'];
             try {
                 $rewardRes = (new \app\common\model\User())->reward($data['ulog_points'], true);
             } finally {
-                // 正常返回与 reward() 抛异常两条路径都必须还原，避免污染后续全局用户读取。
                 $GLOBALS['user'] = $prevUser;
             }
             if (!is_array($rewardRes) || intval(isset($rewardRes['code']) ? $rewardRes['code'] : 0) !== 1) {
@@ -499,10 +406,6 @@ class Payment extends Base
                 return json(['code' => 1006, 'msg' => lang('api/payment/operation_retry')]);
             }
 
-            // 写入购买记录：用户扣了分必须拿到使用权。注意 mac_ulog 仍是 MyISAM，本行不受事务回滚
-            // 保护——故放在事务最后一步、紧接 Db::commit()，把「已扣分未记权 / 已记权未扣分」的
-            // 窗口压到最小；若本行写入返回失败码，回滚的是 InnoDB 侧的扣分/佣金。ulog 迁 InnoDB
-            // 以获得真正原子性，涉及存量站整表重建，另行拆独立 PR 处理。
             $save_res = (new \app\common\model\Ulog())->saveData($data);
             if (!is_array($save_res) || intval(isset($save_res['code']) ? $save_res['code'] : 0) !== 1) {
                 Db::rollback();
@@ -510,7 +413,6 @@ class Payment extends Base
             }
 
             Db::commit();
-            // 风控埋点（buy）：commit 成功后再记，避免回滚仍留下购买痕迹。
             \app\common\model\UserAccessLog::record('buy', [
                 'user_id'   => intval($auth['user_id']),
                 'user_name' => isset($auth['user']['user_name']) ? (string)$auth['user']['user_name'] : '',
@@ -524,19 +426,6 @@ class Payment extends Base
         }
     }
 
-    /**
-     * 会员升级（用积分升级用户组/VIP）
-     * POST /api.php/payment/upgrade
-     *
-     * @param  group_id  int     必填，目标用户组ID（>=3）
-     * @param  long      string  必填，时长周期（day|week|month|year）
-     * @return JSON      {code:1, msg:'升级成功'}
-     *
-     * 说明：
-     * - 积分 = 对应用户组的 group_points_{long} 字段值
-     * - 用户必须拥有足够积分
-     * - 升级后 user_end_time 自动延长
-     */
     public function upgrade(Request $request)
     {
         $auth = $this->_checkLogin();
@@ -553,19 +442,12 @@ class Payment extends Base
         return json($res);
     }
 
-    /**
-     * 获取可升级的用户组列表（含积分价格）
-     * GET /api.php/payment/get_groups
-     *
-     * @return JSON  {code:1, msg:'获取成功', info:[{group_id, group_name, group_points_day, ...}]}
-     */
     public function get_groups(Request $request)
     {
         $group_list = (new \app\common\model\Group())->getCache();
 
         $result = [];
         foreach ($group_list as $g) {
-            // 只返回自定义付费组（group_id >= 3）
             if ($g['group_id'] < 3) continue;
             if ($g['group_status'] == 0) continue;
 
@@ -587,14 +469,6 @@ class Payment extends Base
         ]);
     }
 
-    /**
-     * 获取用户充值卡使用记录
-     * GET /api.php/payment/get_cards?page=1&limit=20
-     *
-     * @param  page   int  可选，页码，默认1
-     * @param  limit  int  可选，每页条数，默认20，最大100
-     * @return JSON   {code:1, msg:'获取成功', info:{page, pagecount, limit, total, list:[...]}}
-     */
     public function get_cards(Request $request)
     {
         $auth = $this->_checkLogin();

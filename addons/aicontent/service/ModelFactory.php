@@ -10,14 +10,8 @@ use addons\aicontent\service\models\DeepSeekModel;
 use addons\aicontent\service\models\QwenModel;
 use addons\aicontent\service\models\GlmModel;
 
-/**
- * Factory that instantiates the correct AI model class based on provider name.
- */
 class ModelFactory
 {
-    /**
-     * Provider slug → class map.
-     */
     private static $providerMap = [
         'claude'   => ClaudeModel::class,
         'openai'   => OpenAiModel::class,
@@ -27,9 +21,6 @@ class ModelFactory
         'glm'      => GlmModel::class,
     ];
 
-    /**
-     * The API key config keys per provider.
-     */
     private static $keyMap = [
         'claude'   => 'claude_key',
         'openai'   => 'openai_key',
@@ -39,15 +30,6 @@ class ModelFactory
         'glm'      => 'glm_key',
     ];
 
-    /**
-     * Create a model instance using plugin config.
-     *
-     * @param  string|null $provider  Override provider (falls back to config default)
-     * @param  string|null $model     Override model name (falls back to config default)
-     * @return BaseModel
-     * @throws \InvalidArgumentException for unknown providers
-     * @throws \RuntimeException         if API key is not configured
-     */
     public static function create($provider = null, $model = null): BaseModel
     {
         $config   = addon_config('aicontent');
@@ -72,11 +54,6 @@ class ModelFactory
         return new $class($apiKey, $model, $maxTokens, $timeout);
     }
 
-    /**
-     * Return all registered provider slugs with display names.
-     *
-     * @return array<string, string>  ['claude' => 'Claude (Anthropic)', ...]
-     */
     public static function getProviders(): array
     {
         return [
@@ -89,17 +66,11 @@ class ModelFactory
         ];
     }
 
-    /**
-     * Return available models for a given provider (without needing an API key).
-     *
-     * @return array<string, string>
-     */
     public static function getModelsForProvider(string $provider): array
     {
         if (!isset(self::$providerMap[$provider])) {
             return [];
         }
-        // Instantiate with dummy values just to call getAvailableModels()
         $class    = self::$providerMap[$provider];
         $instance = new $class('dummy', 'dummy');
         return $instance->getAvailableModels();

@@ -19,8 +19,6 @@ class Vod extends Validate
         'edit'  =>  ['vod_name','type_id'],
     ];
 
-
-    // xss过滤、长度裁剪
     public static function formatDataBeforeDb($data)
     {
         $filter_fields = [
@@ -81,5 +79,4 @@ class Vod extends Validate
         }
         return $data;
     }
-
 }

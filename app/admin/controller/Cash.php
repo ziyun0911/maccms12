@@ -77,5 +77,4 @@ class Cash extends Base
         }
         return $this->error(lang('param_err'));
     }
-
 }

@@ -29,7 +29,6 @@ class Order extends Base
         $order='order_id desc';
         $res = (new \app\common\model\Order())->listData($where,$order,$param['page'],$param['limit']);
 
-
         $this->assign('list',$res['list']);
         $this->assign('total',$res['total']);
         $this->assign('page',$res['page']);
@@ -39,11 +38,9 @@ class Order extends Base
         $param['limit'] = '{limit}';
         $this->assign('param',$param);
 
-
         $this->assign('title',lang('admin/order/title'));
         return $this->fetch('admin@order/index');
     }
-
 
     public function del()
     {
@@ -65,7 +62,4 @@ class Order extends Base
         }
         return $this->error(lang('param_err'));
     }
-
-
-
 }

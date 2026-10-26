@@ -1,16 +1,8 @@
 <?php
 namespace app\common\util;
 
-/**
- * Manga (AniList GraphQL) and books (Google Books REST) links for AI chat related links.
- */
 class AiCatalogLinkFetcher
 {
-    /**
-     * @param string $keyword
-     * @param array  $aiCfg config('maccms.ai_search')
-     * @return array<int, array<string, string>>
-     */
     public static function fetchAll($keyword, array $aiCfg)
     {
         $keyword = trim((string)$keyword);
@@ -33,9 +25,6 @@ class AiCatalogLinkFetcher
         return self::dedupeByUrl($out);
     }
 
-    /**
-     * @return array<int, array<string, string>>
-     */
     private static function fetchAnilistManga($keyword, $limit, $timeout)
     {
         $query = 'query ($search: String, $perPage: Int) {
@@ -113,9 +102,6 @@ class AiCatalogLinkFetcher
         return '';
     }
 
-    /**
-     * @return array<int, array<string, string>>
-     */
     private static function fetchGoogleBooks($keyword, $apiKey, $limit, $timeout)
     {
         $q = http_build_query([

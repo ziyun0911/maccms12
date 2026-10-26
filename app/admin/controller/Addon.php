@@ -16,7 +16,6 @@ class Addon extends Base
     public function __construct()
     {
         parent::__construct();
-        // 铁律：后台新功能只维护 view
         $this->view->config(['view_path' => APP_PATH . 'admin/view/']);
     }
 
@@ -70,7 +69,6 @@ class Addon extends Base
 
             try {
                 addon_save_full_config($name, $config);
-                // 热更新钩子表写回 app/extra/addons.php
                 Service::refresh();
                 Cache::delete('hooks');
                 Cache::delete('addons');
@@ -103,7 +101,6 @@ class Addon extends Base
             $search = htmlspecialchars(strip_tags((string)$wd));
         }
 
-        // 旧 api.maccms.com：只读并存，仅用于丰富本地列表展示（价格/封面等），不提供未签名安装
         $onlineaddons = $this->fetchLegacyOnlineCatalog();
 
         $addons = addon_list();
@@ -118,7 +115,6 @@ class Addon extends Base
                 continue;
             }
             if (isset($onlineaddons[$v['name']]) && is_array($onlineaddons[$v['name']])) {
-                // 仅补空展示字段，不覆盖本地 title/state 等
                 $meta = $onlineaddons[$v['name']];
                 foreach (['title', 'intro', 'author', 'image', 'price'] as $mk) {
                     if (empty($v[$mk]) && !empty($meta[$mk])) {
@@ -150,23 +146,15 @@ class Addon extends Base
         return json(['total' => $total, 'rows' => $list, 'legacy_catalog' => !empty($onlineaddons) ? 1 : 0]);
     }
 
-    /**
-     * 旧远程安装入口保持关闭（只读并存）；装包请走 cloudInstall 或本地 zip
-     */
     public function install()
     {
         return $this->error(lang('admin/addon/cloud_use_catalog'));
     }
 
-    /**
-     * 拉取旧版在线目录（只读缓存；失败返回空数组，不影响本机列表）
-     * @return array name => row
-     */
     protected function fetchLegacyOnlineCatalog()
     {
         $cfg = isset($GLOBALS['config']['addon_cloud']) && is_array($GLOBALS['config']['addon_cloud'])
             ? $GLOBALS['config']['addon_cloud'] : [];
-        // 默认开启只读并存；显式 legacy_catalog=0 可关
         if (isset($cfg['legacy_catalog']) && (string)$cfg['legacy_catalog'] === '0') {
             return [];
         }
@@ -179,8 +167,6 @@ class Addon extends Base
         }
 
         $onlineaddons = [];
-        // 固定白名单主机；安全 GET（禁跟随跳转）
-        // 仅 HTTPS，避免 HTTP 回退被 MITM 污染只读元数据
         $raw = $this->fetchLegacyCatalogBody('https://api.maccms.com/addon/index');
         if (is_string($raw) && $raw !== '') {
             $json = json_decode($raw, true);
@@ -215,11 +201,6 @@ class Addon extends Base
         return $onlineaddons;
     }
 
-    /**
-     * 旧目录专用 GET：主机白名单 + 禁跳转 + 体积上限
-     * @param string $url
-     * @return string|false
-     */
     protected function fetchLegacyCatalogBody($url)
     {
         $parts = parse_url($url);
@@ -231,7 +212,6 @@ class Addon extends Base
         if (!in_array($scheme, ['http', 'https'], true)) {
             return false;
         }
-        // 仅允许官方旧目录主机（与产品决策「只读并存」对齐）
         if ($host !== 'api.maccms.com') {
             return false;
         }
@@ -276,10 +256,6 @@ class Addon extends Base
         return $body;
     }
 
-    /**
-     * @param string $ip
-     * @return bool
-     */
     protected function legacyIpIsPublic($ip)
     {
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
@@ -291,11 +267,6 @@ class Addon extends Base
         return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
     }
 
-    /**
-     * @param mixed $text
-     * @param int $max
-     * @return string
-     */
     protected function sanitizeLegacyText($text, $max = 200)
     {
         $s = trim(strip_tags((string)$text));
@@ -306,17 +277,12 @@ class Addon extends Base
         return substr($s, 0, $max);
     }
 
-    /**
-     * @param mixed $url
-     * @return string
-     */
     protected function sanitizeLegacyImageUrl($url)
     {
         $u = trim((string)$url);
         if ($u === '') {
             return '';
         }
-        // 仅 http(s) 或站点内单斜杠路径；拒绝协议相对 //evil
         if (preg_match('#^https?://#i', $u)) {
             if (strlen($u) > 500 || preg_match('#^(javascript|data|vbscript):#i', $u)) {
                 return '';
@@ -332,16 +298,12 @@ class Addon extends Base
         return '';
     }
 
-    /**
-     * 云目录列表（已验签 + approved；mock 模式可空目录骨架）
-     */
     public function cloudCatalog()
     {
         $cloud = new \app\common\util\AddonCloudService();
         if (!$cloud->isEnabled()) {
             return json(['total' => 0, 'rows' => [], 'enabled' => 0, 'error' => 'disabled', 'mock' => 0]);
         }
-        // GET 禁止 force，避免刷远程目录；刷新走 POST cloudRefresh
         $res = $cloud->fetchCatalog(false);
         $items = $cloud->enrichItems($res['items']);
         if (count($items) > 500) {
@@ -358,7 +320,6 @@ class Addon extends Base
                     || stripos((string)(isset($v['intro']) ? $v['intro'] : ''), $search) !== false;
             }));
         }
-        // 不下发 package_url/hash 到前端，安装仅认目录 id
         foreach ($items as $i => $row) {
             if (!is_array($row)) {
                 continue;
@@ -379,9 +340,6 @@ class Addon extends Base
         ]);
     }
 
-    /**
-     * 强制刷新签目录缓存
-     */
     public function cloudRefresh()
     {
         if (!$this->request->isPost()) {
@@ -418,9 +376,6 @@ class Addon extends Base
         ]);
     }
 
-    /**
-     * 从签目录安装 / 升级
-     */
     public function cloudInstall()
     {
         if (!$this->request->isPost()) {
@@ -446,9 +401,6 @@ class Addon extends Base
         return $this->success($res['msg'], null, array_merge(is_array($res['data']) ? $res['data'] : [], ['__token__' => $t]));
     }
 
-    /**
-     * 卸载（先备份，失败可回滚目录）
-     */
     public function uninstall()
     {
         if (!$this->request->isPost()) {
@@ -490,9 +442,6 @@ class Addon extends Base
         }
     }
 
-    /**
-     * 禁用启用
-     */
     public function state()
     {
         if (!$this->request->isPost()) {
@@ -533,9 +482,6 @@ class Addon extends Base
         }
     }
 
-    /**
-     * 本地上传安装（加固后重新开放）
-     */
     public function local()
     {
         if (!$this->request->isPost()) {
@@ -565,7 +511,6 @@ class Addon extends Base
             @mkdir($addonTmpDir, 0755, true);
         }
 
-        // TP8 的 move() 不再按 rule() 自动生成文件名，也不再返回 getSaveName()
         $saveName = uniqid() . '.zip';
         try {
             $moved = $file->move($addonTmpDir, $saveName);
@@ -612,7 +557,6 @@ class Addon extends Base
                 return $this->error($sig['msg'], null, ['__token__' => $t]);
             }
 
-            // 主类必须存在
             $mainClassFile = $stageDir . DS . ucfirst($name) . '.php';
             if (!is_file($mainClassFile)) {
                 AddonSecureInstaller::purgeDir($stageDir);
@@ -695,9 +639,6 @@ class Addon extends Base
         return $this->fetch('addon/add');
     }
 
-    /**
-     * 更新插件：仅允许走云签目录（id）
-     */
     public function upgrade()
     {
         if (!$this->request->isPost()) {
@@ -726,10 +667,6 @@ class Addon extends Base
         return $this->success($res['msg'], null, array_merge(is_array($res['data']) ? $res['data'] : [], ['__token__' => $t]));
     }
 
-    /**
-     * 从请求中取插件名并做白名单校验，非法返回空串
-     * @return string
-     */
     protected function addonNameFromInput()
     {
         $name = input('name/s', '');
@@ -740,12 +677,6 @@ class Addon extends Base
         return $name;
     }
 
-    /**
-     * 校验并合并插件配置项（类型 / required / 选项白名单）
-     * @param array $config get_addon_fullconfig 结果
-     * @param array $params POST row
-     * @return array
-     */
     protected function validateAddonConfigRows($config, $params)
     {
         $allowedTypes = [
@@ -772,7 +703,6 @@ class Addon extends Base
             $required = (strpos($rule, 'required') !== false);
             $hasParam = array_key_exists($field, $params);
 
-            // checkbox / selects 未选时可能不传字段
             if (!$hasParam) {
                 if ($required) {
                     return ['ok' => false, 'msg' => lang('admin/addon/config_required', [$label])];
@@ -797,7 +727,6 @@ class Addon extends Base
             }
 
             if (is_array($raw)) {
-                // checkbox / selects
                 $vals = [];
                 foreach ($raw as $one) {
                     $one = is_scalar($one) ? (string)$one : '';
@@ -838,7 +767,6 @@ class Addon extends Base
                     return ['ok' => false, 'msg' => lang('admin/addon/config_option_err', [$label])];
                 }
             }
-            // 简单长度上限，防异常超大 POST
             if (strlen($value) > 65535) {
                 return ['ok' => false, 'msg' => lang('admin/addon/config_invalid', [$label])];
             }

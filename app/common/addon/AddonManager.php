@@ -5,15 +5,10 @@ use ReflectionClass;
 use ReflectionMethod;
 use think\facade\Log;
 
-/**
- * 插件钩子分发：按插件公开方法名（驼峰转下划线）匹配钩子。
- */
 class AddonManager
 {
-    /** @var array|null name => Addon|null */
     protected static $enabled = null;
 
-    /** @var array hook => [[object, method], ...] */
     protected static $handlers = [];
 
     public static function enabled(): array
@@ -46,11 +41,6 @@ class AddonManager
         return lcfirst(str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $hook))));
     }
 
-    /**
-     * 分发钩子；参数以引用传给插件方法（兼容 view_filter 这类原地修改），
-     * 修改后的参数作为返回值交给调用方。
-     * @return mixed 处理后的参数
-     */
     public static function dispatch(string $hook, $params = null)
     {
         $method = self::toMethod($hook);

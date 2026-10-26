@@ -4,12 +4,6 @@ namespace addons\aicontent;
 
 use app\common\addon\Addon;
 
-/**
- * AI Content Assistant Plugin
- *
- * Integrates multiple AI providers (Claude, OpenAI, Gemini, DeepSeek, Qwen, GLM)
- * to generate and enrich MaCMS content: descriptions, tags, SEO titles.
- */
 class Aicontent extends Addon
 {
     public $info = [
@@ -21,10 +15,6 @@ class Aicontent extends Addon
         'state'   => 1,
     ];
 
-    /**
-     * Called on plugin installation.
-     * Creates the mac_ai_task database table and deploys static assets.
-     */
     public function install(): bool
     {
         $sqlFile = $this->addon_path . 'install.sql';
@@ -41,21 +31,12 @@ class Aicontent extends Addon
         return true;
     }
 
-    /**
-     * Called when the plugin is enabled.
-     * Ensures static assets are in place.
-     */
     public function enable(): bool
     {
         $this->deployAssets();
         return true;
     }
 
-    /**
-     * Return a per-session CSRF token for this plugin's POST endpoints.
-     * Generated once and stored in the ThinkPHP session so both the page render
-     * and subsequent API requests always see the same value.
-     */
     public static function generateCsrfToken(): string
     {
         $token = session('aicontent_csrf_token');
@@ -66,11 +47,6 @@ class Aicontent extends Addon
         return (string) $token;
     }
 
-    /**
-     * Copies assets/ → ROOT_PATH/static/addons/aicontent/
-     * so that JS, CSS, and images are web-accessible.
-     * Only copies files that are missing or older than the source.
-     */
     private function deployAssets()
     {
         $srcBase = $this->addon_path . 'assets' . DS;
@@ -83,10 +59,6 @@ class Aicontent extends Addon
         $this->copyDir($srcBase, $dstBase);
     }
 
-    /**
-     * Recursively copies $src directory into $dst.
-     * Only copies files that are missing or older than the source.
-     */
     private function copyDir(string $src, string $dst)
     {
         if (!is_dir($dst)) {
@@ -108,9 +80,6 @@ class Aicontent extends Addon
         }
     }
 
-    /**
-     * Recursively removes a directory and all its contents.
-     */
     private function removeDir(string $dir)
     {
         if (!is_dir($dir)) {
@@ -132,10 +101,6 @@ class Aicontent extends Addon
         rmdir($dir);
     }
 
-    /**
-     * Called on plugin uninstallation.
-     * Drops the mac_ai_task table and removes deployed static assets.
-     */
     public function uninstall(): bool
     {
         $prefix = (string) config('database.connections.mysql.prefix');
@@ -151,10 +116,6 @@ class Aicontent extends Addon
         return true;
     }
 
-    /**
-     * Return a JSON string of all JS-facing translations for the current locale.
-     * Inject into pages as: <script>window.AI_LANG = <?= Aicontent::jsLangJson() ?>;</script>
-     */
     public static function jsLangJson(): string
     {
         $map = [
@@ -186,29 +147,19 @@ class Aicontent extends Addon
         return json_encode($result, JSON_UNESCAPED_UNICODE);
     }
 
-    /**
-     * Hook: app_init
-     * Deploys static assets on first boot and loads the addon language pack.
-     */
     public function appInit()
     {
-        // Only deploy assets when the target directory is missing (first boot or
-        // manual deletion). install() and enable() handle the normal deploy path;
-        // running a full scandir+filemtime pass on every request is wasteful.
         $dstBase = ROOT_PATH . 'static' . DS . 'addons' . DS . 'aicontent' . DS;
         if (!is_dir($dstBase)) {
             $this->deployAssets();
         }
 
-        // Load plugin translations into ThinkPHP's lang pool so that lang('key')
-        // and {:lang('key')} in templates return the correct locale strings.
         $locale = \think\facade\Cookie::get('think_lang')
                ?: config('lang.default_lang')
                ?: 'en';
         $locale = strtolower((string)$locale);
         $langFile = root_path('addons') . 'aicontent' . DS . 'lang' . DS . $locale . '.php';
         if (!is_file($langFile)) {
-            // Normalize: zh-* → zh-cn, anything else → en
             $fallback = (strpos($locale, 'zh') === 0) ? 'zh-cn' : 'en';
             $langFile = root_path('addons') . 'aicontent' . DS . 'lang' . DS . $fallback . '.php';
         }
@@ -217,11 +168,6 @@ class Aicontent extends Addon
         }
     }
 
-    /**
-     * Hook: action_begin
-     * Sets a flag when we are on a content edit page.
-     * The actual injection is done in viewFilter() below.
-     */
     public function actionBegin(&$params)
     {
         $request    = request();
@@ -243,19 +189,8 @@ class Aicontent extends Addon
         }
     }
 
-    /**
-     * Hook: view_filter
-     * Appends the "AI Generate" button script to the HTML output
-     * of content edit pages.
-     * Per the MaCMS plugin docs, view_filter receives the rendered HTML
-     * by reference and this method modifies it directly.
-     */
     public function viewFilter(&$content)
     {
-        // ── CSRF token ────────────────────────────────────────────────────────
-        // Inject only on pages that actually interact with this plugin's API:
-        //   - Content edit pages (vod/art/topic info) — flagged by AICONTENT_INJECT
-        //   - Addon controller pages (config, generate, index, addon list)
         $req = request();
         $isAddonPage = stripos(str_replace('\\', '/', (string) $req->controller()), 'addon/dispatcher') !== false;
         $needsToken = defined('AICONTENT_INJECT')
@@ -271,10 +206,6 @@ class Aicontent extends Addon
             );
         }
 
-        // ── Addon list page ───────────────────────────────────────────────────
-        // Fix logo image URL: info.ini uses /static/addons/... which is root-relative,
-        // but MaCMS may be installed in a subdirectory. Prepend ROOT_PATH in JS.
-        // Also compact the addon-card action buttons so English labels don't wrap.
         $req = request();
         if (strtolower($req->controller()) === 'addon'
             && strtolower($req->action()) === 'index') {
@@ -332,10 +263,6 @@ JS;
             return;
         }
 
-        // ── Config page detection ─────────────────────────────────────────────
-        // Primary: check for id="ai-provider-select" injected via config.php extend.
-        // Fallback: detect by URL (controller=addon, action=config, name=aicontent)
-        // in case MaCMS does not forward the extend attribute to the rendered <select>.
         $isOurConfigPage = strpos($content, 'id="ai-provider-select"') !== false;
         if (!$isOurConfigPage) {
             $req = request();
@@ -350,19 +277,15 @@ JS;
             return;
         }
 
-        // ── Content edit pages ────────────────────────────────────────────────
         if (!defined('AICONTENT_INJECT')) {
             return;
         }
 
-        // Guard: skip if the addon is disabled (state=0).
-        // maccms disable() may leave hooks registered while setting state=0.
         $addonInfo = addon_info('aicontent');
         if (empty($addonInfo) || (int)($addonInfo['state'] ?? 0) !== 1) {
             return;
         }
 
-        // Guard: skip if no API key is configured for the active provider.
         $cfg      = addon_config('aicontent');
         $provider = $cfg['default_provider'] ?? 'claude';
         if (empty($cfg[$provider . '_key'])) {
@@ -374,11 +297,7 @@ JS;
         $isArticle   = ($controller === 'art');
         $contentType = $isArticle ? 'article' : 'video';
         $titleField  = $isArticle ? 'art_name' : 'vod_name';
-        // The enhance URL must go through index.php (ROOT_PATH), NOT manage.php (ADMIN_PATH).
-        // manage.php triggers Begin.php behavior which redirects any non-admin module → 302.
-        // index.php (ENTRANCE='index') skips that check; the addon route resolves correctly.
 
-        // Fields to skip (non-content technical fields)
         $skipPatterns = ['pic', 'img', 'thumb', 'screenshot', 'poster', 'url',
                          'play', 'down', 'from', 'server', 'color', 'letter',
                          'en_', '_en', 'sub', 'rel_', 'class', 'note', 'remarks'];
@@ -387,7 +306,6 @@ JS;
              . 'style="margin-top:4px;display:inline-block" '
              . 'data-target="%s">&#10024; AI</button>';
 
-        // Inject button after every eligible textarea
         $content = preg_replace_callback(
             '/<textarea([^>]*)>(.*?)<\/textarea>/s',
             function ($m) use ($skipPatterns, $btn) {
@@ -406,7 +324,6 @@ JS;
             $content
         );
 
-        // Inject button after every eligible text input
         $content = preg_replace_callback(
             '/<input([^>]+type="text"[^>]*)>/i',
             function ($m) use ($skipPatterns, $btn) {
@@ -425,7 +342,6 @@ JS;
             $content
         );
 
-        // Use ROOT_PATH and ADMIN_PATH JS globals (set by maccms admin head template)
         $jsLang = self::jsLangJson();
         $script = <<<JS
 <script>
@@ -447,11 +363,6 @@ JS;
         $content = str_replace('</body>', $script . '</body>', $content);
     }
 
-    /**
-     * Inject provider→model auto-fill and API key show/hide JS into the
-     * maccms generic addon config page.
-     * Called by viewFilter() when the current page is admin/addon/config?name=aicontent.
-     */
     private function injectConfigPageJs(&$content)
     {
         $jsLang = self::jsLangJson();

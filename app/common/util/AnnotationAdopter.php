@@ -3,19 +3,10 @@ namespace app\common\util;
 
 use think\facade\Db;
 
-/**
- * AI 标注的采纳/拒绝 —— 这是整个 PR 里唯一会写主表（mac_vod / mac_art）的地方。
- *
- * 默认走人工确认：LLM 会幻觉，直接覆盖人工编辑过的内容是不可逆的。
- * auto_adopt_empty 只对「当前为空」的字段生效，永不覆盖已有值。
- *
- * vod_blurb / art_blurb 是 varchar(255)，而 ai_summary 是 varchar(1000)，
- * 回写必须截断 —— 否则 MySQL 非严格模式下会静默截断，严格模式下直接报错。
- */
 class AnnotationAdopter
 {
     const BLURB_MAX = 255;
-    const TAG_MAX = 100;   // mac_vod.vod_tag / mac_art.art_tag 都是 varchar(100)
+    const TAG_MAX = 100;
 
     private static function tableOf($mid)
     {
@@ -81,7 +72,6 @@ class AnnotationAdopter
         if (in_array('type_id', $fields, true)) {
             $aiType = intval($ann['ai_type_id']);
             $cur = intval($row[$map['type']]);
-            // type_id 的「空」是 0；已经归好类的内容不做自动改分类
             if ($aiType > 0 && (!$emptyOnly || $cur === 0)) {
                 $update[$map['type']] = $aiType;
             }
@@ -89,8 +79,6 @@ class AnnotationAdopter
 
         try {
             Db::startTrans();
-            // 原子认领：仅当仍为「待采纳」(status=0) 时才置为已采纳，
-            // 用影响行数判断避免并发下同一标注被重复采纳（TOCTOU）。
             $claimed = Db::name('ContentAiAnnotation')
                 ->where('id', intval($ann['id']))
                 ->where('status', 0)
@@ -121,8 +109,6 @@ class AnnotationAdopter
         if (intval($ann['status']) !== 0) {
             return ['code' => 0, 'msg' => 'annotation not actionable: already processed (status=' . intval($ann['status']) . ')'];
         }
-        // 原子认领：仅当仍为「待采纳」(status=0) 时才置为已拒绝，与 adopt 对称，
-        // 避免并发下 reject 覆盖另一路已写入的「已采纳」(status=1)（内容已落主表却显示已拒绝）。
         $rejected = Db::name('ContentAiAnnotation')
             ->where('id', intval($ann['id']))
             ->where('status', 0)

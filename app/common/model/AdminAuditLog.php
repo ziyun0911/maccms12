@@ -11,16 +11,12 @@ class AdminAuditLog extends Base
     protected $createTime = '';
     protected $updateTime = '';
 
-    /**
-     * @param array<string,mixed> $row
-     */
     public static function insertRow(array $row)
     {
         $row['audit_time'] = isset($row['audit_time']) ? (int)$row['audit_time'] : time();
         try {
             Db::name('AdminAuditLog')->strict(false)->insert($row);
         } catch (\Throwable $e) {
-            // 表未创建或 DB 异常时不影响主请求，但审计日志缺失必须留痕。
             Log::error('AdminAuditLog::insertRow failed admin=' . ($row['admin_id'] ?? '')
                 . ' route=' . ($row['audit_route'] ?? '') . ' err=' . $e->getMessage());
         }

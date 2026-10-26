@@ -20,5 +20,4 @@ class Msg extends Validate
         'add'  =>  ['msg_to','msg_code','msg_type'],
         'edit'  =>  ['msg_to','msg_code','msg_type'],
     ];
-
 }

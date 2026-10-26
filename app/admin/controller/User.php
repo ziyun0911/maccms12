@@ -141,7 +141,6 @@ class User extends Base
         return $this->fetch('admin@user/reward');
     }
 
-
     public function invite()
     {
         $param = input();
@@ -175,7 +174,6 @@ class User extends Base
             }
         }
         
-        // Collection 元素按值取出后无法回写（间接修改无效），先转数组再补充展示字段
         $list_arr = $res['list'] instanceof \think\Collection ? $res['list']->toArray() : (array)$res['list'];
         foreach($list_arr as $k=>&$v){
             $group_ids = explode(',', $v['group_id']);
@@ -210,7 +208,6 @@ class User extends Base
         $this->assign('title', lang('admin/user/invite_title'));
         return $this->fetch('admin@user/invite');
     }
-
 
     public function info()
     {
@@ -315,6 +312,4 @@ class User extends Base
         
         return $this->success('共为 ' . $count . ' 个会员生成了邀请码');
     }
-
-
 }
