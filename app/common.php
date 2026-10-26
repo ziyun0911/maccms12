@@ -4846,6 +4846,22 @@ function mac_ui_lang_dir()
 }
 
 /**
+ * 静态资源版本号：按文件最后修改时间生成，改完样式即时生效，不必手动调 MAC_VERSION。
+ * 模板用法：<link rel="stylesheet" href="__STATIC__/css/admin.bundle.css?{:mac_asset_ver('css/admin.bundle.css')}">
+ * 文件不存在时退回系统版本号，避免模板报错。
+ */
+function mac_asset_ver($path)
+{
+    $file = ROOT_PATH . 'static/' . ltrim((string) $path, '/');
+    $time = is_file($file) ? (int) filemtime($file) : 0;
+    if ($time > 0) {
+        return (string) $time;
+    }
+    $ver = config('version');
+    return isset($ver['code']) ? (string) $ver['code'] : 'v10';
+}
+
+/**
  * 前台模板资源版本号。mac_asset_ver() 的根路径写死 static/，够不到
  * template/default/asset/，前台 bundle 用这个。相对 asset/，取不到文件时退回系统版本号。
  * 模板用法：<link href="{$maccms.path_tpl}asset/css/front-tail.bundle.css?{:mac_tpl_asset_ver('css/front-tail.bundle.css')}">
