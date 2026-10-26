@@ -220,7 +220,7 @@ class Comment extends Base {
 
     public function saveData($data)
     {
-        $validate = validate('app\\common\\validate\\Comment');
+        $validate = validate('app\\common\\validate\\Comment', [], false, false);
         if(!$validate->check($data)){
             return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];
         }

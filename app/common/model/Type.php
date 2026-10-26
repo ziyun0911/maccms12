@@ -260,7 +260,7 @@ class Type extends Base {
 
     public function saveData($data)
     {
-        $validate = validate('app\\common\\validate\\Type');
+        $validate = validate('app\\common\\validate\\Type', [], false, false);
         if(!$validate->check($data)){
             return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];
         }

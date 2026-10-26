@@ -66,7 +66,7 @@ class Group extends Base {
             $data['group_popedom'] ='';
         }
 
-        $validate = validate('app\\common\\validate\\Group');
+        $validate = validate('app\\common\\validate\\Group', [], false, false);
         if(!$validate->check($data)){
             return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];
         }

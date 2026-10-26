@@ -111,7 +111,7 @@ class User extends Base
 
     public function saveData($data)
     {
-        $validate = validate('app\\common\\validate\\User');
+        $validate = validate('app\\common\\validate\\User', [], false, false);
 
         if (isset($data['user_start_time']) && !is_numeric($data['user_start_time'])) {
             $data['user_start_time'] = strtotime($data['user_start_time']);

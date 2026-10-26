@@ -503,7 +503,7 @@ class Ulog extends Base {
         }
         $data['ulog_time'] = time();
 
-        $validate = validate('app\\common\\validate\\Ulog');
+        $validate = validate('app\\common\\validate\\Ulog', [], false, false);
         if(!$validate->check($data)){
             return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];
         }

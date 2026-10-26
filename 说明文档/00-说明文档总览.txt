@@ -578,7 +578,7 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
     - 网站参数页原值重提仍「保存成功!」，app/extra/maccms.php 与保存前逐字节相同
       （md5 172e15fb…），说明构造函数里新加的这道闸没有拦到正常后台请求。
     - php -l 全过；php think front:bundle --check 五张全 ok。
-    新发现两处既有缺陷（本轮只记录，没动）：
+    新发现三处既有缺陷（本轮只记录，没动；已由说明 21 全部修掉）：
     - Vod / Art / Manga 的 importData 写成 $this->base_import('vod'); 少了 return，工具方法
       返回的 Response 被丢掉，所以后台批量导入无论成功失败都只回一个空 body 的 200；
       本轮没碰这三个文件，改动前就是这样。
@@ -586,8 +586,67 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
       而 ->select() 交来的是 think\Collection，PHP 8 直接类型错误。
     - 同一类「validate() 默认抛异常」的死分支还有一大片：app/common/model/ 下 26 处
       （26 个模型各一处）加 app/admin/controller/Template.php:182 一处仍用默认值，本轮只
-      修了走「管理员保存」这条链路上的 app/common/model/Admin.php。
+      修了走「管理员保存」这条链路上的 app/common/model/Admin.php。（盘点口径纠正：实际是
+      25 个模型文件共 26 处，Vod.php 占两处，连同 Template.php 一处合计 27 处。）
     这几条与令牌无关，属于各自功能本身坏着，要不要一起修请另行决定。
+
+21. 【2026-10-26 修掉说明 20 记录的三处既有缺陷：批量导入不再丢响应、导出不再必 500、模型层 validate 死分支全部激活】
+    ① 六个后台 action 少 return（app/admin/controller/Vod.php:527,534、Art.php:264,271、
+      Manga.php:273,280）。exportData / importData 写成 $this->base_export(...) 和
+      $this->base_import(...)，把工具方法返回的 Response 丢掉：导入侧无论成败都是一个空
+      body 的 200，真表单提交后浏览器落在一片白页上；导出侧因为 base_export 的成功路径以
+      exit 收尾才没露馅，但它唯一的提前返回（本机 PHP 没有 ZipArchive 时的「服务器未启用
+      ZipArchive，无法导出/解析 xlsx」）同样被吞。六处统一加 return。
+    ② */exportData 直连必 500 的类型错配：Base::base_export 把 ->select() 的
+      think\Collection 原样交给 BulkTableIo::exportCsvDownload()/exportXlsxDownload()，
+      而这两个方法第 3 参声明的是 array，PHP 8 进方法体之前就 TypeError。
+      选择在调用侧收口：->select()->toArray()。依据是 Db::name() 没绑模型，
+      BaseQuery::select() 走的是 vendor/topthink/think-orm/src/db/BaseQuery.php:1435 那个
+      「empty($this->model) 就不生成模型对象」的分支，Collection 里每条本来就是普通数组；
+      think-helper 的 Collection::toArray()
+      （vendor/topthink/think-helper/src/Collection.php:69）只对 Arrayable 递归、数组
+      原样返回，所以摊平不改变任何内容，也就不必把 BulkTableIo 的 array 签名放宽成
+      iterables——签名保持诚实，两个导出方法一处修好。
+    ③ 剩余 27 处「validate() 默认抛异常」死分支全部改成显式非抛异常
+      （validate('app\\common\\validate\\X', [], false, false)）：app/common/model/ 下
+      25 个文件共 26 处（Actor/Annex/Art/Card/Cash/Collect/Comment/Gbook/Group/Link/
+      MallGoods/Manga/Msg/Notify/Order/Plog/Role/Topic/Type/Ulog/User/Visit/Vod×2/
+      VodAuditRule/Website）加 app/admin/controller/Template.php:182 一处。
+      逐点确认过每一处后面都紧跟拒绝分支（if(!$validate->check($data)) return
+      ['code'=>1001/1002,...]；Collect 与 User 是新增/编辑两个分支各自 check、各自拒绝），
+      所以翻过来只是把写好的错误返回接上电，不新增判断。
+      两条安全性核对：全 app 目录没有任何 catch(ValidateException)，也没有一处
+      Db::transaction/startTrans，不存在「靠异常回滚」的调用；另有 17 处内部
+      fire-and-forget 的 (new Plog|Annex|Dynamics())->saveData(...)（User.php 占七处）
+      丢弃返回值，它们以前一旦校验失败会把整个请求带崩成 500，现在退回 code 让主流程继续。
+    实测（:8080 带登录态）：
+    - 导出：Vod(max=2)、Art(max=2)、Manga(max=2) 三张 CSV 全部 200 +
+      text/csv + Content-Disposition: vod_export_20261026_16*.csv，去掉表头后行数正好等于
+      max，不再有 500 调试页；xlsx 那张在这台机器上回 200
+      {"code":0,"msg":"服务器未启用 ZipArchive，无法导出/解析 xlsx"}，正是 ① 里以前被吞掉的
+      那个提前返回（本机 PHP 无 zip 扩展，也说明 xlsx 路径的导出/导入在本机测不了）。
+    - 导入（AJAX，带 X-Requested-With，稳定令牌走 X-CSRF-Token 头）：不传文件 →
+      「未找到上传的文件(原因：表单名可能错误，默认表单名“file”或“imgdata”)！」；
+      垃圾表头 CSV（foo,bar + 两行数据）→ 「成功 0 条 失败 2 条 — 第 2 行 参数错误；
+      第 3 行 参数错误」；坏令牌 → 「请不要重复提交表单」。三条都从空 body 200 变成有内容
+      的 JSON，且都在 filterRowKeys 之后因 vod_name/type_id 缺失走 $fail 分支，一行没进
+      saveData，数据零改动。
+    - 真表单非 AJAX 路径（视频批量页 CDP 挂上 18 字节的 junk CSV 点「上传并导入」）→
+      「跳转提示」页显示同一条「成功 0 条 失败 2 条 …」；这条链路用的是页面 {:token()}
+      一次性令牌，第二次重发回「请不要重复提交表单」，符合说明 18/19 的口径。
+    - 模型层抽样：Type/info、Actor/info、Website/info 名称留空 POST → 200
+      {"code":0,"msg":"参数错误：名称必须"}（改动前这三处都是 ValidateException → 500 调试页）；
+      Template/info 的 fname 留空（fpath 给 ./template，卡在校验器上、碰不到 fwrite）→ 200
+      {"code":0,"msg":"名称必须"}。
+    - 正向没被带坏：分类 101（动作片）编辑页整表 88 字段原值重提 →
+      {"code":1,"msg":"保存成功!"}，改的还是它自己。
+    - php -l 30 个改动文件全过、CR 仍为 0；php think front:bundle --check 五张全 ok。
+    一次复现不了的 500，如实记一笔：真表单点完之后紧接着的那一次 fetch 拿到过一帧
+    「系统发生错误」调试页；同样形状（新鲜令牌 + 同一份 junk CSV）之后再跑 8 次（含 6 次
+    稳定令牌连续打）全是 200 的「跳转提示」。取证通道是空的：php -S 的访问与错误只进
+    stderr，而 runtime/log 停在 24.log——说明 20 那轮 Base/_cache_clear 的探测把
+    runtime/log/ 删过，此后今天这几条 500 都没落盘，拿不到异常原文。没有证据指向本轮
+    三处改动，倾向是跳转页自动重定向窗口里的上传竞态，留此记录备查。
 
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）

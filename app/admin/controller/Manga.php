@@ -274,12 +274,12 @@ class Manga extends Base
     {
         $param = input();
         $where = $this->mangaBatchFilterWhere($param);
-        $this->base_export($param,'manga',$where);
+        return $this->base_export($param,'manga',$where);
     }
 
     public function importData()
     {
-        $this->base_import('manga');
+        return $this->base_import('manga');
     }
 
     public function info()

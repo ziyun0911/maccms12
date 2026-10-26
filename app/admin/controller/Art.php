@@ -265,12 +265,12 @@ class Art extends Base
     {
         $param = input();
         $where = $this->artBatchFilterWhere($param);
-        $this->base_export($param,'art',$where);
+        return $this->base_export($param,'art',$where);
     }
 
     public function importData()
     {
-        $this->base_import('art');
+        return $this->base_import('art');
     }
 
     public function info()

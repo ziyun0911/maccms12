@@ -179,7 +179,7 @@ class Template extends Base
                 return $this->error($validate->getError());
             }
 
-            $validate = validate('app\\common\\validate\\Template');
+            $validate = validate('app\\common\\validate\\Template', [], false, false);
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }

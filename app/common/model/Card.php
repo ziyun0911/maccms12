@@ -59,7 +59,7 @@ class Card extends Base {
 
     public function saveData($data)
     {
-        $validate = validate('app\\common\\validate\\Card');
+        $validate = validate('app\\common\\validate\\Card', [], false, false);
         if(!$validate->check($data)){
             return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];
         }

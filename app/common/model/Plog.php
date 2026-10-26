@@ -69,7 +69,7 @@ class Plog extends Base {
     {
         $data['plog_time'] = time();
 
-        $validate = validate('app\\common\\validate\\Plog');
+        $validate = validate('app\\common\\validate\\Plog', [], false, false);
         if(!$validate->check($data)){
             return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];
         }

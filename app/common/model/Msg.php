@@ -65,7 +65,7 @@ class Msg extends Base {
 
     public function saveData($data)
     {
-        $validate = validate('app\\common\\validate\\Msg');
+        $validate = validate('app\\common\\validate\\Msg', [], false, false);
         if(!$validate->check($data)){
             return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];
         }

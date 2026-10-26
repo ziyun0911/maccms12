@@ -528,12 +528,12 @@ class Vod extends Base
     {
         $param = input();
         $where = $this->vodBatchFilterWhere($param);
-        $this->base_export($param,'vod',$where);
+        return $this->base_export($param,'vod',$where);
     }
 
     public function importData()
     {
-        $this->base_import('vod');
+        return $this->base_import('vod');
     }
 
     public function info()

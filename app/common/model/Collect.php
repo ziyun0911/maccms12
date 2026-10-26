@@ -47,7 +47,7 @@ class Collect extends Base {
 
     public function saveData($data)
     {
-        $validate = validate('app\\common\\validate\\Collect');
+        $validate = validate('app\\common\\validate\\Collect', [], false, false);
         if(!empty($data['collect_id'])){
             if(!$validate->scene('edit')->check($data)){
                 return ['code'=>1001,'msg'=>lang('param_err').'：'.$validate->getError() ];

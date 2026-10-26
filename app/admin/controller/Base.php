@@ -225,7 +225,9 @@ class Base extends All
             return $this->error(lang('admin/batch/io_need_zip'));
         }
         $fields = Db::name(ucfirst($table))->getTableFields();
-        $list = Db::name(ucfirst($table))->where($where)->order("{$table}_id desc")->limit($max)->select();
+        // Db::name() 没绑模型，select() 里每条本来就是普通数组；这里只把 think\Collection
+        // 摊成 array 交给 BulkTableIo::export*Download()，它的第 3 参声明的是 array。
+        $list = Db::name(ucfirst($table))->where($where)->order("{$table}_id desc")->limit($max)->select()->toArray();
         $base = $table.'_export_' . date('Ymd_His');
         if ($format === 'xlsx') {
             BulkTableIo::exportXlsxDownload($base, $fields, $list);
