@@ -7,7 +7,7 @@ MacCMS (苹果 CMS / MacCMS10) runs on **PHP + MySQL**. The codebase has two mai
 1. **`index` module**：前台访客站点（点播、文章、专题、漫画、留言、搜索等）。
 2. **`admin` module**：管理员后台（内容、栏目、采集、用户、模板、系统参数等）。
 
-Main runtime configuration is stored in **`application/extra/maccms.php`** (site URL, app switches, upload, cache, AI keys, etc.). Saving options in the admin UI usually **rewrites this file**; keep a backup before experiments.
+Main runtime configuration is stored in **`app/extra/maccms.php`** (site URL, app switches, upload, cache, AI keys, etc.). Saving options in the admin UI usually **rewrites this file**; keep a backup before experiments.
 
 ## Content types (mid 参考)
 
@@ -35,7 +35,7 @@ MacCMS（苹果 CMS）基于 **PHP + MySQL**。
 
 - **前台**：`index` 模块，`template/模板目录/` 下模板。  
 - **后台**：`admin` 模块。  
-- **主配置**：`application/extra/maccms.php`（保存后台设置时常被覆盖，请先备份）。顶层键含义摘要见 **`22-maccms-php-config.md`**。
+- **主配置**：`app/extra/maccms.php`（保存后台设置时常被覆盖，请先备份）。顶层键含义摘要见 **`22-maccms-php-config.md`**。
 
 **常见上线顺序**：网站参数 → 建好分类 → 添加或采集内容 → 检查模板与 URL/伪静态 → 缓存与性能相关开关。
 

@@ -55,7 +55,7 @@ $full = get_addon_fullconfig('demo'); // 完整 schema 数组
 |------|----------|------|
 | 仅改配置 `value`（开关、密钥、文案等） | **是** | 保存写回 `config.php`；下次 `get_addon_config` 即新值 |
 | 启用/禁用插件 | **是** | `Service::enable/disable` + refresh |
-| 在主类**新增/删除**公开钩子方法 | **需重新启用或再保存配置触发 refresh** | `Service::refresh()` 扫描主类方法重写 `application/extra/addons.php` 的 `hooks` |
+| 在主类**新增/删除**公开钩子方法 | **需重新启用或再保存配置触发 refresh** | `Service::refresh()` 扫描主类方法重写 `app/extra/addons.php` 的 `hooks` |
 | 改 `install.sql` / 静态资源 | **否** | 属安装/启用副作用，不是配置页职责 |
 
 要点：配置页会 **始终** refresh，因此多数情况下保存配置即可刷新钩子表；但若插件处于禁用态，钩子仍不会被调度，需先启用。

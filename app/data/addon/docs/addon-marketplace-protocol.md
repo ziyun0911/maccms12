@@ -35,13 +35,13 @@
 ```
 
 **签名载荷**：`json_encode(['items' => $items], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)`  
-（与 [`application/data/template_market_cloud/build_catalog.php`](../../template_market_cloud/build_catalog.php) / 模板市场一致）
+（与 [`app/data/template_market_cloud/build_catalog.php`](../../template_market_cloud/build_catalog.php) / 模板市场一致）
 
 客户端：`openssl_verify($payload, base64_decode(signature), pubkey, OPENSSL_ALGO_SHA256) === 1`
 
 公钥：
 
-1. 文件 `application/data/addon_market_cloud/catalog_public.pem`（若可读）
+1. 文件 `app/data/addon_market_cloud/catalog_public.pem`（若可读）
 2. 否则 `AddonCloudService::CATALOG_PUBLIC_KEY_PEM`
 
 ---
@@ -94,12 +94,12 @@
 
 本机产物：
 
-- `application/extra/addon_market_installed.php`
-- `application/extra/addon_market_audit.php`
+- `app/extra/addon_market_installed.php`
+- `app/extra/addon_market_audit.php`
 
 ---
 
 ## 6. 签发侧工具
 
-见 [`application/data/addon_market_cloud/`](../../addon_market_cloud/README.md)：`generate_keys.php`、`build_package.php`、`build_catalog.php`。  
+见 [`app/data/addon_market_cloud/`](../../addon_market_cloud/README.md)：`generate_keys.php`、`build_package.php`、`build_catalog.php`。  
 **私钥不得入库。**

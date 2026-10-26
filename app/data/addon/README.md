@@ -9,4 +9,4 @@
 | 目录签发工具 | [`../addon_market_cloud/README.md`](../addon_market_cloud/README.md) |
 | 市场 backlog（云端运营仍长期） | [`backlog/addon-marketplace.md`](backlog/addon-marketplace.md) |
 
-站长运维向简述仍见：`application/data/admin_assistant/09-plugins-comments-user.md`。
+站长运维向简述仍见：`app/data/admin_assistant/09-plugins-comments-user.md`。

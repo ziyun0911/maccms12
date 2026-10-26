@@ -40,7 +40,7 @@
 
 1. 进入 **网站参数 → 后台助手设置**（已与「AI 搜索配置」分拆为独立菜单）。  
 2. **启用后台助手**；可勾选 **复用「AI 搜索配置」中的 API Key / Base**，或在本页单独填写。  
-3. 知识库文件路径：**`application/data/admin_assistant/*.md`**，可按站点业务增删改。  
+3. 知识库文件路径：**`app/data/admin_assistant/*.md`**，可按站点业务增删改。  
 4. **附带环境快照**（可选）：仅包含搜索开关、语言、缓存类型、站点名、模板目录等非敏感项，便于解释当前环境。  
 
 助手 **不会** 自动修改数据库或配置；仅作说明与步骤引导。
@@ -49,4 +49,4 @@
 
 ## English summary
 
-Frontend search: **System → site parameters** + URL rules. Optional **vod_search** cache for video LIKE. **Meilisearch** needs sync jobs if enabled. **AI Search** page configures LLM + modules + external sources. **Admin assistant** lives under **System → Admin assistant configuration** and uses markdown under `application/data/admin_assistant/`.
+Frontend search: **System → site parameters** + URL rules. Optional **vod_search** cache for video LIKE. **Meilisearch** needs sync jobs if enabled. **AI Search** page configures LLM + modules + external sources. **Admin assistant** lives under **System → Admin assistant configuration** and uses markdown under `app/data/admin_assistant/`.

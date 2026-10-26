@@ -25,8 +25,8 @@
 
 ## 相关文件
 
-- `application/common/util/AddonCloudService.php`
+- `app/common/util/AddonCloudService.php`
 - `app/admin/controller/Addon.php`
 - `app/admin/view/addon/index.html`
-- `application/data/addon/docs/addon-marketplace-protocol.md`
-- `application/data/addon_market_cloud/`
+- `app/data/addon/docs/addon-marketplace-protocol.md`
+- `app/data/addon_market_cloud/`

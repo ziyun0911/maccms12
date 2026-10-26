@@ -13,7 +13,7 @@
 - **站点状态 site_status**：关闭站点时显示维护提示。  
 - **App 区块**（多与 `maccms.app` 对应）：缓存类型与参数、页面缓存、压缩、**搜索** 开关与时间间隔、热门搜索词、**扩展分类/地区/语言/年代** 可选列表、后台分页条数、编辑器类型、**后台语言** lang、登录验证码等。  
 - 本页现为 **11 个页签**：基本设置 / 地址发布页 / 性能优化 / 预留参数 / 后台设置 / SEO参数配置 / **AI SEO 设置 / AI 视频封面设置** / **附件参数配置 / URL地址配置 / 播放器参数配置**。后五个各自带独立 `<form>` 提交，旧地址 `system/configaiseo`、`configaicover`、`configupload`、`configurl`、`configplay` 会 302 到对应页签。
-- 保存后写入 **`application/extra/maccms.php`**；失败则检查目录写权限。
+- 保存后写入 **`app/extra/maccms.php`**；失败则检查目录写权限。
 
 ---
 

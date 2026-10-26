@@ -1,4 +1,4 @@
-# `application/extra/maccms.php` 结构说明（无敏感值）
+# `app/extra/maccms.php` 结构说明（无敏感值）
 
 主配置文件为 **`app/extra/maccms.php`**（`return array(...)`）。后台 **网站参数** 各页保存时会 **整体回写**该文件（具体以保存逻辑为准）。
 

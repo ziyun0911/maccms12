@@ -8,11 +8,11 @@ Answer in **clear numbered steps**. Do not assume server panel brand; mention **
 
 1. 打开 `runtime/log/` 下当天日志（或宿主 PHP error_log）。  
 2. 检查 **PHP 版本** 是否满足程序要求，`openssl`/`curl`/`mysqli`/`gd` 等扩展是否开启。  
-3. 若为 **syntax error**：最近是否改了 `application/extra/*.php` 或模板 PHP 混入。  
+3. 若为 **syntax error**：最近是否改了 `app/extra/*.php` 或模板 PHP 混入。  
 
 ## 安装/保存配置失败「无写入权限」
 
-1. **`application/extra`**、**`runtime`**、`template`/`upload` 等目录需对 **Web 用户**可写（Linux: `chown`/`chmod`；勿 777 到公网风险目录）。  
+1. **`app/extra`**、**`runtime`**、`template`/`upload` 等目录需对 **Web 用户**可写（Linux: `chown`/`chmod`；勿 777 到公网风险目录）。  
 
 ## 采集无数据 / 全部失败
 

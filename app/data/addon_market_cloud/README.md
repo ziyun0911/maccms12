@@ -16,15 +16,15 @@
 
 ```bash
 # 1. 生成密钥（首次）
-php application/data/addon_market_cloud/generate_keys.php
+php app/data/addon_market_cloud/generate_keys.php
 
 # 2. 打包插件
-php application/data/addon_market_cloud/build_package.php --name=adminloginbg
+php app/data/addon_market_cloud/build_package.php --name=adminloginbg
 
 # 3. 编辑 catalog.source.json（从 example 复制），填 package_file / base_url
 
 # 4. 签目录
-php application/data/addon_market_cloud/build_catalog.php
+php app/data/addon_market_cloud/build_catalog.php
 
 # 5. 将 dist/catalog.json 与 packages/*.zip 发布到 CDN；catalog_url 指向签后 JSON
 ```

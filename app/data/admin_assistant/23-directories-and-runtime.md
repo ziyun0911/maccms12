@@ -2,10 +2,10 @@
 
 | 路径 | 说明 |
 |------|------|
-| **application/** | 业务代码：`admin` `index` `api` `common` `extra` `data` … |
-| **application/extra/maccms.php** | 主配置（见 `22-maccms-php-config.md`）。 |
-| **application/data/admin_assistant/*.md** | 后台助手知识库。 |
-| **application/data/backup/database/** | 默认数据库备份目录（以 `maccms.db.backup_path` 为准）。 |
+| **app/** | 业务代码：`admin` `index` `api` `common` `extra` `data` … |
+| **app/extra/maccms.php** | 主配置（见 `22-maccms-php-config.md`）。 |
+| **app/data/admin_assistant/*.md** | 后台助手知识库。 |
+| **app/data/backup/database/** | 默认数据库备份目录（以 `maccms.db.backup_path` 为准）。 |
 | **runtime/** | 缓存、日志、临时文件；应 **可写**，但勿对公网直接访问。 |
 | **public/** 或 **站点 Web 根** | **入口**：`index.php`、`admin.php`（或以主机配置为准）；`static`、`upload`（若对外开放）。 |
 | **template/{模板目录}/** | 前台模版（配合 `site.template_dir`）。 |

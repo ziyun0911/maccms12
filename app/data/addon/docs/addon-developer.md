@@ -96,7 +96,7 @@ url = /addons/adminloginbg.html
 
 ### 3.1 注册规则
 
-启用插件并执行 `Service::refresh()` 后，会扫描主类**公开方法**，去掉基类方法及 `install` / `uninstall` / `enable` / `disable`，其余方法名经 `Loader::parseName(..., 0, false)` 转为**下划线钩子名**，写入 `application/extra/addons.php` 的 `hooks`：
+启用插件并执行 `Service::refresh()` 后，会扫描主类**公开方法**，去掉基类方法及 `install` / `uninstall` / `enable` / `disable`，其余方法名经 `Loader::parseName(..., 0, false)` 转为**下划线钩子名**，写入 `app/extra/addons.php` 的 `hooks`：
 
 | 主类方法 | 钩子名 |
 |----------|--------|
@@ -104,7 +104,7 @@ url = /addons/adminloginbg.html
 | `adminLoginInit` | `admin_login_init` |
 | `socialBroadcast` | `social_broadcast` |
 
-当前仓库 `application/extra/addons.php` 中 `autoload = false`，因此以 **refresh 写出的 hooks 表**为准，而不是每次请求现场扫描。
+当前仓库 `app/extra/addons.php` 中 `autoload = false`，因此以 **refresh 写出的 hooks 表**为准，而不是每次请求现场扫描。
 
 ### 3.2 触发
 
@@ -190,7 +190,9 @@ public function uninstall()
 
 ### 4.4 覆盖核心目录
 
-插件目录下若存在 `application/`、`public/` 等「全局目录」（见 `Service::getCheckDirs()`），安装时会**复制进站点根**。务必做冲突检测（`noconflict`），避免覆盖核心文件。无必要不要向核心树写文件。
+后台上传安装走 `AddonSecureInstaller::extractZipSafe()`：zip 内任一条目命中 `AddonSecureInstaller::$blockedPrefixes`（`app/` `config/` `route/` `static/` `thinkphp/` `extend/` `vendor/` `template/` `public/` `runtime/` `addons/`，另含 maccms10 旧名 `application/`）就**整包拒收**，不存在「复制进站点根」这条路。
+解包只发生在临时 staging 目录，校验通过后整包再落到 `addons/{name}/`（`app/admin/controller/Addon.php` 里 `rename($stageDir, root_path('addons') . $name . DS)`）。
+maccms10 时代的 `Service::getCheckDirs()` 与 `noconflict` 标记在 TP8 版已经不存在，全仓搜不到这个方法名，别照旧插件文档依赖它。
 
 ---
 
@@ -231,7 +233,7 @@ public function uninstall()
 
 - 服务端按白名单类型校验；`select`/`radio`/`checkbox`/`selects` 的值必须落在 `content` 键内。
 - `rule` 含 `required` 时，前端 `lay-verify` + 后端必填。
-- 保存成功后：`set_addon_fullconfig` → **`Service::refresh()`**（重写 `application/extra/addons.php`）→ 清理 `hooks`/`addons` 缓存。
+- 保存成功后：`set_addon_fullconfig` → **`Service::refresh()`**（重写 `app/extra/addons.php`）→ 清理 `hooks`/`addons` 缓存。
 - 配置值变更即时生效；主类新增/删除钩子方法后依赖 refresh（保存配置或重新启用）。
 
 详细表与空配置说明见 [`addon-config-ui.md`](addon-config-ui.md)。
@@ -293,7 +295,7 @@ class Index extends Controller
 1. 建目录与主类、`info.ini`，`state=0`。
 2. 有配置则写 `config.php`；有表则写 `__PREFIX__` 版 `install.sql`。
 3. 实现钩子方法或 controller；需要插槽时先确认主库已有 `Hook::listen`。
-4. 将插件放到 `addons/{name}/`，后台启用 → 触发 `refresh`，检查 `application/extra/addons.php` 的 `hooks`。
+4. 将插件放到 `addons/{name}/`，后台启用 → 触发 `refresh`，检查 `app/extra/addons.php` 的 `hooks`。
 5. 验证安装 / 启停 / 卸载 / 配置保存；**自定义前缀**库跑一遍 SQL。
 6. 静态资源是否落在 `static/addons/{name}/`。
 7. PHP 7.0 语法自检；不要在 `template/` 下新增文件；后台 UI 改动只碰 `view/`（插件自有 view 除外）。
@@ -317,11 +319,11 @@ class Index extends Controller
 | 用途 | 路径 |
 |------|------|
 | 插件目录 | `addons/` |
-| 钩子缓存配置 | `application/extra/addons.php` |
+| 钩子缓存配置 | `app/extra/addons.php` |
 | 后台插件管理 | `app/admin/controller/Addon.php` |
-| 安全安装工具 | `application/common/util/AddonSecureInstaller.php` |
+| 安全安装工具 | `app/common/util/AddonSecureInstaller.php` |
 | 配置页模板（只维护新版） | `app/admin/view/addon/` |
 | 基类 / Service | `vendor/karsonzhang/fastadmin-addons/src/` |
-| 本地包签名说明 | `application/data/addon/docs/local-package-signing.md` |
-| 运维说明（站长向） | `application/data/admin_assistant/09-plugins-comments-user.md` |
-| 市场 backlog | `application/data/addon/backlog/addon-marketplace.md` |
+| 本地包签名说明 | `app/data/addon/docs/local-package-signing.md` |
+| 运维说明（站长向） | `app/data/admin_assistant/09-plugins-comments-user.md` |
+| 市场 backlog | `app/data/addon/backlog/addon-marketplace.md` |

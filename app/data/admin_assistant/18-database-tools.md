@@ -2,7 +2,7 @@
 
 ## 数据库管理 (`数据库 → 数据库管理` / `menu/database`)
 
-- **备份**：生成 `.sql` 或分包（备份目录见 `maccms.db.backup_path`，默认 `./application/data/backup/database/`）。  
+- **备份**：生成 `.sql` 或分包（备份目录见 `maccms.db.backup_path`，默认 `./app/data/backup/database/`）。  
 - **恢复**：覆盖当前数据——**只对测试库或停机维护窗口**执行。  
 - **优化/修复表**：InnoDB 碎片或异常关机后可尝试（仍先备份）。
 

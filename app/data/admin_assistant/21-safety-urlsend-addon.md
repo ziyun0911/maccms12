@@ -17,7 +17,7 @@
 
 ## 文件安全检测 (`安全 → 文件安全检测` / `menu/safety_file`)
 
-- 扫描 `template/`、`runtime/`、`application/` 等处 **新增/可疑 PHP**，对比常见 **WebShell** 特征。  
+- 扫描 `template/`、`runtime/`、`app/` 等处 **新增/可疑 PHP**，对比常见 **WebShell** 特征。  
 - **误报**可能：自行上传的合法脚本。结论需 **人工打开文件**确认。  
 - 发现木马：**隔离服务器 → 修改所有密码 → 全量更新程序 → 复盘入口**。
 
@@ -38,7 +38,7 @@
 ## 应用市场 (`应用 → 应用市场` / `menu/addon`)
 
 - **本机**：上传本地 zip、启停、配置、卸载（加固见 `AddonSecureInstaller`）。旧 `api.maccms.com` **只读**丰富列表元数据（不装包）。  
-- **云市场**：`addon_cloud.status=1` 时 RS256 签目录一键安装；`mock=1` 可读本地骨架目录。协议：`application/data/addon/docs/addon-marketplace-protocol.md`。  
+- **云市场**：`addon_cloud.status=1` 时 RS256 签目录一键安装；`mock=1` 可读本地骨架目录。协议：`app/data/addon/docs/addon-marketplace-protocol.md`。  
 - **生产环境**：先在 **副本站**测插件；备份后安装。  
 - 卸载按 **作者说明**执行，避免残留钩子导致 **白屏**。
 

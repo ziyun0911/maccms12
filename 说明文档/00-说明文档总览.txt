@@ -699,6 +699,192 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
     以后凡是改动 Update.php（包括只改注释），都必须同时重算这枚哈希；除 Base.php 这一处
     读取外，全仓没有任何代码会写它，官方包升级才会覆盖。
 
+23. 【2026-10-26 安装种子数据清掉「伦理 / 午夜」两条色情分类线；文档里的
+    application/ 旧目录名收尾改成 app/】
+    ① app/install/sql/initdata.sql 删掉 mac_type 里 type_id=6(伦理,lunli) 与
+      type_id=7(午夜,wuye) 两条顶级分类，连同它们的全部子分类 type_pid=6 的
+      601~603、type_pid=7 的 701~728，共 33 行；同步删掉 mac_content_lang 里
+      这 33 个分类的译文行——714 本来就没有译文行，所以实删 32×5=160 行。
+      文件从 493 行 / 188085 字节变成 299 行 / 112986 字节。复核口径：把改动前
+      的 blob 取出来逐行对比，删除 193 行、新增 0 行、修改 0 行，其余字节逐字节
+      相同；文件本来是 CRLF，按原样写回，没有顺带改行尾。行数一律按「以换行结尾
+      的行」数（substr_count "\n"），别拿 explode 出来的段数当行数——段数会把结尾
+      换行后面那个空段也算一行，多出一行。
+    ② 这轮没有只靠「看着像没改坏」下结论，而是照着 app/install/controller/
+      Index.php:421~451 那条真路径跑了一遍：本机 MySQL 5.7.38 上建一个
+      maccms12_sqltest 临时库，用同一个 mac_parse_sql()（含 mac_→表前缀替换）
+      拆语句再逐条执行。install.sql 170 条全过、initdata.sql 52 条全过，临时库
+      用完即删。落库后的断言：mac_type 50 行、type_pid 指向不存在父级的 0 行、
+      按名称/英文名正则再筛色情分类 0 行、content_lang 孤儿 content_id 0 行、
+      (content_type,content_id,lang_code) 重复键 0 组、顶级分类重名 0 组。
+      站点侧回归：php think front:bundle --check 五张全 ok；:8080 首页
+      /index.php/vod/type.html?id=1 均 200、/admin.php 302 到登录页。
+    ③ 测出来的三条既有缺陷，随后一轮全部修掉（动的仍然只是安装种子文件和一份
+      开发文档，运行库依旧没动）：
+      - mac_content_lang 缺 type 10（公告）与 type 210（短剧）两类共 10 行译文，
+        其余 48 类都齐，这两类在五个非默认界面语言下永远只显示中文。已在
+        initdata.sql 的两处 ru-ru 锚点后各插 5 行（zh-tw/en-us/ja-jp/ko-kr/ru-ru，
+        status=1、source=manual，与其余分类同写法）；210 的五个词直接取
+        app/common.php:4084 起那张 static $map 译义词表，10 按同一口径给
+        公告 / Announcements / お知らせ / 공지 / Объявления。
+      - mac_type 里 209「AI漫剧」与 210「短剧」的 type_en 都是 duanju，且同属
+        父级 pid=2；app/common/model/Type.php:412~426 的 getCacheInfo() 拿非数字 id
+        是按 type_en 全局线性扫、第一条命中就返回，所以 duanju 永远解析到 209，
+        210 短剧按别名进分类页不可达。已改 209=aimanju、210 保留 duanju（短剧是
+        更常用的那个词）。同类拼写一并修：109 动画片 donghuagpian→donghuapian、
+        207 泰国剧 taiguopian→taiguoju。这三处是分类别名的实际变更，历史伪静态
+        链接/外部收藏里写过 duanju 的会改指 210；全仓 *.php *.html *.js 检索过
+        duanju 与四个新旧拼写，代码和模板都没有硬编码，风险只在站外旧链。
+      - app/data/addon/docs/addon-developer.md 的 4.4 节让人「见 Service::getCheckDirs()」，
+        但 app/common/addon/Service.php 只有 check/install/uninstall/enable/disable/
+        importsql/refresh/removeDir，全仓再没有 getCheckDirs 与 noconflict 这两个
+        名字，文档指向了不存在的 API。已按当前真路径改写那段：装插件走
+        AddonSecureInstaller::extractZipSafe()，包内任一条目规范化后命中
+        $blockedPrefixes（app/ config/ route/ static/ thinkphp/ extend/ vendor/
+        template/ public/ runtime/ addons/，外加 maccms10 命名的 application/）
+        就是整包拒收，不存在「复制进站点根」；解压只在临时目录做，成品靠
+        app/admin/controller/Addon.php:567~586 的 rename() 落到 addons/{name}/。
+    ③b 修完再跑一遍 ② 的同款复核（建 maccms12_sqltest 临时库→逐条执行→断言→
+      删库），这次全绿：install.sql 170/170、initdata.sql 52/52；mac_type 50 行、
+      type_pid 指不存在父级 0 行、每个分类译文恰好 5 条、type_en 同父级重复 0 组
+      且全局重复也 0 组、语言集不完整 0 类；aimanju/donghuapian/duanju/taiguoju
+      四个别名分别解析到 209/109/210/207。initdata.sql 因此从 299 行变 309 行 /
+      113811 字节，对 HEAD 的净效果是删 194、改 3、增 10，CRLF 仍原样（\r 与 \n
+      各 309）。站点侧回归同 ②：php think front:bundle --check 五张全 ok、
+      :8080 首页与 /index.php/vod/type.html?id=1 均 200、/admin.php 302 到登录页。
+    ④ 【④ 与 ④b 记的是 2026-10-26 19:20 之前的运行库状态；19:32 已按指令把
+      mac_type 清空并按种子重放，最新状态看 ④c】
+      本轮改的是安装种子文件，运行库不受影响：本机 maccms12 库里仍是 83 个分类
+      （6/7 及其 31 个子分类都在）、content_lang 里那 10 行也还在；首页静态产物
+      index.html:1177 与 wap_index.html:1177 的 js-home-rank-types-json 里还带着
+      type_id=6 伦理。挂在这 33 个分类上的内容实测有量：mac_vod 275 行
+      （type_id=6 共 159、type_id_1=6 共 58、601/602/603 各 4/42/12），
+      mac_art 与 mac_manga 都是 0 行。所以清运行库必须是单独一次动作，删分类前
+      要先决定这 217 条 type_id=6 的视频改挂到哪里，本轮没有动数据。
+      另外 app/install/sql/initdata - 副本.sql 是本轮改动之前的逐字节副本（未跟踪），
+      色情分类还在那份里；留着还是删掉请定。
+      三条缺陷在运行库 maccms12 里的现状各自不同，别当成一起修好了：①类（缺
+      10/210 译文）是种子文件独有的，库里这两类本来就各有 5 行；②类库里 109 仍是
+      donghuagpian、207 仍是 taiguopian，而 209 已经在本轮之后被并发改动方改成了
+      aimanju（本轮 19:07 查库时 209/210 都还是 duanju，19:20 复查 209 已是
+      aimanju——这条 UPDATE 不是本会话做的）；③类只是文档，与库无关。
+      更要紧的是改了库不等于改了站点：核心缓存 51acca2730_type_list（键拼法见
+      app/common/model/Type.php:403，写入方 Type::setCache() 在同文件 366 行，flag
+      取 app/extra/maccms.php:98 的 app.cache_flag）里仍是 83 个分类、209 仍写着
+      duanju，所以
+      /index.php/vod/type/id/duanju.html 的标题目前还是「好看的AI漫剧…」。要等
+      Type::setCache() 重建（后台保存一次分类或清缓存）之后，duanju 才会换指 210。
+    ④b 2026-10-26 19:20 按「种子文件入库 → 与运行库逐字段比对」的口径核过一次
+      （临时库 maccms12_seedcheck/2，装完即删）：mac_type 两边列集合一致（20 列），
+      种子 50 行全部被运行库覆盖（仅种子 0 行），运行库多出 33 行，正好是 6 伦理线
+      4 个 + 7 午夜线 29 个（id 6,7,601~603,701~728）；两边共有的 50 行里除
+      type_en 那两处（109/207）以外其余 19 列逐字节相同，说明运行库这些分类没有
+      被后台改过名称、排序、模板页之类。mac_content_lang 的 type 译文种子 250 行、
+      运行库 415 行，多出的 165 行 = 33×5（连老种子里本来没有译文的 714 萝莉少女
+      在库里也有 5 行，可见那 5 行是后台补齐或机翻生成的）。共有 250 行的 data 列
+      只有 902 那一组 5 行逐字节相同，其余 245 行差异里 237 行是纯写法差异：种子
+      写的是紧凑 JSON {"type_name":"…"}，库里存的是 PHP json_encode 的
+      {"type_name": "…"}（冒号后多一个空格），json_decode 后完全等价——做一致性
+      比对必须按解码后比，直接比字符串会误报 245 行。真正的内容差异只有 8 行：
+      101 动作片 5 行是库里多了空的 type_title/type_key/type_des/type_extend 骨架
+      （显示无影响），另外 3 行是措辞不同——10|ko-kr 种子 공지 / 库里 공지사항，
+      209|ru-ru 种子 AI-дорамы по манге / 库里 AI-комикс-драма，210|ru-ru 种子
+      Короткие драмы（取 app/common.php:4087 词表）/ 库里 Короткометражные драмы。
+      耦合量复查同 ④：这 33 个分类上 mac_vod 挂 217 行（type_id）+ 58 行
+      （type_id_1），mac_art 0 行，库里分类总数仍是 83。
+    ④c 2026-10-26 19:32 按要求把运行库的 mac_type 清空、改成完全按
+      app/install/sql/initdata.sql 代入。动手前先备份（都在 docroot 外的
+      D:/wwwroot/maccms/_db_backup/）：pre_type_reseed_20261026_193230_mac_type.sql
+      83 行、pre_type_reseed_20261026_193230_content_lang_type.sql 415 行，两份都是
+      --no-create-info --skip-extended-insert 的数据-only dump，恢复时必须先把目标表
+      清空再 source（dump 里没有 CREATE/DROP TABLE）。执行没有用字面
+      TRUNCATE，而是在一个事务里 DELETE + 重放种子语句，为了失败能整体回滚
+      （mac_type 是 InnoDB，且全库没有任何外键引用它，所以两种写法的最终结果
+      一致）；种子里的 50 条 INSERT 是无列名的 VALUES 形式，重放前按 install.sql
+      的建表列序补成了显式列名，核对过运行库 mac_type 也是同样的 20 列同序
+      （type_id…type_jumpurl），不存在丢列或错位。结果：83 行变 50 行，再建一个
+      临时库把 install.sql+initdata.sql 装进去逐行逐列比对，全 20 列差异 0；
+      type_id IN (6,7) OR type_pid IN (6,7) 命中 0 行；别名归属 109=donghuapian、
+      207=taiguoju、209=aimanju、210=duanju。
+      随后删掉核心缓存 51acca2730_type_list 与 51acca2730_type_tree 两枚（键拼法见
+      app/common/model/Type.php:403，flag 取 app/extra/maccms.php:98；本来还有按界面
+      语言的 8 枚，但本机 mac_content_lang_allow_list() 只返回默认语言，所以没有）——
+      不删这枚缓存的话 ④ 里说的「改了库不等于改了站点」就会一直成立。删完实测：
+      /index.php/vod/type/id/duanju.html 标题变成「好看的短剧…」（此前是 AI漫剧）、
+      aimanju.html 是「好看的AI漫剧…」、donghuapian.html 正常、lunli/wuye 两个别名
+      解析不到分类（标题只剩站名）、/index.php/vod/type.html?id=6 直接 404、
+      动态首页不再出现伦理/午夜字样。
+      这次动作留下的悬空引用（都是数据，不是故障）：mac_vod 有 217 行 type_id、
+      58 行 type_id_1 指向已删分类，抽查 351/895/1313 三条的详情页仍 200，只是分类
+      名取不到；mac_content_lang 里那 33 个分类的 165 行译文成了孤儿；docroot 的
+      静态产物 index.html 与 wap_index.html 各还有 1 处被删分类（Make.php 生成的，
+      要重生成才会干净）。另外 app/install/sql/initdata - 副本.sql 里色情分类依旧。
+      顺带发现并已修掉一个种子层面的真缺陷：initdata.sql:58 给 mac_content_lang 写
+      数据的那条 INSERT 原来写成不带反引号的 INSERT INTO mac_content_lang (…) VALUES，
+      而 mac_parse_sql() 换前缀靠 app/common.php:1082 那句
+      str_replace('`mac_', '`'.$to)，只认带反引号的写法，所以只要安装时表前缀不是
+      mac_，mac_type 会跟着改名、这张译文表不会，那条语句直接 1146
+      Table 'x.mac_content_lang' doesn't exist，建好的前缀译文表一行数据都进不去。
+      修法是给表名补上反引号（列名不带前缀，不用动）。改前改后各跑一遍同前缀模拟
+      安装（临时库建库→按 ['mac_'=>前缀] 拆语句→逐条执行→查行数）：改前 cms_ 前缀
+      222 条里失败 1 条、cms_content_lang 0 行；改后 cms_、mac_、mysite2026_ 三种
+      前缀都是 222/222 通过，type 50 行、content_lang 250 行。全仓 *.sql 里这种裸写
+      mac_ 表名的语句只有这一条（app/install/sql/initdata - 副本.sql:92 是它的旧副本，
+      那份未跟踪、没动）。initdata.sql 因此 113811→113813 字节，行数 309、CRLF 都不变；
+      至此对 HEAD 的净效果是删 194、改 4、增 10。
+    ④d 2026-10-26 20:00~20:10 又不满足只验代码路径，把整条安装流程在 docroot 的独立
+      副本里真跑了一遍：robocopy 出 D:/wwwroot/maccms/_tmp/install_probe（排除 .git、
+      runtime、upload、node_modules），用 php -S 127.0.0.1:8099 起服务，走
+      install.php → step2 环境检测 → step3 数据库表单 → step4（写 config/database.php
+      并建库）→ step5（跑 install.sql、initdata.sql），临时库 maccms12_installtest、
+      前缀 zz1_ —— 前缀故意不用 mac_，正是 ④c 那处缺陷的触发场景。
+      拦在前面的两件事都记下来，下次少走弯路：本机 php.ini 不加载 zip，探针服务改成
+      带 -d extension=…/ext/php_zip.dll 起（没动机器上的 php.ini）；upload/ 被
+      .gitignore 排除、robocopy 没带过来，要手工建。这两项让 step2 里出现 class="no"，
+      session('install_error') 一置真，step3 直接变「环境检测未通过」的跳转页，POST
+      step4/step5 也一律被同一个开关挡回，所以必须先把 step2 刷成 17 项全 ok、0 项 no。
+      反证先跑：只把探针副本 initdata.sql 第 58 行的反引号去掉，step5 就报
+      「导入初始化数据SQL失败，请检查initdata.sql的语句是否正确 … 1146
+      Table 'maccms12_installtest.mac_content_lang' doesn't exist」，和 ④c 的推断逐字
+      对上。补回反引号（副本文件与真实树 md5 相同，9a9672142a7819753ea4a8d3eb0870f4）
+      后同一流程走完，step5 回「系统安装成功」。入库断言：临时库 80 张表、其中 mac_
+      前缀 0 张；zz1_type 50 行、zz1_content_lang 250 行（50 类 × en-us/ja-jp/ko-kr/
+      ru-ru/zh-tw）、译文孤儿 0、type_en 重复 0、zz1_admin 1 行；新补的 10 条里
+      10 号取到 公告/Announcements/お知らせ/공지/Объявления，210 号取到
+      短劇/Short Drama/ショートドラマ/숏드라마/Короткие драмы。
+      装出来的站点也真能用：首页 200（短剧字样 21 处），vodtype/210、209、10、109、207
+      五个分类页全 200 且标题里的分类名都对；按 type_en 解析时 duanju→210、
+      aimanju→209、donghuapian→109、taiguoju→207 各归各页（页面 data-type-id 实测），
+      改掉旧拼写 donghuagpian 与已删色情分类 lunli 都 404；?lang=zh-tw 与 ?lang=en-us
+      的多语覆盖各命中 27 处。install.lock 一并验了：装完再碰 install.php 只回
+      「如需重新安装请删除【To re install, please remove】 >>> /app/data/install/install.lock」。
+      顺手撞出一处安装器既有毛病（不是本次改动引入、也没改代码）：step4 的 mkDatabase
+      是「file_put_contents 写完立刻 include 读回比对 database」，探针第一次那轮连着两次
+      报「[config/database.php]数据库配置写入失败，请重试!」，而磁盘上的文件每次都写对
+      了（2217 字节、database 就是新库名）——读回的那份数组是旧的。把探针服务用
+      -d opcache.enable_cli=0 重启、并把副本的 config/database.php 恢复成出厂内容后，
+      同一个 POST 连做 3 次全成功；根因没再往下追，但同类写法在 app/extra/timming.php
+      的写入处是有 opcache_invalidate() 兜底的，mkDatabase 没有，遇到开着 opcache 的
+      环境就会让用户白重试一次。
+      收尾：探针服务停掉、maccms12_installtest 删掉、install_probe 与探针用临时文件全删；
+      真实树 git status 仍是 22 行未动，运行库 maccms12 仍 84 表 / mac_type 50 行 /
+      mac_content_lang 里 type 译文 415 行。
+    ⑤ application/ → app/：还剩 46 处旧目录名，全在 app/data/**.md（后台助手知识库
+      与插件开发文档，16 个文件），已改为 app/extra、app/data、app/common、app/admin、
+      app/tags 以及裸写 application/ 指目录的 4 处。改后复核：新出现的 app/ 路径里
+      只有 4 个在磁盘上不存在，都是运行时才生成的产物（catalog_public.pem、
+      addon_market_installed.php、addon_market_audit.php、local_public.pem）和
+      app/admin/controller/Index::login 这种方法引用，不是笔误。
+      刻意不改的三类，别再当成漏网：一是 application/json、application/octet-stream、
+      application/vnd.openxmlformats-… 这类 MIME/HTTP 头，全仓 300+ 处，改了就是故障；
+      二是 app/common/util/AddonSecureInstaller.php:7 黑名单里的 application/，它和
+      app/ 并列是有意的（本说明 4 第 127 行记着：maccms10 命名的插件包也要拦）；
+      三是 README.md 与本文里描述「application/ → app/ 这次迁移本身」的句子
+      （README.md:57/64/76/88、本文 64/66/71/87/120/127/315、多语言支持说明.txt:5），
+      那些旧名是被记录的对象，替换掉等于篡改历史。extend/、vendor/、
+      static/ueditor 的 webuploader、template/default/asset/js/vod-down.js 里的
+      application/* 都是第三方 MIME 表，不在范围内。
+
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）
 --------------------------------------------------------------------------------
