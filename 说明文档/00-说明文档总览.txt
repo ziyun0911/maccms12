@@ -485,8 +485,50 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
       字母、数字、下划线和连字符（最多 64 字）」，app/extra/maccms.php 的 md5 与提交前一致
       （零写入）；填回 '404' 点保存 → {"code":1,"msg":"保存成功!"}，保存后的 maccms.php 与
       提交前逐字节相同（diff 0 行）。
-    - 顺带一个坑：该页 __token__ 是一次性的，同一个页面连点两次保存，第二次会得到
-      「请求失败」，与本轮校验无关，重新加载页面即恢复。
+    - 顺带一个坑（口径由说明 19 更正并修掉）：该页 __token__ 是一次性的，被拒之后直接重提
+      会拿已消费的旧令牌再发一次，服务端不是 JSON 而是 500 框架调试页，前端只表现为
+      「请求失败」，当时以为只能重新加载页面。两次都成功的保存会 reload 并换发令牌，
+      本来就不会失败——失败的只有「被拒 → 重提」这条路径。
+
+19. 【2026-10-26 修掉后台「被拒后重提必失败」：稳定令牌 + 让令牌校验别再抛异常】
+    真因两条，都不在 page_404 校验本身：
+    - 框架的 Request::checkToken 验证通过即销毁 Session 里的 __token__，所以一次 POST 吃掉
+      一枚令牌；被拒的那次不吃新令牌，用户改完直接重提就是把旧值再发一遍。
+    - helper.php 的 validate() 助手第 4 参 failException 默认为 true（vendor/topthink/
+      framework/src/helper.php:518），所以 !$validate->check($data) 这个分支根本走不到——
+      check() 先抛 ValidateException，落到框架调试页：HTTP 500 / text-html /
+      <h1>请不要重复提交表单</h1>（lang/zh-cn.php:429 的 token_err），jQuery 的 error 回调
+      只显示「请求失败」。全站 45 处 validate('app\common\validate\Token') 都有这个死分支。
+    三处改动：
+    ① app/common/validate/Token.php 覆写 token()：先比 mac_admin_csrf_token() 写进
+      Session['admin_csrf'] 的会话级稳定令牌（body 的 __token__ 或 X-CSRF-Token 头，
+      hash_equals），命中就直接放过且不消耗；认不出才 parent::token() 走框架一次性令牌。
+      这是站内已有口径（System::configuseraccess、UserAccessLog::checkAdminCsrf 都这么做，
+      后台每个 POST 都自带该头：static/js/admin_common.js 的 $.ajaxSetup + 模板
+      app/admin/view/public/head.html:6 的 meta[name=mac-admin-csrf]）。改在 validator 里，
+      45 处调用点一次性全部受益。
+    ② System.php 该页的七个动作（config / configurl / configupload / configplay /
+      configseo / configaiseo / configaicover）把调用改成
+      validate('app\\common\\validate\\Token', [], false, false)，让已有的「返回 JSON +
+      ajaxErrorWithFreshToken 换发令牌」分支真正生效；config() 里 page_404 与
+      「提交数据不完整」几条拒绝也统一换成 ajaxErrorWithFreshToken。
+    ③ static/js/admin_common.js 的 submit(formSubmit) 成功回调：res.data.__token__ 有值就
+      回填进本次提交表单的隐藏 __token__（没有则 append 一个），沿用 #pageListForm 已有写法，
+      被拒后不用刷新页面就能重提。admin_common.js 不在任何合包清单里，不用重建 bundle；
+      但它的版本查询串是 {$MAC_VERSION}（app/admin/view/public/foot.html:1，系统版本号而不是
+      filemtime），改完在浏览器里要硬刷才拿得到新代码——后台 CSS 才走 mac_asset_ver()。
+    实测（:8080 网站参数配置页）：
+    - 填 ../../evil 点保存 → 吐司「404 页面模板名只能使用…」，且表单里的 __token__ 被前端
+      换成了服务端回发的新值（53b063cc… → 21b96f9b…）；改回 '404' 再点 → sessionStorage
+      记到「数据提交中...|保存成功!」并 reload，app/extra/maccms.php 的 page_404 仍是 '404'。
+    - 伪造/过期令牌、不带 X-CSRF-Token 头：修复前 500 调试页，现在 HTTP 200 /
+      {"code":0,"msg":"请不要重复提交表单","data":{"__token__":"…"}}，响应体不含 wwwroot
+      绝对路径；同一枚过期令牌带上稳定头 → {"code":1,"msg":"保存成功!"}。
+    - configurl.html、configseo.html 两个 tab 动作同样从 500 调试页变 200 JSON。
+    - php -l 全过；php think front:bundle --check 五张全 ok。
+    边界：其它后台页的 Token 校验仍保持默认 failException=true——真正的令牌缺失/伪造
+    （稳定令牌也对不上）依旧落到框架调试页，本轮只修「同页重提」这条正常用户路径。
+    app_debug 与 show_error_msg 仍为 true（config/app.php:14,73），属另一件事。
 
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）

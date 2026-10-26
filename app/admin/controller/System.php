@@ -435,7 +435,9 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
-            $validate = validate('app\\common\\validate\\Token');
+            // 第 4 参 failException=false：默认 true 时 check() 抛 ValidateException，
+            // 令牌失效直接落到框架调试页，下面返回 JSON 的分支走不到。
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -447,22 +449,22 @@ class System extends Base
                 !isset($config['site']) || !is_array($config['site']) ||
                 !isset($config['app']) || !is_array($config['app'])
             ) {
-                return $this->error($invalidSubmitMsg);
+                return $this->ajaxErrorWithFreshToken($invalidSubmitMsg);
             }
             $requiredSiteKeys = ['site_name', 'site_url', 'template_dir', 'mob_template_dir'];
             foreach ($requiredSiteKeys as $requiredKey) {
                 if (!isset($config['site'][$requiredKey]) || trim((string)$config['site'][$requiredKey]) === '') {
-                    return $this->error($invalidSubmitMsg);
+                    return $this->ajaxErrorWithFreshToken($invalidSubmitMsg);
                 }
             }
             if (!isset($config['app']['pathinfo_depr']) || trim((string)$config['app']['pathinfo_depr']) === '') {
-                return $this->error($invalidSubmitMsg);
+                return $this->ajaxErrorWithFreshToken($invalidSubmitMsg);
             }
             // 模板名会原样拼进主题目录（think-view 不过滤 ../），只允许字面量文件名
             if (array_key_exists('page_404', $config['app'])) {
                 $config['app']['page_404'] = trim((string)$config['app']['page_404']);
                 if ($config['app']['page_404'] !== '' && !preg_match('/^[A-Za-z0-9_-]{1,64}$/', $config['app']['page_404'])) {
-                    return $this->error(lang('admin/system/config/page_404_err'));
+                    return $this->ajaxErrorWithFreshToken(lang('admin/system/config/page_404_err'));
                 }
             }
 
@@ -681,7 +683,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input();
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -949,7 +951,7 @@ class System extends Base
                 return $this->ajaxErrorWithFreshToken(lang('save_err'));
             }
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1426,7 +1428,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1466,7 +1468,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1541,7 +1543,7 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $post = input('post.', '', 'htmlentities');
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($post)) {
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1600,7 +1602,7 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $post = input('post.', '', 'htmlentities');
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($post)) {
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string) $err : lang('param_err');

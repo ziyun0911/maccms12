@@ -362,6 +362,15 @@ layui.define(['element', 'form'], function (exports) {
             url: $form.attr('action'),
             data: _formData,
             success: function (res) {
+                // 被拒的提交会换发一枚新的一次性令牌（后台 ajaxErrorWithFreshToken），
+                // 回填进当前表单才能改完直接重提，不必刷新整页
+                if (res && res.data && res.data.__token__) {
+                    var $token = $form.find('input[name="__token__"]');
+                    if (!$token.length) {
+                        $token = $('<input/>', { type: 'hidden', name: '__token__' }).appendTo($form);
+                    }
+                    $token.val(String(res.data.__token__));
+                }
                 var msg = '<span class="success_layer_icon"></span>' + res.msg;
                 if (res.code == 1) {
                     msg = '<span class="success_layer_icon"></span>' + res.msg;
