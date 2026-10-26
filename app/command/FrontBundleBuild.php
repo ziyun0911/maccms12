@@ -7,7 +7,8 @@ use think\console\input\Option;
 use think\console\Output;
 
 /**
- * 前台 CSS 合包。
+ * 前台与后台 CSS、后台 JS 合包。命令名沿用 front:bundle 没改，因为它已经写进了
+ * 前台 bundle 的横幅注释里（改名的话每张派生产物都得重建一遍才自洽）。
  *
  * 源文件留在 template/default/asset/css/ 不动，bundle 是派生产物：改样式改源文件，
  * 然后重跑 `php think front:bundle`。清单顺序即层叠顺序，后出现的分区覆盖前面的同名规则，
@@ -33,6 +34,17 @@ use think\console\Output;
  *   - admin-welcome.bundle.js  = apexcharts.min.js + hs-apexcharts-helpers.js
  * analytics/index.html 只引 apexcharts.min.js、不引 helpers，所以它继续用源文件，
  * 不因合包多下 12 KB。
+ *
+ * 后台 CSS 合包（admin.bundle.css，源文件相对 static/css/）走同一套清单：六张表按
+ * admin_style → tailwindcssOutput → admin_index_shell → admin_doc_shell → theme_config_ux
+ * → update 排列，就是后台各页原先 <link> 的加载次序。
+ *   - admin_doc_shell.css 的颜色全部写成 var(--shell-*)，而这些令牌定义在
+ *     admin_index_shell.css 的 :root 里；两张表必须同包，doc_shell 不能拆回独立 <link>，
+ *     否则说明文档/API 文档页的 var() 解析不到值。
+ *   - admin_style.css 里有 url(../images/signin_bg.png)，是相对自身解析的，所以 bundle
+ *     和源文件必须同在 static/css/ 下。
+ *   - admin_publish_config.css 暂不入包：它由 system/config.html 在 bundle 之后单独加载，
+ *     层叠位置在六张表之外，收进包要另做冲突核查。
  *
  * 不能进包的 static/js：
  *   - layui.js 靠 document.currentScript 反推 lay/modules 基路径，改名合包后动态模块全 404；
@@ -69,10 +81,35 @@ class FrontBundleBuild extends Command
         ],
     ];
 
+    /** 后台 CSS 合包，源文件相对 static/css/，顺序即层叠顺序 */
+    private const BUNDLES_ADMIN_CSS = [
+        'admin.bundle.css' => [
+            'admin_style.css',
+            'tailwindcssOutput.css',
+            'admin_index_shell.css',
+            'admin_doc_shell.css',
+            'theme_config_ux.css',
+            'update.css',
+        ],
+    ];
+
+    /** 后台包的横幅：额外交代 doc_shell 与 index_shell 的 :root 耦合，别改回两张表 */
+    private const BANNER_ADMIN_CSS = <<<'TXT'
+/*
+ * %s — 后台样式合包（派生产物，请勿手改）
+ * 构建：php think front:bundle
+ * 分区顺序不可调整：后出现的分区覆盖前面的同名规则，
+ * 与合并前「后台各页 <link> 依次加载」的顺序保持一致。
+ * 源文件仍在 static/css/ 下，改样式改源文件再重建。
+ * admin_doc_shell.css 的颜色用 var(--shell-*)，令牌定义在 admin_index_shell.css 的
+ * :root 里，两张表必须留在同一个包内。
+ */
+TXT;
+
     protected function configure()
     {
         $this->setName('front:bundle')
-            ->setDescription('Build front-end CSS/JS bundles from template and static sources')
+            ->setDescription('Build front-end / admin CSS and admin JS bundles from their sources')
             ->addOption('check', null, Option::VALUE_NONE, '只校验现有 bundle 是否与源文件一致，不写盘');
     }
 
@@ -80,12 +117,14 @@ class FrontBundleBuild extends Command
     {
         $cssDir = rtrim(str_replace('\\', '/', root_path('template/default/asset/css')), '/') . '/';
         $jsDir = rtrim(str_replace('\\', '/', root_path('static/js')), '/') . '/';
+        $adminCssDir = rtrim(str_replace('\\', '/', root_path('static/css')), '/') . '/';
         $check = (bool) $input->getOption('check');
         $drift = 0;
 
         $jobs = [
             ['dir' => $cssDir, 'kind' => 'css', 'bundles' => self::BUNDLES],
             ['dir' => $jsDir, 'kind' => 'js', 'bundles' => self::BUNDLES_JS],
+            ['dir' => $adminCssDir, 'kind' => 'css', 'bundles' => self::BUNDLES_ADMIN_CSS, 'banner' => self::BANNER_ADMIN_CSS],
         ];
 
         foreach ($jobs as $job) {
@@ -97,7 +136,7 @@ class FrontBundleBuild extends Command
                     }
                 }
 
-                $code = $this->buildBundle($job['dir'], $bundle, $parts, $job['kind']);
+                $code = $this->buildBundle($job['dir'], $bundle, $parts, $job['kind'], $job['banner'] ?? null);
                 $target = $job['dir'] . $bundle;
 
                 if ($check) {
@@ -137,8 +176,9 @@ class FrontBundleBuild extends Command
      * @param string $dir   源文件目录绝对路径，尾斜杠
      * @param array  $parts 分区源文件名
      * @param string $kind  css|js，决定注释风格与 @charset 处理
+     * @param ?string $banner 横幅模板（含 %s 占包名），不传按 kind 取默认
      */
-    private function buildBundle(string $dir, string $bundle, array $parts, string $kind): string
+    private function buildBundle(string $dir, string $bundle, array $parts, string $kind, ?string $bannerTpl = null): string
     {
         $isCss = $kind === 'css';
         $hasCharset = false;
@@ -170,7 +210,7 @@ class FrontBundleBuild extends Command
                 : "\n" . $marker . $this->partition($i, $p, $pad) . "\n" . rtrim($code) . "\n";
         }
 
-        $banner = $isCss ? <<<TXT
+        $default = $isCss ? <<<TXT
 /*
  * %s — 前台样式合包（派生产物，请勿手改）
  * 构建：php think front:bundle
@@ -188,6 +228,7 @@ TXT
  * 源文件仍在 static/js/ 下，改脚本改源文件再重建。
  */
 TXT;
+        $banner = $bannerTpl ?? $default;
 
         return ($hasCharset ? '@charset "utf-8";' : '')
             . sprintf($banner, $bundle)
