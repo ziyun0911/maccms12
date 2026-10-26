@@ -498,7 +498,8 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
       framework/src/helper.php:518），所以 !$validate->check($data) 这个分支根本走不到——
       check() 先抛 ValidateException，落到框架调试页：HTTP 500 / text-html /
       <h1>请不要重复提交表单</h1>（lang/zh-cn.php:429 的 token_err），jQuery 的 error 回调
-      只显示「请求失败」。全站 45 处 validate('app\common\validate\Token') 都有这个死分支。
+      只显示「请求失败」。全站 45 处 validate('app\common\validate\Token')（都在
+      app/admin/controller 下）原本都有这个死分支。
     三处改动：
     ① app/common/validate/Token.php 覆写 token()：先比 mac_admin_csrf_token() 写进
       Session['admin_csrf'] 的会话级稳定令牌（body 的 __token__ 或 X-CSRF-Token 头，
@@ -507,11 +508,15 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
       后台每个 POST 都自带该头：static/js/admin_common.js 的 $.ajaxSetup + 模板
       app/admin/view/public/head.html:6 的 meta[name=mac-admin-csrf]）。改在 validator 里，
       45 处调用点一次性全部受益。
-    ② System.php 该页的七个动作（config / configurl / configupload / configplay /
-      configseo / configaiseo / configaicover）把调用改成
-      validate('app\\common\\validate\\Token', [], false, false)，让已有的「返回 JSON +
-      ajaxErrorWithFreshToken 换发令牌」分支真正生效；config() 里 page_404 与
-      「提交数据不完整」几条拒绝也统一换成 ajaxErrorWithFreshToken。
+    ② 调用点改成 validate('app\\common\\validate\\Token', [], false, false)，让已有的
+      「返回 JSON + 换发新令牌」分支真正生效。先动网站参数页的七个动作（config /
+      configurl / configupload / configplay / configseo / configaiseo / configaicover，
+      config() 里 page_404 与「提交数据不完整」几条拒绝也统一换成 ajaxErrorWithFreshToken），
+      随后把余下 38 处同步：System.php 另 16 处、Addon 7 处、Database 2 处、Vodplayer 2 处、
+      Admin / Base / Collect / Index / Safety / Template / TemplateMarket / Timming / Type /
+      Voddowner / Vodserver 各 1 处。翻转前逐处核对过：45 处调用点在四行内都有
+      $validate->check() 和拒绝分支，令牌校验之前最多只有 input() / config() 读参数，
+      不写库不落盘——所以这轮只是激活死代码，没有放松任何一处 CSRF 校验。
     ③ static/js/admin_common.js 的 submit(formSubmit) 成功回调：res.data.__token__ 有值就
       回填进本次提交表单的隐藏 __token__（没有则 append 一个），沿用 #pageListForm 已有写法，
       被拒后不用刷新页面就能重提。admin_common.js 不在任何合包清单里，不用重建 bundle；
@@ -525,10 +530,21 @@ maccms10「说明文档」结构建立，内容以 maccms12 实际实现为准�
       {"code":0,"msg":"请不要重复提交表单","data":{"__token__":"…"}}，响应体不含 wwwroot
       绝对路径；同一枚过期令牌带上稳定头 → {"code":1,"msg":"保存成功!"}。
     - configurl.html、configseo.html 两个 tab 动作同样从 500 调试页变 200 JSON。
+    - 余下 38 处同步之后，用同一枚伪造令牌（不带 X-CSRF-Token 头，带 X-Requested-With）
+      逐个 POST 了 20 个端点：Admin/info、Collect/info、Database/sql、Database/rep、
+      Index/quickmenu、Safety/fix、Timming/info、Type/info、Voddowner/info、Vodplayer/info、
+      Vodserver/info、Addon/local 以及 System/configuser、configpay、configthemeai、
+      configassistant、configaicontent 等，全部 HTTP 200 + {"code":0,"msg":"请不要重复提交表单"}，
+      没有一处再落 500 调试页，响应体不含 wwwroot 绝对路径；System 的六个 config* 与
+      Addon/local 的拒绝还带回了 ajaxErrorWithFreshToken 换发的新令牌。
+    - 两个形状校验排在令牌校验之前的端点也是 200 JSON，只是文案不同：Template/info 报
+      「参数错误1」、Addon/config 报「参数错误」；System/configupload 报「提交数据不完整」。
     - php -l 全过；php think front:bundle --check 五张全 ok。
-    边界：其它后台页的 Token 校验仍保持默认 failException=true——真正的令牌缺失/伪造
-    （稳定令牌也对不上）依旧落到框架调试页，本轮只修「同页重提」这条正常用户路径。
-    app_debug 与 show_error_msg 仍为 true（config/app.php:14,73），属另一件事。
+    遗留（本轮未动，都是「参数缺失」而不是「令牌失效」）：Admin/info 缺 admin_auth 时，
+    令牌校验之前的 in_array() 先抛 500（Admin.php:45）；Base/base_import 需要路由参数
+    table，缺参时框架在进方法体之前就报「方法参数错误:table」。
+    app_debug 与 show_error_msg 仍为 true（config/app.php:14,73），让上面这类 500 直接
+    把调试页吐给浏览器，也仍属另一件事。
 
 --------------------------------------------------------------------------------
 五、文档导航（按使用场景）

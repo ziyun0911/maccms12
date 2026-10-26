@@ -187,7 +187,7 @@ class Index extends Base
     {
         if (Request()->isPost()) {
             $param = input();
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($param)) {
                 return $this->error($validate->getError());
             }

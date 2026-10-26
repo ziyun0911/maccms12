@@ -174,7 +174,7 @@ class Template extends Base
         $this->assign('filter',$filter);
 
         if (Request()->isPost()) {
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }

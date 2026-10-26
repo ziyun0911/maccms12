@@ -49,7 +49,7 @@ class Admin extends Base
                 && !in_array('safety/fix', $param['admin_auth'], true)) {
                 $param['admin_auth'][] = 'safety/fix';
             }
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }

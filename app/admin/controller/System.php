@@ -790,7 +790,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -990,7 +990,7 @@ class System extends Base
                 return $this->error($invalidSubmitMsg);
             }
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1019,7 +1019,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1047,7 +1047,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1075,7 +1075,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1113,7 +1113,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1146,7 +1146,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1189,7 +1189,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('', '', 'htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($config)) {
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1227,7 +1227,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1261,7 +1261,7 @@ class System extends Base
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1298,7 +1298,7 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $config = input('','','htmlentities');
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($config)){
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -1677,7 +1677,7 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $post = input('post.', '', 'htmlentities');
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($post)) {
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -2058,7 +2058,7 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $post = input('post.', '', 'htmlentities');
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($post)) {
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -2144,7 +2144,7 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $post = input('post.', '', 'htmlentities');
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($post)) {
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -2250,7 +2250,7 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $post = input('post.', '', 'htmlentities');
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($post)) {
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');
@@ -2297,7 +2297,7 @@ class System extends Base
     {
         if (Request()->isPost()) {
             $post = input('post.', '', 'htmlentities');
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($post)) {
                 $err = $validate->getError();
                 $msg = is_scalar($err) ? (string)$err : lang('param_err');

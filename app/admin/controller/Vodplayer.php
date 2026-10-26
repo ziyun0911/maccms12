@@ -25,7 +25,7 @@ class VodPlayer extends Base
         $param = input();
         $list = config($this->_pre);
         if (Request()->isPost()) {
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }
@@ -169,7 +169,7 @@ class VodPlayer extends Base
     {
         if (request()->isPost()) {
             $param = input();
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }

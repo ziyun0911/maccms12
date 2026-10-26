@@ -36,7 +36,7 @@ class Safety extends Base
             return $this->error(lang('param_err'));
         }
         $param = input();
-        $validate = validate('app\\common\\validate\\Token');
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
         if (!$validate->check($param)) {
             $err = $validate->getError();
             $msg = is_scalar($err) ? (string)$err : lang('param_err');

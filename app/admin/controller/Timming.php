@@ -23,7 +23,7 @@ class Timming extends Base
         $param = input();
         $list = config('timming');
         if (Request()->isPost()) {
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }

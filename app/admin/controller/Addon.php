@@ -50,7 +50,7 @@ class Addon extends Base
 
         if ($this->request->isPost()) {
             $post = $this->request->post();
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if (!$validate->check($post)) {
                 $t = token('__token__');
                 return $this->error($validate->getError() ?: lang('param_err'), null, ['__token__' => $t]);
@@ -388,7 +388,7 @@ class Addon extends Base
             return $this->error(lang('param_err'));
         }
         $post = $this->request->post();
-        $validate = validate('app\\common\\validate\\Token');
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
         if (!$validate->check($post)) {
             $t = token('__token__');
             return $this->error($validate->getError() ?: lang('param_err'), null, ['__token__' => $t]);
@@ -427,7 +427,7 @@ class Addon extends Base
             return $this->error(lang('param_err'));
         }
         $post = $this->request->post();
-        $validate = validate('app\\common\\validate\\Token');
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
         if (!$validate->check($post)) {
             $t = token('__token__');
             return $this->error($validate->getError() ?: lang('param_err'), null, ['__token__' => $t]);
@@ -455,7 +455,7 @@ class Addon extends Base
             return $this->error(lang('param_err'));
         }
         $post = $this->request->post();
-        $validate = validate('app\\common\\validate\\Token');
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
         if (!$validate->check($post)) {
             $t = token('__token__');
             return $this->error($validate->getError() ?: lang('param_err'), null, ['__token__' => $t]);
@@ -499,7 +499,7 @@ class Addon extends Base
             return $this->error(lang('param_err'));
         }
         $post = $this->request->post();
-        $validate = validate('app\\common\\validate\\Token');
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
         if (!$validate->check($post)) {
             $t = token('__token__');
             return $this->error($validate->getError() ?: lang('param_err'), null, ['__token__' => $t]);
@@ -542,7 +542,7 @@ class Addon extends Base
             return $this->error(lang('param_err'));
         }
         $param = input();
-        $validate = validate('app\\common\\validate\\Token');
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
         if (!$validate->check($param)) {
             $t = token('__token__');
             return $this->error($validate->getError() ?: lang('param_err'), null, ['__token__' => $t]);
@@ -704,7 +704,7 @@ class Addon extends Base
             return $this->error(lang('param_err'));
         }
         $post = $this->request->post();
-        $validate = validate('app\\common\\validate\\Token');
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
         if (!$validate->check($post)) {
             $t = token('__token__');
             return $this->error($validate->getError() ?: lang('param_err'), null, ['__token__' => $t]);

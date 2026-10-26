@@ -288,7 +288,7 @@ class Database extends Base
     {
         if($this->request->isPost()){
             $param=input();
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }
@@ -344,7 +344,7 @@ class Database extends Base
             $tostr = isset($param['tostr']) ? $param['tostr'] : '';
             $where = isset($param['where']) ? $param['where'] : '';
 
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }

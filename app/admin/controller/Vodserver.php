@@ -25,7 +25,7 @@ class VodServer extends Base
         $param = input();
         $list = config($this->_pre);
         if (Request()->isPost()) {
-            $validate = validate('app\\common\\validate\\Token');
+            $validate = validate('app\\common\\validate\\Token', [], false, false);
             if(!$validate->check($param)){
                 return $this->error($validate->getError());
             }

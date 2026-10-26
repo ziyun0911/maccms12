@@ -155,7 +155,7 @@ class TemplateMarket extends Base
             return ['code' => 0, 'msg' => lang('illegal_request')];
         }
         $param = input('post.');
-        $validate = validate('app\\common\\validate\\Token');
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
         if (!$validate->check($param)) {
             return ['code' => 0, 'msg' => lang($validate->getError())];
         }

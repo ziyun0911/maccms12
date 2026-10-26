@@ -233,7 +233,7 @@ class Base extends All
             return $this->error(lang('illegal_request'));
         }
         $param = input('post.');
-        $validate = validate('app\\common\\validate\\Token');
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
         if (!$validate->check($param)) {
             return $this->error($validate->getError());
         }
