@@ -13,14 +13,6 @@
 <a href="#"><img src="https://img.shields.io/badge/TELEGRAM-CHANNEL-blue?logo=telegram&style=for-the-badge"/></a>
 <a href="#"><img src="https://img.shields.io/badge/TELEGRAM-GROUP-blue?logo=telegram&style=for-the-badge"/></a>
 </p>
-<p>
-<a href="#">
-<img src="https://img.shields.io/badge/TELEGRAM-CHANNEL-blue?logo=telegram&style=for-the-badge" />
-</a>
-<a href="#">
-<img src="https://img.shields.io/badge/TELEGRAM-GROUP-blue?logo=telegram&style=for-the-badge" />
-</a>
-</p>
 </div>
 苹果 CMS v12（maccms12）— ThinkPHP 8 版 由 maccms10（ThinkPHP 5.1）整树迁移升级而来：内核 **ThinkPHP 8.1.4**，运行在 PHP 8.0.2+（本仓库验证环境 PHP 8.3.8），功能与数据结构保持兼容。
 
