@@ -1,18 +1,14 @@
 # 运行期产物：缓存/日志/会话/编译模板，285M 且随时可再生，不入库
 /runtime/*
-
 # 采集与上传的附件、图片
 /upload/*
-
 # 本地覆盖配置
 .user.ini
 *.log
-
 # 编辑器与系统垃圾
 .DS_Store
 Thumbs.db
 *.swp
-
 # vendor/ 故意入库：本项目禁止手改 vendor，纳入版本管理后任何越界改动都会直接显现在 git status 里
 # 含明文凭据的站点实配，不入库（2026-10-25 已从 git 历史中一并清除）：
 #   config/database.php      → 数据库 root 口令
@@ -28,8 +24,13 @@ app/extra/maccms.php
 # 定时任务的实配：app/api/controller/Timming.php 每个 tick 都回写一次 runtime（下次执行时间戳），
 # 入库只会让无关提交带上两行抖动；任务定义在 install 阶段由 app/install/controller/Index.php 幂等注入重建。
 app/extra/timming.php
-
 # 后台「静态生成」的输出物（app/admin/controller/Make.php 写到 docroot 根），随时可重生成且带站点真实内容
 /index.html
 /wap_index.html
 /map.html
+# 其他遗留文件
+*.log
+*.png
+favicon.ico
+app/data/install/install.lock
+app/data/install/*.bak

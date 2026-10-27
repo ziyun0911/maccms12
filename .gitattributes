@@ -1,7 +1,9 @@
-# 关掉 git 的行尾自动转换。
-# 本机 git 装了 core.autocrlf=true（Windows 安装默认，非项目设置），
-# 它会把 LF 文件在下次 checkout 时改写成 CRLF 并只给一句 warning。
-# 本项目 app/extra/*.php 里 theme[play][notice] 这类值本身含字面 CRLF，
-# 行尾被批量移动过、渲染文案看着又没变，是最难查的一类回归；
-# 所以让 blob 与工作区逐字节一致，行尾变化只能在 diff 里显形。
-* -text
+# 普通代码文件正常自动处理
+*.php text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+
+# 重点：extra下配置文件，里面字符串自带字面CRLF，关闭自动转换
+app/extra/*.php -text
