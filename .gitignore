@@ -33,4 +33,8 @@ app/extra/timming.php
 *.png
 favicon.ico
 app/data/install/install.lock
+<<<<<<< HEAD
 app/data/install/*.bak
+=======
+app/data/install/*.bak
+>>>>>>> 9e88570b4e877e8a3403e67d4c0a7aca467bc32f

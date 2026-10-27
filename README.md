@@ -1,6 +1,20 @@
-# 苹果 CMS v12（maccms12）— ThinkPHP 8 版
-
-> 由 maccms10（ThinkPHP 5.1）整树迁移升级而来：内核 **ThinkPHP 8.1.4**，运行在 PHP 8.0.2+（本仓库验证环境 PHP 8.3.8），功能与数据结构保持兼容。
+<div align="center">
+<img src="static/images/logo.jpg" alt="MacCMS20 Logo" width="80"/>
+<h1>苹果 CMS v12（maccms12）— ThinkPHP 8 版</h1>
+<h2>AI 驱动的全能影视内容管理系统，建站效率翻倍</h2>
+<p>集成 AI SEO 优化、多平台 AI 内容生成、数据安全管理与多云存储，一站式搞定影视网站搭建、运营与全球化部署</p>
+<p>
+<a href="https://github.com/ziyun0911/maccms12/stargazers"><img src="https://img.shields.io/badge/STARS-⭐-black?logo=github&style=for-the-badge"/></a>
+<a href="https://github.com/ziyun0911/maccms12/forks"><img src="https://img.shields.io/badge/FORKS-🍴-blue?logo=git&style=for-the-badge"/></a>
+<a href="https://github.com/ziyun0911/maccms12/blob/main/LICENSE"><img src="https://img.shields.io/badge/LICENSE-GPL--3.0-green?style=for-the-badge"/></a>
+<a href="https://github.com/sponsors/ziyun0911"><img src="https://img.shields.io/badge/SPONSOR-❤️-pink?style=for-the-badge"/></a>
+</p>
+<p>
+<a href="#"><img src="https://img.shields.io/badge/TELEGRAM-CHANNEL-blue?logo=telegram&style=for-the-badge"/></a>
+<a href="#"><img src="https://img.shields.io/badge/TELEGRAM-GROUP-blue?logo=telegram&style=for-the-badge"/></a>
+</p>
+</div>
+苹果 CMS v12（maccms12）— ThinkPHP 8 版 由 maccms10（ThinkPHP 5.1）整树迁移升级而来：内核 **ThinkPHP 8.1.4**，运行在 PHP 8.0.2+（本仓库验证环境 PHP 8.3.8），功能与数据结构保持兼容。
 
 这份 README 只回答三件事：**跑起来要什么、目录长什么样、文档去哪儿读**。
 
