@@ -32,6 +32,9 @@ app/extra/timming.php
 *.log
 *.png
 favicon.ico
+app/extra/collect_health.php
+app/data/collect_log/
+app/data/content_check_log/
 app/data/install/install.lock
 <<<<<<< HEAD
 app/data/install/*.bak
