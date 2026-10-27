@@ -1,5 +1,6 @@
 <div align="center">
-<h1><img src="static/images/logo@2x.png" alt="MacCMS20 Logo" width="80"/>苹果 CMS v12（maccms12）— ThinkPHP 8 版</h1>
+<img src="static/images/logo.jpg" alt="MacCMS20 Logo" width="80"/>
+<h1>苹果 CMS v12（maccms12）— ThinkPHP 8 版</h1>
 <h2>AI 驱动的全能影视内容管理系统，建站效率翻倍</h2>
 <p>集成 AI SEO 优化、多平台 AI 内容生成、数据安全管理与多云存储，一站式搞定影视网站搭建、运营与全球化部署</p>
 <p>
