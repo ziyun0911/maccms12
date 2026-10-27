@@ -104,17 +104,31 @@ return array (
     'from' => 'wjyun',
     'id' => 'wjyun',
   ),
-  'modum3u8' => 
+  'hhm3u8' => 
   array (
     'status' => '1',
-    'from' => 'modum3u8',
-    'show' => '魔都云',
-    'des' => '',
+    'from' => 'hhm3u8',
+    'show' => 'hhm3u8播放器',
+    'des' => '在线播放',
     'target' => '_self',
-    'ps' => '1',
-    'parse' => 'https://jiexi.moduzyjx.com/?url=',
-    'sort' => '8',
-    'tip' => '',
+    'ps' => '0',
+    'parse' => '',
+    'sort' => '800',
+    'tip' => '无需安装任何插件',
+    'id' => 'hhm3u8',
+  ),
+  'hhyun' => 
+  array (
+    'status' => '1',
+    'from' => 'hhyun',
+    'show' => 'hhyun播放器',
+    'des' => '在线播放',
+    'target' => '_self',
+    'ps' => '0',
+    'parse' => '',
+    'sort' => '800',
+    'tip' => '无需安装任何插件',
+    'id' => 'hhyun',
   ),
   'liangzi' => 
   array (
@@ -155,30 +169,50 @@ return array (
     'tip' => '无需安装任何插件',
     'id' => 'wsym3u8',
   ),
-  'hhyun' => 
+  'modum3u8' => 
   array (
+    'id' => 'modum3u8',
     'status' => '1',
-    'from' => 'hhyun',
-    'show' => 'hhyun播放器',
-    'des' => '在线播放',
+    'from' => 'modum3u8',
+    'show' => '魔都云',
+    'des' => '',
     'target' => '_self',
-    'ps' => '0',
-    'parse' => '',
-    'sort' => '800',
-    'tip' => '无需安装任何插件',
-    'id' => 'hhyun',
-  ),
-  'hhm3u8' => 
-  array (
-    'status' => '1',
-    'from' => 'hhm3u8',
-    'show' => 'hhm3u8播放器',
-    'des' => '在线播放',
-    'target' => '_self',
-    'ps' => '0',
-    'parse' => '',
-    'sort' => '800',
-    'tip' => '无需安装任何插件',
-    'id' => 'hhm3u8',
+    'ps' => '1',
+    'parse' => 'https://jiexi.moduzyjx.com/?url=',
+    'sort' => '8',
+    'tip' => '',
+    'content_lang' => 
+    array (
+      'zh-tw' => 
+      array (
+        'show' => '',
+        'des' => '',
+        'tip' => '',
+      ),
+      'en-us' => 
+      array (
+        'show' => '',
+        'des' => '',
+        'tip' => '',
+      ),
+      'ja-jp' => 
+      array (
+        'show' => '',
+        'des' => '',
+        'tip' => '',
+      ),
+      'ko-kr' => 
+      array (
+        'show' => '',
+        'des' => '',
+        'tip' => '',
+      ),
+      'ru-ru' => 
+      array (
+        'show' => '',
+        'des' => '',
+        'tip' => '',
+      ),
+    ),
   ),
 );
