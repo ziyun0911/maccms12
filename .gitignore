@@ -34,15 +34,19 @@ app/extra/timming.php
 /wap_index.html
 /map.html
 
-# 采集健康检查与日志产物、本地 favicon、安装目录里的 .bak
+# 采集健康检查与日志产物、安装目录里的 .bak
 app/extra/collect_health.php
 app/data/collect_log/
 app/data/content_check_log/
 app/data/install/*.bak
-favicon.ico
 
-# 上一版在这里写过一条全局 *.png，已删：仓库里 446 个 png 早已入库，这条只会让此后新增的
-# 模板图、后台截图静默漏提交（git status 都不显示），而它当下并没有挡住任何该忽略的文件。
+# 图片类不入库（2026-11-03 使用者裁定恢复全局 *.png，并点名 favicon.ico 与 logo.png）：
+# 生效范围要说清——仓库里 444 个 png、6 个 logo.png、1 个 favicon.ico 早已被跟踪，本条动不了它们
+# （.gitignore 从不影响已入库文件）；它只让此后新增的同名/同后缀文件不再出现在 git status 里，
+# 确实要入库的新图必须显式 git add -f <路径>。
+*.png
+favicon.ico
+logo.png
 
 # 安装完成标记：由 app/install/controller/Index.php 在装完时写出。本仓库就是 docroot，
 # 缺了它 index.php 会把整站 302 到 install.php（安装向导重新可达），所以本机必须留着、但不能再入库。
