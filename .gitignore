@@ -56,3 +56,9 @@ app/data/install/install.lock
 # 种子 SQL 的改动前副本：带已删除的色情分类，以及修好之前的裸写 INSERT INTO mac_content_lang。
 # 2026-10-27 远端已用 58bf454 把它删掉；这条只屏蔽「initdata - 某后缀」的副本，initdata.sql 本体照常入库。
 app/install/sql/initdata -*.sql
+
+# 变更记录只留本机，不入仓库、不推远程（2026-11-03 使用者裁定）：逐轮开发流水账对外部使用者没有信息量，还会把本机目录与改造过程带进发布物。
+# 入库副本已用 git rm --cached 摘掉跟踪，磁盘上的 138,683 B / 1,306 行原样保留——此后它的改动不再进历史，改动前请自行复制到 docroot 外备份。
+# 规则锚定到 说明文档/ 这一层、按 90- 前缀匹配：仓库里 90-*.md 只有这一个文件，实测不误伤其他手册；中文目录名避不开，已用 git check-ignore -v 验证命中。
+# .gitignore 是无扩展名文件，受本机 core.autocrlf=true 影响，磁盘副本存 CRLF，提交时由 git 归一成 LF。
+/说明文档/90-*.md
