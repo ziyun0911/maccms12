@@ -229,9 +229,19 @@ class Make extends Base
     {
         mac_echo('<style type="text/css">body{font-size:12px;color: #333333;line-height:21px;}span{font-weight:bold;color:#FF0000}</style>');
 
-        if(!in_array($this->_param['ac2'], ['index','baidu','google','so','sogou','bing','sm'])){
+        $rssTemplates = [
+            'index' => 'rss/index',
+            'google' => 'rss/google',
+            'baidu' => 'rss/urlset',
+            'so' => 'rss/urlset',
+            'sogou' => 'rss/urlset',
+            'bing' => 'rss/urlset',
+            'sm' => 'rss/urlset',
+        ];
+        if(!isset($rssTemplates[$this->_param['ac2']])){
             return $this->error(lang('param_err'));
         }
+        $rssTpl = $rssTemplates[$this->_param['ac2']];
         if(empty(intval($this->_param['ps']))){
             $this->_param['ps'] = 1;
         }
@@ -250,7 +260,7 @@ class Make extends Base
                 $link .= $GLOBALS['config']['path']['page_sp'] . $par['page'];
             }
             $link .='.xml';
-            $this->buildHtml($link,'./','rss/'.$this->_param['ac2']);
+            $this->buildHtml($link,'./',$rssTpl);
             $config = config('domain');
             foreach ($config as $key => $val){
                 if ($val['map_dir'] != ''){
@@ -259,7 +269,7 @@ class Make extends Base
                         $map_link .= $GLOBALS['config']['path']['page_sp'] . $par['page'];
                     }
                     $map_link .='.xml';
-                    $this->buildHtml($map_link,'./','rss/'.$this->_param['ac2']);
+                    $this->buildHtml($map_link,'./',$rssTpl);
                 }
             }
             $this->echoLink($link,'/'.$link);

@@ -3,6 +3,8 @@ namespace app\index\controller;
 
 class Rss extends Base
 {
+    private const URLSET_TPL = 'rss/urlset';
+
     public function index()
     {
         return $this->xml($this->label_fetch('rss/index'));
@@ -10,7 +12,7 @@ class Rss extends Base
 
     public function baidu()
     {
-        return $this->xml($this->label_fetch('rss/baidu'));
+        return $this->xml($this->label_fetch(self::URLSET_TPL));
     }
 
     public function google()
@@ -20,22 +22,22 @@ class Rss extends Base
 
     public function so()
     {
-        return $this->xml($this->label_fetch('rss/so'));
+        return $this->xml($this->label_fetch(self::URLSET_TPL));
     }
 
     public function sogou()
     {
-        return $this->xml($this->label_fetch('rss/sogou'));
+        return $this->xml($this->label_fetch(self::URLSET_TPL));
     }
 
     public function bing()
     {
-        return $this->xml($this->label_fetch('rss/bing'));
+        return $this->xml($this->label_fetch(self::URLSET_TPL));
     }
 
     public function sm()
     {
-        return $this->xml($this->label_fetch('rss/sm'));
+        return $this->xml($this->label_fetch(self::URLSET_TPL));
     }
 
     protected function xml($html)

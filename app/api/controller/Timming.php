@@ -75,11 +75,17 @@ class Timming extends Base
 
                 if (!is_string($file) || $file === '' || !method_exists($this, $file)) {
                     mac_echo(lang('api/task_tip_jump', [$v['name'], $status, $last]));
-                    die;
+                    continue;
                 }
 
-                $this->$file($param);
-                die;
+                try {
+                    $this->$file($param);
+                } catch (\think\exception\HttpResponseException $e) {
+                    throw $e;
+                } catch (\Throwable $e) {
+                    \think\facade\Log::error('[timming] task ' . $v['name'] . ' failed: ' . $e->getMessage());
+                    mac_echo('[timming] ' . $v['name'] . ' ' . lang('opt_err'));
+                }
             }
             else{
                 mac_echo(lang('api/task_tip_jump',[$v['name'] ,$status,$last]));

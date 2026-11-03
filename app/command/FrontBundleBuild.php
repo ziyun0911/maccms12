@@ -23,6 +23,10 @@ class FrontBundleBuild extends Command
     ];
 
     private const BUNDLES_JS = [
+        'admin-info.bundle.js' => [
+            'jquery.jscolor.js',
+            'ai_seo.js',
+        ],
         'admin-monitor.bundle.js' => [
             'uplot.min.js',
             'monitor-charts.js',
@@ -64,55 +68,80 @@ TXT;
             ->addOption('check', null, Option::VALUE_NONE, '只校验现有 bundle 是否与源文件一致，不写盘');
     }
 
-    protected function execute(Input $input, Output $output)
+    public static function jobs(): array
     {
         $cssDir = rtrim(str_replace('\\', '/', root_path('template/default/asset/css')), '/') . '/';
         $jsDir = rtrim(str_replace('\\', '/', root_path('static/js')), '/') . '/';
         $adminCssDir = rtrim(str_replace('\\', '/', root_path('static/css')), '/') . '/';
-        $check = (bool) $input->getOption('check');
-        $drift = 0;
 
-        $jobs = [
+        return [
             ['dir' => $cssDir, 'kind' => 'css', 'bundles' => self::BUNDLES],
             ['dir' => $jsDir, 'kind' => 'js', 'bundles' => self::BUNDLES_JS],
             ['dir' => $adminCssDir, 'kind' => 'css', 'bundles' => self::BUNDLES_ADMIN_CSS, 'banner' => self::BANNER_ADMIN_CSS],
         ];
+    }
 
-        foreach ($jobs as $job) {
+    public static function inspect(): array
+    {
+        $rows = [];
+        foreach (self::jobs() as $job) {
             foreach ($job['bundles'] as $bundle => $parts) {
-                foreach ($parts as $p) {
-                    if (!is_file($job['dir'] . $p)) {
-                        $output->writeln('<error>missing source: ' . $p . '</error>');
-                        return 1;
-                    }
-                }
-
-                $code = $this->buildBundle($job['dir'], $bundle, $parts, $job['kind'], $job['banner'] ?? null);
-                $target = $job['dir'] . $bundle;
-
-                if ($check) {
-                    $same = is_file($target) && file_get_contents($target) === $code;
-                    $output->writeln(($same ? '<info>ok  </info>' : '<error>drift</error>') . ' ' . $bundle);
-                    if (!$same) {
-                        $drift++;
-                    }
-                    continue;
-                }
-
-                file_put_contents($target, $code);
+                $missing = [];
                 $src = 0;
                 foreach ($parts as $p) {
+                    if (!is_file($job['dir'] . $p)) {
+                        $missing[] = $p;
+                        continue;
+                    }
                     $src += filesize($job['dir'] . $p);
                 }
-                $output->writeln(sprintf(
-                    '<info>built</info> %-26s %7d B  <- %d 分区（源 %7d B，省 %d 次请求）',
-                    $bundle,
-                    strlen($code),
-                    count($parts),
-                    $src,
-                    count($parts) - 1
-                ));
+                $target = $job['dir'] . $bundle;
+                $code = $missing ? '' : self::buildBundle($job['dir'], $bundle, $parts, $job['kind'], $job['banner'] ?? null);
+                $rows[] = [
+                    'bundle'  => $bundle,
+                    'path'    => $target,
+                    'parts'   => $parts,
+                    'missing' => $missing,
+                    'code'    => $code,
+                    'size'    => strlen($code),
+                    'src'     => $src,
+                    'exists'  => is_file($target),
+                    'ok'      => !$missing && is_file($target) && file_get_contents($target) === $code,
+                ];
             }
+        }
+
+        return $rows;
+    }
+
+    protected function execute(Input $input, Output $output)
+    {
+        $check = (bool) $input->getOption('check');
+        $drift = 0;
+
+        foreach (self::inspect() as $row) {
+            if (!empty($row['missing'])) {
+                $output->writeln('<error>missing source: ' . implode(', ', $row['missing']) . '</error>');
+                return 1;
+            }
+
+            if ($check) {
+                $output->writeln(($row['ok'] ? '<info>ok  </info>' : '<error>drift</error>') . ' ' . $row['bundle']);
+                if (!$row['ok']) {
+                    $drift++;
+                }
+                continue;
+            }
+
+            file_put_contents($row['path'], $row['code']);
+            $output->writeln(sprintf(
+                '<info>built</info> %-26s %7d B  <- %d 分区（源 %7d B，省 %d 次请求）',
+                $row['bundle'],
+                $row['size'],
+                count($row['parts']),
+                $row['src'],
+                count($row['parts']) - 1
+            ));
         }
 
         if ($check && $drift > 0) {
@@ -123,7 +152,7 @@ TXT;
         return 0;
     }
 
-    private function buildBundle(string $dir, string $bundle, array $parts, string $kind, ?string $bannerTpl = null): string
+    public static function buildBundle(string $dir, string $bundle, array $parts, string $kind, ?string $bannerTpl = null): string
     {
         $isCss = $kind === 'css';
         $hasCharset = false;
@@ -149,8 +178,8 @@ TXT;
             }
             $pad = str_repeat('─', max(2, 56 - strlen($p)));
             $body .= $isCss
-                ? "\n" . $marker . $this->partition($i, $p, $pad) . " */\n" . rtrim($code) . "\n"
-                : "\n" . $marker . $this->partition($i, $p, $pad) . "\n" . rtrim($code) . "\n";
+                ? "\n" . $marker . self::partition($i, $p, $pad) . " */\n" . rtrim($code) . "\n"
+                : "\n" . $marker . self::partition($i, $p, $pad) . "\n" . rtrim($code) . "\n";
         }
 
         $default = $isCss ? <<<TXT
@@ -178,7 +207,7 @@ TXT;
             . $body;
     }
 
-    private function partition(int $i, string $p, string $pad): string
+    private static function partition(int $i, string $p, string $pad): string
     {
         return str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) . ' 原 ' . $p . ' ' . $pad;
     }

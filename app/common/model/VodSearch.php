@@ -7,7 +7,10 @@ use think\facade\Cache;
 class VodSearch extends Base {
     protected $name = 'vod_search';
     public $maxIdCount = 1000;
-    private $updateTopCount = 50000;
+    private $updateTopCount = 1000;
+
+    private const UPDATE_BATCH_KEYS = 100;
+    private const UPDATE_BATCH_BYTES = 524288;
 
     private static $getResultIdListMemo = [];
 
@@ -122,6 +125,7 @@ class VodSearch extends Base {
         if ($vid <= 0) {
             return;
         }
+        $matchedKeys = [];
         foreach ($list as $row) {
             $searchKey = isset($row['search_key']) ? (string)$row['search_key'] : '';
             if ($searchKey === '' || !preg_match('/^[a-f0-9]{32}$/i', $searchKey)) {
@@ -135,41 +139,79 @@ class VodSearch extends Base {
                 if (stripos((string)$vod[$field], (string)$row['search_word']) === false) {
                     continue;
                 }
-                $this->appendVodIdToSearchCacheRow($searchKey, $vid, $time_now);
+                $matchedKeys[strtolower($searchKey)] = true;
             }
+        }
+        if (!empty($matchedKeys)) {
+            $this->appendVodIdToSearchRows(array_keys($matchedKeys), $vid, $time_now);
         }
     }
 
-    private function appendVodIdToSearchCacheRow($searchKey, $vid, $time_now)
+    private function appendVodIdToSearchRows(array $searchKeys, int $vid, int $time_now)
     {
-        $searchKey = (string)$searchKey;
-        $vid = (int)$vid;
-        $time_now = (int)$time_now;
-        if ($searchKey === '' || $vid <= 0) {
+        if (empty($searchKeys) || $vid <= 0) {
             return;
         }
-        $raw = Db::name('vod_search')->where('search_key', $searchKey)->value('search_result_ids');
-        $ids = [];
-        foreach (explode(',', (string)$raw) as $p) {
-            $p = (int)trim($p);
-            if ($p > 0) {
-                $ids[$p] = $p;
-            }
-        }
-        if (isset($ids[$vid])) {
-            Db::name('vod_search')->where('search_key', $searchKey)->update([
-                'search_update_time' => $time_now,
-            ]);
+        $rows = Db::name('vod_search')
+            ->field('search_key, search_result_ids')
+            ->whereIn('search_key', $searchKeys)
+            ->select();
 
+        $idsCase = [];
+        $countCase = [];
+        $keys = [];
+        foreach ($rows as $row) {
+            $key = strtolower((string)$row['search_key']);
+            if (!preg_match('/^[a-f0-9]{32}$/', $key)) {
+                continue;
+            }
+            $ids = [];
+            foreach (explode(',', (string)$row['search_result_ids']) as $p) {
+                $p = (int)trim($p);
+                if ($p > 0) {
+                    $ids[$p] = $p;
+                }
+            }
+            $ids[$vid] = $vid;
+            $ids = array_values($ids);
+            $keys[] = $key;
+            $idsCase[$key] = implode(',', $ids);
+            $countCase[$key] = count($ids);
+        }
+        if (empty($keys)) {
             return;
         }
-        $ids[$vid] = $vid;
-        $ids = array_values($ids);
-        Db::name('vod_search')->where('search_key', $searchKey)->update([
-            'search_update_time'  => $time_now,
-            'search_result_count' => count($ids),
-            'search_result_ids'   => implode(',', $ids),
-        ]);
+
+        $table = $this->getTable();
+        $chunk = [];
+        $chunk_bytes = 0;
+        foreach ($keys as $key) {
+            $cost = strlen($key) * 3 + strlen($idsCase[$key]) + 64;
+            if (!empty($chunk) && ($chunk_bytes + $cost > self::UPDATE_BATCH_BYTES || count($chunk) >= self::UPDATE_BATCH_KEYS)) {
+                $this->updateSearchRowChunk($table, $chunk, $idsCase, $countCase, $time_now);
+                $chunk = [];
+                $chunk_bytes = 0;
+            }
+            $chunk[] = $key;
+            $chunk_bytes += $cost;
+        }
+        if (!empty($chunk)) {
+            $this->updateSearchRowChunk($table, $chunk, $idsCase, $countCase, $time_now);
+        }
+    }
+
+    private function updateSearchRowChunk(string $table, array $chunk, array $idsCase, array $countCase, int $time_now): void
+    {
+        $idsWhen = [];
+        $countWhen = [];
+        foreach ($chunk as $key) {
+            $idsWhen[] = "WHEN '" . $key . "' THEN '" . $idsCase[$key] . "'";
+            $countWhen[] = "WHEN '" . $key . "' THEN " . (int)$countCase[$key];
+        }
+        Db::execute('UPDATE `' . $table . '` SET `search_update_time` = ' . (int)$time_now
+            . ', `search_result_ids` = CASE `search_key` ' . implode(' ', $idsWhen) . ' END'
+            . ', `search_result_count` = CASE `search_key` ' . implode(' ', $countWhen) . ' END'
+            . " WHERE `search_key` IN ('" . implode("','", $chunk) . "')");
     }
 
     public function getResultCacheMinutes($config = []) {

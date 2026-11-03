@@ -76,7 +76,7 @@ html.license-locked body::after {
 {if condition="!empty($tplconfig['theme']['head']['text'])"}
 {$tplconfig.theme.head.text}
 {/if}
-<link href="{$maccms.path}template/default/asset/css/auth-ui.css" rel="stylesheet" type="text/css" />
+<link href="{$maccms.path}template/default/asset/css/auth-ui.css?{:mac_tpl_asset_ver('css/auth-ui.css')}" rel="stylesheet" type="text/css" />
 {if condition="isset($tplconfig['theme']['badge']['cover_sub_btn']) && $tplconfig['theme']['badge']['cover_sub_btn'] eq '0'"}
 <style>
 html.mac-cover-sub-off .vodlist_item > .vodlist_titbox > .vodlist_sub,

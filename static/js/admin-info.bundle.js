@@ -1,5 +1,11 @@
-/* admin-info.bundle.js = jquery.jscolor.js + ai_seo.js (merged 2026-10-24) */
-
+/*
+ * admin-info.bundle.js — 后台脚本合包（派生产物，请勿手改）
+ * 构建：php think front:bundle
+ * 分区顺序不可调整：vendor 必须排在它的项目封装之前，
+ * 与合并前「模板 <script> 依次加载」的执行顺序保持一致。
+ * 源文件仍在 static/js/ 下，改脚本改源文件再重建。
+ */
+// ── 01 原 jquery.jscolor.js ───────────────────────────────────────
 var jscolor = {
     dir: ROOT_PATH  + '/static/images/jscolor/',
     bindClass: 'color',
@@ -856,10 +862,9 @@ var jscolor = {
         this.importColor()
     }
 };
-jscolor.install();
+jscolor.install();;
 
-/* === ai_seo.js === */
-
+// ── 02 原 ai_seo.js ───────────────────────────────────────────────
 (function (w, $) {
     'use strict';
 
@@ -1018,5 +1023,4 @@ jscolor.install();
             });
         });
     };
-})(window, window.jQuery);
-
+})(window, window.jQuery);;

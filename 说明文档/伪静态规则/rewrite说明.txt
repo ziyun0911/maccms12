@@ -57,6 +57,11 @@ config/、app/、extend/、composer.json、composer.lock、think、.user.ini 以
              如把本目录示例 .htaccess 复制为根目录文件来启用伪静态，请连同
              其中的访问控制段落一起保留——示例文件与根目录 .htaccess 的拦截
              名单一致（含 .bak/.old/.orig 段）。
+             注意：根目录 .htaccess 另有「文本压缩」与「静态资源过期」两段，
+             示例文件里没有；复制覆盖根目录文件时要把这两段并回去，否则
+             gzip 与 Cache-Control 会随覆盖一起丢失。nginx / IIS 侧同样要
+             自己在 maccms.conf / web.config 里补 gzip 与 expires，示例
+             文件只带了 rewrite 和访问控制。
   nginx      用本目录 maccms.conf 的 location 拦截块。其中
              「location ^~ /.well-known/」必须排在正则规则之前，
              否则 HTTPS 证书的 HTTP-01 校验会被一起挡掉。

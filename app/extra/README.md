@@ -21,8 +21,8 @@
 
 | 机制 | 位置 | 后果 |
 |---|---|---|
-| 写回 | [`mac_arr2file()`](file:///D:/wwwroot/maccms/maccms12/app/common.php#L280)（`app/common.php:280-293`）：`var_export($arr,true)` → `"<?php\nreturn …;"` 整文件重写 + `opcache_invalidate()` | 手写注释丢失；已有键**保持原位置**（后台都是 `array_merge($old,$new)` 后整体回写）；文件里原本没有的键**追加到末尾** |
-| 写回（别名） | [`mac_save_config_data()`](file:///D:/wwwroot/maccms/maccms12/app/common.php#L295)（`:295-301`）只是 `is_array()` 包一层再转调 | 同上 |
+| 写回 | [`mac_arr2file()`](file:///D:/wwwroot/maccms/maccms12/app/common.php#L243)（`app/common.php:243-256`）：`var_export($arr,true)` → `"<?php\nreturn …;"` 整文件重写 + `opcache_invalidate()` | 手写注释丢失；已有键**保持原位置**（后台都是 `array_merge($old,$new)` 后整体回写）；文件里原本没有的键**追加到末尾** |
+| 写回（别名） | [`mac_save_config_data()`](file:///D:/wwwroot/maccms/maccms12/app/common.php#L258)（`:295-301`）只是 `is_array()` 包一层再转调 | 同上 |
 | 读法 A | `config('maccms.xxx')` / `config('maccms')` | **只认文件里真实存在的键**，缺键拿到 `null`（`Init` 第 14 行把 warning/deprecated 全压掉了，不会报错，见下） |
 | 读法 B | `$GLOBALS['config']['xxx']`（老代码里 745 处、106 个文件用这种） | 拿到的是 [`Init` 中间件](file:///D:/wwwroot/maccms/maccms12/app/common/middleware/Init.php#L18) 内存兜底后的那份（注入在 `:18-64`，赋值在 `:199`） |
 

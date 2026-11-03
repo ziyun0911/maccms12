@@ -300,13 +300,22 @@ class UserPm extends Base {
             foreach ($users as $u) {
                 $user_map[$u['user_id']] = $u;
             }
+            $unread_map = [];
+            $unread_rows = Db::name('user_pm')
+                ->field('from_uid, COUNT(*) AS cnt')
+                ->where('to_uid', $uid)
+                ->where('from_uid', 'in', array_values($peer_ids))
+                ->where('pm_read', 0)
+                ->where('pm_status', 1)
+                ->group('from_uid')
+                ->select();
+            foreach ($unread_rows as $ur) {
+                $unread_map[(int)$ur['from_uid']] = (int)$ur['cnt'];
+            }
             foreach ($page_rows as $r) {
                 $peer_uid = $r['peer_uid'];
                 $msg = isset($last_map[$r['last_pm_id']]) ? $last_map[$r['last_pm_id']] : null;
                 $u = isset($user_map[$peer_uid]) ? $user_map[$peer_uid] : null;
-                $unread = (int)Db::name('user_pm')
-                    ->where(['to_uid' => $uid, 'from_uid' => $peer_uid, 'pm_read' => 0, 'pm_status' => 1])
-                    ->count();
                 $list[] = [
                     'peer_uid' => $peer_uid,
                     'peer_name' => $u ? ($u['user_nick_name'] ? $u['user_nick_name'] : $u['user_name']) : '',
@@ -314,7 +323,7 @@ class UserPm extends Base {
                     'last_pm_id' => $r['last_pm_id'],
                     'last_content' => $msg ? mb_substr($msg['pm_content'], 0, 100, 'UTF-8') : '',
                     'last_time' => $msg ? $msg['pm_time'] : 0,
-                    'unread' => $unread,
+                    'unread' => $unread_map[(int)$peer_uid] ?? 0,
                 ];
             }
         }

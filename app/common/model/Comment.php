@@ -36,65 +36,75 @@ class Comment extends Base {
         if($totalshow==1) {
             $total = $this->where($where)->count();
         }
-        $list = Db::name('Comment')->field($field)->where($where)->order($order)->limit($limit_str)->select();
+        $list = Db::name('Comment')->field($field)->where($where)->order($order)->limit($limit_str)->select()->toArray();
 
-        $user_ids=[];
-        foreach($list as $k=>$v){
-            $list[$k]['user_portrait'] = mac_get_user_portrait($v['user_id']);
+        $subjectTableMap = [
+            1 => ['Vod', 'vod_id', 'vod_recycle_time'],
+            2 => ['Art', 'art_id', 'art_recycle_time'],
+            3 => ['Topic', 'topic_id', ''],
+            8 => ['Actor', 'actor_id', ''],
+            9 => ['Role', 'role_id', ''],
+            11 => ['Website', 'website_id', ''],
+            12 => ['Manga', 'manga_id', 'manga_recycle_time'],
+        ];
+
+        $parentIds = [];
+        $subjectIds = [];
+        foreach ($list as $v) {
+            $parentIds[] = (int)$v['comment_id'];
+            $mid = (int)$v['comment_mid'];
+            $rid = (int)$v['comment_rid'];
+            if (isset($subjectTableMap[$mid]) && $rid > 0) {
+                $subjectIds[$mid][$rid] = true;
+            }
+        }
+
+        $subMap = [];
+        if (!empty($parentIds)) {
+            $subs = Db::name('Comment')
+                ->where('comment_pid', 'in', $parentIds)
+                ->where('comment_status', 1)
+                ->order($order)
+                ->select();
+            foreach ($subs as $s) {
+                $subMap[(int)$s['comment_pid']][] = $s;
+            }
+        }
+
+        $dataMap = [];
+        foreach ($subjectIds as $mid => $rids) {
+            [$tbl, $pk, $recycle] = $subjectTableMap[$mid];
+            $rows = Db::name($tbl)->whereIn($pk, array_keys($rids))->select();
+            foreach ($rows as $r) {
+                $row = is_array($r) ? $r : $r->toArray();
+                if ($recycle !== '' && (int)($row[$recycle] ?? 0) > 0) {
+                    continue;
+                }
+                $dataMap[$mid . '-' . (int)$row[$pk]] = $row;
+            }
+        }
+
+        $portraitMap = [];
+        foreach ($list as $k => $v) {
+            $uid = (int)$v['user_id'];
+            if (!isset($portraitMap[$uid])) {
+                $portraitMap[$uid] = mac_get_user_portrait($uid);
+            }
+            $list[$k]['user_portrait'] = $portraitMap[$uid];
             $list[$k]['comment_content'] = mac_restore_htmlfilter($list[$k]['comment_content']);
 
-            $where2=[];
-            $where2['comment_pid'] = $v['comment_id'];
-            $where2['comment_status'] = ['eq',1];
-            $sub = Db::name('Comment')->where($where2)->order($order)->select();
+            $sub = $subMap[(int)$v['comment_id']] ?? [];
             $list[$k]['sub'] = $sub;
-            foreach($sub as $k2=>$v2){
-                $list[$k]['sub'][$k2]['user_portrait'] = mac_get_user_portrait($v2['user_id']);
-                $list[$k]['sub'][$k2]['comment_content'] = mac_restore_htmlfilter($list[$k]['sub'][$k2]['comment_content']);
+            foreach ($sub as $k2 => $v2) {
+                $su = (int)$v2['user_id'];
+                if (!isset($portraitMap[$su])) {
+                    $portraitMap[$su] = mac_get_user_portrait($su);
+                }
+                $list[$k]['sub'][$k2]['user_portrait'] = $portraitMap[$su];
+                $list[$k]['sub'][$k2]['comment_content'] = mac_restore_htmlfilter($v2['comment_content']);
             }
-            $list[$k]['data'] = [];
-            if($v['comment_mid'] == 1){
-                $where3=[];
-                $where3['vod_id'] = ['eq',$v['comment_rid']];
-                $vod = (new \app\common\model\Vod())->infoData($where3);
-                $list[$k]['data'] = $vod['info'];
-            }
-            elseif($v['comment_mid'] == 2){
-                $where3=[];
-                $where3['art_id'] = ['eq',$v['comment_rid']];
-                $vod = (new \app\common\model\Art())->infoData($where3);
-                $list[$k]['data'] = $vod['info'];
-            }
-            elseif($v['comment_mid'] == 3){
-                $where3=[];
-                $where3['topic_id'] = ['eq',$v['comment_rid']];
-                $vod = (new \app\common\model\Topic())->infoData($where3);
-                $list[$k]['data'] = $vod['info'];
-            }
-            elseif($v['comment_mid'] == 8){
-                $where3=[];
-                $where3['actor_id'] = ['eq',$v['comment_rid']];
-                $vod = (new \app\common\model\Actor())->infoData($where3);
-                $list[$k]['data'] = $vod['info'];
-            }
-            elseif($v['comment_mid'] == 9){
-                $where3=[];
-                $where3['role_id'] = ['eq',$v['comment_rid']];
-                $vod = (new \app\common\model\Role())->infoData($where3);
-                $list[$k]['data'] = $vod['info'];
-            }
-            elseif($v['comment_mid'] == 12){
-                $where3=[];
-                $where3['manga_id'] = ['eq',$v['comment_rid']];
-                $vod = (new \app\common\model\Manga())->infoData($where3);
-                $list[$k]['data'] = $vod['info'];
-            }
-            elseif($v['comment_mid'] == 11){
-                $where3=[];
-                $where3['website_id'] = ['eq',$v['comment_rid']];
-                $vod = (new \app\common\model\Website())->infoData($where3);
-                $list[$k]['data'] = $vod['info'];
-            }
+
+            $list[$k]['data'] = $dataMap[(int)$v['comment_mid'] . '-' . (int)$v['comment_rid']] ?? false;
         }
 
         return ['code'=>1,'msg'=>lang('data_list'),'page'=>$page,'pagecount'=>ceil($total/$limit),'limit'=>$limit,'total'=>$total,'list'=>$list];

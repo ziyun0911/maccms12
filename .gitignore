@@ -1,14 +1,18 @@
 # 运行期产物：缓存/日志/会话/编译模板，285M 且随时可再生，不入库
 /runtime/*
+
 # 采集与上传的附件、图片
 /upload/*
+
 # 本地覆盖配置
 .user.ini
 *.log
+
 # 编辑器与系统垃圾
 .DS_Store
 Thumbs.db
 *.swp
+
 # vendor/ 故意入库：本项目禁止手改 vendor，纳入版本管理后任何越界改动都会直接显现在 git status 里
 # 含明文凭据的站点实配，不入库（2026-10-25 已从 git 历史中一并清除）：
 #   config/database.php      → 数据库 root 口令
@@ -24,20 +28,27 @@ app/extra/maccms.php
 # 定时任务的实配：app/api/controller/Timming.php 每个 tick 都回写一次 runtime（下次执行时间戳），
 # 入库只会让无关提交带上两行抖动；任务定义在 install 阶段由 app/install/controller/Index.php 幂等注入重建。
 app/extra/timming.php
+
 # 后台「静态生成」的输出物（app/admin/controller/Make.php 写到 docroot 根），随时可重生成且带站点真实内容
 /index.html
 /wap_index.html
 /map.html
-# 其他遗留文件
-*.log
-*.png
-favicon.ico
+
+# 采集健康检查与日志产物、本地 favicon、安装目录里的 .bak
 app/extra/collect_health.php
 app/data/collect_log/
 app/data/content_check_log/
+app/data/install/*.bak
+favicon.ico
+
+# 上一版在这里写过一条全局 *.png，已删：仓库里 446 个 png 早已入库，这条只会让此后新增的
+# 模板图、后台截图静默漏提交（git status 都不显示），而它当下并没有挡住任何该忽略的文件。
+
+# 安装完成标记：由 app/install/controller/Index.php 在装完时写出。本仓库就是 docroot，
+# 缺了它 index.php 会把整站 302 到 install.php（安装向导重新可达），所以本机必须留着、但不能再入库。
+# 2026-10-27 远端已用 81b1b92 把入库副本删除，此后它只作为本机运行期文件存在。
 app/data/install/install.lock
-<<<<<<< HEAD
-app/data/install/*.bak
-=======
-app/data/install/*.bak
->>>>>>> 9e88570b4e877e8a3403e67d4c0a7aca467bc32f
+
+# 种子 SQL 的改动前副本：带已删除的色情分类，以及修好之前的裸写 INSERT INTO mac_content_lang。
+# 2026-10-27 远端已用 58bf454 把它删掉；这条只屏蔽「initdata - 某后缀」的副本，initdata.sql 本体照常入库。
+app/install/sql/initdata -*.sql

@@ -2249,3 +2249,16 @@ CREATE TABLE `mac_content_lang` (
 
 
 
+
+-- 数据库增量脚本执行记录：php think upgrade:run 跑一条 app/data/upgrade/*.sql 就写一行，
+-- version_hash 用来发现「历史脚本被改过」（改了也不会重跑，doctor 会报 modified）。
+CREATE TABLE `mac_db_version` (
+  `version_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `version_name` varchar(191) NOT NULL DEFAULT '' COMMENT '增量脚本文件名，不含扩展名',
+  `version_hash` char(32) NOT NULL DEFAULT '' COMMENT '脚本内容md5，用于追溯改动',
+  `version_stmt` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '执行的语句条数',
+  `version_cost` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '执行耗时(毫秒)',
+  `version_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '执行完成时间戳',
+  PRIMARY KEY (`version_id`),
+  UNIQUE KEY `version_name` (`version_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='数据库增量脚本执行记录';

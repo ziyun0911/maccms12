@@ -6,7 +6,7 @@
 <p>
 <a href="https://github.com/ziyun0911/maccms12/stargazers"><img src="https://img.shields.io/badge/STARS-⭐-black?logo=github&style=for-the-badge"/></a>
 <a href="https://github.com/ziyun0911/maccms12/forks"><img src="https://img.shields.io/badge/FORKS-🍴-blue?logo=git&style=for-the-badge"/></a>
-<a href="https://github.com/ziyun0911/maccms12/blob/main/LICENSE"><img src="https://img.shields.io/badge/LICENSE-GPL--3.0-green?style=for-the-badge"/></a>
+<a href="https://github.com/ziyun0911/maccms12/blob/main/LICENSE"><img src="https://img.shields.io/badge/LICENSE-Apache--2.0-green?style=for-the-badge"/></a>
 <a href="https://github.com/sponsors/ziyun0911"><img src="https://img.shields.io/badge/SPONSOR-❤️-pink?style=for-the-badge"/></a>
 </p>
 <p>
@@ -59,8 +59,8 @@ Nginx 需配 PATHINFO 伪静态（`try_files $uri $uri/ /index.php?s=$uri&$args;
 #    app/install/sql/install.sql   —— 建 80 张表
 #    app/install/sql/initdata.sql  —— 出厂数据
 # 4) 装完删掉/保留 install.lock（保留即锁死安装），登录后台先改密码
-# 5) 改过 static/ 下的 CSS/JS 源文件后重建资源包
-php think front:bundle            # 生成五张 bundle（含后台 admin.bundle.css）
+# 5) 改过 static/ 或 template/default/asset/ 下的 CSS/JS 源文件后重建资源包
+php think front:bundle            # 生成六张 bundle（前台 2 张 CSS、后台 1 张 CSS、后台 3 张 JS）
 php think front:bundle --check    # 只校验是否与源文件一致，不写盘
 ```
 
@@ -125,7 +125,7 @@ php think front:bundle --check    # 只校验是否与源文件一致，不写�
 | 06 | [接口与采集手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/06-接口与采集手册.md) | `api.php` 五种鉴权、接口清单、对外供数据、站外入库 |
 | 07 | [定时任务与运维手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/07-定时任务与运维手册.md) | 计划任务端点与调度判定、任务清单、crontab、缓存与日志、排障 |
 | 08 | [多语言手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/08-多语言手册.md) | 界面语言 / 内容多语言 / 模板短语 / 前台短语四层机制 |
-| 09 | [安全与权限手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/09-安全与权限手册.md) | 请求面、后台登录、权限模型、两套 CSRF 令牌、哈希闸门、五层下载拦截 |
+| 09 | [安全与权限手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/09-安全与权限手册.md) | 请求面、后台登录、权限模型、两套 CSRF 令牌、哈希闸门、下载拦截（一份名单 → 五处派生） |
 | 10 | [插件与扩展手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/10-插件与扩展手册.md) | 四种扩展形态、插件包与 `info.ini`、6 个钩子插槽、云市场、七类驱动 |
 | 90 | [变更记录.md](file:///D:/wwwroot/maccms/maccms12/说明文档/90-变更记录.md) | §1 已核实缺陷与遗留台账；§2-§3 迁移与核对记录归档 |
 

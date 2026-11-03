@@ -205,25 +205,7 @@ function mac_string_is_ip($string) {
     return preg_match('/^(\d{1,3}\.){3}\d{1,3}(:\d{1,5})?$/', $string) === 1;
 }
 
-function mac_return($msg,$code=1,$data=''){
-    if(is_array($msg)){
-        return json_encode($msg);
-    }
-    else {
-        $rs = ['code' => $code, 'msg' => $msg, 'data'=>'' ];
-        if(is_array($data)) $rs['data'] = $data;
-        return json_encode($rs);
-    }
-}
 
-function mac_run_statistics()
-{
-    $t2 = microtime(true) - MAC_START_TIME;
-    $size = memory_get_usage();
-    $memory = mac_format_size($size);
-    unset($unit);
-    return 'Processed in: '.round($t2,4).' second(s),&nbsp;' . $memory . ' Mem On.';
-}
 
 function mac_format_size($s=0)
 {
@@ -257,25 +239,6 @@ function mac_mkdirss($path,$mode=0777)
     return true;
 }
 
-function mac_rmdirs($dirname, $withself = true)
-{
-    if (!is_dir($dirname))
-        return false;
-    $files = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($dirname, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST
-    );
-
-    foreach ($files as $fileinfo)
-    {
-        $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
-        $todo($fileinfo->getRealPath());
-    }
-    if ($withself)
-    {
-        @rmdir($dirname);
-    }
-    return true;
-}
 
 function mac_arr2file($f,$arr='')
 {
@@ -432,19 +395,6 @@ function mac_reg_replace($str,$rule,$value)
     return $res;
 }
 
-function mac_reg_match($str,$rule)
-{
-    $res='';
-    $rule = mac_build_regx($rule,"is");
-    preg_match_all($rule,$str,$mc);
-    $mfv=$mc[1];
-    foreach($mfv as $f=>$v){
-        $res = trim(preg_replace("/[ \r\n\t\f]{1,}/"," ",$v));
-        break;
-    }
-    unset($mc);
-    return $res;
-}
 
 function mac_redirect($url,$obj='')
 {
@@ -457,10 +407,6 @@ function mac_alert($str)
     echo '<script>alert("' .$str. '\t\t");history.go(-1);</script>';
 }
 
-function mac_alert_url($str,$url)
-{
-    echo '<script>alert("' .$str. '\t\t");location.href="' .$url .'";</script>';
-}
 
 function mac_jump($url,$sec=0)
 {
@@ -1420,36 +1366,6 @@ function mac_escape($string, $in_encoding = 'UTF-8',$out_encoding = 'UCS-2') {
     }
     return $return;
 }
-function mac_unescape($str)
-{
-    $ret = '';
-    $len = strlen($str);
-    for ($i = 0; $i < $len; $i ++)
-    {
-        if ($str[$i] == '%' && $str[$i + 1] == 'u')
-        {
-            $val = hexdec(substr($str, $i + 2, 4));
-            if ($val < 0x7f)
-                $ret .= chr($val);
-            else
-                if ($val < 0x800)
-                    $ret .= chr(0xc0 | ($val >> 6)) .
-                        chr(0x80 | ($val & 0x3f));
-                else
-                    $ret .= chr(0xe0 | ($val >> 12)) .
-                        chr(0x80 | (($val >> 6) & 0x3f)) .
-                        chr(0x80 | ($val & 0x3f));
-            $i += 5;
-        } else
-            if ($str[$i] == '%')
-            {
-                $ret .= urldecode(substr($str, $i, 3));
-                $i += 2;
-            } else
-                $ret .= $str[$i];
-    }
-    return $ret;
-}
 
 function mac_get_mid_code($data)
 {
@@ -1570,23 +1486,6 @@ function mac_get_aid($controller,$action='')
     return $res;
 }
 
-function mac_get_user_status_text($data)
-{
-    $arr = [
-        0 => lang('disable'),
-        1 => lang('enable'),
-    ];
-    return $arr[$data];
-}
-function mac_get_user_flag_text($data)
-{
-    $arr = [
-        0 => lang('counting_points'),
-        1 => lang('counting_times'),
-        2 => lang('counting_ips'),
-    ];
-    return $arr[$data];
-}
 
 function mac_get_ulog_type_text($data)
 {
@@ -1620,23 +1519,7 @@ function mac_get_plog_type_text($data)
     return isset($arr[$data]) ? $arr[$data] : '';
 }
 
-function mac_get_card_sale_status_text($data)
-{
-    $arr = [
-        0 => lang('not_sale'),
-        1 => lang('sold'),
-    ];
-    return $arr[$data];
-}
 
-function mac_get_card_use_status_text($data)
-{
-    $arr = [
-        0 => lang('not_used'),
-        1 => lang('used'),
-    ];
-    return $arr[$data];
-}
 
 function mac_get_mall_goods_type_text($data)
 {
@@ -1731,11 +1614,6 @@ function mac_format_text($str, $allow_space = false)
         $finder[] = ' ';
     }
     return str_replace($finder, ',', $str);
-}
-function mac_format_count($str)
-{
-    $arr = explode(',',$str);
-    return count($arr);
 }
 
 function mac_txt_merge($txt,$str)
@@ -2016,24 +1894,12 @@ function mac_filter_words($p)
     return $p;
 }
 
-function mac_long2ip($ip){
-    $ip = long2ip($ip);
-    $reg2 = '~(\d+)\.(\d+)\.(\d+)\.(\d+)~';
-    return preg_replace($reg2, "$1.$2.*.*", $ip);
-}
 function mac_default($s,$def='')
 {
     if(empty($s)){
         return $def;
     }
     return $s;
-}
-function mac_num_fill($num)
-{
-    if($num<10){
-        $num = '0' . $num;
-    }
-    return $num;
 }
 
 function mac_multisort($arr,$col_sort,$sort_order,$col_status='',$status_val='')
@@ -2069,36 +1935,6 @@ function mac_get_body($text,$start,$end)
     return $str;
 }
 
-function mac_find_array($text,$start,$end)
-{
-    $start=stripslashes($start);
-    $end=stripslashes($end);
-    if(empty($text)){ return false; }
-    if(empty($start)){ return false; }
-    if(empty($end)){ return false; }
-
-    $start = str_replace(["(",")","'","?"],["\(","\)","\'","\?"],$start);
-    $end = str_replace(["(",")","'","?"],["\(","\)","\'","\?"],$end);
-
-    $labelRule = $start."(.*?)".$end;
-    $labelRule = mac_buildregx($labelRule,"is");
-    preg_match_all($labelRule,$text,$tmparr);
-    $tmparrlen=count($tmparr[1]);
-    $rc=false;
-    $str='';
-    $arr=[];
-    for($i=0;$i<$tmparrlen;$i++) {
-        if($rc){ $str .= "{array}"; }
-        $str .= $tmparr[1][$i];
-        $rc=true;
-    }
-
-    if(empty($str)) { return false ;}
-    $str=str_replace($start,"",$str);
-    $str=str_replace($end,"",$str);
-    if(empty($str)) { return false ;}
-    return $str;
-}
 
 function mac_param_url(){
     $input = input() ;
@@ -2150,14 +1986,6 @@ function mac_param_url(){
     return $param;
 }
 
-function mac_get_page($page)
-{
-    if(empty($page)) {
-        $param = mac_param_url();
-        $page = $param['page'];
-    }
-    return $page;
-}
 
 function mac_tpl_fetch($model,$tpl,$def='')
 {
@@ -2241,22 +2069,6 @@ function mac_theme_design()
     return $data;
 }
 
-function mac_td_section($key)
-{
-    static $map = null;
-    if ($map === null) {
-        $map = array();
-        $td = mac_theme_design();
-        if (!empty($td['homepage']['sections']) && is_array($td['homepage']['sections'])) {
-            foreach ($td['homepage']['sections'] as $s) {
-                if (!empty($s['key'])) {
-                    $map[$s['key']] = $s;
-                }
-            }
-        }
-    }
-    return isset($map[$key]) ? $map[$key] : array();
-}
 
 function mac_url_content_img($content)
 {
@@ -3220,10 +3032,6 @@ function mac_url_actor_detail($info)
 {
     return mac_url('actor/detail',[],$info);
 }
-function mac_url_actor_search($param)
-{
-    return mac_url('actor/search',$param);
-}
 function mac_url_label($file)
 {
     $file = str_replace('\\', '/', (string)$file);
@@ -3257,25 +3065,9 @@ function mac_url_website_detail($info)
 {
     return mac_url('website/detail',[],$info);
 }
-function mac_url_website_search($param)
-{
-    return mac_url('website/search',$param);
-}
-function mac_url_art_index($param=[])
-{
-    return mac_url('art/index',['page'=>$param['page']]);
-}
 function mac_url_art_detail($info,$param=[])
 {
     return mac_url('art/detail',['page'=>$param['page']],$info);
-}
-function mac_url_art_search($param)
-{
-    return mac_url('art/search',$param);
-}
-function mac_url_vod_index($param=[])
-{
-    return mac_url('vod/index',['page'=>$param['page']]);
 }
 function mac_url_vod_detail($info)
 {
@@ -3311,34 +3103,6 @@ function mac_url_manga_play($info,$param=[])
     }
 
     return mac_url('manga/play',['sid'=>$param['sid'],'nid'=>$param['nid']],$info);
-}
-function mac_url_manga_down($info,$param=[])
-{
-    if($param=='first'){
-        if(empty($info['manga_page_list']) || !is_array($info['manga_page_list'])){
-            return '';
-        }
-        $sid = intval(key($info['manga_page_list']));
-        if(empty($info['manga_page_list'][$sid]['urls']) || !is_array($info['manga_page_list'][$sid]['urls'])){
-            return '';
-        }
-        $nid = intval(key($info['manga_page_list'][$sid]['urls']));
-        if($sid==0 || $nid==0){
-            return '';
-        }
-        $param = [];
-        $param['sid'] = $sid;
-        $param['nid'] = $nid;
-    }
-
-    if(intval($param['sid'])<1){
-        $param['sid'] = 1;
-    }
-    if(intval($param['nid'])<1){
-        $param['nid'] = 1;
-    }
-
-    return mac_url('manga/down',['sid'=>$param['sid'],'nid'=>$param['nid']],$info);
 }
 function mac_url_vod_search($param)
 {
@@ -3563,23 +3327,6 @@ function mac_label_type($param, $type_id_specified)
     return $type_info;
 }
 
-function mac_data_count($tid=0,$range='all',$flag='vod')
-{
-    if(!in_array($flag,['vod','art','actor','role','topic','website'])) {
-        $flag='vod';
-    }
-    if(!in_array($range,['all','today','min'])){
-        $range='all';
-    }
-
-    $data = (new \app\common\model\Extend())->dataCount();
-    if ($tid > 0 && in_array($flag, ['vod', 'art'])) {
-        $key = 'type_' . $range . '_' . $tid;
-    } else {
-        $key = $flag . '_' . $range;
-    }
-    return intval($data[$key] ?? 0);
-}
 
 function mac_get_popedom_filter($group_type_list, $type_list = [])
 {
@@ -3781,18 +3528,6 @@ function mac_unicode_encode($str, $encoding = 'UTF-8', $prefix = '&#', $postfix 
         $unistr .= $prefix . $dec . $postfix;
     }
     return $unistr;
-}
-function mac_unicode_decode($unistr, $encoding = 'UTF-8', $prefix = '&#', $postfix = ';') {
-    $arruni = explode($prefix, $unistr);
-    $unistr = '';
-    for($i = 1, $len = count($arruni); $i < $len; $i++) {
-        if (strlen($postfix) > 0) {
-            $arruni[$i] = substr($arruni[$i], 0, strlen($arruni[$i]) - strlen($postfix));
-        }
-        $temp = intval($arruni[$i]);
-        $unistr .= ($temp < 256) ? chr(0) . chr($temp) : chr($temp / 256) . chr($temp % 256);
-    }
-    return iconv('UCS-2', $encoding, $unistr);
 }
 
 function mac_escape_param($param)
