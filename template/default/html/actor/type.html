@@ -2,7 +2,7 @@
 <html lang="{:mac_html_lang()}">
 <head>
 	{include file="public/include"}
-	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/actor-index.css?v=202607301" />
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/actor-index.css?v=202611051" />
 	<link rel="stylesheet" href="{$maccms.path}template/default/asset/css/hlactor.css?v=202607301" type="text/css" />
 </head>
 
@@ -30,8 +30,8 @@
 				
 				<div class="clearfix" id="myTab">
 					<ul class="box-star-list">
-						{maccms:actor num="8" level="1" order="desc" by="time"}
-						<li class="col-md-1 col-sm-2 col-xs-4 "  {if condition="$key == 1"}class="active"{/if}>
+						{maccms:actor num="8" order="desc" by="hits"}
+						<li class="col-md-1 col-sm-2 col-xs-4{if condition="$key == 1"} active{/if}">
 							<a class="star-pic loading img-circle" style="padding-top: 100%; background: url({$vo.actor_pic|mac_url_img}) no-repeat;background-size:cover;"
 							    href="javascript:;">
 								<span>{$vo.actor_name}</span>
@@ -40,11 +40,11 @@
 					</ul>
 				</div>
 				<div class="clearfix star-video-list">
-					{maccms:actor num="8" level="1" order="desc" by="time" id="vo1" key="key1"}
-					<ul class="box-star-list fade" id="hot_star_{$key1}">
-						{maccms:vod num="6" type="'.$vo['type_id'].'" actor="'.$vo1['actor_name'].'" order="desc" by="time" id="vo2" key="key2"}
-						<li class="vodlist_item" {if condition="$key1 == 1"}style="display:block"{/if} id="con_hot_star__{$key1}">
-							<a class="vodlist_thumb lazyload" href="{:mac_url_vod_detail($vo2)}" title="{$vo2.vod_name}" style="background: url({$vo2.vod_pic|mac_url_img}) no-repeat;background-size:cover;">						
+					{maccms:actor num="8" order="desc" by="hits" id="vo1" key="key1"}
+					<ul class="vodlist vodlist_wi star-work-list{if condition="$key1 == 1"} active{/if}" id="hot_star_{$key1}">
+						{maccms:vod num="6" actor="'.$vo1['actor_name'].'" order="desc" by="time" id="vo2" key="key2"}
+						<li class="vodlist_item" id="con_hot_star__{$key1}_{$key2}">
+							<a class="vodlist_thumb lazyload" href="{:mac_url_vod_detail($vo2)}" title="{$vo2.vod_name}" data-original="{$vo2.vod_pic|mac_url_img}">
 								<span class="play hidden_xs"></span>
 								{if condition="($maccms.aid eq 2) OR ($maccms.aid eq 13)"}
 								<span class="vodlist_top">{$vo2.type.type_name}</span>
@@ -66,6 +66,7 @@
 								{/if}
 							</div>
 						</li>{/maccms:vod}
+						<li class="star-work-empty"><span data-lang="string_art_nodata">暂无数据</span></li>
 					</ul>{/maccms:actor}
 				</div>
 			</div>
@@ -73,19 +74,19 @@
 		</div>
      </div>
 </div>
+	{notempty name="types"}
     <div class="container bot-con">
-		{foreach name="types" key="key" item="vo"}
-		{php} $vo = $vo->toArray(); $type_extend = json_decode($vo['type_extend']); $area = $type_extend->area; {/php}
+		{foreach name="types" item="blk"}
 		<div class="vod_row">
 			<div class="pannel">
 				<div class="pannel_head">
 					<span class="text_muted pull_right">
-						<a href="{:mac_url_type($vo,[],'type')}">更多<i class="iconfont more_i">&#xe623;</i></a>
+						<a href="{:mac_url_type($blk['type'],[],'type')}">更多<i class="iconfont more_i">&#xe623;</i></a>
 					</span>
-					<h2 class="title">{$vo.type_name}</h2>
+					<h2 class="title">{$blk.type.type_name}</h2>
 				</div>
 				<ul class="vodlist vodlist_wi">
-					{maccms:actor type="'.$vo['type_id'].'" num="5" area="'.$area.'" paging="no" order="desc" by="sort"}
+					{maccms:actor type="'.$blk['scope_type'].'" area="'.$blk['scope_area'].'" num="16" paging="no" order="desc" by="hits"}
 					{include file="actor/vod_actor"}
 					{/maccms:actor}
 				</ul>
@@ -93,6 +94,7 @@
 		</div>
 		{/foreach}
    </div>
+	{/notempty}
    <div style="width:30rem;margin: 2rem auto;">
 	{include file="public/friendLink" }
 </div>

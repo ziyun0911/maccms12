@@ -233,12 +233,8 @@ class VodSearch extends Base {
         }
         Cache::set($cach_name, 1, min((int)$clear_seconds, 86400));
         $where = [
-            'search_field'       => ['neq', 'vod_actor'],
             'search_update_time' => ['lt', time() - $clear_seconds],
         ];
-        if ($force === true) {
-            unset($where['search_field']);
-        }
         $this->where($where)->delete();
     }
 }

@@ -19,7 +19,92 @@ class Actor extends Base
     public function type()
     {
         $info = $this->label_type();
+        $this->assign('types', $this->typeBlocks($info));
         return $this->label_fetch( mac_tpl_fetch('actor',$info['type_tpl'],'type') );
+    }
+
+    private function typeBlocks($info)
+    {
+        $type_id = isset($info['type_id']) ? (int)$info['type_id'] : 0;
+        if ($type_id <= 0) {
+            return [];
+        }
+        $type_list = (new \app\common\model\Type())->getCache('type_list');
+        if (empty($type_list[$type_id])) {
+            return [];
+        }
+
+        $children = [];
+        foreach ($type_list as $t) {
+            if ((int)$t['type_pid'] === $type_id && (int)$t['type_status'] === 1) {
+                $children[] = $t;
+            }
+        }
+        usort($children, function ($a, $b) {
+            return (int)$b['type_sort'] <=> (int)$a['type_sort'];
+        });
+
+        $blocks = [];
+        if (!empty($children)) {
+            foreach ($children as $t) {
+                $scope_ids = $this->typeSelfIds($type_list, (int)$t['type_id']);
+                if ($this->countActors($scope_ids, '') > 0) {
+                    $blocks[] = ['type' => $t, 'scope_type' => (int)$t['type_id'], 'scope_area' => ''];
+                    continue;
+                }
+                $area = $this->typeAreaWords($t);
+                if ($area === '') {
+                    continue;
+                }
+                $parent_ids = $this->typeSelfIds($type_list, $type_id);
+                if ($this->countActors($parent_ids, $area) <= 0) {
+                    continue;
+                }
+                $blocks[] = ['type' => $t, 'scope_type' => $type_id, 'scope_area' => $area];
+            }
+            return $blocks;
+        }
+
+        $parent_id = (int)$type_list[$type_id]['type_pid'];
+        if ($parent_id > 0 && !empty($type_list[$parent_id])) {
+            $blocks[] = ['type' => $type_list[$parent_id], 'scope_type' => $parent_id, 'scope_area' => ''];
+        }
+        return $blocks;
+    }
+
+    private function typeSelfIds($type_list, $type_id)
+    {
+        $ids = [$type_id];
+        foreach ($type_list as $t) {
+            if ((int)$t['type_pid'] === $type_id && (int)$t['type_status'] === 1) {
+                $ids[] = (int)$t['type_id'];
+            }
+        }
+        return $ids;
+    }
+
+    private function typeAreaWords($type)
+    {
+        $extend = json_decode((string)($type['type_extend'] ?? ''), true);
+        $area = trim((string)(is_array($extend) && isset($extend['area']) ? $extend['area'] : ''));
+        if ($area === '') {
+            $area = trim((string)($type['type_name'] ?? ''));
+        }
+        return $area;
+    }
+
+    private function countActors($type_ids, $area)
+    {
+        if (empty($type_ids)) {
+            return 0;
+        }
+        $query = (new \app\common\model\Actor())
+            ->where('actor_status', 1)
+            ->whereIn('type_id', $type_ids);
+        if ($area !== '') {
+            $query->whereIn('actor_area', explode(',', $area));
+        }
+        return (int)$query->count();
     }
 
     public function show()
