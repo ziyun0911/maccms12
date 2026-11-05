@@ -7,5 +7,6 @@ return [
         'app\command\BlocklistSync',
         'app\command\Doctor',
         'app\command\UpgradeRun',
+        'app\command\HotWordsPick',
     ],
 ];
