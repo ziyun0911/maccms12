@@ -2,7 +2,7 @@
 <html lang="{:mac_html_lang()}">
 <head>
 	{include file="public/include"}
-	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/actor-index.css?v=202611051" />
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/actor-index.css?v=202611052" />
 	<link rel="stylesheet" href="{$maccms.path}template/default/asset/css/hlactor.css?v=202607301" type="text/css" />
 </head>
 
@@ -32,7 +32,7 @@
 					<ul class="box-star-list">
 						{maccms:actor num="8" order="desc" by="hits"}
 						<li class="col-md-1 col-sm-2 col-xs-4{if condition="$key == 1"} active{/if}">
-							<a class="star-pic loading img-circle" style="padding-top: 100%; background: url({$vo.actor_pic|mac_url_img}) no-repeat;background-size:cover;"
+							<a class="star-pic loading img-circle" style="padding-top: 100%; background-image: url({$vo.actor_pic|mac_url_img});"
 							    href="javascript:;">
 								<span>{$vo.actor_name}</span>
 							</a>
@@ -69,6 +69,26 @@
 						<li class="star-work-empty"><span data-lang="string_art_nodata">暂无数据</span></li>
 					</ul>{/maccms:actor}
 				</div>
+				<script>
+				(function(){
+					function pick(){
+						var tabs=document.querySelectorAll('#myTab .box-star-list > li');
+						var lists=document.querySelectorAll('.star-video-list > .star-work-list');
+						if(!tabs.length||tabs.length!==lists.length){return}
+						var best=0,max=-1,i,c;
+						for(i=0;i<lists.length;i++){
+							c=lists[i].querySelectorAll('.vodlist_item').length;
+							if(c>max){max=c;best=i}
+						}
+						if(max<1){return}
+						for(i=0;i<tabs.length;i++){
+							tabs[i].classList.toggle('active',i===best);
+							lists[i].classList.toggle('active',i===best);
+						}
+					}
+					if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',pick)}else{pick()}
+				})();
+				</script>
 			</div>
 			
 		</div>
