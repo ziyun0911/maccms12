@@ -4,10 +4,10 @@
 
 ## 数据库备份 (`数据库 → 数据库备份` / `database/index`)
 
-- **备份**：导出为 `.sql` 或分片包，目录取 `maccms.db.backup_path`（默认 `./app/data/backup/database/`，[app/extra/maccms.php:13](file:///d:/wwwroot/maccms/maccms12/app/extra/maccms.php#L13)），单片大小受 `db.part_size`（默认 20971520 = 20 MB）、压缩由 `db.compress` / `db.compress_level` 控制（[app/extra/maccms.php:14-16](file:///d:/wwwroot/maccms/maccms12/app/extra/maccms.php#L14-L16)）。  
+- **备份**：导出为 `.sql` 或分片包，目录取 `maccms.db.backup_path`（默认 `./app/data/backup/database/`，[app/extra/maccms.php:13](.../app/extra/maccms.php#L13)），单片大小受 `db.part_size`（默认 20971520 = 20 MB）、压缩由 `db.compress` / `db.compress_level` 控制（[app/extra/maccms.php:14-16](.../app/extra/maccms.php#L14-L16)）。  
 - **恢复/导入**：`database/import` —— 覆盖当前数据，**只对测试库或停机维护窗口**执行。  
 - **优化 / 修复表**：`database/optimize`、`database/repair`，用于 InnoDB 碎片或异常关机后（仍先备份）。  
-- 备份文件可直传远程存储（方法名 `uploadStorage`，**权限串与 auth 节点里都是小写 `database/uploadstorage`**；勾 `database/index` 或 `database/export` 也放行，[Base.php:81-88](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Base.php#L81-L88)）。
+- 备份文件可直传远程存储（方法名 `uploadStorage`，**权限串与 auth 节点里都是小写 `database/uploadstorage`**；勾 `database/index` 或 `database/export` 也放行，[Base.php:81-88](.../app/admin/controller/Base.php#L81-L88)）。
 
 ## 执行 SQL 语句 (`database/sql`)
 

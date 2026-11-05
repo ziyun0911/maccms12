@@ -2,7 +2,7 @@
 
 **完整后台知识目录**：见同目录 **`00-index-toc.md`**（列出全部 `.md` 主题索引）。单靠本文件不足以覆盖全部菜单与配置细节。
 
-MacCMS（苹果 CMS）**v12** 分支，跑在 **PHP ≥ 8.0.2 + MySQL** 上，内核是 **ThinkPHP 8**。版本号写在 [admin.php:10](file:///d:/wwwroot/maccms/maccms12/admin.php#L10) 的 `MAC_VERSION`，PHP 版本闸门在 [admin.php:6](file:///d:/wwwroot/maccms/maccms12/admin.php#L6)。
+MacCMS（苹果 CMS）**v12** 分支，跑在 **PHP ≥ 8.0.2 + MySQL** 上，内核是 **ThinkPHP 8**。版本号写在 [admin.php:10](.../admin.php#L10) 的 `MAC_VERSION`，PHP 版本闸门在 [admin.php:6](.../admin.php#L6)。
 
 站点根目录下的入口文件共 5 个业务入口（另有 `router.php` 只服务于 `php -S` 本地开发）：
 
@@ -32,7 +32,7 @@ Main runtime configuration is stored in **`app/extra/maccms.php`** (site URL, ap
 ## Safety
 
 - 修改数据库、升级、批量替换前：**备份数据库 + `app/extra/maccms.php`**。  
-- 计划任务的执行入口是 **`api.php/timming/index`**（任务清单在 **网站参数 → 计划任务**，`timming/index`，数据存 `app/extra/timming.php`）。该入口没有独立密钥，只按 **周 / 小时排期** 判断是否执行；带 `enforce=1` 立即执行时要求已登录的管理员（[app/api/controller/Timming.php:29](file:///d:/wwwroot/maccms/maccms12/app/api/controller/Timming.php#L29)）。**不要把会写库的任务地址公开**。
+- 计划任务的执行入口是 **`api.php/timming/index`**（任务清单在 **网站参数 → 计划任务**，`timming/index`，数据存 `app/extra/timming.php`）。该入口没有独立密钥，只按 **周 / 小时排期** 判断是否执行；带 `enforce=1` 立即执行时要求已登录的管理员（[app/api/controller/Timming.php:29](.../app/api/controller/Timming.php#L29)）。**不要把会写库的任务地址公开**。
 
 ---
 
@@ -40,7 +40,7 @@ MacCMS（苹果 CMS）基于 **PHP + MySQL**。
 
 - **前台**：`index` 应用，模板在站点根目录 **`template/模板名/`** 下。  
 - **后台**：`admin` 应用。  
-- **主配置**：`app/extra/maccms.php`。后台保存设置时是 **整文件 `var_export` 重写**（`mac_arr2file()`，[app/common.php:280-293](file:///d:/wwwroot/maccms/maccms12/app/common.php#L280-L293)），手写的注释会被抹掉，请先备份。顶层键含义摘要见 **`22-maccms-php-config.md`**。
+- **主配置**：`app/extra/maccms.php`。后台保存设置时是 **整文件 `var_export` 重写**（`mac_arr2file()`，[app/common.php:280-293](.../app/common.php#L280-L293)），手写的注释会被抹掉，请先备份。顶层键含义摘要见 **`22-maccms-php-config.md`**。
 
 **常见上线顺序**：网站参数 → 建好分类 → 添加或采集内容 → 检查模板与 URL/伪静态 → 缓存与性能相关开关。
 

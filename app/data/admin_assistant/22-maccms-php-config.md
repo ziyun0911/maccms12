@@ -1,6 +1,6 @@
 # `app/extra/maccms.php` 结构说明（无敏感值）
 
-主配置文件为 **`app/extra/maccms.php`**（`return array(...)`，**当前出厂共 29 个顶级键**）。后台 **网站参数** 各页保存时按区块 **整体回写** 该文件（`mac_arr2file()`，[app/common.php:280-293](file:///d:/wwwroot/maccms/maccms12/app/common.php#L280-L293)）—— **文件里的手写注释会被清掉**。
+主配置文件为 **`app/extra/maccms.php`**（`return array(...)`，**当前出厂共 29 个顶级键**）。后台 **网站参数** 各页保存时按区块 **整体回写** 该文件（`mac_arr2file()`，[app/common.php:280-293](.../app/common.php#L280-L293)）—— **文件里的手写注释会被清掉**。
 
 ## 顶级键（实测全部 29 个）
 
@@ -25,8 +25,8 @@
 | **seo** | **`seo.vod` / `seo.art` / `seo.actor` … 的 name/key/des**（模块级 SEO 在这个块下，**没有独立的顶级 `vod`/`art` 键**） |
 | **urlsend** | 搜索引擎 URL 推送配置 |
 | **extra** / **view** | 预留参数 / 前台显示开关 |
-| **path** | 各模块 URL 路径模板 + **`suffix`**（伪静态后缀，[maccms.php:700](file:///d:/wwwroot/maccms/maccms12/app/extra/maccms.php#L700)） |
-| **rewrite** | `status`、`route_status`、**`suffix_hide`**（[maccms.php:704](file:///d:/wwwroot/maccms/maccms12/app/extra/maccms.php#L704)）、`encode_key/len`、各模块 rewrite 参数 |
+| **path** | 各模块 URL 路径模板 + **`suffix`**（伪静态后缀，[maccms.php:700](.../app/extra/maccms.php#L700)） |
+| **rewrite** | `status`、`route_status`、**`suffix_hide`**（[maccms.php:704](.../app/extra/maccms.php#L704)）、`encode_key/len`、各模块 rewrite 参数 |
 | **ai_search** | AI 搜索 / 外部源 / 向量重排 |
 | **trusted_proxies** | 反向代理可信 IP 串（顶级 **标量**，非数组） |
 | **analytics** | 统计口径开关 |
@@ -34,7 +34,7 @@
 | **monitor** | 监控与告警、`cron_token` |
 | **push** | Web 推送 |
 
-**出厂不存在、按需生成的键**：`admin_assistant`（后台助手）只有在 **网站参数 → 后台助手设置** 点过保存后才会出现（[System.php:2004-2006](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/System.php#L2004-L2006)）；`addon`、`addon_cloud`、`template_cloud` 同理。  
+**出厂不存在、按需生成的键**：`admin_assistant`（后台助手）只有在 **网站参数 → 后台助手设置** 点过保存后才会出现（[System.php:2004-2006](.../app/admin/controller/System.php#L2004-L2006)）；`addon`、`addon_cloud`、`template_cloud` 同理。  
 **不在本文件里的配置**：计划任务条目在 **`app/extra/timming.php`**，数据库连接在 **`config/database.php`**，翻译在 **`app/extra/translate.php`** —— 详见 `app/extra/README.md`。
 
 ## 操作守则

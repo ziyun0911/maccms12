@@ -74,10 +74,10 @@
                     </blockquote>
 
                     {if condition="$content_lang_multi"}
-                    <div class="layui-tab" lay-filter="content_lang_tab">
+                    <div class="layui-tab" lay-filter="content_lang_tab">{:mac_lang_flag_sprite()}
                         <ul class="layui-tab-title">
                             {volist name="content_lang_enabled" id="lc"}
-                            <li {if condition="$lc eq $content_lang_default"}class="layui-this"{/if}>{$lc}</li>
+                            <li {if condition="$lc eq $content_lang_default"}class="layui-this"{/if}>{:mac_lang_flag_icon($lc)} {$lc}</li>
                             {/volist}
                         </ul>
                         <div class="layui-tab-content">

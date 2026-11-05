@@ -31,8 +31,8 @@ return array (
     ),
     'app_dl' => 
     array (
-      'applogo_light' => 'template/default/images/la/logo@2x.gif',
-      'applogo_dark' => 'template/default/images/la/logo@2x.gif',
+      'applogo_light' => 'template/default/images/layout/logo@2x.gif',
+      'applogo_dark' => 'template/default/images/layout/logo@2x.gif',
       'applogo' => '',
       'title' => '',
       'subtitle' => '',
@@ -46,32 +46,32 @@ return array (
         array (
           'id' => '1',
           'name' => '电影',
-          'icon_l' => 'template/default/images/la/home-icon1.png',
-          'icon_b' => 'template/default/images/black/home-icon1.png',
+          'icon_l' => 'template/default/images/home/home-icon1.png',
+          'icon_b' => 'template/default/images/home/home-icon1-black.png',
           'cover' => 'v',
         ),
         1 => 
         array (
           'id' => '2',
           'name' => '电视剧',
-          'icon_l' => 'template/default/images/la/home-icon2.png',
-          'icon_b' => 'template/default/images/black/home-icon2.png',
+          'icon_l' => 'template/default/images/home/home-icon2.png',
+          'icon_b' => 'template/default/images/home/home-icon2-black.png',
           'cover' => 'v',
         ),
         2 => 
         array (
           'id' => '3',
           'name' => '综艺',
-          'icon_l' => 'template/default/images/la/home-icon3.png',
-          'icon_b' => 'template/default/images/black/home-icon3.png',
+          'icon_l' => 'template/default/images/home/home-icon3.png',
+          'icon_b' => 'template/default/images/home/home-icon3-black.png',
           'cover' => 'v',
         ),
         3 => 
         array (
           'id' => '4',
           'name' => '动漫',
-          'icon_l' => 'template/default/images/la/home-icon4.png',
-          'icon_b' => 'template/default/images/black/home-icon4.png',
+          'icon_l' => 'template/default/images/home/home-icon4.png',
+          'icon_b' => 'template/default/images/home/home-icon4-black.png',
           'cover' => 'v',
         ),
       ),
@@ -90,29 +90,29 @@ return array (
         array (
           'id' => '1',
           'name' => '电影',
-          'icon_l' => 'template/default/images/la/home-icon1.png',
-          'icon_b' => 'template/default/images/black/home-icon1.png',
+          'icon_l' => 'template/default/images/home/home-icon1.png',
+          'icon_b' => 'template/default/images/home/home-icon1-black.png',
         ),
         1 => 
         array (
           'id' => '2',
           'name' => '电视剧',
-          'icon_l' => 'template/default/images/la/home-icon2.png',
-          'icon_b' => 'template/default/images/black/home-icon2.png',
+          'icon_l' => 'template/default/images/home/home-icon2.png',
+          'icon_b' => 'template/default/images/home/home-icon2-black.png',
         ),
         2 => 
         array (
           'id' => '4',
           'name' => '短剧',
-          'icon_l' => 'template/default/images/la/home-icon3.png',
-          'icon_b' => 'template/default/images/black/home-icon3.png',
+          'icon_l' => 'template/default/images/home/home-icon3.png',
+          'icon_b' => 'template/default/images/home/home-icon3-black.png',
         ),
         3 => 
         array (
           'id' => '3',
           'name' => '动漫',
-          'icon_l' => 'template/default/images/la/home-icon4.png',
-          'icon_b' => 'template/default/images/black/home-icon4.png',
+          'icon_l' => 'template/default/images/home/home-icon4.png',
+          'icon_b' => 'template/default/images/home/home-icon4-black.png',
         ),
       ),
     ),
@@ -266,9 +266,9 @@ return array (
         'name' => '电影',
         'link' => '',
         'icon_light_nor' => 'template/default/images/nav/nav1_nor.png',
-        'icon_light_sel' => 'template/default/images/new/home_ic_home_nor_ative.png',
-        'icon_dark_nor' => 'template/default/images/new/home_ic_home_nor.png',
-        'icon_dark_sel' => 'template/default/images/new/home_ic_home_nor_ative.png',
+        'icon_light_sel' => 'template/default/images/nav/home_ic_home_nor_ative.png',
+        'icon_dark_nor' => 'template/default/images/home/home-icon1-black.png',
+        'icon_dark_sel' => 'template/default/images/nav/home_ic_home_nor_ative.png',
       ),
       1 => 
       array (
@@ -276,29 +276,29 @@ return array (
         'name' => '电视剧',
         'link' => '',
         'icon_light_nor' => 'template/default/images/nav/nav2_nor.png',
-        'icon_light_sel' => 'template/default/images/new/home_ic_teleplay_nor_ative.png',
-        'icon_dark_nor' => 'template/default/images/new/home_ic_teleplay_nor.png',
-        'icon_dark_sel' => 'template/default/images/new/home_ic_teleplay_nor_ative.png',
+        'icon_light_sel' => 'template/default/images/nav/home_ic_teleplay_nor.png',
+        'icon_dark_nor' => 'template/default/images/nav/home_ic_teleplay_nor.png',
+        'icon_dark_sel' => 'template/default/images/nav/home_ic_teleplay_nor.png',
       ),
       2 => 
       array (
         'id' => '4',
         'name' => '动漫',
         'link' => '',
-        'icon_light_nor' => 'template/default/images/la/home-icon8.png',
-        'icon_light_sel' => 'template/default/images/new/home_ic_message_nor_ative.png',
-        'icon_dark_nor' => 'template/default/images/new/home_ic_message_nor.png',
-        'icon_dark_sel' => 'template/default/images/new/home_ic_message_nor_ative.png',
+        'icon_light_nor' => 'template/default/images/home/home-icon8.png',
+        'icon_light_sel' => 'template/default/images/nav/home_ic_message_nor.png',
+        'icon_dark_nor' => 'template/default/images/nav/home_ic_message_nor.png',
+        'icon_dark_sel' => 'template/default/images/nav/home_ic_message_nor.png',
       ),
       3 => 
       array (
         'id' => '3',
         'name' => '综艺',
         'link' => '',
-        'icon_light_nor' => 'template/default/images/nav/nav4_nor.png',
-        'icon_light_sel' => 'template/default/images/new/home_ic_animation_nor_ative.png',
-        'icon_dark_nor' => 'template/default/images/new/home_ic_animation_nor.png',
-        'icon_dark_sel' => 'template/default/images/new/home_ic_animation_nor_ative.png',
+        'icon_light_nor' => 'template/default/images/home/home-icon5.png',
+        'icon_light_sel' => 'template/default/images/nav/home_ic_animation_nor_ative.png',
+        'icon_dark_nor' => 'template/default/images/home/home-icon5-black.png',
+        'icon_dark_sel' => 'template/default/images/nav/home_ic_animation_nor_ative.png',
       ),
     ),
     'cover_ratio' => 

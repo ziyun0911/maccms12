@@ -1623,10 +1623,10 @@ function mac_txt_merge($txt,$str)
     }
     if($GLOBALS['config']['collect']['vod']['class_filter'] !='0') {
         if (mb_strlen($str) > 2) {
-            $str = str_replace([lang('slice')], [''], $str);
+            $str = str_replace(['片'], [''], $str);
         }
         if (mb_strlen($str) > 2) {
-            $str = str_replace([lang('drama')], [''], $str);
+            $str = str_replace(['剧'], [''], $str);
         }
     }
     $txt = mac_format_text($txt);
@@ -1942,6 +1942,12 @@ function mac_param_url(){
     $tmp = $_REQUEST;
     
     $input = array_merge($input,$tmp);
+    // ?lang[]=x 这类数组入参会让下面的 trim()/htmlspecialchars() 抛 TypeError（全站 500）
+    foreach ($input as $k => $v) {
+        if (is_array($v)) {
+            $input[$k] = '';
+        }
+    }
     $param['page'] = intval($input['page']) <1 ? 1 : intval($input['page']);
     $param['ajax'] = intval($input['ajax']);
     $param['tid'] = intval($input['tid']);
@@ -3919,11 +3925,66 @@ function mac_content_lang_allow_list()
     return array_values(array_intersect(mac_content_lang_codes(), array_filter(array_map('trim', explode('|', $raw)))));
 }
 
+function mac_lang_flag_svg()
+{
+    static $svg = null;
+    if ($svg === null) {
+        $file = APP_PATH . 'lang' . DIRECTORY_SEPARATOR . 'lang.svg';
+        $svg = is_file($file) ? (string)file_get_contents($file) : '';
+    }
+    return $svg;
+}
+
+function mac_lang_flag_sprite()
+{
+    static $emitted = false;
+    if ($emitted) {
+        return '';
+    }
+    $emitted = true;
+    return mac_lang_flag_svg();
+}
+
+function mac_lang_flag_cells()
+{
+    static $cells = null;
+    if ($cells === null) {
+        $cells = [];
+        if (preg_match_all('/data-cell="([^"]+)"/', mac_lang_flag_svg(), $m)) {
+            $cells = array_values(array_unique($m[1]));
+        }
+    }
+    return $cells;
+}
+
+function mac_lang_flag_cell($code)
+{
+    $meta = mac_lang_meta($code);
+    if ($meta === null) {
+        return '';
+    }
+    $cells = mac_lang_flag_cells();
+    foreach ($meta['flag_pngs'] as $png) {
+        if (in_array($png, $cells, true)) {
+            return $png;
+        }
+    }
+    return '';
+}
+
+function mac_lang_flag_icon($code, $size = 16, $class = '')
+{
+    $cell = mac_lang_flag_cell($code);
+    if ($cell === '') {
+        return '';
+    }
+    $attr = $class === '' ? '' : ' class="' . htmlspecialchars($class, 32) . '"';
+    return '<svg' . $attr . ' width="' . (int)$size . '" height="' . (int)$size . '" aria-hidden="true" focusable="false"'
+        . ' style="display:inline-block;vertical-align:middle"><use href="#' . $cell . '"></use></svg>';
+}
+
 function mac_front_lang_list()
 {
-    $urlBase = (defined('MAC_PATH_TEMPLATE') && defined('MAC_PATH')) ? MAC_PATH_TEMPLATE : '';
-    $dirBase = $urlBase === '' ? '' : ROOT_PATH . substr($urlBase, strlen(MAC_PATH));
-
     $langDir = ROOT_PATH . 'template/default/asset/language/';
 
     $current = \app\common\model\ContentLang::getCurrent();
@@ -3934,26 +3995,59 @@ function mac_front_lang_list()
         if ($meta === null) {
             continue;
         }
-        $flag = '';
-        if ($dirBase !== '') {
-            foreach ($meta['flag_pngs'] as $png) {
-                if (is_file($dirBase . 'images/la/' . $png . '.png')) {
-                    $flag = $urlBase . 'images/la/' . $png . '.png';
-                    break;
-                }
-            }
-        }
         $list[] = [
-            'code'   => $code,
-            'name'   => $meta['name'],
-            'emoji'  => $meta['flag'],
-            'legacy' => $meta['legacy'],
-            'flag'   => $flag,
-            'ui'     => $meta['ui'] !== '' && is_file($langDir . 'strings_' . $meta['ui'] . '.properties') ? $meta['ui'] : '',
-            'active' => $code === $current ? 1 : 0,
+            'code'       => $code,
+            'name'       => $meta['name'],
+            'emoji'      => $meta['flag'],
+            'legacy'     => $meta['legacy'],
+            'flag'       => mac_lang_flag_cell($code),
+            'ui'         => $meta['ui'] !== '' && is_file($langDir . 'strings_' . $meta['ui'] . '.properties') ? $meta['ui'] : '',
+            'active'     => $code === $current ? 1 : 0,
         ];
     }
     return $list;
+}
+
+function mac_content_lang_resolve($code, array $allow, $default = '')
+{
+    $code = strtolower(trim((string)$code));
+    if ($code === '' || empty($allow)) {
+        return '';
+    }
+    if (in_array($code, $allow, true)) {
+        return $code;
+    }
+
+    $byRegion = [];
+    $bySubtag = [];
+    foreach ($allow as $a) {
+        $seg = explode('-', $a);
+        $bySubtag[$seg[0]][] = $a;
+        if (isset($seg[1])) {
+            $byRegion[$seg[1]][] = $a;
+        }
+    }
+
+    $pick = function (array $hits) use ($default) {
+        if (count($hits) > 1 && in_array($default, $hits, true)) {
+            return $default;
+        }
+        return $hits[0];
+    };
+
+    if (!empty($byRegion[$code])) {
+        return $pick($byRegion[$code]);
+    }
+    $parts = preg_split('/[-_]/', $code);
+    for ($i = count($parts) - 1; $i > 0; $i--) {
+        if (!empty($byRegion[$parts[$i]])) {
+            return $pick($byRegion[$parts[$i]]);
+        }
+    }
+    if (!empty($bySubtag[$parts[0]])) {
+        return $pick($bySubtag[$parts[0]]);
+    }
+    return '';
 }
 
 function mac_get_content_lang()
@@ -3968,20 +4062,20 @@ function mac_get_content_lang()
     $candidate  = '';
     $fromGet    = false;
 
+    // ?lang[] 这类数组入参会让 strtolower() 直接抛 TypeError，所以先验类型
     $get = input('get.lang', '');
-    if (!empty($get)) {
-        $candidate = strtolower($get);
+    if (is_string($get) && $get !== '') {
+        $candidate = $get;
         $fromGet   = true;
-    } elseif (!empty($_COOKIE[$cookieName])) {
-        $candidate = strtolower($_COOKIE[$cookieName]);
+    } elseif (isset($_COOKIE[$cookieName]) && is_string($_COOKIE[$cookieName]) && $_COOKIE[$cookieName] !== '') {
+        $candidate = $_COOKIE[$cookieName];
     } elseif (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-        preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
-        $candidate = isset($matches[1]) ? strtolower($matches[1]) : '';
+        preg_match('/^([a-z\d\-]+)/i', (string)$_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
+        $candidate = $matches[1] ?? '';
     }
 
-    if (empty($candidate) || !in_array($candidate, $allow, true)) {
-        $candidate = $default;
-    }
+    $resolved = mac_content_lang_resolve($candidate, $allow, $default);
+    $candidate = $resolved === '' ? $default : $resolved;
 
     if ($fromGet && $candidate !== ($_COOKIE[$cookieName] ?? '')) {
         try {

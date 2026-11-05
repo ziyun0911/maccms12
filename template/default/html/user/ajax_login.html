@@ -19,7 +19,7 @@
 							<span class="auth-invite-toggle__rule" aria-hidden="true"></span>
 							<span class="auth-invite-toggle__mid">
 								<span class="auth-invite-toggle__text" data-lang-collapsed="string_auth_invite_expand" data-lang-expanded="string_auth_invite_collapse" data-lang="string_auth_invite_expand"></span>
-								<span class="auth-invite-toggle__chev" aria-hidden="true"><img class="auth-invite-toggle__chev-img" src="{$maccms.path_tpl}/images/filter-toggle-collapse.png" alt="" width="18" height="18" decoding="async" /></span>
+								<span class="auth-invite-toggle__chev" aria-hidden="true"><img class="auth-invite-toggle__chev-img" src="{$maccms.path_tpl}/images/layout/filter-toggle-collapse.png" alt="" width="18" height="18" decoding="async" /></span>
 							</span>
 							<span class="auth-invite-toggle__rule" aria-hidden="true"></span>
 						</button>
@@ -58,29 +58,29 @@
 		<div class="reg-w mac_find no-show">
 			<form method="post" id="fm-find" action="">
 				<div class="reg-group">
-					<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-user.png" >
+					<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-user.png" >
 					<input type="text" data-placeholder="user_place_dlzh" id="user_name" name="user_name" class="reg-control" placeholder="输入您的登录账号">
 				</div>
 				<div class="reg-group">
-					<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-p.png" >
+					<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-p.png" >
 					<input type="text" data-placeholder="user_place_mbwentyi" id="user_question" name="user_question" class="reg-control" placeholder="请输入您的密保问题">
 				</div>
 				<div class="reg-group">
-					<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-d.png" >
+					<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-d.png" >
 					<input type="text" data-placeholder="user_place_mbdaan" id="user_answer" name="user_answer" class="reg-control" placeholder="请输入您的密保答案">
 				</div>
 				<div class="reg-group auth-pwd-group">
-					<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-pwd.png" >
+					<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-pwd.png" >
 					<input type="password" data-placeholder="user_place_mm" id="user_pwd" name="user_pwd" class="reg-control" placeholder="输入您的登录密码">
 					<span class="auth-pwd-eye" data-target="#user_pwd" role="button" tabindex="0" data-aria-label="auth_pwd_toggle_aria" aria-label="显示或隐藏密码"></span>
 				</div>
 				<div class="reg-group auth-pwd-group">
-					<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-pwd.png" >
+					<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-pwd.png" >
 					<input type="password" data-placeholder="user_place_querenmm" id="user_pwd2" name="user_pwd2" class="reg-control" placeholder="请输入您的确认密码">
 					<span class="auth-pwd-eye" data-target="#user_pwd2" role="button" tabindex="0" data-aria-label="auth_pwd_toggle_aria" aria-label="显示或隐藏密码"></span>
 				</div>
 				<div class="reg-group">
-					<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-i.png" >
+					<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-i.png" >
 					<input type="text" data-placeholder="user_place_yanzm" class="reg-control w150" id="verify" name="verify" placeholder="请输入您的验证码">
 					<img class="fr m-hi" src="{:url('verify/index')}" onClick="this.src=this.src+'?'"  />
 				</div>
@@ -98,11 +98,11 @@
 				<form method="post" id="fm_msg" action="">
 					<input id="find-ac" type="hidden" name="ac" value="email">
 					<div class="reg-group">
-						<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-user.png" >
+						<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-user.png" >
 						<input type="text" data-placeholder="user_place_email" id="to_msg" name="to" class="reg-control" placeholder="请输入邮箱">
 					</div>
 					<div class="reg-group">
-						<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-i.png" >
+						<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-i.png" >
 						<input type="text" data-placeholder="user_place_yanzm" class="reg-control w150" id="verify_msg" name="verify" placeholder="请输入您的验证码">
 						<img class="fr m-hi" src="{:url('verify/index')}" onClick="this.src=this.src+'?'" />
 					</div>
@@ -113,16 +113,16 @@
 				<input id="find-ac-path" type="hidden" name="ac" value="email">
 				<h4 data-lang="user_yanzxinxi">验证信息</h4>
 				<div class="reg-group">
-					<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-i.png" >
+					<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-i.png" >
 					<input type="text" data-placeholder="user_place_yanzm"  id="code_msg" name="code" class="reg-control" placeholder="请输入{$param['ac_text']}收到的验证码">
 				</div>
 				<div class="reg-group auth-pwd-group">
-					<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-pwd.png" >
+					<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-pwd.png" >
 					<input type="password" data-placeholder="user_place_mm" class="reg-control w150" id="user_pwd_msg" name="user_pwd" placeholder="输入您的登录密码">
 					<span class="auth-pwd-eye" data-target="#user_pwd_msg" role="button" tabindex="0" data-aria-label="auth_pwd_toggle_aria" aria-label="显示或隐藏密码"></span>
 				</div>
 				<div class="reg-group auth-pwd-group">
-					<img class="l-icon" src="{$maccms.path_tpl}/images/member/login-pwd.png" >
+					<img class="l-icon" src="{$maccms.path_tpl}/images/user/login-pwd.png" >
 					<input type="password" data-placeholder="user_place_querenmm" class="reg-control w150" id="user_pwd2_msg" name="user_pwd2" placeholder="请输入您的确认密码">
 					<span class="auth-pwd-eye" data-target="#user_pwd2_msg" role="button" tabindex="0" data-aria-label="auth_pwd_toggle_aria" aria-label="显示或隐藏密码"></span>
 				</div>
@@ -145,7 +145,7 @@ if ($__app_dl_android === '' && $__app_dl_ios === '') {
     $__app_dl_android = $__old;
     $__app_dl_ios = $__old;
 }
-$__app_dl_logo_def = 'template/default/images/la/logo@2x.png';
+$__app_dl_logo_def = 'template/default/images/layout/logo@2x.png';
 $__app_dl_logo_legacy = trim((string)($tplconfig['theme']['app_dl']['applogo'] ?? ''));
 $__app_dl_logo_light = trim((string)($tplconfig['theme']['app_dl']['applogo_light'] ?? ''));
 $__app_dl_logo_dark = trim((string)($tplconfig['theme']['app_dl']['applogo_dark'] ?? ''));

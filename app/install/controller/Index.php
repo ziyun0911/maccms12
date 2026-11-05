@@ -390,6 +390,11 @@ class Index extends All
                     'des'     => '用户画像批量计算', 'file'    => 'user_profile', 'param'   => 'limit=200&days=30',
                     'weeks'   => '1,2,3,4,5,6,0', 'hours'   => '05', 'runtime' => 0,
                 ],
+                'douban_score_fill' => [
+                    'id'      => 'douban_score_fill', 'status'  => '0', 'name'    => 'douban_score_fill',
+                    'des'     => '豆瓣评分回填视频数据', 'file'    => 'doubanscorefill', 'param'   => 'limit=1000',
+                    'weeks'   => '1,2,3,4,5,6,0', 'hours'   => '06', 'runtime' => 0,
+                ],
                 'user_access_purge' => [
                     'id'      => 'user_access_purge', 'status'  => '1', 'name'    => 'user_access_purge',
                     'des'     => '用户访问风控日志清理/匿名化', 'file'    => 'user_access_purge', 'param'   => 'max=5000',

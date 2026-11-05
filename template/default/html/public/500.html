@@ -11,9 +11,10 @@
             <a class="back-home" href="{$maccms.path}" data-title="string_fhsy" data-lang="string_fhsy" title="返回首页" >返回首页</a>
             {if condition="isset($content_lang_items) && count($content_lang_items) > 1"}
             <div class="fail-lang-wrap" style="margin-top:12px;">
+                {:mac_lang_flag_sprite()}
                 {volist name="content_lang_items" id="langItem"}
                 {if condition="$i neq 1"}<span style="margin:0 8px;">|</span>{/if}
-                <a href="javascript:;" class="lang{if condition="$langItem['active']"} is-active{/if}" data-flag-code="{$langItem.legacy}" data-mac-lang="{$langItem.code}" data-ui-lang="{$langItem.ui}">{if condition="$langItem['flag']"}<img class="lang-img" src="{$langItem.flag}" alt="">{else/}<span class="lang-img lang-img-emoji" role="img" aria-label="{$langItem.name}">{$langItem.emoji}</span>{/if}<span>{$langItem.name}</span></a>
+                <a href="javascript:;" class="lang{if condition="$langItem['active']"} is-active{/if}" data-flag-code="{$langItem.legacy}" data-mac-lang="{$langItem.code}" data-ui-lang="{$langItem.ui}">{if condition="$langItem['flag']"}<svg class="lang-img lang-img-flag" role="img" aria-label="{$langItem.name}"><use href="#{$langItem.flag}"></use></svg>{else/}<span class="lang-img lang-img-emoji" role="img" aria-label="{$langItem.name}">{$langItem.emoji}</span>{/if}<span>{$langItem.name}</span></a>
                 {/volist}
             </div>
             {/if}

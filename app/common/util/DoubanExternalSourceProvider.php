@@ -51,18 +51,78 @@ class DoubanExternalSourceProvider implements ExternalSourceProviderInterface
         if (!$this->isEnabled()) {
             return [];
         }
-        $limit = max(1, min(50, intval(isset($options['limit']) ? $options['limit'] : 20)));
-        $urlTpl = trim((string)$this->get('recent_url', 'https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&page_limit=__limit__&page_start=0'));
+        $want = max(1, min(1200, intval(isset($options['limit']) ? $options['limit'] : 20)));
+        $urlTpl = $this->decodeAmp(trim((string)$this->get('recent_url', 'https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&page_limit=__limit__&page_start=0')));
         if ($urlTpl === '') {
             return [];
         }
-        $url = str_replace(['{limit}', '__limit__'], (string)$limit, $urlTpl);
-        $json = $this->requestJson($url);
-        if (!is_array($json)) {
+        $types = $this->splitList($this->get('recent_types', 'movie,tv'));
+        $tags = $this->splitList($this->get('recent_tags', '热门,最新,经典'));
+        if ($types === [] || $tags === []) {
+            $types = ['movie'];
+            $tags = ['热门'];
+        }
+        $out = [];
+        $seen = [];
+        foreach ($types as $type) {
+            foreach ($tags as $tag) {
+                if (count($out) >= $want) {
+                    break 2;
+                }
+                $rest = $want - count($out);
+                $tagVal = (strpos($tag, '%') === false) ? rawurlencode($tag) : $tag;
+                $url = str_replace(
+                    ['{limit}', '__limit__', '{type}', '__type__', '{tag}', '__tag__'],
+                    [(string)$rest, (string)$rest, rawurlencode($type), rawurlencode($type), $tagVal, $tagVal],
+                    $urlTpl
+                );
+                $json = $this->requestJson($url);
+                if (!is_array($json)) {
+                    continue;
+                }
+                $rows = isset($json['subjects']) && is_array($json['subjects']) ? $json['subjects'] : [];
+                foreach ($this->normalizeRecentRows($rows) as $row) {
+                    if (isset($seen[$row['item_key']])) {
+                        continue;
+                    }
+                    $seen[$row['item_key']] = 1;
+                    $out[] = $row;
+                    if (count($out) >= $want) {
+                        break;
+                    }
+                }
+            }
+        }
+        return $out;
+    }
+
+    private function decodeAmp($url)
+    {
+        for ($i = 0; $i < 3; $i++) {
+            $next = html_entity_decode((string)$url, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if ($next === $url) {
+                break;
+            }
+            $url = $next;
+        }
+        return $url;
+    }
+
+    private function splitList($raw)
+    {
+        $raw = (string)$raw;
+        if (trim($raw) === '') {
             return [];
         }
-        $rows = isset($json['subjects']) && is_array($json['subjects']) ? $json['subjects'] : [];
-        return array_slice($this->normalizeRecentRows($rows), 0, $limit);
+        $parts = preg_split('/[,;\s]+/u', $raw);
+        $out = [];
+        foreach ($parts as $p) {
+            $p = trim((string)$p);
+            if ($p !== '') {
+                $out[] = $p;
+            }
+        }
+        return array_values(array_unique($out));
     }
 
     private function isEnabled()

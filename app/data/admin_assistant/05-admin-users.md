@@ -11,17 +11,17 @@
 
 v12 **没有「角色」表**：权限直接存在每个管理员账号上。
 
-1. **用户 → 管理员 → 编辑** 页里的勾选项就是 `admin_auth[]`（[app/admin/view/admin/info.html:43](file:///d:/wwwroot/maccms/maccms12/app/admin/view/admin/info.html#L43)），存的是 **`控制器/动作`** 字符串，例如 `vod/data`、`template/index`。  
+1. **用户 → 管理员 → 编辑** 页里的勾选项就是 `admin_auth[]`（[app/admin/view/admin/info.html:43](.../app/admin/view/admin/info.html#L43)），存的是 **`控制器/动作`** 字符串，例如 `vod/data`、`template/index`。  
 2. 勾选树列出 **全部** 节点，包括左栏隐藏的 `show=0` 项 —— 所以「左栏看不到」不等于「不能授权」。一个列表页和它的详情/批量页是两个节点时（如 `vod/data` 与 `vod/info`），**两边都要勾**，否则点进编辑页会提示无权限。  
 3. 反过来也一样：左栏里那些只靠 `param` 区分的子集页（重名/无地址/未审核/草稿/定时发布…）在权限树里 **共用同一条 `vod/data`**，勾一次就全放开，做不到「只给去重页」。  
-4. `admin_id = 1` 恒为超级管理员，**不受权限树限制**（[app/admin/controller/Base.php:118-120](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Base.php#L118-L120) 直接返回通过）；该账号务必强密码、勿共享。  
-5. `index/index`、`index/welcome`、`index/logout`、`index/unlocked` 对任何已登录后台账号都开放，不用勾选（[Base.php:117](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Base.php#L117) 硬编码在通过串里）。  
+4. `admin_id = 1` 恒为超级管理员，**不受权限树限制**（[app/admin/controller/Base.php:118-120](.../app/admin/controller/Base.php#L118-L120) 直接返回通过）；该账号务必强密码、勿共享。  
+5. `index/index`、`index/welcome`、`index/logout`、`index/unlocked` 对任何已登录后台账号都开放，不用勾选（[Base.php:117](.../app/admin/controller/Base.php#L117) 硬编码在通过串里）。  
 6. **用户 → 会员组**（`group/index`）是前台会员等级，**不是** 后台角色；**视频 → 角色库**（`role/data`）是剧集角色资料，两者都与后台权限无关。  
 7. 权限不足时，由超管在同一棵勾选树里补勾对应 `控制器/动作`。
 
 ### 不走勾选项的特例
 
-`check_auth()` 里有几处硬编码的放行规则（[Base.php:54-116](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Base.php#L54-L116)），授权时要知道：
+`check_auth()` 里有几处硬编码的放行规则（[Base.php:54-116](.../app/admin/controller/Base.php#L54-L116)），授权时要知道：
 
 | 动作 | 规则 |
 |------|------|
@@ -37,7 +37,7 @@ v12 **没有「角色」表**：权限直接存在每个管理员账号上。
 
 1. 在 **网站参数 → 计划任务**（`timming/index`）里维护任务清单：类型、状态、执行周期（周 / 小时 / 间隔秒）。数据存放在 **`app/extra/timming.php`**（不在数据库里）。  
 2. 触发方式仍是外部定时 HTTP 访问 **`api.php/timming/index`**，由宝塔/crontab 按分钟或小时调用。  
-3. 是否真的执行由排期判断；带 `enforce=1` 可立即执行，但要求已通过管理员登录校验（[app/api/controller/Timming.php:29](file:///d:/wwwroot/maccms/maccms12/app/api/controller/Timming.php#L29)）。  
+3. 是否真的执行由排期判断；带 `enforce=1` 可立即执行，但要求已通过管理员登录校验（[app/api/controller/Timming.php:29](.../app/api/controller/Timming.php#L29)）。  
 4. **安全**：该入口没有独立密钥，**不要**把触发地址公开到公网可猜测的位置；需要收紧时在 Web 层限制来源 IP。  
 5. 任务未执行：检查服务器 crontab 是否报错、HTTPS 证书、防火墙，以及 CMS 内任务状态与周期设置。
 

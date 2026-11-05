@@ -27,11 +27,11 @@
 
 ## SEO 参数配置 (`网站参数 → SEO参数配置` / `menu/configseo`)
 
-- 它是 **「网站参数」页里的一个页签**（`lay-id="config_seo"`，[config.html:20](file:///d:/wwwroot/maccms/maccms12/app/admin/view/system/config.html#L20)），菜单项 `system/configseo` 只是个 302 跳板。  
-- **页签内还有 6 个子页**：视频首页 / 文章首页 / 演员首页 / 角色首页 / 剧情首页 / 网址首页 SEO（[config_embed_seo.html:3-8](file:///d:/wwwroot/maccms/maccms12/app/admin/view/system/config_embed_seo.html#L3-L8)）。每个子页固定三项 **标题 `seo[<mod>][name]` / 关键字 `seo[<mod>][key]` / 描述 `seo[<mod>][des]``**，共 18 个输入框。  
-- **这是纯文案，不是模板**：填什么前台就原样输出，供 `{$maccms.seo.vod.name}` 之类变量读取（[All.php:287](file:///d:/wwwroot/maccms/maccms12/app/common/controller/All.php#L287)）；只作用于 **各模块首页**（页签内提示写着 `vod/index`、`art/index`）。  
-- **详情页的 TDK 不在这里**：由 **AI SEO** 逐条写入 `seo_title / seo_keywords / seo_description`，前台按 `page_detail_*` 输出，缺省时才回退默认值（[All.php:454-456](file:///d:/wwwroot/maccms/maccms12/app/common/controller/All.php#L454-L456)）。  
-- 这一页 **不管 Sitemap、不管 RSS、不管推送**：**Sitemap** 走 **模版 → 生成地图**（`make/map`，[Make.php:214](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Make.php#L214)）；**搜索引擎推送** 另有 **网站参数 → Web推送配置**（`system/configpush`）与 **应用 → URL推送**（`urlsend/index`）。  
+- 它是 **「网站参数」页里的一个页签**（`lay-id="config_seo"`，[config.html:20](.../app/admin/view/system/config.html#L20)），菜单项 `system/configseo` 只是个 302 跳板。  
+- **页签内还有 6 个子页**：视频首页 / 文章首页 / 演员首页 / 角色首页 / 剧情首页 / 网址首页 SEO（[config_embed_seo.html:3-8](.../app/admin/view/system/config_embed_seo.html#L3-L8)）。每个子页固定三项 **标题 `seo[<mod>][name]` / 关键字 `seo[<mod>][key]` / 描述 `seo[<mod>][des]``**，共 18 个输入框。  
+- **这是纯文案，不是模板**：填什么前台就原样输出，供 `{$maccms.seo.vod.name}` 之类变量读取（[All.php:287](.../app/common/controller/All.php#L287)）；只作用于 **各模块首页**（页签内提示写着 `vod/index`、`art/index`）。  
+- **详情页的 TDK 不在这里**：由 **AI SEO** 逐条写入 `seo_title / seo_keywords / seo_description`，前台按 `page_detail_*` 输出，缺省时才回退默认值（[All.php:454-456](.../app/common/controller/All.php#L454-L456)）。  
+- 这一页 **不管 Sitemap、不管 RSS、不管推送**：**Sitemap** 走 **模版 → 生成地图**（`make/map`，[Make.php:214](.../app/admin/controller/Make.php#L214)）；**搜索引擎推送** 另有 **网站参数 → Web推送配置**（`system/configpush`）与 **应用 → URL推送**（`urlsend/index`）。  
 - 若使用 **静态页**，SEO 字段在 **生成** 时写入 HTML；动态模式则运行时替换。
 
 ---

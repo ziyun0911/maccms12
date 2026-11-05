@@ -1656,6 +1656,7 @@ class System extends Base
                     'cache_ttl' => (string)max(60, intval(isset($ext['cache_ttl']) ? $ext['cache_ttl'] : 21600)),
                     'merge_limit' => (string)max(1, min(12, intval(isset($ext['merge_limit']) ? $ext['merge_limit'] : 4))),
                     'sync_interval' => (string)max(300, intval(isset($ext['sync_interval']) ? $ext['sync_interval'] : 21600)),
+                    'sync_limit' => (string)max(20, min(1200, intval(isset($ext['sync_limit']) ? $ext['sync_limit'] : 600))),
                     'sources' => [
                         'tmdb' => [
                             'enabled' => isset($tmdb['enabled']) && (string)$tmdb['enabled'] === '1' ? '1' : '0',
@@ -1668,6 +1669,8 @@ class System extends Base
                             'enabled' => isset($douban['enabled']) && (string)$douban['enabled'] === '1' ? '1' : '0',
                             'search_url' => $sanitize(isset($douban['search_url']) ? $douban['search_url'] : 'https://movie.douban.com/j/subject_suggest?q=__query__'),
                             'recent_url' => $sanitize(isset($douban['recent_url']) ? $douban['recent_url'] : 'https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&page_limit=__limit__&page_start=0'),
+                            'recent_types' => $sanitize(isset($douban['recent_types']) ? $douban['recent_types'] : 'movie,tv'),
+                            'recent_tags' => $sanitize(isset($douban['recent_tags']) ? $douban['recent_tags'] : '热门,最新,经典'),
                             'referer' => $sanitize(isset($douban['referer']) ? $douban['referer'] : 'https://movie.douban.com/'),
                             'user_agent' => $sanitize(isset($douban['user_agent']) ? $douban['user_agent'] : 'Mozilla/5.0'),
                         ],
@@ -1818,6 +1821,7 @@ class System extends Base
                     'cache_ttl' => '21600',
                     'merge_limit' => '4',
                     'sync_interval' => '21600',
+                    'sync_limit' => '600',
                     'sources' => [
                         'tmdb' => [
                             'enabled' => '0',
@@ -1832,6 +1836,8 @@ class System extends Base
                             'api_key' => '',
                             'search_url' => 'https://movie.douban.com/j/subject_suggest?q=__query__',
                             'recent_url' => 'https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&page_limit=__limit__&page_start=0',
+                            'recent_types' => 'movie,tv',
+                            'recent_tags' => '热门,最新,经典',
                             'referer' => 'https://movie.douban.com/',
                             'user_agent' => 'Mozilla/5.0',
                         ],
@@ -1900,6 +1906,7 @@ class System extends Base
             'cache_ttl' => '21600',
             'merge_limit' => '4',
             'sync_interval' => '21600',
+            'sync_limit' => '600',
             'sources' => [],
         ], $config['ai_search']['external_sources']);
         if (!isset($config['ai_search']['external_sources']['sources']['tmdb']) || !is_array($config['ai_search']['external_sources']['sources']['tmdb'])) {
@@ -1921,6 +1928,8 @@ class System extends Base
             'api_key' => '',
             'search_url' => 'https://movie.douban.com/j/subject_suggest?q=__query__',
             'recent_url' => 'https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&page_limit=__limit__&page_start=0',
+            'recent_types' => 'movie,tv',
+            'recent_tags' => '热门,最新,经典',
             'referer' => 'https://movie.douban.com/',
             'user_agent' => 'Mozilla/5.0',
         ], $config['ai_search']['external_sources']['sources']['douban']);

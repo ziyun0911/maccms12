@@ -7,7 +7,7 @@ Answer in **clear numbered steps**. Do not assume server panel brand; mention **
 ## 空白页 / 500
 
 1. 打开 `runtime/log/` 下当天日志（或宿主 PHP error_log）。  
-2. 检查 **PHP 版本** 是否 **≥ 8.0.2**（[admin.php:6](file:///d:/wwwroot/maccms/maccms12/admin.php#L6) 直接 die），扩展按安装自检清单核对：**pdo、pdo_mysql、zip、fileinfo、curl、xml** 与 `file_get_contents`、`mb_strlen`（[app/install/controller/Index.php:518-527](file:///d:/wwwroot/maccms/maccms12/app/install/controller/Index.php#L518-L527)）。**没有 `mysqli`、`gd` 要求**，别照着旧教程去装这两个。  
+2. 检查 **PHP 版本** 是否 **≥ 8.0.2**（[admin.php:6](.../admin.php#L6) 直接 die），扩展按安装自检清单核对：**pdo、pdo_mysql、zip、fileinfo、curl、xml** 与 `file_get_contents`、`mb_strlen`（[app/install/controller/Index.php:518-527](.../app/install/controller/Index.php#L518-L527)）。**没有 `mysqli`、`gd` 要求**，别照着旧教程去装这两个。  
 3. 若为 **syntax error**：最近是否改了 `app/extra/*.php` 或模板 PHP 混入。  
 
 ## 安装/保存配置失败「无写入权限」

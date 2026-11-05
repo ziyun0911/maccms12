@@ -103,17 +103,18 @@
             <div class="head_user">
                 <ul>
                     {if condition="isset($content_lang_items) && count($content_lang_items) > 1"}
+                                        {:mac_lang_flag_sprite()}
                     <li class="top_ico change-lang">
                         <a data-title="string_lang_change" title="语言切换" data-title="string_lang_change" class="top_link ">
                             <i class="iconfont no-lang">&#xe611;</i>
-                            <img src="" class="has-lang" alt="">
+                            <svg class="has-lang lang-img-flag" aria-hidden="true"><use></use></svg>
                             <div class="lang-wrap">
                                 {volist name="content_lang_items" id="langItem"}
                                 <div class="lang{if condition="$langItem['active']"} is-active{/if}" data-flag-code="{$langItem.legacy}" data-mac-lang="{$langItem.code}" data-ui-lang="{$langItem.ui}">
                                     {if condition="$langItem['flag']"}
-                                    <img class="lang-img" src="{$langItem.flag}" alt="">
+                                    <svg class="lang-img lang-img-flag" data-flag="{$langItem.flag}" data-flag-emoji="{$langItem.emoji}" role="img" aria-label="{$langItem.name}"><use href="#{$langItem.flag}"></use></svg>
                                     {else/}
-                                    <span class="lang-img lang-img-emoji" role="img" aria-label="{$langItem.name}">{$langItem.emoji}</span>
+                                    <span class="lang-img lang-img-emoji" role="img" aria-label="{$langItem.name}" data-flag-emoji="{$langItem.emoji}">{$langItem.emoji}</span>
                                     {/if}
                                     <span class="lang-txt">{$langItem.name}</span>
                                 </div>
@@ -126,10 +127,10 @@
                     <li class="top_ico">
                         <a class="top_link" href="{:mac_url('label/rank')}" data-title="string_rank" title="{$tplconfig.theme.rank.title|default='排行榜'}">
                             <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
-                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/排行榜.png" width="52" height="52" alt="" decoding="async">
+                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/排行榜.png" width="52" height="52" alt="" decoding="async">
                             </span>
                             <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
-                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/排行榜-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/排行榜-黑色使用.png" width="52" height="52" alt="" decoding="async">
                             </span>
                         </a>
                     </li>
@@ -138,14 +139,14 @@
                         <a class="top_link js-save-site-url" href="javascript:;" data-title="string_save_site" title="">
                             <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
                                 <span class="head-latest-url-flip">
-                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="{$maccms.path_tpl}images/head-nav/最新网址.png" width="52" height="52" alt="" decoding="async">
-                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="{$maccms.path_tpl}images/head-nav/最新网址2.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="{$maccms.path_tpl}images/layout/最新网址.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="{$maccms.path_tpl}images/layout/最新网址2.png" width="52" height="52" alt="" decoding="async">
                                 </span>
                             </span>
                             <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
                                 <span class="head-latest-url-flip">
-                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="{$maccms.path_tpl}images/head-nav/最新网址1-黑色使用.png" width="52" height="52" alt="" decoding="async">
-                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="{$maccms.path_tpl}images/head-nav/最新网址2-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="{$maccms.path_tpl}images/layout/最新网址1-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="{$maccms.path_tpl}images/layout/最新网址2-黑色使用.png" width="52" height="52" alt="" decoding="async">
                                 </span>
                             </span>
                         </a>
@@ -153,10 +154,10 @@
                     <li class="top_ico">
                         <a class="user_login top_link mac_head_plays" href="javascript:;" data-title="user_view_record" title="播放记录">
                             <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
-                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/观看历史.png" width="52" height="52" alt="" decoding="async">
+                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/观看历史.png" width="52" height="52" alt="" decoding="async">
                             </span>
                             <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
-                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/观看历史-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/观看历史-黑色使用.png" width="52" height="52" alt="" decoding="async">
                             </span>
                         </a>
                     </li>
@@ -167,7 +168,7 @@
                             href="javascript:;"
                             data-title="string_hy"
                             title="会员">
-                            <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/用户默认.png" width="52" height="52" alt="" decoding="async">
+                            <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/用户默认.png" width="52" height="52" alt="" decoding="async">
                         </a>
                     </li>
                     {/if}

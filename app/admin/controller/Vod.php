@@ -688,6 +688,77 @@ class Vod extends Base
         return json(['code' => 1, 'msg' => isset($res['msg']) ? $res['msg'] : lang('save_ok'), 'data' => isset($res['data']) ? $res['data'] : []]);
     }
 
+    public function doubanLookup()
+    {
+        if (!Request()->isPost()) {
+            return json(['code' => 0, 'msg' => lang('illegal_request'), 'data' => []]);
+        }
+        $name = trim((string)input('post.name', ''));
+        if ($name === '' || mb_strlen($name, 'UTF-8') > 60) {
+            return json(['code' => 0, 'msg' => lang('param_err'), 'data' => []]);
+        }
+        $ext = isset($GLOBALS['config']['ai_search']['external_sources']) && is_array($GLOBALS['config']['ai_search']['external_sources'])
+            ? $GLOBALS['config']['ai_search']['external_sources'] : [];
+        $douban = isset($ext['sources']['douban']) && is_array($ext['sources']['douban']) ? $ext['sources']['douban'] : [];
+        $extEnabled = isset($ext['enabled']) ? (string)$ext['enabled'] : '0';
+        $doubanEnabled = isset($douban['enabled']) ? (string)$douban['enabled'] : '0';
+        if ($extEnabled !== '1' || $doubanEnabled !== '1') {
+            return json(['code' => 0, 'msg' => lang('admin/vod/douban_lookup_disabled'), 'data' => []]);
+        }
+        $repo = new \app\common\util\ExternalSourceRepository();
+        $cacheKey = sha1('douban_lookup|' . mb_strtolower($name, 'UTF-8'));
+        $rows = [];
+        if ((string)($ext['use_cache'] ?? '1') === '1') {
+            $rows = $repo->getSearchCache($cacheKey);
+        }
+        if (empty($rows) && (string)($ext['use_live'] ?? '1') === '1') {
+            $provider = (new \app\common\util\ExternalSourceProviderRegistry())->createByCode('douban', $douban);
+            $rows = $provider === null ? [] : $provider->search($name, ['limit' => 10]);
+            if (!empty($rows)) {
+                $repo->saveItems('douban', $rows);
+                $ttl = isset($ext['cache_ttl']) ? intval($ext['cache_ttl']) : 21600;
+                $repo->saveSearchCache($cacheKey, $name, 1, 'douban', $rows, max(60, $ttl));
+            }
+        }
+        if (empty($rows)) {
+            return json(['code' => 0, 'msg' => lang('admin/vod/douban_lookup_none'), 'data' => []]);
+        }
+        $needle = mb_strtolower($name, 'UTF-8');
+        $list = [];
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $id = preg_replace('/^subject_/', '', (string)(isset($row['item_key']) ? $row['item_key'] : ''));
+            if ($id === '' || !ctype_digit($id)) {
+                continue;
+            }
+            $item = [
+                'id' => $id,
+                'name' => (string)(isset($row['item_title']) ? $row['item_title'] : ''),
+                'sub' => (string)(isset($row['item_subtitle']) ? $row['item_subtitle'] : ''),
+                'year' => (string)(isset($row['item_release_date']) ? $row['item_release_date'] : ''),
+                'score' => floatval(isset($row['item_score']) ? $row['item_score'] : 0),
+            ];
+            $exact = mb_strtolower($item['name'], 'UTF-8') === $needle || mb_strtolower($item['sub'], 'UTF-8') === $needle;
+            $item['exact'] = $exact ? 1 : 0;
+            $list[] = $item;
+        }
+        if (empty($list)) {
+            return json(['code' => 0, 'msg' => lang('admin/vod/douban_lookup_none'), 'data' => []]);
+        }
+        usort($list, function ($a, $b) {
+            if ($a['exact'] !== $b['exact']) {
+                return $b['exact'] - $a['exact'];
+            }
+            if ($a['score'] == $b['score']) {
+                return 0;
+            }
+            return $a['score'] < $b['score'] ? 1 : -1;
+        });
+        return json(['code' => 1, 'msg' => 'ok', 'data' => $list]);
+    }
+
     public function iplot()
     {
         if (Request()->isPost()) {

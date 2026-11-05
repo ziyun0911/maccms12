@@ -271,6 +271,10 @@
             <div class="layui-input-inline w150">
                 <input type="number" name="ai_search[external_sources][sync_interval]" value="{$config['ai_search']['external_sources']['sync_interval']|default='21600'}" class="layui-input" min="300">
             </div>
+            <label class="layui-form-label">{:lang('admin/system/configaisearch/ext_sync_limit')}：</label>
+            <div class="layui-input-inline w150">
+                <input type="number" name="ai_search[external_sources][sync_limit]" value="{$config['ai_search']['external_sources']['sync_limit']|default='600'}" class="layui-input" min="20" max="1200">
+            </div>
         </div>
 
         <div class="layui-form-item layui-form-text">
@@ -358,6 +362,17 @@
             <label class="layui-form-label">{:lang('admin/system/configaisearch/douban_recent_url')}：</label>
             <div class="layui-input-block">
                 <input type="text" name="ai_search[external_sources][sources][douban][recent_url]" value="{$config['ai_search']['external_sources']['sources']['douban']['recent_url']}" class="layui-input" placeholder="https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&page_limit=__limit__&page_start=0">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">{:lang('admin/system/configaisearch/douban_recent_types')}：</label>
+            <div class="layui-input-inline w300">
+                <input type="text" name="ai_search[external_sources][sources][douban][recent_types]" value="{$config['ai_search']['external_sources']['sources']['douban']['recent_types']|default='movie,tv'}" class="layui-input" placeholder="movie,tv">
+            </div>
+            <label class="layui-form-label">{:lang('admin/system/configaisearch/douban_recent_tags')}：</label>
+            <div class="layui-input-inline w300">
+                <input type="text" name="ai_search[external_sources][sources][douban][recent_tags]" value="{$config['ai_search']['external_sources']['sources']['douban']['recent_tags']|default='热门,最新,经典'}" class="layui-input" placeholder="热门,最新,经典">
             </div>
         </div>
 

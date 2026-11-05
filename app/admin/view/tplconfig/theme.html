@@ -4,10 +4,10 @@
 <?php $hlbg = (is_file(ROOT_PATH . 'template/default/asset/admin/hlbg.jpg')) ? ROOT_PATH . 'template/default/asset/admin/hlbg.jpg' : ''; ?>
 <?php
 $hotvod_tabs_default = [
-    ['id' => '26', 'name' => '电影', 'icon_l' => 'template/default/images/la/home-icon1.png', 'icon_b' => 'template/default/images/black/home-icon1.png'],
-    ['id' => '27', 'name' => '电视剧', 'icon_l' => 'template/default/images/la/home-icon2.png', 'icon_b' => 'template/default/images/black/home-icon2.png'],
-    ['id' => '57', 'name' => '短剧', 'icon_l' => 'template/default/images/la/home-icon3.png', 'icon_b' => 'template/default/images/black/home-icon3.png'],
-    ['id' => '20', 'name' => '动漫', 'icon_l' => 'template/default/images/la/home-icon4.png', 'icon_b' => 'template/default/images/black/home-icon4.png'],
+    ['id' => '26', 'name' => '电影', 'icon_l' => 'template/default/images/home/home-icon1.png', 'icon_b' => 'template/default/images/home/home-icon1-black.png'],
+    ['id' => '27', 'name' => '电视剧', 'icon_l' => 'template/default/images/home/home-icon2.png', 'icon_b' => 'template/default/images/home/home-icon2-black.png'],
+    ['id' => '57', 'name' => '短剧', 'icon_l' => 'template/default/images/home/home-icon3.png', 'icon_b' => 'template/default/images/home/home-icon3-black.png'],
+    ['id' => '20', 'name' => '动漫', 'icon_l' => 'template/default/images/home/home-icon4.png', 'icon_b' => 'template/default/images/home/home-icon4-black.png'],
 ];
 $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($tplconfig['theme']['hotvod']['tabs']))
     ? $tplconfig['theme']['hotvod']['tabs'] : $hotvod_tabs_default;
@@ -299,7 +299,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                             <div class="layui-input-inline w220">
                                                 <input type="text" name="theme[type][hom][0][icon_l]"
                                                     placeholder="{:lang('admin/tpl/theme/icon_light_addr')}"
-                                                    value="{$tplconfig['theme']['type']['hom'][0]['icon_l']|default='template/default/images/la/home-icon1.png'}"
+                                                    value="{$tplconfig['theme']['type']['hom'][0]['icon_l']|default='template/default/images/home/home-icon1.png'}"
                                                     class="layui-input upload-input">
                                             </div>
                                             <div class="layui-input-inline w100">
@@ -311,7 +311,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                             <div class="layui-input-inline w220">
                                                 <input type="text" name="theme[type][hom][0][icon_b]"
                                                     placeholder="{:lang('admin/tpl/theme/icon_dark_addr')}"
-                                                    value="{$tplconfig['theme']['type']['hom'][0]['icon_b']|default='template/default/images/black/home-icon1.png'}"
+                                                    value="{$tplconfig['theme']['type']['hom'][0]['icon_b']|default='template/default/images/home/home-icon1-black.png'}"
                                                     class="layui-input upload-input">
                                             </div>
                                             <div class="layui-input-inline w100">
@@ -341,7 +341,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                             <div class="layui-input-inline w220">
                                                 <input type="text" name="theme[type][hom][1][icon_l]"
                                                     placeholder="{:lang('admin/tpl/theme/icon_light_addr')}"
-                                                    value="{$tplconfig['theme']['type']['hom'][1]['icon_l']|default='template/default/images/la/home-icon2.png'}"
+                                                    value="{$tplconfig['theme']['type']['hom'][1]['icon_l']|default='template/default/images/home/home-icon2.png'}"
                                                     class="layui-input upload-input">
                                             </div>
                                             <div class="layui-input-inline w100">
@@ -353,7 +353,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                             <div class="layui-input-inline w220">
                                                 <input type="text" name="theme[type][hom][1][icon_b]"
                                                     placeholder="{:lang('admin/tpl/theme/icon_dark_addr')}"
-                                                    value="{$tplconfig['theme']['type']['hom'][1]['icon_b']|default='template/default/images/black/home-icon2.png'}"
+                                                    value="{$tplconfig['theme']['type']['hom'][1]['icon_b']|default='template/default/images/home/home-icon2-black.png'}"
                                                     class="layui-input upload-input">
                                             </div>
                                             <div class="layui-input-inline w100">
@@ -383,7 +383,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                             <div class="layui-input-inline w220">
                                                 <input type="text" name="theme[type][hom][2][icon_l]"
                                                     placeholder="{:lang('admin/tpl/theme/icon_light_addr')}"
-                                                    value="{$tplconfig['theme']['type']['hom'][2]['icon_l']|default='template/default/images/la/home-icon3.png'}"
+                                                    value="{$tplconfig['theme']['type']['hom'][2]['icon_l']|default='template/default/images/home/home-icon3.png'}"
                                                     class="layui-input upload-input">
                                             </div>
                                             <div class="layui-input-inline w100">
@@ -395,7 +395,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                             <div class="layui-input-inline w220">
                                                 <input type="text" name="theme[type][hom][2][icon_b]"
                                                     placeholder="{:lang('admin/tpl/theme/icon_dark_addr')}"
-                                                    value="{$tplconfig['theme']['type']['hom'][2]['icon_b']|default='template/default/images/black/home-icon3.png'}"
+                                                    value="{$tplconfig['theme']['type']['hom'][2]['icon_b']|default='template/default/images/home/home-icon3-black.png'}"
                                                     class="layui-input upload-input">
                                             </div>
                                             <div class="layui-input-inline w100">
@@ -425,7 +425,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                             <div class="layui-input-inline w220">
                                                 <input type="text" name="theme[type][hom][3][icon_l]"
                                                     placeholder="{:lang('admin/tpl/theme/icon_light_addr')}"
-                                                    value="{$tplconfig['theme']['type']['hom'][3]['icon_l']|default='template/default/images/la/home-icon4.png'}"
+                                                    value="{$tplconfig['theme']['type']['hom'][3]['icon_l']|default='template/default/images/home/home-icon4.png'}"
                                                     class="layui-input upload-input">
                                             </div>
                                             <div class="layui-input-inline w100">
@@ -437,7 +437,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                             <div class="layui-input-inline w220">
                                                 <input type="text" name="theme[type][hom][3][icon_b]"
                                                     placeholder="{:lang('admin/tpl/theme/icon_dark_addr')}"
-                                                    value="{$tplconfig['theme']['type']['hom'][3]['icon_b']|default='template/default/images/black/home-icon4.png'}"
+                                                    value="{$tplconfig['theme']['type']['hom'][3]['icon_b']|default='template/default/images/home/home-icon4-black.png'}"
                                                     class="layui-input upload-input">
                                             </div>
                                             <div class="layui-input-inline w100">
@@ -1284,7 +1284,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][0][icon_light_sel]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ls')}"
-                                                        value="{$tplconfig['theme']['bnav'][0]['icon_light_sel']|default='template/default/images/new/home_ic_home_nor_ative.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][0]['icon_light_sel']|default='template/default/images/nav/home_ic_home_nor_ative.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1298,7 +1298,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][0][icon_dark_nor]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_dn')}"
-                                                        value="{$tplconfig['theme']['bnav'][0]['icon_dark_nor']|default='template/default/images/new/home_ic_home_nor.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][0]['icon_dark_nor']|default='template/default/images/home/home-icon1-black.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1312,7 +1312,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][0][icon_dark_sel]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ds')}"
-                                                        value="{$tplconfig['theme']['bnav'][0]['icon_dark_sel']|default='template/default/images/new/home_ic_home_nor_ative.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][0]['icon_dark_sel']|default='template/default/images/nav/home_ic_home_nor_ative.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1364,7 +1364,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][1][icon_light_sel]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ls')}"
-                                                        value="{$tplconfig['theme']['bnav'][1]['icon_light_sel']|default='template/default/images/new/home_ic_teleplay_nor_ative.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][1]['icon_light_sel']|default='template/default/images/nav/home_ic_teleplay_nor.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1378,7 +1378,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][1][icon_dark_nor]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_dn')}"
-                                                        value="{$tplconfig['theme']['bnav'][1]['icon_dark_nor']|default='template/default/images/new/home_ic_teleplay_nor.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][1]['icon_dark_nor']|default='template/default/images/nav/home_ic_teleplay_nor.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1392,7 +1392,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][1][icon_dark_sel]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ds')}"
-                                                        value="{$tplconfig['theme']['bnav'][1]['icon_dark_sel']|default='template/default/images/new/home_ic_teleplay_nor_ative.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][1]['icon_dark_sel']|default='template/default/images/nav/home_ic_teleplay_nor.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1430,7 +1430,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][2][icon_light_nor]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ln')}"
-                                                        value="{$tplconfig['theme']['bnav'][2]['icon_light_nor']|default='template/default/images/la/home-icon8.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][2]['icon_light_nor']|default='template/default/images/home/home-icon8.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1444,7 +1444,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][2][icon_light_sel]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ls')}"
-                                                        value="{$tplconfig['theme']['bnav'][2]['icon_light_sel']|default='template/default/images/new/home_ic_message_nor_ative.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][2]['icon_light_sel']|default='template/default/images/nav/home_ic_message_nor.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1458,7 +1458,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][2][icon_dark_nor]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_dn')}"
-                                                        value="{$tplconfig['theme']['bnav'][2]['icon_dark_nor']|default='template/default/images/new/home_ic_message_nor.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][2]['icon_dark_nor']|default='template/default/images/nav/home_ic_message_nor.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1472,7 +1472,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][2][icon_dark_sel]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ds')}"
-                                                        value="{$tplconfig['theme']['bnav'][2]['icon_dark_sel']|default='template/default/images/new/home_ic_message_nor_ative.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][2]['icon_dark_sel']|default='template/default/images/nav/home_ic_message_nor.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1510,7 +1510,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][3][icon_light_nor]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ln')}"
-                                                        value="{$tplconfig['theme']['bnav'][3]['icon_light_nor']|default='template/default/images/nav/nav4_nor.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][3]['icon_light_nor']|default='template/default/images/home/home-icon5.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1524,7 +1524,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][3][icon_light_sel]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ls')}"
-                                                        value="{$tplconfig['theme']['bnav'][3]['icon_light_sel']|default='template/default/images/new/home_ic_animation_nor_ative.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][3]['icon_light_sel']|default='template/default/images/nav/home_ic_animation_nor_ative.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1538,7 +1538,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][3][icon_dark_nor]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_dn')}"
-                                                        value="{$tplconfig['theme']['bnav'][3]['icon_dark_nor']|default='template/default/images/new/home_ic_animation_nor.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][3]['icon_dark_nor']|default='template/default/images/home/home-icon5-black.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">
@@ -1552,7 +1552,7 @@ $hotvod_tabs_list = (!empty($tplconfig['theme']['hotvod']['tabs']) && is_array($
                                                 <div class="layui-input-inline w300">
                                                     <input type="text" name="theme[bnav][3][icon_dark_sel]"
                                                         placeholder="{:lang('admin/tpl/theme/ph_icon_ds')}"
-                                                        value="{$tplconfig['theme']['bnav'][3]['icon_dark_sel']|default='template/default/images/new/home_ic_animation_nor_ative.png'}"
+                                                        value="{$tplconfig['theme']['bnav'][3]['icon_dark_sel']|default='template/default/images/nav/home_ic_animation_nor_ative.png'}"
                                                         class="layui-input upload-input">
                                                 </div>
                                                 <div class="layui-input-inline w120">

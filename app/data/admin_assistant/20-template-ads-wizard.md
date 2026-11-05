@@ -6,16 +6,16 @@
 
 ### 磁盘路径
 
-- 物理路径：`站点根/template/{模板目录}/`，PC 模板名取 **`maccms.site.template_dir`**、HTML 子目录 **`site.html_dir`**（默认 `html`）、广告片段 **`site.ads_dir`**（默认 `ads`）；WAP 另有 **`site.mob_template_dir` / `mob_html_dir` / `mob_ads_dir`**（[app/extra/maccms.php:70-84](file:///d:/wwwroot/maccms/maccms12/app/extra/maccms.php#L70-L84)）。  
-- 列表页三个快捷过滤：`?current=1` 只看当前模板、`?label=1` 只看 `html/label/`、`?ads=1` 只看 `html/ads/`；路径用 `.@template@…` 形式传递，前缀不合法直接 `illegal_request`（[Template.php:12-50](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Template.php#L12-L50)）。
+- 物理路径：`站点根/template/{模板目录}/`，PC 模板名取 **`maccms.site.template_dir`**、HTML 子目录 **`site.html_dir`**（默认 `html`）、广告片段 **`site.ads_dir`**（默认 `ads`）；WAP 另有 **`site.mob_template_dir` / `mob_html_dir` / `mob_ads_dir`**（[app/extra/maccms.php:70-84](.../app/extra/maccms.php#L70-L84)）。  
+- 列表页三个快捷过滤：`?current=1` 只看当前模板、`?label=1` 只看 `html/label/`、`?ads=1` 只看 `html/ads/`；路径用 `.@template@…` 形式传递，前缀不合法直接 `illegal_request`（[Template.php:12-50](.../app/admin/controller/Template.php#L12-L50)）。
 
 ### 两个必须先知道的坑
 
-1. **在线编辑页是隐藏节点**：点文件进的是 `template/info`（`show=0`，[auth.php](file:///d:/wwwroot/maccms/maccms12/app/admin/common/auth.php) 里 `admin/perm/template_info`），删除走 `template/del`。**只勾「模板管理」不给这两项，非超管打开文件就是「权限不足」**。  
-2. **在线保存有内容黑名单，绝大多数模板存不回去**：保存前先用 `mac_reg_replace()` 把一大串关键字替换成 `*`，只要原文被改动就报 `admin/template/php_safe_tip` 并拒绝写入（[Template.php:172-190](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Template.php#L172-L190)）。黑名单里含 `php file config input get post request session cookie {$ {: {/ {+ {-` 等 **任意子串**，而 ThinkPHP 标签恰好是 `{$var}`、`{:func()}`、`{include file=…}`。实测当前自带模板 **12 个里 11 个通不过**（只有纯静态的 `blurb.html` 能存），所以：  
+1. **在线编辑页是隐藏节点**：点文件进的是 `template/info`（`show=0`，[auth.php](.../app/admin/common/auth.php) 里 `admin/perm/template_info`），删除走 `template/del`。**只勾「模板管理」不给这两项，非超管打开文件就是「权限不足」**。  
+2. **在线保存有内容黑名单，绝大多数模板存不回去**：保存前先用 `mac_reg_replace()` 把一大串关键字替换成 `*`，只要原文被改动就报 `admin/template/php_safe_tip` 并拒绝写入（[Template.php:172-190](.../app/admin/controller/Template.php#L172-L190)）。黑名单里含 `php file config input get post request session cookie {$ {: {/ {+ {-` 等 **任意子串**，而 ThinkPHP 标签恰好是 `{$var}`、`{:func()}`、`{include file=…}`。实测当前自带模板 **12 个里 11 个通不过**（只有纯静态的 `blurb.html` 能存），所以：  
    - **改模板请走 FTP / 本地编辑器**，在线编辑只适合写不含标签的纯 HTML 片段；  
    - 这不是 bug 提示，改不了就别硬改，也别去关这个过滤。  
-3. 白名单扩展名只有 **`html / htm / js / xml`**，**`.css` 不在里面**；路径必须以 `./template` 开头且只允许出现两次 `./`（[Template.php:161-168](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Template.php#L161-L168)）。样式文件在 `template/{模板}/asset/` 里自行维护。
+3. 白名单扩展名只有 **`html / htm / js / xml`**，**`.css` 不在里面**；路径必须以 `./template` 开头且只允许出现两次 `./`（[Template.php:161-168](.../app/admin/controller/Template.php#L161-L168)）。样式文件在 `template/{模板}/asset/` 里自行维护。
 
 ### 操作步骤
 
@@ -42,7 +42,7 @@
 
 ## 标签向导 (`模版 → 标签向导` / `template/wizard`)
 
-- 可视化生成 **列表/详情/导航/留言/评论** 等标签代码（`Template::wizard`，[Template.php:231](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Template.php#L231)）。  
+- 可视化生成 **列表/详情/导航/留言/评论** 等标签代码（`Template::wizard`，[Template.php:231](.../app/admin/controller/Template.php#L231)）。  
 - **以向导输出为准**：手写容易把字段名与参数拼错；复制后再进编辑器。  
 - 完整的标签参数表在仓库 **`说明文档/`**（后台 **网站参数 → 说明文档**，`doc/index` 也能读）。
 

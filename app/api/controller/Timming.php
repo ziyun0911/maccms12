@@ -160,6 +160,15 @@ class Timming extends Base
         $runner->runDueJobs($extCfg, $provider);
     }
 
+    protected function doubanscorefill($param)
+    {
+        @parse_str($param, $output);
+        $limit = intval(isset($output['limit']) ? $output['limit'] : 1000);
+        $overwrite = intval(isset($output['overwrite']) ? $output['overwrite'] : 0);
+        $res = \app\common\util\DoubanScoreFillService::run(['limit' => $limit, 'overwrite' => $overwrite]);
+        mac_echo('[doubanscorefill] ' . $res['msg']);
+    }
+
     protected function annotate($param)
     {
         @parse_str($param, $output);

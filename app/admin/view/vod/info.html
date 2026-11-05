@@ -90,10 +90,10 @@
                     </blockquote>
 
                     {if condition="$content_lang_multi"}
-                    <div class="layui-tab" lay-filter="content_lang_tab">
+                    <div class="layui-tab" lay-filter="content_lang_tab">{:mac_lang_flag_sprite()}
                         <ul class="layui-tab-title">
                             {volist name="content_lang_enabled" id="lc"}
-                            <li {if condition="$lc eq $content_lang_default"}class="layui-this"{/if}>{$lc}</li>
+                            <li {if condition="$lc eq $content_lang_default"}class="layui-this"{/if}>{:mac_lang_flag_icon($lc)} {$lc}</li>
                             {/volist}
                         </ul>
                         <div class="layui-tab-content">
@@ -1270,114 +1270,89 @@
         });
 		//归零结束
 
-        var is_load=0;
-        $('#btn_douban').click(function(){
-            var id = $('#vod_douban_id').val();
-            var that=$(this);
-
-            if(id == '' || id < 10000){
-                alert("{:lang('admin/vod/douban_id_empty')}");
+        var douban_list = [];
+        var douban_lock = 0;
+        function douban_esc(v) {
+            return $('<i>').text(v === null || v === undefined ? '' : String(v)).html();
+        }
+        function douban_apply(item) {
+            $('input[name="vod_douban_id"]').val(item.id);
+            if (item.score > 0) {
+                $('input[name="vod_douban_score"]').val(item.score);
+            }
+            layer.msg("{:lang('admin/vod/douban_lookup_applied')}");
+        }
+        function douban_render() {
+            var list = douban_list;
+            if (list.length == 1) {
+                douban_apply(list[0]);
                 return;
             }
-            if(is_load==1){
+            var html = '<div style="padding:10px 12px;color:#888;">{:lang('admin/vod/douban_lookup_pick')}</div>';
+            for (var i = 0; i < list.length; i++) {
+                var it = list[i];
+                var line = douban_esc(it.name);
+                if (it.sub) {
+                    line += ' <span style="color:#999;">' + douban_esc(it.sub) + '</span>';
+                }
+                if (it.year) {
+                    line += ' <span style="color:#999;">(' + douban_esc(it.year) + ')</span>';
+                }
+                if (it.score > 0) {
+                    line += ' <span style="color:#ff6600;">★' + it.score + '</span>';
+                }
+                line += ' <span style="color:#bbb;">ID: ' + douban_esc(it.id) + '</span>';
+                html += '<div class="douban-item" data-i="' + i + '" style="cursor:pointer;padding:8px 10px;border-bottom:1px solid #eee;">' + line + '</div>';
+            }
+            layer.open({
+                type: 1,
+                title: "{:lang('admin/vod/douban_lookup_title')}",
+                area: ['620px', '420px'],
+                content: html,
+                success: function (layero) {
+                    layero.on('click', '.douban-item', function () {
+                        var it = douban_list[parseInt($(this).attr('data-i'), 10)];
+                        if (!it) {
+                            return;
+                        }
+                        layer.closeAll('page');
+                        douban_apply(it);
+                    });
+                }
+            });
+        }
+        $(document).on('click', '#btn_douban', function () {
+            var name = $.trim($('#vod_name').val());
+            if (name == '') {
+                layer.msg("{:lang('name_empty')}");
                 return;
             }
-            is_load=1;
+            if (douban_lock == 1) {
+                return;
+            }
+            var that = $(this);
+            douban_lock = 1;
             that.text("{:lang('wait_submit')}");
             $.ajax({
                 type: 'post',
-                dataType: "jsonp",
-                jsonp: "callback",
-                timeout: 5000,
-                url: '//' + 'api' + '.' + 'mac'+ 'cms' + '.'+ 'la' + '/douban/index/id/' + id,
-                error: function(){
-                    alert("{:lang('request_err')}");
+                dataType: 'json',
+                timeout: 20000,
+                url: "{:url('vod/doubanLookup')}",
+                data: { name: name },
+                error: function () {
+                    layer.msg("{:lang('request_err')}");
                 },
-                complete:function(){
-                    is_load=0;
+                complete: function () {
+                    douban_lock = 0;
                     that.text("{:lang('search_data')}");
                 },
-                success:function(r){
-                    if(r.code>1){
-                        alert(r.msg);
+                success: function (r) {
+                    if (!r || r.code != 1 || !r.data || !r.data.length) {
+                        layer.msg((r && r.msg) ? r.msg : "{:lang('request_err')}");
+                        return;
                     }
-                    else{
-                        if(r.data.vod_total){
-                            $('#vod_total').val(r.data.vod_total);
-                        }
-                        if(r.data.vod_serial){
-                            $('#vod_continu').val(r.data.vod_serial);
-                        }
-                        if(r.data.vod_isend){
-                            $('#vod_isend').val(r.data.vod_isend);
-                        }
-                        if(r.data.vod_name){
-                            $('#vod_name').val(r.data.vod_name);
-                        }
-                        if(r.data.vod_sub){
-                            $('#vod_sub').val(r.data.vod_sub);
-                        }
-                        if(r.data.vod_pic){
-                            $('#vod_pic').val(r.data.vod_pic);
-                        }
-                        if(r.data.vod_year){
-                            $('#vod_year').val(r.data.vod_year);
-                        }
-                        if(r.data.vod_lang){
-                            $('#vod_lang').val(r.data.vod_lang);
-                        }
-                        if(r.data.vod_area){
-                            $('#vod_area').val(r.data.vod_area);
-                        }
-                        if(r.data.vod_state){
-                            $('#vod_state').val(r.data.vod_state);
-                        }
-                        if(r.data.vod_class){
-                            $('#vod_type').val(r.data.vod_class);
-                        }
-                        if(r.data.vod_tag){
-                            $('#vod_tag').val(r.data.vod_tag);
-                        }
-                        if(r.data.vod_actor){
-                            $('#vod_actor').val(r.data.vod_actor);
-                        }
-                        if(r.data.vod_director){
-                            $('#vod_director').val(r.data.vod_director);
-                        }
-                        if(r.data.vod_pubdate){
-                            $('#vod_pubdate').val(r.data.vod_pubdate);
-                        }
-                        if(r.data.vod_writer){
-                            $('#vod_writer').val(r.data.vod_writer);
-                        }
-                        if(r.data.vod_score){
-                            $('#vod_score').val(r.data.vod_score);
-                        }
-                        if(r.data.vod_score_num){
-                            $('#vod_score_num').val(r.data.vod_score_num);
-                        }
-                        if(r.data.vod_score_all){
-                            $('#vod_score_all').val(r.data.vod_score_all);
-                        }
-                        if(r.data.vod_douban_score){
-                            $('#vod_douban_score').val(r.data.vod_douban_score);
-                        }
-                        if(r.data.vod_duration){
-                            $('#vod_duration').val(r.data.vod_duration);
-                        }
-                        if(r.data.vod_content){
-                            ue.setContent(r.data.vod_content);
-                        }
-                        if(r.data.vod_class){
-                            $('#vod_class').val(r.data.vod_class);
-                        }
-                        if(r.data.vod_reurl) {
-                            $('#vod_reurl').val(r.data.vod_reurl);
-                        }
-                        if(r.data.vod_author) {
-                            $('#vod_author').val(r.data.vod_author);
-                        }
-                    }
+                    douban_list = r.data;
+                    douban_render();
                 }
             });
         });

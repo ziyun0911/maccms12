@@ -39,8 +39,8 @@
                     <ul class="fn-clear nav-list">
                         <li id="latest1" onmouseover="setTab('latest',1,8);" class="current">
                             <span>
-                                <img class="laset_new_img hl_icon_light" src="{$maccms.path_tpl}/images/la/home-icon10.png" alt="">
-                                <img class="laset_new_img hl_icon_black" src="{$maccms.path_tpl}/images/black/home-icon10.png" alt="">
+                                <img class="laset_new_img hl_icon_light" src="{$maccms.path_tpl}/images/home/home-icon10.png" alt="">
+                                <img class="laset_new_img hl_icon_black" src="{$maccms.path_tpl}/images/home/home-icon10-black.png" alt="">
                                 <span style="margin: 0;">{$tplconfig.theme.hotvod.title|default='热门推荐'|mac_tpl_text}</span>
                             </span>
                         </li>
@@ -105,7 +105,7 @@
             {if condition="$index_manga_hbtn eq 1"}
             <div class="box latest-tab-box {$index_manga_poster_class}">
                 <div class="title home-unified-section-head hu-section-head">
-                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/la/home-icon5.png" ><img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/black/home-icon5.png" >
+                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/home/home-icon5.png" ><img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/home/home-icon5-black.png" >
                     <h2><span>{$index_latest_prefix}</span><span>{$index_manga_htitle}</span></h2>
                     <a class="pc_more" href="{:mac_url('manga/index')}"><span data-lang="string_type_more2">更多</span> <i class="iconfont more_i">&#xe623;</i></a>
                 </div>
@@ -135,7 +135,7 @@
             {if condition="$index_art_hbtn eq 1"}
             <div class="box latest-tab-box {$index_art_poster_class}">
                 <div class="title home-unified-section-head hu-section-head">
-                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/la/home-icon8.png" ><img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/black/home-icon8.png" >
+                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/home/home-icon8.png" ><img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/home/home-icon8-black.png" >
                     <h2><span>{$index_latest_prefix}</span><span>{$index_art_home.type_name|default=$index_art_htitle}</span></h2>
                     <dl class="home-unified-art-subtypes" id="js-home-art-subtypes"></dl>
                     <a class="pc_more" href="{:mac_url('art/index')}"><span data-lang="string_type_more2">更多</span> <i class="iconfont more_i">&#xe623;</i></a>
@@ -169,7 +169,7 @@
             {if condition="!empty($tplconfig['theme']['actor']['hbtn']) && $tplconfig['theme']['actor']['hbtn'] eq 1"}
             <div class="box mingxing">
                 <div class="title home-unified-section-head hu-section-head">
-                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/la/home-icon6.png" ><img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/black/home-icon6.png" >
+                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/home/home-icon6.png" ><img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/home/home-icon6-black.png" >
                     <h2><span>{$tplconfig.theme.actor.htitle|default='推荐明星'|mac_tpl_text}</span></h2>
                     <a class="pc_more" href="{:mac_url('actor/index')}"><span data-lang="string_type_more2">更多</span><i class="iconfont more_i">&#xe623;</i></a>
                 </div>
@@ -198,8 +198,8 @@
             {if condition="$index_live_hbtn eq 1"}
             <div class="box latest-tab-box {$mac_live_poster_class|default='mac-poster--v'}">
                 <div class="title home-unified-section-head hu-section-head">
-                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/la/home_ic_Live_nor_2x.png" alt="">
-                    <img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/black/home_ic_Live_nor_2x.png" alt="">
+                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/home/home_ic_Live_nor_2x.png" alt="">
+                    <img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/home/home_ic_Live_nor_2x-black.png" alt="">
                     <h2><span data-lang="live/show_title">{$index_live_htitle}</span></h2>
                     <a class="pc_more" href="{:mac_url('live/show')}"><span data-lang="string_type_more2">更多</span> <i class="iconfont more_i">&#xe623;</i></a>
                 </div>
@@ -229,7 +229,7 @@
             {if condition="isset($tplconfig['theme']['rank']['hbtn']) && $tplconfig['theme']['rank']['hbtn'] eq '1'"}
             <div class="box rank_waterfall">
                 <div class="title home-unified-section-head hu-section-head">
-                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/la/home-icon9.png" ><img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/black/home-icon9.png" >
+                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/home/home-icon9.png" ><img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/home/home-icon9-black.png" >
                     <h2><span>{$tplconfig.theme.rank.htitle|default='热播排行榜'|mac_tpl_text}</span></h2>
                     {if condition="!isset($tplconfig['theme']['rank']['btn']) || $tplconfig['theme']['rank']['btn'] neq '0'"}
                     <a class="pc_more" href="{:mac_url('label/rank')}"><span data-lang="string_type_more2">更多</span><i class="iconfont more_i">&#xe623;</i></a>

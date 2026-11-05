@@ -97,14 +97,14 @@
 		<ul class="show-mobile">
 			<li>
 				<a href="{:url('user/info')}">
-					<img class="userli-img" src="{$maccms.path}template/default/images/member/user-li1.png" alt="">
+					<img class="userli-img" src="{$maccms.path}template/default/images/user/user-li1.png" alt="">
 					<span data-lang="user_my_info">我的资料</span>
 					<i class="iconfont ico-right">&#xe623;</i>
 				</a>
 			</li>
 			<li>
 				<a href="{:rtrim($maccms.path,'/').'/index.php/user/notify.html'}">
-					<img class="userli-img" src="{$maccms.path}template/default/images/member/user-li3.png" alt="">
+					<img class="userli-img" src="{$maccms.path}template/default/images/user/user-li3.png" alt="">
 					<span data-lang="notify_title">消息中心</span>
 					<i class="iconfont ico-right">&#xe623;</i>
 				</a>
@@ -118,42 +118,42 @@
 			</li>
 			<li>
 				<a href="{:url('user/favs')}">
-					<img class="userli-img" src="{$maccms.path}template/default/images/member/user-li11.png" alt="">
+					<img class="userli-img" src="{$maccms.path}template/default/images/user/user-li11.png" alt="">
 					<span data-lang="user_my_collection">我的收藏</span>
 					<i class="iconfont ico-right">&#xe623;</i>
 				</a>
 			</li>
 			<li>
 				<a href="{:url('user/plays')}">
-					<img class="userli-img" src="{$maccms.path}template/default/images/member/user-li3.png" alt="">
+					<img class="userli-img" src="{$maccms.path}template/default/images/user/user-li3.png" alt="">
 					<span data-lang="user_view_record">观看记录</span>
 					<i class="iconfont ico-right">&#xe623;</i>
 				</a>
 			</li>
 			<li class="mtop">
 				<a class="mac_left_recharge_mb" href="{:url('user/upgrade')}" id="mobileUpgradeLink">
-					<img class="userli-img" src="{$maccms.path}template/default/images/member/user-nav-recharge-online.png" alt="">
+					<img class="userli-img" src="{$maccms.path}template/default/images/user/user-nav-recharge-online.png" alt="">
 					<span data-lang="user_recharge">充值中心</span>
 					<i class="iconfont ico-right">&#xe623;</i>
 				</a>
 			</li>
 			<li>
 				<a href="{:url('user/orders')}">
-					<img class="userli-img" src="{$maccms.path}template/default/images/member/user-li7.png" alt="">
+					<img class="userli-img" src="{$maccms.path}template/default/images/user/user-li7.png" alt="">
 					<span data-lang="user_recharge_record">充值记录</span>
 					<i class="iconfont ico-right">&#xe623;</i>
 				</a>
 			</li>
 			<li style="display:none;">
 				<a href="{:url('user/cash')}">
-					<img class="userli-img" src="{$maccms.path}template/default/images/member/user-li8.png" alt="">
+					<img class="userli-img" src="{$maccms.path}template/default/images/user/user-li8.png" alt="">
 					<span data-lang="user_cash">我要提现</span>
 					<i class="iconfont ico-right">&#xe623;</i>
 				</a>
 			</li>
 			<li>
 				<a href="{:url('user/plog')}">
-					<img class="userli-img" src="{$maccms.path}template/default/images/member/user-nav-plog-coins.png" alt="">
+					<img class="userli-img" src="{$maccms.path}template/default/images/user/user-nav-plog-coins.png" alt="">
 					<span data-lang="user_poin_record">金币记录</span>
 					<i class="iconfont ico-right">&#xe623;</i>
 				</a>
@@ -173,16 +173,17 @@
 				</a>
 			</li>
 			{if condition="isset($content_lang_items) && count($content_lang_items) > 1"}
-			<li class="change-lang member-left-lang-mobile">
+							{:mac_lang_flag_sprite()}
+				<li class="change-lang member-left-lang-mobile">
 				<a href="javascript:;" data-title="string_lang_change" title="语言切换" data-title="string_lang_change" class="top_link">
 					<span class="no-lang member-left-lang-earth" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a14.8 14.8 0 0 1 0 20 14.8 14.8 0 0 1 0-20"/></svg></span>
-					<span class="userli-img has-lang" role="img" aria-hidden="true"></span>
+					<svg class="userli-img has-lang lang-img-flag" role="img" aria-hidden="true"><use></use></svg>
 					<span data-lang="string_lang_change">语言切换</span>
 					<i class="iconfont ico-right">&#xe623;</i>
 					<div class="lang-wrap">
 						{volist name="content_lang_items" id="langItem"}
 						<div class="lang{if condition="$langItem['active']"} is-active{/if}" data-flag-code="{$langItem.legacy}" data-mac-lang="{$langItem.code}" data-ui-lang="{$langItem.ui}">
-							<span class="lang-img lang-img-emoji" role="img" aria-label="{$langItem.name}"{if condition="$langItem['flag']"} data-lang-src="{$langItem.flag}"{/if}>{$langItem.emoji}</span>
+							{if condition="$langItem['flag']"}<svg class="lang-img lang-img-flag" data-flag="{$langItem.flag}" data-flag-emoji="{$langItem.emoji}" role="img" aria-label="{$langItem.name}"><use href="#{$langItem.flag}"></use></svg>{else/}<span class="lang-img lang-img-emoji" role="img" aria-label="{$langItem.name}" data-flag-emoji="{$langItem.emoji}">{$langItem.emoji}</span>{/if}
 							<span class="lang-txt">{$langItem.name}</span>
 						</div>
 						{/volist}

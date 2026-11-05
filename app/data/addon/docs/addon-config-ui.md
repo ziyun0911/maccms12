@@ -4,12 +4,12 @@
 |------|-----|
 | 状态 | **已落地** |
 | 更新 | 2026-10-27 |
-| 控制器 | [`app/admin/controller/Addon.php`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Addon.php) → `config()`（`:31`） |
-| 模板 | [`app/admin/view/addon/config.html`](file:///D:/wwwroot/maccms/maccms12/app/admin/view/addon/config.html)（构造函数 `:19` 把 `view_path` 锁到 `app/admin/view/`，插件无法替换这一页） |
+| 控制器 | [`app/admin/controller/Addon.php`](.../app/admin/controller/Addon.php) → `config()`（`:31`） |
+| 模板 | [`app/admin/view/addon/config.html`](.../app/admin/view/addon/config.html)（构造函数 `:19` 把 `view_path` 锁到 `app/admin/view/`，插件无法替换这一页） |
 | schema | `addons/{name}/config.php` |
 | 实际值 | `addons/{name}/config.values.php`（**后台生成，别打进发布包**） |
 
-> v12 的读写实现全部在 [`app/common/addon/helpers.php`](file:///D:/wwwroot/maccms/maccms12/app/common/addon/helpers.php)，
+> v12 的读写实现全部在 [`app/common/addon/helpers.php`](.../app/common/addon/helpers.php)，
 > 与 v10 的 `get_addon_config()` / `set_addon_fullconfig()`（写回 `config.php` 的 `value`）**不是同一套**：
 > schema 与站长值分成两个文件，`config.php` 保存时永远不会被改写。
 
@@ -19,7 +19,7 @@
 
 1. 「应用 → 本地应用」列表点「配置」→ GET `admin.php/addon/config?name={name}`（`:33-45` 取名字、校验目录存在、读 `addon_info()` + `addon_full_config()`）。
 2. 表单 POST 回同一页（`config.html:19-20` 带 `__token__` 与隐藏 `name`），字段名 `row[配置项]`；`checkbox` / `selects` 是 `row[配置项][]`（`config.html:65`、`:79`）。
-3. 服务端顺序：一次性令牌校验（`:52-56`，失败回传新 `__token__`）→ 取 `post('row/a')`（`:58`）→ [`validateAddonConfigRows()`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Addon.php#L680) → [`addon_save_full_config()`](file:///D:/wwwroot/maccms/maccms12/app/common/addon/helpers.php#L118) 写 `config.values.php` → [`Service::refresh()`](file:///D:/wwwroot/maccms/maccms12/app/common/addon/Service.php#L123) → `Cache::delete('hooks')` / `Cache::delete('addons')`（`:72-74`）。
+3. 服务端顺序：一次性令牌校验（`:52-56`，失败回传新 `__token__`）→ 取 `post('row/a')`（`:58`）→ [`validateAddonConfigRows()`](.../app/admin/controller/Addon.php#L680) → [`addon_save_full_config()`](.../app/common/addon/helpers.php#L118) 写 `config.values.php` → [`Service::refresh()`](.../app/common/addon/Service.php#L123) → `Cache::delete('hooks')` / `Cache::delete('addons')`（`:72-74`）。
 4. schema 为空时整页只显示「无配置项」提示（`config.html:13-16`）。
 
 读取运行时配置（**函数名以 `helpers.php` 为准**）：
@@ -36,7 +36,7 @@ $cfg  = $this->getConfig();          // 主类内（app/common/addon/Addon.php:3
 
 ## 2. 支持的 `type`
 
-白名单在 [`Addon::validateAddonConfigRows()`:682-686](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Addon.php#L682)，共 14 个；不在表内的 `type` 直接保存失败。渲染分支在 `config.html:25-110` 的 `{switch}`。
+白名单在 [`Addon::validateAddonConfigRows()`:682-686](.../app/admin/controller/Addon.php#L682)，共 14 个；不在表内的 `type` 直接保存失败。渲染分支在 `config.html:25-110` 的 `{switch}`。
 
 | type | 控件 | 提交形态 | 落库值 | 校验（代码行号） |
 |---|---|---|---|---|
@@ -65,7 +65,7 @@ $cfg  = $this->getConfig();          // 主类内（app/common/addon/Addon.php:3
 
 | 约束 | 依据 |
 |---|---|
-| 配置项 `name` 必须匹配 `^[a-zA-Z_][a-zA-Z0-9_]*$` | [`Addon.php:693`](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Addon.php#L693) |
+| 配置项 `name` 必须匹配 `^[a-zA-Z_][a-zA-Z0-9_]*$` | [`Addon.php:693`](.../app/admin/controller/Addon.php#L693) |
 | schema 每行必须是数组且带 `name` | `:689-691` |
 | `title` 留空时错误提示回落成 `name` | `:700` |
 | `content` 必须是「提交值 => 展示文案」的映射 | 选项校验按 `array_key_exists` 走，`:742`/`:765` |
@@ -78,7 +78,7 @@ $cfg  = $this->getConfig();          // 主类内（app/common/addon/Addon.php:3
 | 场景 | 是否即时 | 说明 |
 |---|---|---|
 | 改配置值 | **是**（下一请求） | `addon_config()` 每次请求现读文件，进程内缓存只在 `$GLOBALS`（`helpers.php:65`/`:136`） |
-| 启用 / 禁用 | **是** | `Service::enable/disable` 回写 `info.ini` 的 `state` 并 [`AddonManager::reset()`](file:///D:/wwwroot/maccms/maccms12/app/common/addon/AddonManager.php#L84) |
+| 启用 / 禁用 | **是** | `Service::enable/disable` 回写 `info.ini` 的 `state` 并 [`AddonManager::reset()`](.../app/common/addon/AddonManager.php#L84) |
 | 主类新增 / 删除钩子方法 | **是，不需要 refresh** | 调度是每次请求现场反射（`AddonManager::handlers()` `:65-78`）；`app/extra/addons.php` 的 `hooks` 表写了但没有任何读取方 |
 | 改 `install.sql` / 静态资源 | **否** | 属安装 / 启用副作用，不是配置页职责 |
 

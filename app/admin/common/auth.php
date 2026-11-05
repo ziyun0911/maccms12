@@ -1091,6 +1091,13 @@ return array (
                 'controller' => 'vod',
                 'action' => 'selectStatus',
             ),
+            4406 => 
+            array (
+                'show' => 0,
+                'name' => lang('admin/perm/vod_douban_lookup'),
+                'controller' => 'vod',
+                'action' => 'doubanLookup',
+            ),
             46 => 
             array (
                 'show' => 1,

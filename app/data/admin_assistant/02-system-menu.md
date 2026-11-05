@@ -1,6 +1,6 @@
 # System menu map / 后台菜单导览
 
-菜单的唯一权威来源是 [app/admin/common/auth.php](file:///d:/wwwroot/maccms/maccms12/app/admin/common/auth.php)：**16 个一级分组、362 个节点**。顶栏按分组排列，点分组后左栏列出该组可见项。节点上的 `show` 只决定左栏是否显示，**不影响**「用户 → 管理员 → 编辑」里的权限勾选树。
+菜单的唯一权威来源是 [app/admin/common/auth.php](.../app/admin/common/auth.php)：**16 个一级分组、362 个节点**。顶栏按分组排列，点分组后左栏列出该组可见项。节点上的 `show` 只决定左栏是否显示，**不影响**「用户 → 管理员 → 编辑」里的权限勾选树。
 
 ## 16 个一级分组（按顶栏顺序）
 
@@ -50,7 +50,7 @@
 ## 常见误区
 
 - **没有「管理员角色」页**：v12 权限直接写在 **用户 → 管理员** 编辑页的菜单勾选树里（`admin_auth[]`），`admin_id = 1` 恒为超管且不可被限制。**用户 → 会员组**（`group/index`）管的是前台会员等级，不是后台角色。
-- **视频 / 文章 / 漫画分组下没有「分类」**：分类只有 **基础 → 分类列表**（`type/index`）一处，条目按 `type_mid` 标明归属模块（1 视频 / 2 文章 / 8 演员 / 11 网址 / 12 漫画…见 [app/common.php:1472-1489](file:///d:/wwwroot/maccms/maccms12/app/common.php#L1472-L1489)）。
+- **视频 / 文章 / 漫画分组下没有「分类」**：分类只有 **基础 → 分类列表**（`type/index`）一处，条目按 `type_mid` 标明归属模块（1 视频 / 2 文章 / 8 演员 / 11 网址 / 12 漫画…见 [app/common.php:1472-1489](.../app/common.php#L1472-L1489)）。
 - **没有独立的「网站安全」分组**：安全相关分散在 **应用**（`safety/*`）、**基础 → 评论黑名单 / IP黑名单**（`comment/blacklist`、`comment/blacklist_ip`）、**网站参数 → 访问风控设置**。
 - **没有独立的「URL 设置 / SEO 设置 / 附件设置」页**：分别是 `system/config` 页内区块，或 `system/configupload`（资源、链接与播放）、`system/configcollect`（内容接入）的 Tab。
 - **「定时任务」现在叫「计划任务」**（`timming/index`）。

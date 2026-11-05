@@ -15,7 +15,7 @@
 
 ## 在线支付配置（**网站参数 → 对接与账号** 的第三个页签「在线支付」；`menu/configpay`，旧地址 `system/configpay` 302 到 `configconnect?tab=pay`）
 
-- 页签里直接可编辑的是 **`pay[min]`（最低充值）、`pay[scale]`、`pay[card][url]`（卡密接口）**；网关参数由 `mac_extends_list('pay')` 渲染的驱动片段提供（[System.php:1013](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/System.php#L1013) → `app/admin/view/extend/pay/{alipay,weixin,codepay,zhapay,jeepay,epay}.html`），存进 **`maccms.pay.{网关}`**（`appid` / `appkey` / `mchid` 等，见 [app/extra/maccms.php:285-315](file:///d:/wwwroot/maccms/maccms12/app/extra/maccms.php#L285-L315)）。  
+- 页签里直接可编辑的是 **`pay[min]`（最低充值）、`pay[scale]`、`pay[card][url]`（卡密接口）**；网关参数由 `mac_extends_list('pay')` 渲染的驱动片段提供（[System.php:1013](.../app/admin/controller/System.php#L1013) → `app/admin/view/extend/pay/{alipay,weixin,codepay,zhapay,jeepay,epay}.html`），存进 **`maccms.pay.{网关}`**（`appid` / `appkey` / `mchid` 等，见 [app/extra/maccms.php:285-315](.../app/extra/maccms.php#L285-L315)）。  
 - **异步通知必须为公网 HTTPS**（微信支付强制）。  
 - **沙箱密钥不得用于生产**；退款、对账在各支付平台商户后台完成。
 
@@ -23,7 +23,7 @@
 
 ## 微信对接配置（**网站参数 → 对接与账号** 的第二个页签；`menu/configweixin`，旧地址 302 到 `configconnect?tab=weixin`）
 
-- 表单字段只有 **`weixin.status`、`weixin.token`** 与关注 / 搜索 / 播放 / 对接 / 无资源几类自动回复文案（[config_embed_weixin.html](file:///d:/wwwroot/maccms/maccms12/app/admin/view/system/config_embed_weixin.html)）：**没有 AppID / AppSecret / AESKey 输入框**，支付用的 `pay.weixin.appid|mchid|appkey` 在上一节的支付页签里。  
+- 表单字段只有 **`weixin.status`、`weixin.token`** 与关注 / 搜索 / 播放 / 对接 / 无资源几类自动回复文案（[config_embed_weixin.html](.../app/admin/view/system/config_embed_weixin.html)）：**没有 AppID / AppSecret / AESKey 输入框**，支付用的 `pay.weixin.appid|mchid|appkey` 在上一节的支付页签里。  
 - **回调域名** 必须备案且 **白名单授权**。
 
 ---

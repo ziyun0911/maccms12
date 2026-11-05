@@ -18,7 +18,7 @@
 
 ## 缓存
 
-- **`app.cache_type`**：`file` / `redis` / `memcache` / `memcached`（非法值回落 `file`，[app/common/middleware/Init.php:136](file:///d:/wwwroot/maccms/maccms12/app/common/middleware/Init.php#L136)）；非 file 时需 **可达的缓存主机**。  
+- **`app.cache_type`**：`file` / `redis` / `memcache` / `memcached`（非法值回落 `file`，[app/common/middleware/Init.php:136](.../app/common/middleware/Init.php#L136)）；非 file 时需 **可达的缓存主机**。  
 - **`app.cache_page`**：页面缓存；改模板后要 **清除**（后台顶栏 **「⋯」→ 清理缓存**）。  
 - **模板编译缓存**在 `runtime/temp/`；**浏览器 / CDN** 与服务器缓存分层，排查时 **每层单独清理**。
 

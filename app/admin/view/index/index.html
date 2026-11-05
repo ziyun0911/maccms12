@@ -47,9 +47,10 @@
             </a>
             <div class="layui-form language-select-wrap language-select-wrap--plain" id="languageSelectWrap">
                 <label for="languageSelect" class="layui-hide">{:lang('install/select_lang')}</label>
+                {:mac_lang_flag_sprite()}
                 <select id="languageSelect" name="app[lang]" lay-filter="lang">
                     {volist name="langs" id="vo"}
-                    <option value="{$vo.code}" {if condition="$config['app']['lang'] eq $vo.code"} selected {/if}>{$vo.flag}&nbsp;{$vo.name}</option>
+                    <option value="{$vo.code}" {if condition="$config['app']['lang'] eq $vo.code"} selected {/if}>{$vo.name}</option>
                     {/volist}
                 </select>
             </div>
@@ -239,15 +240,16 @@
 <script type="text/javascript">
     window.ADMIN_LANG_META = {};
     {volist name="langs" id="vo"}
-    window.ADMIN_LANG_META['{$vo.code}'] = { label: '{$vo.name}', flag: '{$vo.flag}' };
+    window.ADMIN_LANG_META['{$vo.code}'] = { label: '{$vo.name}', flag: '{$vo.flag}', cell: '{:mac_lang_flag_cell($vo.code)}' };
     {/volist}
 
     function adminLangMeta(code) {
-        if (!code) return { label: '', flag: '🌐' };
+        if (!code) return { label: '', flag: '🌐', cell: '' };
         if (window.ADMIN_LANG_META[code]) return window.ADMIN_LANG_META[code];
         return {
             label: code.split('-').map(function (p) { return p.toUpperCase(); }).join(' · '),
-            flag: '🌐'
+            flag: '🌐',
+            cell: ''
         };
     }
 
@@ -257,9 +259,17 @@
         $edge.removeClass('maccms-icon macCms-a-zu1679').addClass('layui-icon layui-icon-xiangxia');
     }
 
+    function adminLangFlagHtml(meta, cls) {
+        if (meta.cell) {
+            return '<svg class="' + cls + '" role="img" aria-hidden="true" focusable="false"><use href="#' + meta.cell + '"></use></svg>';
+        }
+        return '<span class="' + cls + '" aria-hidden="true">' + meta.flag + '</span>';
+    }
+
     function adminLangOptionHtml(code) {
         var meta = adminLangMeta(code);
-        return '<span class="lang-option"><span class="lang-option__flag" aria-hidden="true">' + meta.flag + '</span><span class="lang-option__text">' + meta.label + '</span></span>';
+        return '<span class="lang-option">' + adminLangFlagHtml(meta, 'lang-option__flag')
+            + '<span class="lang-option__text">' + meta.label + '</span></span>';
     }
 
     function decorateLanguageSelect() {
@@ -279,7 +289,14 @@
         var current = $('#languageSelect').val();
         var meta = adminLangMeta(current);
         var $input = $layuiSelect.find('.layui-input');
-        $input.html('<span class="lang-trigger"><span class="lang-trigger__flag" aria-hidden="true">' + meta.flag + '</span><span class="lang-trigger__text">' + meta.label + '</span></span>');
+        $input.val(meta.label);
+        var title = $layuiSelect.find('.layui-select-title')[0];
+        if (title) {
+            var stale = title.querySelector('.lang-trigger__flag');
+            if (stale) stale.parentNode.removeChild(stale);
+            // <input> 不吃 innerHTML，收起态的旗标只能叠在标题层上
+            title.insertAdjacentHTML('afterbegin', adminLangFlagHtml(meta, 'lang-trigger__flag'));
+        }
     }
 
     (function () {

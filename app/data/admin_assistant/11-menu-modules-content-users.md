@@ -39,7 +39,7 @@
 | **演员库 / 角色库** | `actor/data` / `role/data` | 人物、角色资料维护 —— **它们挂在「视频」分组下**，不是独立顶栏分组 |
 | **播放失败统计** | `vodplayfail/index` | 哪些线路/条目播放报错 |
 
-> 权限串只按 **`控制器/动作`** 记录（勾选框 value 见 [admin/info.html:43](file:///d:/wwwroot/maccms/maccms12/app/admin/view/admin/info.html#L43)），带 `param` 的筛选子集 **共用同一条 `vod/data`**：勾一次全都放开，也无法只给某个子集页。文章/漫画/网址同理。
+> 权限串只按 **`控制器/动作`** 记录（勾选框 value 见 [admin/info.html:43](.../app/admin/view/admin/info.html#L43)），带 `param` 的筛选子集 **共用同一条 `vod/data`**：勾一次全都放开，也无法只给某个子集页。文章/漫画/网址同理。
 
 ---
 

@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="{$maccms.path}template/default/asset/css/head.css">
+<link rel="stylesheet" type="text/css" href="{$maccms.path}template/default/asset/css/head.css?v=202611042">
 {php}
 $mac_catalog_head_mid = isset($obj['type_mid']) ? (int)$obj['type_mid'] : 1;
 if ($mac_catalog_head_mid === 1) {
@@ -28,10 +28,10 @@ if ($mac_catalog_head_mid === 1) {
                     <li class="top_ico">
                         <a class="top_link" href="{:mac_url('label/rank')}" data-title="string_rank" title="{$tplconfig.theme.rank.title|default='排行榜'}">
                             <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
-                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/排行榜.png" width="52" height="52" alt="" decoding="async">
+                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/排行榜.png" width="52" height="52" alt="" decoding="async">
                             </span>
                             <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
-                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/排行榜-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/排行榜-黑色使用.png" width="52" height="52" alt="" decoding="async">
                             </span>
                         </a>
                     </li>
@@ -40,14 +40,14 @@ if ($mac_catalog_head_mid === 1) {
                         <a class="top_link js-save-site-url" href="javascript:;" data-title="string_save_site" title="">
                             <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
                                 <span class="head-latest-url-flip">
-                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="{$maccms.path_tpl}images/head-nav/最新网址.png" width="52" height="52" alt="" decoding="async">
-                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="{$maccms.path_tpl}images/head-nav/最新网址2.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="{$maccms.path_tpl}images/layout/最新网址.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="{$maccms.path_tpl}images/layout/最新网址2.png" width="52" height="52" alt="" decoding="async">
                                 </span>
                             </span>
                             <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
                                 <span class="head-latest-url-flip">
-                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="{$maccms.path_tpl}images/head-nav/最新网址1-黑色使用.png" width="52" height="52" alt="" decoding="async">
-                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="{$maccms.path_tpl}images/head-nav/最新网址2-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--a" src="{$maccms.path_tpl}images/layout/最新网址1-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                    <img class="head-latest-url-flip__img head-latest-url-flip__img--b" src="{$maccms.path_tpl}images/layout/最新网址2-黑色使用.png" width="52" height="52" alt="" decoding="async">
                                 </span>
                             </span>
                         </a>
@@ -55,10 +55,10 @@ if ($mac_catalog_head_mid === 1) {
                     <li class="top_ico">
                         <a class="user_login top_link mac_head_plays" href="javascript:;" data-title="user_view_record" title="播放记录">
                             <span class="head-nav-icon-theme head-nav-icon-theme--lightbg" aria-hidden="true">
-                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/观看历史.png" width="52" height="52" alt="" decoding="async">
+                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/观看历史.png" width="52" height="52" alt="" decoding="async">
                             </span>
                             <span class="head-nav-icon-theme head-nav-icon-theme--darkbg" aria-hidden="true">
-                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/观看历史-黑色使用.png" width="52" height="52" alt="" decoding="async">
+                                <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/观看历史-黑色使用.png" width="52" height="52" alt="" decoding="async">
                             </span>
                         </a>
                     </li>
@@ -68,7 +68,7 @@ if ($mac_catalog_head_mid === 1) {
                             href="javascript:;"
                             data-title="string_hy"
                             title="会员">
-                            <img class="head-nav-icon" src="{$maccms.path_tpl}images/head-nav/用户默认.png" width="52" height="52" alt="" decoding="async">
+                            <img class="head-nav-icon" src="{$maccms.path_tpl}images/layout/用户默认.png" width="52" height="52" alt="" decoding="async">
                         </a>
                     </li>
                     {/if}
@@ -93,12 +93,12 @@ if ($mac_catalog_head_mid === 1) {
                 </div>
             </div>
             <button type="button" class="mac-catalog-filter-head__reset-inline mac-catalog-show__filter-reset" data-mac-filter-reset="1">
-                <img class="mac-catalog-show__filter-reset-ico" src="{$maccms.path_tpl}/images/svg/refash.svg" alt="" width="14" height="14" aria-hidden="true" decoding="async" />
+                <img class="mac-catalog-show__filter-reset-ico" src="{$maccms.path_tpl}/images/layout/refash.svg" alt="" width="14" height="14" aria-hidden="true" decoding="async" />
                 <span data-lang="string_filter_reset">重新筛选</span>
             </button>
             <button type="button" class="mac-catalog-filter-head__toggle-inline mac-catalog-show__filter-toggle" data-mac-filter-toggle="1" aria-expanded="false">
-                <img class="mac-catalog-show__filter-toggle-funnel" src="{$maccms.path_tpl}/images/filter-toggle-funnel.png" alt="" width="18" height="18" aria-hidden="true" decoding="async" />
-                <img class="mac-catalog-show__filter-toggle-collapse" src="{$maccms.path_tpl}/images/filter-toggle-collapse.png" alt="" width="18" height="18" aria-hidden="true" decoding="async" />
+                <img class="mac-catalog-show__filter-toggle-funnel" src="{$maccms.path_tpl}/images/layout/filter-toggle-funnel.png" alt="" width="18" height="18" aria-hidden="true" decoding="async" />
+                <img class="mac-catalog-show__filter-toggle-collapse" src="{$maccms.path_tpl}/images/layout/filter-toggle-collapse.png" alt="" width="18" height="18" aria-hidden="true" decoding="async" />
                 <span class="mac-catalog-show__filter-toggle-label mac-catalog-show__filter-toggle-label--collapse mac-hide" data-lang="string_filter_collapse">收起</span>
                 <span class="mac-catalog-show__filter-toggle-label mac-catalog-show__filter-toggle-label--expand" data-lang="str_shaixuan">筛选</span>
             </button>

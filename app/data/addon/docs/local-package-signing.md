@@ -1,11 +1,11 @@
 # 本地插件包签名（可选 RS256）
 
-面向「后台 → 应用 → 本地应用 → 本地上传 zip」这条路径（[`Addon::local()`:485](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Addon.php#L485)，验签调用在 `:553`）。
+面向「后台 → 应用 → 本地应用 → 本地上传 zip」这条路径（[`Addon::local()`:485](.../app/admin/controller/Addon.php#L485)，验签调用在 `:553`）。
 与云市场目录签名是**两套东西**：目录签的是 `catalog.json`（见 [`addon-marketplace-protocol.md`](addon-marketplace-protocol.md)），这里签的是 zip 包内的文件清单。
 
 ## 1. 开关与公钥
 
-两项都读 `$GLOBALS['config']['addon']`（[`requireSignature()`:45-50](file:///D:/wwwroot/maccms/maccms12/app/common/util/AddonSecureInstaller.php#L45)、[`loadPublicKeyPem()`:409-429](file:///D:/wwwroot/maccms/maccms12/app/common/util/AddonSecureInstaller.php#L409)）：
+两项都读 `$GLOBALS['config']['addon']`（[`requireSignature()`:45-50](.../app/common/util/AddonSecureInstaller.php#L45)、[`loadPublicKeyPem()`:409-429](.../app/common/util/AddonSecureInstaller.php#L409)）：
 
 ```php
 // app/extra/maccms.php 的顶层 'addon' 分区
@@ -16,7 +16,7 @@
 ```
 
 > **出厂 `app/extra/maccms.php` 里没有 `addon` 这个顶层分区**（实测 29 个顶层键不含它，`Init` 也不注入），
-> 要用签名就得手工补一段。补之前先备份该文件：它被后台整文件 `var_export` 回写，注释留不住，机制见 [app/extra/README.md §二](file:///D:/wwwroot/maccms/maccms12/app/extra/README.md)。
+> 要用签名就得手工补一段。补之前先备份该文件：它被后台整文件 `var_export` 回写，注释留不住，机制见 [app/extra/README.md §二](.../app/extra/README.md)。
 
 公钥解析顺序（`loadPublicKeyPem()`）：`local_public_key` 含 `-----BEGIN` 就当成 PEM 正文（`:415`）→ 否则当文件路径读（`:418`）→ 都没有则回落默认文件 `app/data/addon/local_public.pem`（`:423`）。
 
@@ -63,7 +63,7 @@ php -r '$m=json_decode(file_get_contents("package.manifest.json"),true);$f=$m["f
 openssl dgst -sha256 -sign keys/package_private.pem payload.json | base64 > package.sig
 ```
 
-> 仓库里的 [`app/data/addon_market_cloud/build_package.php`](file:///D:/wwwroot/maccms/maccms12/app/data/addon_market_cloud/build_package.php) **只打 zip 并打印包级 `sha256:`**（`:87`），
+> 仓库里的 [`app/data/addon_market_cloud/build_package.php`](.../app/data/addon_market_cloud/build_package.php) **只打 zip 并打印包级 `sha256:`**（`:87`），
 > 不生成 `package.manifest.json` / `package.sig`；云市场的 `generate_keys.php` + `build_catalog.php` 签的是目录 JSON，签的是 `catalog_private.pem` 那把钥匙。包签名目前只能按上面的方式自己出。
 
 ## 3. 判定矩阵
@@ -80,18 +80,18 @@ openssl dgst -sha256 -sign keys/package_private.pem payload.json | base64 > pack
 
 ## 4. 与其余闸门的关系
 
-签名之外，`extractZipSafe()`（[`AddonSecureInstaller.php:52`](file:///D:/wwwroot/maccms/maccms12/app/common/util/AddonSecureInstaller.php#L52)）在解包阶段就已经拦：
+签名之外，`extractZipSafe()`（[`AddonSecureInstaller.php:52`](.../app/common/util/AddonSecureInstaller.php#L52)）在解包阶段就已经拦：
 
 - Zip Slip / 绝对路径 / 盘符 / `..`（条目名规范化 `:202`，校验 `:230`）；
-- 屏蔽的顶层前缀 [`$blockedPrefixes`:6-19](file:///D:/wwwroot/maccms/maccms12/app/common/util/AddonSecureInstaller.php#L6)：`application/`、`app/`、`config/`、`route/`、`static/`、`thinkphp/`、`extend/`、`vendor/`、`template/`、`public/`、`runtime/`、`addons/`。清单同时带 v10 旧名 `application/`、`thinkphp/`、`public/` 与 TP8 新名 `app/`、`config/`、`route/`，老包新包都覆盖。
+- 屏蔽的顶层前缀 [`$blockedPrefixes`:6-19](.../app/common/util/AddonSecureInstaller.php#L6)：`application/`、`app/`、`config/`、`route/`、`static/`、`thinkphp/`、`extend/`、`vendor/`、`template/`、`public/`、`runtime/`、`addons/`。清单同时带 v10 旧名 `application/`、`thinkphp/`、`public/` 与 TP8 新名 `app/`、`config/`、`route/`，老包新包都覆盖。
 - 命中依据是**规范化后的条目相对路径**（大小写不敏感，`:244-250`）：整段等于前缀或以 `前缀/` 开头才拒，所以 `assets/app/icon.png`、根级 `config.php` 都不受影响；而基名与扩展名检查作用于**任意深度**的文件名（`:254-266`），`assets/.htaccess`、`x.asp.rar` 一样被拒。`*.php.*` 这类双扩展也在拦截范围内（`:258-262`）。
-- 屏蔽扩展名 [`$blockedExt`:21-24](file:///D:/wwwroot/maccms/maccms12/app/common/util/AddonSecureInstaller.php#L21)（`phtml phar php3 php4 php5 php7 phps shtml asp aspx jsp`）与基名 [`$blockedBasenames`:26-31](file:///D:/wwwroot/maccms/maccms12/app/common/util/AddonSecureInstaller.php#L26)（`.htaccess`、`.htpasswd`、`.user.ini`、`web.config`）；
+- 屏蔽扩展名 [`$blockedExt`:21-24](.../app/common/util/AddonSecureInstaller.php#L21)（`phtml phar php3 php4 php5 php7 phps shtml asp aspx jsp`）与基名 [`$blockedBasenames`:26-31](.../app/common/util/AddonSecureInstaller.php#L26)（`.htaccess`、`.htpasswd`、`.user.ini`、`web.config`）；
 - 体量上限（`:33-35`）：条目 ≤5000、解压后总字节 ≤50 MB、单条目 ≤10 MB。
 
-解包只发生在 `runtime/addons/stage_*`，全部检查通过才落到 `addons/{name}/`（[Addon.php:524-593](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Addon.php#L524)）；v10 时代的「覆盖站点根目录」这一步在本仓库不存在，这份前缀清单防的是它被重新引入。
+解包只发生在 `runtime/addons/stage_*`，全部检查通过才落到 `addons/{name}/`（[Addon.php:524-593](.../app/admin/controller/Addon.php#L524)）；v10 时代的「覆盖站点根目录」这一步在本仓库不存在，这份前缀清单防的是它被重新引入。
 
 ## 5. 现实预期
 
 - **默认关闭**：未签名 zip 过完上面的路径/扩展名检查就能装。装 zip 等于在站点上执行任意 PHP —— 签名解决的是「包在传输和归档里有没有被改过」，不解决「作者是否可信」。生产站建议 `require_local_signature=1` + 部署 `app/data/addon/local_public.pem`，并要求上传的包都带签名材料。
 - 需要 `ZipArchive` 扩展；没有时 `extractZipSafe()` 与 `backupAddon()` 都会直接失败（`:54-56`、`:433`）。
-- 完整的签发 / 分发 / 吊销体系仍是 backlog，见 [`../backlog/addon-marketplace.md`](file:///D:/wwwroot/maccms/maccms12/app/data/addon/backlog/addon-marketplace.md)。
+- 完整的签发 / 分发 / 吊销体系仍是 backlog，见 [`../backlog/addon-marketplace.md`](.../app/data/addon/backlog/addon-marketplace.md)。

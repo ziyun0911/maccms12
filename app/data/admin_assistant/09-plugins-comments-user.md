@@ -18,8 +18,8 @@
 - **留言管理**（**基础 → 留言管理**，`gbook/data`）：定期清理垃圾，防止 XSS / 外链垃圾 SEO。  
 - **黑名单**：**基础 → 评论黑名单**（`comment/blacklist`）拦用户与关键词，**基础 → IP黑名单**（`comment/blacklist_ip`）拦来源 IP。  
 - **违禁词**不在「安全」菜单里（v12 **没有网站安全分组**）：  
-  - 内容侧过滤词 → **网站参数 → 网站参数** 的 `app[filter_words]`（[config.html:968-971](file:///d:/wwwroot/maccms/maccms12/app/admin/view/system/config.html#L968-L971)）  
-  - 会员昵称/互动过滤词 → **网站参数 → 会员互动** 的 `user[filter_words]`（[configuser.html:325-328](file:///d:/wwwroot/maccms/maccms12/app/admin/view/system/configuser.html#L325-L328)）
+  - 内容侧过滤词 → **网站参数 → 网站参数** 的 `app[filter_words]`（[config.html:968-971](.../app/admin/view/system/config.html#L968-L971)）  
+  - 会员昵称/互动过滤词 → **网站参数 → 会员互动** 的 `user[filter_words]`（[configuser.html:325-328](.../app/admin/view/system/configuser.html#L325-L328)）
 
 ## 会员、卡密、订单（若启用）
 

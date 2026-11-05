@@ -31,6 +31,14 @@
         return code;
     }
 
+    function langParamUrl(lang) {
+        var search = win.location.search || '';
+        if (!(/[?&]lang=/i).test(search)) {
+            return null;
+        }
+        return win.location.pathname + search.replace(/([?&]lang=)[^&#]*/i, '$1' + encodeURIComponent(lang)) + (win.location.hash || '');
+    }
+
     doc.addEventListener('click', function (ev) {
         var el = ev.target && ev.target.closest ? ev.target.closest('[data-mac-lang]') : null;
         if (!el) {
@@ -42,10 +50,17 @@
             return;
         }
         var prevContentLang = getCookie(COOKIE_NAME) || '';
-        if (prevContentLang !== contentLang) {
-            setCookie(COOKIE_NAME, contentLang, COOKIE_DAYS);
-            win.location.reload();
+        if (prevContentLang === contentLang) {
+            return;
         }
+        setCookie(COOKIE_NAME, contentLang, COOKIE_DAYS);
+        // mac_get_content_lang() 里 ?lang= 的优先级高于 cookie，只改 cookie 会 reload 回原语言
+        var pinned = langParamUrl(contentLang);
+        if (pinned !== null) {
+            win.location.replace(pinned);
+            return;
+        }
+        win.location.reload();
     });
 
     win.addEventListener('storage', function (ev) {

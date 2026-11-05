@@ -1,10 +1,10 @@
 # Site parameters → configuration pages / 网站参数配置页（全书式参考）
 
-顶栏 **网站参数** 分组下有 **19 个可见入口**（清单见 `02-system-menu.md`）；点顶栏 **系统信息**（`system/index`）后，左栏会按 **8 个设置分组**（base / content / media / ai / user / connect / notify / system，由 [app/common/util/SystemSettingsMenu.php](file:///d:/wwwroot/maccms/maccms12/app/common/util/SystemSettingsMenu.php) 定义）列出同一批入口，可用搜索框过滤。
+顶栏 **网站参数** 分组下有 **19 个可见入口**（清单见 `02-system-menu.md`）；点顶栏 **系统信息**（`system/index`）后，左栏会按 **8 个设置分组**（base / content / media / ai / user / connect / notify / system，由 [app/common/util/SystemSettingsMenu.php](.../app/common/util/SystemSettingsMenu.php) 定义）列出同一批入口，可用搜索框过滤。
 
 **两个关键事实**：
 
-1. **很多「配置页」其实是页签**。一批 `system/configXxx` 方法在 GET 时只做一次 302，把请求甩给宿主页的对应 Tab（[System.php:716,891,927,955,983,1167,1204,1372,1399,1500,1575](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/System.php#L716)）。
+1. **很多「配置页」其实是页签**。一批 `system/configXxx` 方法在 GET 时只做一次 302，把请求甩给宿主页的对应 Tab（[System.php:716,891,927,955,983,1167,1204,1372,1399,1500,1575](.../app/admin/controller/System.php#L716)）。
 2. **左栏 `show=0` 的节点仍然可授权、可直达**，只是不显示在菜单里；系统信息页的卡片会替你把入口找回来。
 
 界面文案以当前语言包的 `menu/...` 为准，下文括注的 `menu/*` 是语言键，`controller/action` 是权限串。
@@ -72,7 +72,7 @@
 ## 8. 评论留言配置 (`menu/configcomment`，是「会员互动」的页签)
 
 - **评论** `maccms.comment` 与 **留言本** `maccms.gbook`：开关、是否需审核、是否需登录、验证码、分页、时间间隔防刷。  
-- 独立地址 `system/configcomment` 会 302 到 **`system/configuser?tab=comment`**（[System.php:927](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/System.php#L927)）。
+- 独立地址 `system/configcomment` 会 302 到 **`system/configuser?tab=comment`**（[System.php:927](.../app/admin/controller/System.php#L927)）。
 
 ---
 
@@ -85,7 +85,7 @@
 ## 10. 资源、链接与播放 (`menu/configupload`，是「网站参数」的页签)
 
 - 「附件参数配置」页签：缩略图、水印、本地上传、**远程 FTP / 七牛 / 又拍 / 微博图床** 等 `mode` 与 `api` 子数组、远程 URL 前缀、防盗链。  
-- 需要 `extend/aws/src/Aws/aws.phar` 才支持 S3 系驱动（[System.php:852](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/System.php#L852)）。  
+- 需要 `extend/aws/src/Aws/aws.phar` 才支持 S3 系驱动（[System.php:852](.../app/admin/controller/System.php#L852)）。  
 - 改 `mode` 后已存在附件不会自动迁移，需自行规划。  
 - 同组的 **「URL地址配置」** 与 **「播放器参数配置」** 页签分别见第 11、12 节；`system/configupload` / `configurl` / `configplay` 三个旧地址都是 302 到对应页签。
 
@@ -95,7 +95,7 @@
 
 - 可配的字段是 `path[…]` 与 `rewrite[…]`：视频（`vod_type`/`vod_detail`/`vod_play`/`vod_down`/`vod_plot`/`vod_role`）、文章（`art_type`/`art_detail`）、专题、演员、角色、剧情、漫画（`manga_type`/`manga_read`/`manga_down`）、标签 `label`、单页 `page_sp`，以及统一后缀 `path[suffix]`、`rewrite[route]`、`rewrite[encode_key/len]`。  
 - **网址（website）模块在这个页签里没有 URL 字段**，别按旧版教程找「网址 URL」。  
-- 保存时除了写 `maccms.php`，还会 **重写 `app/index/route/rewrite.php`**（[System.php:690-712](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/System.php#L690-L712)）；改 URL 规则会导致 **旧外链失效**，需做 301 或公告。
+- 保存时除了写 `maccms.php`，还会 **重写 `app/index/route/rewrite.php`**（[System.php:690-712](.../app/admin/controller/System.php#L690-L712)）；改 URL 规则会导致 **旧外链失效**，需做 301 或公告。
 
 ---
 
@@ -110,15 +110,15 @@
 
 - **三个外层页签**：内容采集 / 站外入库 / API 设置（`acc_collect` / `acc_if` / `acc_api`），内层再按 **视频、文章、演员、角色、网址、漫画** 等分子页签。  
 - 采集侧控制入库 **审核状态、随机点击/顶踩/评分、同步图片、自动 TAG、分类过滤、同义词/随机词** 等 —— **大批量采集前必先保存本页**。  
-- **站外入库**（`menu/configinterface`，302 到 `configcollect?tab=interface`）：开关、**通信密钥 `interface.pass`**（开启时长度 **至少 16 字符**，[System.php:1183](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/System.php#L1183)）、分类映射字符串（`动作片=动作` 形式）。密钥需保密，配合防火墙限制来源 IP。  
+- **站外入库**（`menu/configinterface`，302 到 `configcollect?tab=interface`）：开关、**通信密钥 `interface.pass`**（开启时长度 **至少 16 字符**，[System.php:1183](.../app/admin/controller/System.php#L1183)）、分类映射字符串（`动作片=动作` 形式）。密钥需保密，配合防火墙限制来源 IP。  
 - **API 设置**（`menu/configapi`，302 到 `configcollect?tab=api`）：见下一节。
 
 ---
 
 ## 14. 开放 API 配置 (`menu/configapi`，是「内容接入」的页签)
 
-- 按模块存 `maccms.api.{vod|art|actor|role|manga|website|publicapi}`，字段只有 **`status` / `charge` / `pagesize` / `imgurl` / `typefilter` / `datafilter` / `cachetime` / `from` / `auth`**（[app/extra/maccms.php:445-458](file:///d:/wwwroot/maccms/maccms12/app/extra/maccms.php#L445-L458)）。  
-- **`auth` 是域名/IP 白名单**，在接口里由 `checkDomainAuth()` 校验（[app/api/controller/Provide.php:34-35](file:///d:/wwwroot/maccms/maccms12/app/api/controller/Provide.php#L34-L35)）。  
+- 按模块存 `maccms.api.{vod|art|actor|role|manga|website|publicapi}`，字段只有 **`status` / `charge` / `pagesize` / `imgurl` / `typefilter` / `datafilter` / `cachetime` / `from` / `auth`**（[app/extra/maccms.php:445-458](.../app/extra/maccms.php#L445-L458)）。  
+- **`auth` 是域名/IP 白名单**，在接口里由 `checkDomainAuth()` 校验（[app/api/controller/Provide.php:34-35](.../app/api/controller/Provide.php#L34-L35)）。  
 - **这一层没有 `pass`、也没有 token / 限速字段**：站外入库的密钥在 `interface.pass`，别把两者混为一谈。
 
 ---

@@ -10,7 +10,7 @@
 ### 防爬限流与多机
 
 - 实现：`SlidingWindowIpLimiter`（`AntiScrape` 调用）。  
-- 缓存驱动看 **`maccms.app.cache_type`**（可选 `file` / `memcache` / `memcached` / `redis`，非法值会被回落成 `file`，[app/common/middleware/Init.php:136](file:///d:/wwwroot/maccms/maccms12/app/common/middleware/Init.php#L136)、[:145](file:///d:/wwwroot/maccms/maccms12/app/common/middleware/Init.php#L145)）；在 **网站参数** 的缓存区切换。  
+- 缓存驱动看 **`maccms.app.cache_type`**（可选 `file` / `memcache` / `memcached` / `redis`，非法值会被回落成 `file`，[app/common/middleware/Init.php:136](.../app/common/middleware/Init.php#L136)、[:145](.../app/common/middleware/Init.php#L145)）；在 **网站参数** 的缓存区切换。  
 - **`app.cache_type=redis` 且为 phpredis `\Redis`**：跨节点固定窗口计数（优先 Lua 原子 `INCR`+`EXPIRE`；禁 SCRIPT 时回退 INCR 并愈合无 TTL 键）。  
 - **无 Redis / 非 Redis 驱动**：回退 `runtime/anti_scrape_rl/` 文件 + flock（仅单机）。  
 - ThinkPHP 官方 Redis 驱动注明业务侧 Redis Cluster 需另用 Redisd；该客户端类型下本限流会自动回退文件模式。  
@@ -18,7 +18,7 @@
 
 ## 文件安全检测 (`应用 → 文件安全检测` / `safety/file`)
 
-- **不是 WebShell 特征扫描**：它取本站全部文件清单（`listDir('./')` 递归），再拉官方基线 `http://update.maccms.la/v10/mac_files_<版本号>.html` 做 **md5 对比**（[app/admin/controller/Safety.php:63-102](file:///d:/wwwroot/maccms/maccms12/app/admin/controller/Safety.php#L63-L102)）。  
+- **不是 WebShell 特征扫描**：它取本站全部文件清单（`listDir('./')` 递归），再拉官方基线 `http://update.maccms.la/v10/mac_files_<版本号>.html` 做 **md5 对比**（[app/admin/controller/Safety.php:63-102](.../app/admin/controller/Safety.php#L63-L102)）。  
 - 两类结果：**本地有、基线没有**（可疑新增）与 **两边都有但 md5 不同**（被改动）。  
 - 因此 **模板、插件、上传目录里的合法文件必然报「新增」**；结论需 **人工打开文件** 确认。取不到基线（版本被改、无外网）时直接报错，不会给出部分结论。  
 - 发现木马：**隔离服务器 → 修改所有密码 → 全量更新程序 → 复盘入口**。

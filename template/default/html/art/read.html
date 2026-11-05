@@ -4,7 +4,7 @@
     {include file="public/include"}
     {include file="public/include_site_card_assets" /}
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <link rel="stylesheet" href="{$maccms.path}template/default/asset/css/head.css">
+    <link rel="stylesheet" href="{$maccms.path}template/default/asset/css/head.css?v=202611042">
     <link rel="stylesheet" href="{$maccms.path}template/default/asset/css/art-read.css">
 </head>
 {php}
@@ -100,36 +100,36 @@ $curChapterTitle = !empty($curPageInfo['title']) ? $curPageInfo['title'] : '第'
 
     <nav class="novel-reader-bar">
         <a class="bar-item" href="{:mac_url_art_detail($obj)}" data-back-detail="1">
-            <img class="novel-bar-img" src="{$maccms.path_tpl}images/art-read/icon-detail.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
+            <img class="novel-bar-img" src="{$maccms.path_tpl}images/content/icon-detail.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
             <span data-lang="art_read_detail">详情</span>
         </a>
 
         {if condition="$hasPrev"}
         <a class="bar-item" href="{:mac_url('art/read',['id'=>$obj.art_id,'page'=>$prevPage])}">
-            <img class="novel-bar-img" src="{$maccms.path_tpl}images/art-read/icon-prev.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
+            <img class="novel-bar-img" src="{$maccms.path_tpl}images/content/icon-prev.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
             <span data-lang="art_read_prev_chapter">上一章</span>
         </a>
         {else/}
         <span class="bar-item disabled">
-            <img class="novel-bar-img" src="{$maccms.path_tpl}images/art-read/icon-prev.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
+            <img class="novel-bar-img" src="{$maccms.path_tpl}images/content/icon-prev.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
             <span data-lang="art_read_prev_chapter">上一章</span>
         </span>
         {/if}
 
         {if condition="$hasNext"}
         <a class="bar-item" href="{:mac_url('art/read',['id'=>$obj.art_id,'page'=>$nextPage])}">
-            <img class="novel-bar-img" src="{$maccms.path_tpl}images/art-read/icon-next.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
+            <img class="novel-bar-img" src="{$maccms.path_tpl}images/content/icon-next.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
             <span data-lang="art_read_next_chapter">下一章</span>
         </a>
         {else/}
         <span class="bar-item disabled">
-            <img class="novel-bar-img" src="{$maccms.path_tpl}images/art-read/icon-next.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
+            <img class="novel-bar-img" src="{$maccms.path_tpl}images/content/icon-next.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
             <span data-lang="art_read_next_chapter">下一章</span>
         </span>
         {/if}
 
         <span class="bar-item" id="novelSettingsBarBtn" data-title="art_read_settings" title="阅读设置">
-            <img class="novel-bar-img" src="{$maccms.path_tpl}images/art-read/icon-font.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
+            <img class="novel-bar-img" src="{$maccms.path_tpl}images/content/icon-font.png" width="24" height="24" alt="" decoding="async" aria-hidden="true">
             <span data-lang="art_read_font">字体</span>
         </span>
     </nav>

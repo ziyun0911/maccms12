@@ -88,7 +88,7 @@
         var p = portrait || '';
         var n = name || '';
         var dataUser = u > 0 ? ' data-user-id="' + __macCmtEscAttr(String(u)) + '"' : '';
-        var fallback = __macCmtEscAttr(__macCmtTplFallback() + '/images/member/touxiang.png');
+        var fallback = __macCmtEscAttr(__macCmtTplFallback() + '/images/user/touxiang.png');
         return (
             '<span class="mac-avatar mac-avatar--xs mac-avatar--list comm_avat part_roun"' +
             dataUser +
@@ -1355,7 +1355,7 @@
                 $('.mac_user').each(function () {
                     var $el = $(this);
                     var pt = (typeof maccms !== 'undefined' && maccms.path_tpl) ? String(maccms.path_tpl).replace(/\/+$/, '') : '';
-                    var memberIconSrc = pt ? (pt + '/images/head-nav/用户默认.png') : '';
+                    var memberIconSrc = pt ? (pt + '/images/layout/用户默认.png') : '';
                     var memberIconHtml = memberIconSrc ? ('<img class="head-nav-icon" src="' + memberIconSrc + '" width="52" height="52" alt="">') : '<i class="iconfont ">&#xe610;</i>';
                     if ($el.is('a.mac_user')) {
                         $el.removeClass('face_pic');
@@ -2062,7 +2062,7 @@
                     return (window.lang == 1 ? en : zh);
                 }
                 var base = typeof MAC.Pop._tplAssetBase === 'function' ? MAC.Pop._tplAssetBase() : '';
-                var vipSrc = (base ? base + '/' : '') + 'images/mac-pop/vip-upgrade@2x.png';
+                var vipSrc = (base ? base + '/' : '') + 'images/layout/vip-upgrade@2x.png';
                 var benefitsUrl = options.benefitsUrl;
                 if (!benefitsUrl) {
                     var $r = $('#mac-user-buy-root');
@@ -2147,7 +2147,7 @@
                 }
                 var base = typeof MAC.Pop._tplAssetBase === 'function' ? MAC.Pop._tplAssetBase() : '';
                 var imgName = typ === 'error' ? 'status-fail@2x.png' : 'status-success@2x.png';
-                var imgSrc = (base ? base + '/' : '') + 'images/mac-pop/' + imgName;
+                var imgSrc = (base ? base + '/' : '') + 'images/layout/' + imgName;
                 var msg = options.message != null ? String(options.message) : (options.title != null ? String(options.title) : '');
                 if (!msg) {
                     msg = typ === 'error'

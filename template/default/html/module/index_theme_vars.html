@@ -100,10 +100,10 @@ $art_type_str = implode(',', $art_type_array);
 $first_type_id = isset($art_type_array[0]) ? (string) $art_type_array[0] : '';
 
 $defaultIcons = [
-    0 => ['l' => 'template/default/images/la/home-icon1.png', 'b' => 'template/default/images/black/home-icon1.png'],
-    1 => ['l' => 'template/default/images/la/home-icon2.png', 'b' => 'template/default/images/black/home-icon2.png'],
-    2 => ['l' => 'template/default/images/la/home-icon3.png', 'b' => 'template/default/images/black/home-icon3.png'],
-    3 => ['l' => 'template/default/images/la/home-icon4.png', 'b' => 'template/default/images/black/home-icon4.png'],
+    0 => ['l' => 'template/default/images/home/home-icon1.png', 'b' => 'template/default/images/home/home-icon1-black.png'],
+    1 => ['l' => 'template/default/images/home/home-icon2.png', 'b' => 'template/default/images/home/home-icon2-black.png'],
+    2 => ['l' => 'template/default/images/home/home-icon3.png', 'b' => 'template/default/images/home/home-icon3-black.png'],
+    3 => ['l' => 'template/default/images/home/home-icon4.png', 'b' => 'template/default/images/home/home-icon4-black.png'],
 ];
 $index_hom_type_rows = [];
 $displayIdx = 0;
@@ -113,8 +113,8 @@ foreach ($homIds as $hid) {
         continue;
     }
     $conf = isset($homeTypes[$displayIdx]) && is_array($homeTypes[$displayIdx]) ? $homeTypes[$displayIdx] : [];
-    $iconLight = !empty($conf['icon_l']) ? $conf['icon_l'] : ($defaultIcons[$displayIdx]['l'] ?? 'template/default/images/la/home-icon1.png');
-    $iconBlack = !empty($conf['icon_b']) ? $conf['icon_b'] : ($defaultIcons[$displayIdx]['b'] ?? 'template/default/images/black/home-icon1.png');
+    $iconLight = !empty($conf['icon_l']) ? $conf['icon_l'] : ($defaultIcons[$displayIdx]['l'] ?? 'template/default/images/home/home-icon1.png');
+    $iconBlack = !empty($conf['icon_b']) ? $conf['icon_b'] : ($defaultIcons[$displayIdx]['b'] ?? 'template/default/images/home/home-icon1-black.png');
     $homeName = mac_tpl_text(isset($conf['name']) && $conf['name'] !== '' ? $conf['name'] : $vo2['type_name']);
     $typeIdForBlock = !empty($conf['id']) ? $conf['id'] : $vo2['type_id'];
     $typeInfoForUrl = array_merge($vo2, ['type_id' => $typeIdForBlock]);

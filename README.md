@@ -18,8 +18,8 @@
 
 这份 README 只回答三件事：**跑起来要什么、目录长什么样、文档去哪儿读**。
 
-- 具体操作（安装、配置、后台、模板、接口、插件……）在 [`说明文档/`](file:///D:/wwwroot/maccms/maccms12/说明文档) 的 12 份使用者手册里，入口见本文件第七节。
-- 当年 v10→v12 的框架改造流水账已从本文件移出，收在 [`说明文档/90-变更记录.md` §3](file:///D:/wwwroot/maccms/maccms12/说明文档/90-变更记录.md)；**当前代码里核实存在的缺陷与遗留**在同一文件 §1，改代码前必读。
+- 具体操作（安装、配置、后台、模板、接口、插件……）在 [`说明文档/`](.../说明文档) 的 11 份使用者手册里，入口见本文件第七节。
+- 当年 v10→v12 的框架改造流水账、以及**当前代码里核实存在的缺陷与遗留台账**，都记在 `说明文档/90-变更记录.md`——那是维护者本机的开发记录，已用 `.gitignore` 屏蔽并摘除跟踪，**不在发布仓库里**，克隆下来不会看到这一份。判断某个行为是不是 bug，请按各手册的「排障速查」与 [09 §8「有 / 没有」清单](.../说明文档/09-安全与权限手册.md) 对着代码核。
 
 ---
 
@@ -27,12 +27,12 @@
 
 | 项目 | 要求 / 本机验证值 | 依据 |
 | --- | --- | --- |
-| PHP | **≥ 8.0.2**（本机 8.3.8） | [composer.json:15](file:///D:/wwwroot/maccms/maccms12/composer.json#L15) |
-| 框架 | ThinkPHP 8.1.4 + think-orm 3.0.34 + think-view 1.0.14 + think-multi-app 1.1.1 | [composer.json:16-19](file:///D:/wwwroot/maccms/maccms12/composer.json#L16) |
-| 数据库 | MySQL 5.7 / 8.0+（本机 5.7.38），表前缀 `mac_`，编码 `utf8mb4` | [config/database.php](file:///D:/wwwroot/maccms/maccms12/config/database.php) |
-| Web 服务器 | Nginx / Apache / IIS / PHP 内置服务器均可 | 伪静态规则四套样例见 [说明文档/伪静态规则/](file:///D:/wwwroot/maccms/maccms12/说明文档/伪静态规则) |
+| PHP | **≥ 8.0.2**（本机 8.3.8） | [composer.json:15](.../composer.json#L15) |
+| 框架 | ThinkPHP 8.1.4 + think-orm 3.0.34 + think-view 1.0.14 + think-multi-app 1.1.1 | [composer.json:16-19](.../composer.json#L16) |
+| 数据库 | MySQL 5.7 / 8.0+（本机 5.7.38），表前缀 `mac_`，编码 `utf8mb4` | [config/database.php](.../config/database.php) |
+| Web 服务器 | Nginx / Apache / IIS / PHP 内置服务器均可 | 伪静态规则四套样例见 [说明文档/伪静态规则/](.../说明文档/伪静态规则) |
 | 常用扩展 | PDO、pdo_mysql、GD、curl、openssl | — |
-| 插件相关 | 本地上传 / 云安装 / 卸载备份需要 **zip 扩展（`ZipArchive`）**；常驻 WebSocket 插件（socialws）需要 `workerman/workerman`，靠 `composer require` 另装 | [composer.json:25-26](file:///D:/wwwroot/maccms/maccms12/composer.json#L25)、[10-插件与扩展手册.md §5.3/§8](file:///D:/wwwroot/maccms/maccms12/说明文档/10-插件与扩展手册.md) |
+| 插件相关 | 本地上传 / 云安装 / 卸载备份需要 **zip 扩展（`ZipArchive`）**；常驻 WebSocket 插件（socialws）需要 `workerman/workerman`，靠 `composer require` 另装 | [composer.json:25-26](.../composer.json#L25)、[10-插件与扩展手册.md §5.3/§8](.../说明文档/10-插件与扩展手册.md) |
 
 ---
 
@@ -40,9 +40,9 @@
 
 | 入口 | 访问地址 | 说明 |
 | --- | --- | --- |
-| 前台 | `http://<域名>/index.php` | 站点前台，应用绑定在 [index.php:48](file:///D:/wwwroot/maccms/maccms12/index.php#L48) |
-| 后台 | `http://<域名>/admin.php` | 管理后台，建议改名或加访问限制；入口检查与后台基类闸门见 [03-后台操作手册.md §1](file:///D:/wwwroot/maccms/maccms12/说明文档/03-后台操作手册.md) |
-| 接口 | `http://<域名>/api.php` | 对外开放接口（内容读取、用户、站外入库、供数据、埋点等），鉴权分五类，见 [06-接口与采集手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/06-接口与采集手册.md) |
+| 前台 | `http://<域名>/index.php` | 站点前台，应用绑定在 [index.php:48](.../index.php#L48) |
+| 后台 | `http://<域名>/admin.php` | 管理后台，建议改名或加访问限制；入口检查与后台基类闸门见 [03-后台操作手册.md §1](.../说明文档/03-后台操作手册.md) |
+| 接口 | `http://<域名>/api.php` | 对外开放接口（内容读取、用户、站外入库、供数据、埋点等），鉴权分五类，见 [06-接口与采集手册.md](.../说明文档/06-接口与采集手册.md) |
 | 计划任务 | `http://<域名>/api.php/timming/index.html` | 定时调度入口，**无鉴权**，靠服务端限制来源 |
 | 安装程序 | `http://<域名>/install.php` | 全新安装；存在 `app/data/install/install.lock` 后访问提示已锁 |
 
@@ -64,7 +64,7 @@ php think front:bundle            # 生成六张 bundle（前台 2 张 CSS、后
 php think front:bundle --check    # 只校验是否与源文件一致，不写盘
 ```
 
-命令行工具只有两个（[config/console.php](file:///D:/wwwroot/maccms/maccms12/config/console.php)）：`front:bundle` 与 `seo:generate`（AI SEO 文案批量生成，`--mid/--limit/--id`）。计划任务不是命令行工具，走 `api.php/timming`，详见 [07-定时任务与运维手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/07-定时任务与运维手册.md)。
+命令行工具只有两个（[config/console.php](.../config/console.php)）：`front:bundle` 与 `seo:generate`（AI SEO 文案批量生成，`--mid/--limit/--id`）。计划任务不是命令行工具，走 `api.php/timming`，详见 [07-定时任务与运维手册.md](.../说明文档/07-定时任务与运维手册.md)。
 
 用 PHP 内置服务器调试：`php -S 127.0.0.1:8080 router.php`（根 `router.php` 承担静态路由与内部文件拦截）。
 
@@ -72,9 +72,9 @@ php think front:bundle --check    # 只校验是否与源文件一致，不写�
 
 ## 四、数据库与配置放在哪
 
-- **数据库连接**：[config/database.php](file:///D:/wwwroot/maccms/maccms12/config/database.php)，TP8 原生结构，参数统一在 `connections.mysql` 下；代码里读 `config('database.connections.mysql.*')`，没有 TP5 的顶层镜像键。该文件已在 `.gitignore` 内，**密码不入库、不出现在任何文档里**。
-- **表**：建表脚本 [app/install/sql/install.sql](file:///D:/wwwroot/maccms/maccms12/app/install/sql/install.sql) 80 张。本机库里是 84 张——多出的 `mac_tmpart` / `mac_tmpmanga` / `mac_tmpwebsite` / `mac_vod_repeat` 由后台「重名数据」功能按需 `CREATE TABLE`（如 [app/admin/controller/Art.php:57-58](file:///D:/wwwroot/maccms/maccms12/app/admin/controller/Art.php#L57)），不在建表脚本里。
-- **站点配置**：`app/extra/*.php` 共 16 个文件，由 [`mac_load_extra()`](file:///D:/wwwroot/maccms/maccms12/app/common.php#L14) 在各入口注册成独立配置组；其中大部分是**运行期用户数据**，后台保存时整文件 `var_export` 回写。逐文件说明见 [app/extra/README.md](file:///D:/wwwroot/maccms/maccms12/app/extra/README.md)，逐项作用见 [02-站点配置参考.md](file:///D:/wwwroot/maccms/maccms12/说明文档/02-站点配置参考.md)。
+- **数据库连接**：[config/database.php](.../config/database.php)，TP8 原生结构，参数统一在 `connections.mysql` 下；代码里读 `config('database.connections.mysql.*')`，没有 TP5 的顶层镜像键。该文件已在 `.gitignore` 内，**密码不入库、不出现在任何文档里**。
+- **表**：建表脚本 [app/install/sql/install.sql](.../app/install/sql/install.sql) 80 张。本机库里是 84 张——多出的 `mac_tmpart` / `mac_tmpmanga` / `mac_tmpwebsite` / `mac_vod_repeat` 由后台「重名数据」功能按需 `CREATE TABLE`（如 [app/admin/controller/Art.php:57-58](.../app/admin/controller/Art.php#L57)），不在建表脚本里。
+- **站点配置**：`app/extra/*.php` 共 16 个文件，由 [`mac_load_extra()`](.../app/common.php#L14) 在各入口注册成独立配置组；其中大部分是**运行期用户数据**，后台保存时整文件 `var_export` 回写。逐文件说明见 [app/extra/README.md](.../app/extra/README.md)，逐项作用见 [02-站点配置参考.md](.../说明文档/02-站点配置参考.md)。
 - **运行缓存与日志**：`runtime/`（不发布、不公开）。
 
 ---
@@ -84,7 +84,7 @@ php think front:bundle --check    # 只校验是否与源文件一致，不写�
 - 账号：安装向导里自己填的那个；本地测试站为 `admin`
 - 密码：不写入文档；正式环境务必改掉。`mac_admin` 里存 bcrypt（老数据兼容 md5，首次登录成功自动升级为 bcrypt）
 - 图形验证码开关：`app/extra/maccms.php` → `app.admin_login_verify`（`1` 开 / `0` 关）
-- 子管理员按「控制器/动作」逐项授权；`admin_id = 1` 在权限判断里直接全放行，细节见 [09-安全与权限手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/09-安全与权限手册.md) 与 [03-后台操作手册.md §2](file:///D:/wwwroot/maccms/maccms12/说明文档/03-后台操作手册.md)
+- 子管理员按「控制器/动作」逐项授权；`admin_id = 1` 在权限判断里直接全放行，细节见 [09-安全与权限手册.md](.../说明文档/09-安全与权限手册.md) 与 [03-后台操作手册.md §2](.../说明文档/03-后台操作手册.md)
 
 ---
 
@@ -105,7 +105,7 @@ php think front:bundle --check    # 只校验是否与源文件一致，不写�
 | `static/` | 站点静态资源（`static_new/` 已并入） |
 | `extend/` | 第三方 SDK / 类库 |
 | `app/data/` | 程序自用的数据目录：安装锁、备份、升级包落地、后台助手知识卡片、插件开发文档 |
-| `说明文档/` | 12 份使用者手册 + `伪静态规则/` + `火车头模块/`，从 [00-文档导航.md](file:///D:/wwwroot/maccms/maccms12/说明文档/00-文档导航.md) 进 |
+| `说明文档/` | 11 份使用者手册 + `伪静态规则/` + `火车头模块/`，从 [00-文档导航.md](.../说明文档/00-文档导航.md) 进 |
 | `vendor/` | Composer 依赖（**保持官方原样，本仓不打任何兼容补丁**） |
 | `runtime/` | 运行缓存与日志 |
 
@@ -113,22 +113,23 @@ php think front:bundle --check    # 只校验是否与源文件一致，不写�
 
 ## 七、文档从哪里读
 
-详细导航（按场景跳转、阅读顺序、旧 `.txt` 处置对照）在 [说明文档/00-文档导航.md](file:///D:/wwwroot/maccms/maccms12/说明文档/00-文档导航.md)。
+详细导航（按场景跳转、阅读顺序、旧 `.txt` 处置对照）在 [说明文档/00-文档导航.md](.../说明文档/00-文档导航.md)。
 
 | 编号 | 文件 | 讲什么 |
 |---|---|---|
-| 01 | [安装与升级手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/01-安装与升级手册.md) | 环境、安装器逐步、种子数据、升级与数据脚本、装完自检 |
-| 02 | [站点配置参考.md](file:///D:/wwwroot/maccms/maccms12/说明文档/02-站点配置参考.md) | 配置三层结构，每个站点配置项「键 → 作用 → 后台入口 → 生效方式」 |
-| 03 | [后台操作手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/03-后台操作手册.md) | 进后台的门、16 组菜单地图、内容编辑共性、播放地址格式、破坏性动作清单 |
-| 04 | [前台模板与静态化手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/04-前台模板与静态化手册.md) | 三条出路径、模板选择链、`mac_url()`、路由与伪静态、静态生成 |
-| 05 | [模板标签手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/05-模板标签手册.md) | 标签引擎、20 个标签、`$maccms` 全局变量、属性怎么查才算准 |
-| 06 | [接口与采集手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/06-接口与采集手册.md) | `api.php` 五种鉴权、接口清单、对外供数据、站外入库 |
-| 07 | [定时任务与运维手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/07-定时任务与运维手册.md) | 计划任务端点与调度判定、任务清单、crontab、缓存与日志、排障 |
-| 08 | [多语言手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/08-多语言手册.md) | 界面语言 / 内容多语言 / 模板短语 / 前台短语四层机制 |
-| 09 | [安全与权限手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/09-安全与权限手册.md) | 请求面、后台登录、权限模型、两套 CSRF 令牌、哈希闸门、下载拦截（一份名单 → 五处派生） |
-| 10 | [插件与扩展手册.md](file:///D:/wwwroot/maccms/maccms12/说明文档/10-插件与扩展手册.md) | 四种扩展形态、插件包与 `info.ini`、6 个钩子插槽、云市场、七类驱动 |
-| 90 | [变更记录.md](file:///D:/wwwroot/maccms/maccms12/说明文档/90-变更记录.md) | §1 已核实缺陷与遗留台账；§2-§3 迁移与核对记录归档 |
+| 01 | [安装与升级手册.md](.../说明文档/01-安装与升级手册.md) | 环境、安装器逐步、种子数据、升级与数据脚本、装完自检 |
+| 02 | [站点配置参考.md](.../说明文档/02-站点配置参考.md) | 配置三层结构，每个站点配置项「键 → 作用 → 后台入口 → 生效方式」 |
+| 03 | [后台操作手册.md](.../说明文档/03-后台操作手册.md) | 进后台的门、16 组菜单地图、内容编辑共性、播放地址格式、破坏性动作清单 |
+| 04 | [前台模板与静态化手册.md](.../说明文档/04-前台模板与静态化手册.md) | 三条出路径、模板选择链、`mac_url()`、路由与伪静态、静态生成 |
+| 05 | [模板标签手册.md](.../说明文档/05-模板标签手册.md) | 标签引擎、20 个标签、`$maccms` 全局变量、属性怎么查才算准 |
+| 06 | [接口与采集手册.md](.../说明文档/06-接口与采集手册.md) | `api.php` 五种鉴权、接口清单、对外供数据、站外入库 |
+| 07 | [定时任务与运维手册.md](.../说明文档/07-定时任务与运维手册.md) | 计划任务端点与调度判定、任务清单、crontab、缓存与日志、排障 |
+| 08 | [多语言手册.md](.../说明文档/08-多语言手册.md) | 界面语言 / 内容多语言 / 模板短语 / 前台短语四层机制 |
+| 09 | [安全与权限手册.md](.../说明文档/09-安全与权限手册.md) | 请求面、后台登录、权限模型、两套 CSRF 令牌、哈希闸门、下载拦截（一份名单 → 五处派生） |
+| 10 | [插件与扩展手册.md](.../说明文档/10-插件与扩展手册.md) | 四种扩展形态、插件包与 `info.ini`、6 个钩子插槽、云市场、七类驱动 |
 
+> 上表是随仓库发布的全部十一份。另有一份 `90-变更记录.md`（已核实缺陷台账 + 逐轮改造归档 + v10 → v12 迁移清单）是维护者本机的开发记录，不入库，因此不会出现在你的克隆里。
+>
 > 文档里的每一句都带 `文件:行`，可以直接对着代码核。行号会漂，所以同时写了函数名/键名。
 > 后台「网站参数 → 说明文档」也能打开这一批文件，但那一页是 `<pre>` 原样输出，**Markdown 会显示成源码**；要阅读体验请在 IDE 或 Git 平台里看。
 
@@ -143,7 +144,7 @@ php think front:bundle --check    # 只校验是否与源文件一致，不写�
   `.md .sql .log .lock .wpm .sh .ps1 .py .bak .old .orig` 等内部文件一律禁止经 HTTP 直接下载：
   Apache 用根 `.htaccess`（nginx / IIS 的规则见 `说明文档/伪静态规则/` 内同名文件），
   PHP 内置服务器用根 `router.php`。五套规则的拦截名单需同步维护，新增根级文件时按此清单补全，
-  现状与逐条依据见 [09-安全与权限手册.md §7](file:///D:/wwwroot/maccms/maccms12/说明文档/09-安全与权限手册.md)。
+  现状与逐条依据见 [09-安全与权限手册.md §7](.../说明文档/09-安全与权限手册.md)。
 - 拦截的是公网直连，不是「文档看不到」：后台「网站参数 → 说明文档」（`admin.php/doc/index.html`，
   控制器 `app/admin/controller/Doc.php`）列出 `说明文档/` 与本 `README.md` 并渲染正文，
   仅登录管理员可见，子管理员需单独勾选 `doc/index`、`doc/info` 权限。只读白名单为

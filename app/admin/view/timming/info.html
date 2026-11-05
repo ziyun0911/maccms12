@@ -32,6 +32,7 @@
                                 <option value="cache" {if condition="$info['file'] eq 'cache'"}selected{/if}>{:lang('admin/timming/cache')}</option>
                                 <option value="urlsend" {if condition="$info['file'] eq 'urlsend'"}selected{/if}>{:lang('admin/timming/urlsend')}</option>
                                 <option value="extsync" {if condition="$info['file'] eq 'extsync'"}selected{/if}>{:lang('admin/timming/extsync')}</option>
+                                <option value="doubanscorefill" {if condition="$info['file'] eq 'doubanscorefill'"}selected{/if}>{:lang('admin/timming/doubanscorefill')}</option>
                                 <option value="vodpublish" {if condition="$info['file'] eq 'vodpublish'"}selected{/if}>{:lang('admin/timming/vodpublish')}</option>
                                 <option value="analytics" {if condition="$info['file'] eq 'analytics'"}selected{/if}>{:lang('admin/timming/analytics')}</option>
                                 <option value="notify" {if condition="$info['file'] eq 'notify'"}selected{/if}>{:lang('admin/timming/notify')}</option>
@@ -40,7 +41,7 @@
                                 <option value="annotate" {if condition="$info['file'] eq 'annotate'"}selected{/if}>{:lang('admin/timming/annotate')}</option>
                                 <option value="content_quality" {if condition="$info['file'] eq 'content_quality'"}selected{/if}>{:lang('admin/timming/content_quality')}</option>
                                 <option value="user_profile" {if condition="$info['file'] eq 'user_profile'"}selected{/if}>{:lang('admin/timming/user_profile')}</option>
-                                {if condition="!empty($info['file']) && !in_array($info['file'], ['collect','make','cj','cache','urlsend','extsync','vodpublish','analytics','notify','pushbroadcast','user_access_purge','annotate','content_quality','user_profile'])"}
+                                {if condition="!empty($info['file']) && !in_array($info['file'], ['collect','make','cj','cache','urlsend','extsync','doubanscorefill','vodpublish','analytics','notify','pushbroadcast','user_access_purge','annotate','content_quality','user_profile'])"}
                                 <option value="{$info.file}" selected>{$info.file}</option>
                                 {/if}
                             </select>

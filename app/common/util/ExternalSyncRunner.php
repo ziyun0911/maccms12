@@ -31,8 +31,11 @@ class ExternalSyncRunner
             return ['total' => 0, 'success' => 0, 'msg' => 'no due jobs'];
         }
         $providers = $this->registry->listEnabledProviders($extCfg);
+        $limit = max(20, min(1200, intval(isset($extCfg['sync_limit']) ? $extCfg['sync_limit'] : 600)));
         $total = 0;
         $success = 0;
+        $fetched = 0;
+        $stored = 0;
         foreach ($jobs as $job) {
             $total++;
             $code = strtolower((string)$job['provider_code']);
@@ -42,8 +45,10 @@ class ExternalSyncRunner
                 continue;
             }
             try {
-                $rows = $providers[$code]->fetchRecent(['limit' => 20]);
+                $rows = $providers[$code]->fetchRecent(['limit' => $limit]);
                 $saved = $this->repo->saveItems($code, $rows);
+                $fetched += count($rows);
+                $stored += intval($saved);
                 $this->repo->addSyncLog($job['job_id'], $code, 1, 'sync ok', count($rows), $saved);
                 $this->repo->updateJobSchedule($job['job_id'], intval($job['job_interval']), 0);
                 $success++;
@@ -52,7 +57,7 @@ class ExternalSyncRunner
                 $this->repo->updateJobSchedule($job['job_id'], intval($job['job_interval']), intval($job['job_retry']) + 1);
             }
         }
-        return ['total' => $total, 'success' => $success, 'msg' => 'ok'];
+        return ['total' => $total, 'success' => $success, 'fetched' => $fetched, 'stored' => $stored, 'msg' => 'ok'];
     }
 }
 
