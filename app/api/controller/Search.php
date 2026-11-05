@@ -273,6 +273,9 @@ class Search extends Base
 
     private function rowsToRichItems($kind, $rows, array $meta)
     {
+        if ($rows instanceof \think\Collection) {
+            $rows = $rows->toArray();
+        }
         if (!is_array($rows) || $rows === []) {
             return [];
         }
