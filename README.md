@@ -1,8 +1,8 @@
 <div align="center">
-<img src="static/images/logo.jpg" alt="MacCMS20 Logo" width="80"/>
+<img src="static/images/logo.jpg" alt="MacCMS12 Logo" width="80"/>
 <h1>苹果 CMS v12（maccms12）— ThinkPHP 8 版</h1>
-<h2>AI 驱动的全能影视内容管理系统，建站效率翻倍</h2>
-<p>集成 AI SEO 优化、多平台 AI 内容生成、数据安全管理与多云存储，一站式搞定影视网站搭建、运营与全球化部署</p>
+<h2>基于 ThinkPHP 8 的影视内容管理系统</h2>
+<p>由 maccms10 迁移而来，模板、采集、接口和后台结构沿用原版；带 AI SEO 文案生成，支持多语言界面与多云存储。</p>
 <p>
 <a href="https://github.com/ziyun0911/maccms12/stargazers"><img src="https://img.shields.io/badge/STARS-⭐-black?logo=github&style=for-the-badge"/></a>
 <a href="https://github.com/ziyun0911/maccms12/forks"><img src="https://img.shields.io/badge/FORKS-🍴-blue?logo=git&style=for-the-badge"/></a>
@@ -14,12 +14,13 @@
 <a href="#"><img src="https://img.shields.io/badge/TELEGRAM-GROUP-blue?logo=telegram&style=for-the-badge"/></a>
 </p>
 </div>
-苹果 CMS v12（maccms12）— ThinkPHP 8 版 由 maccms10（ThinkPHP 5.1）整树迁移升级而来：内核 **ThinkPHP 8.1.4**，运行在 PHP 8.0.2+（本仓库验证环境 PHP 8.3.8），功能与数据结构保持兼容。
+苹果 CMS v12（maccms12）由 maccms10（ThinkPHP 5.1）整树迁移到 ThinkPHP 8，内核 **ThinkPHP 8.1.4**，运行在 PHP 8.0.2+（本仓库验证环境 PHP 8.3.8），功能与数据结构保持兼容。
 
-这份 README 只回答三件事：**跑起来要什么、目录长什么样、文档去哪儿读**。
+README 主要讲三件事：**跑起来要什么、目录长什么样、文档去哪儿读**。
 
-- 具体操作（安装、配置、后台、模板、接口、插件……）在 [`说明文档/`](.../说明文档) 的 11 份使用者手册里，入口见本文件第七节。
-- 当年 v10→v12 的框架改造流水账、以及**当前代码里核实存在的缺陷与遗留台账**，都记在 `说明文档/90-变更记录.md`——那是维护者本机的开发记录，已用 `.gitignore` 屏蔽并摘除跟踪，**不在发布仓库里**，克隆下来不会看到这一份。判断某个行为是不是 bug，请按各手册的「排障速查」与 [09 §8「有 / 没有」清单](.../说明文档/09-安全与权限手册.md) 对着代码核。
+- 安装、配置、后台、模板、接口、插件这些操作，分别写在 [`说明文档/`](.../说明文档) 的 11 份文档里；入口在第七节。
+- v10→v12 的框架改造记录，以及**当前代码里核实到的缺陷与遗留项**，都记在 `说明文档/90-变更记录.md`。这份记录只在本机，已被 `.gitignore` 屏蔽并取消跟踪，**不随仓库发布**，克隆下来看不到。
+  判断某个行为是不是 bug，先查各手册的「排障速查」和 [09 §8「有 / 没有」清单](.../说明文档/09-安全与权限手册.md)，再对照代码。
 
 ---
 
@@ -53,18 +54,22 @@ Nginx 需配 PATHINFO 伪静态（`try_files $uri $uri/ /index.php?s=$uri&$args;
 ## 三、快速开始
 
 ```bash
-# 1) 建一个空库（utf8mb4），把站点根目录指向本目录
-# 2) 浏览器访问 install.php，按向导填数据库与站点信息（会写 config/database.php 与 app/extra/maccms.php）
-# 3) 导入种子数据（安装向导里点「导入数据」即可，等价于手工执行）
+# 1) 获取源码；已经克隆过的，进入目录执行 git pull 更新即可
+git clone https://github.com/ziyun0911/maccms12.git
+cd maccms12
+
+# 2) 建一个空库（utf8mb4），把站点根目录指向本目录
+# 3) 浏览器访问 install.php，按向导填数据库与站点信息（会写 config/database.php 与 app/extra/maccms.php）
+# 4) 导入种子数据（安装向导里点「导入数据」即可，等价于手工执行）
 #    app/install/sql/install.sql   —— 建 80 张表
 #    app/install/sql/initdata.sql  —— 出厂数据
-# 4) 装完删掉/保留 install.lock（保留即锁死安装），登录后台先改密码
-# 5) 改过 static/ 或 template/default/asset/ 下的 CSS/JS 源文件后重建资源包
-php bin/think front:bundle            # 生成六张 bundle（前台 2 张 CSS、后台 1 张 CSS、后台 3 张 JS）
-php bin/think front:bundle --check    # 只校验是否与源文件一致，不写盘
+# 5) 装完删掉/保留 install.lock（保留即锁死安装），登录后台先改密码
+# 6) 改过 static/ 或 template/default/asset/ 下的 CSS/JS 源文件后重建资源包
+php vendor/bin/think front:bundle            # 生成六张 bundle（前台 2 张 CSS、后台 1 张 CSS、后台 3 张 JS）
+php vendor/bin/think front:bundle --check    # 只校验是否与源文件一致，不写盘
 ```
 
-命令行工具只有两个（[config/console.php](.../config/console.php)）：`front:bundle` 与 `seo:generate`（AI SEO 文案批量生成，`--mid/--limit/--id`）。计划任务不是命令行工具，走 `api.php/timming`，详见 [07-定时任务与运维手册.md](.../说明文档/07-定时任务与运维手册.md)。
+命令行入口是 `php vendor/bin/think`，[config/console.php](.../config/console.php) 注册了六个命令：`front:bundle`（`--check` 只校验）、`seo:generate`（AI SEO 文案批量生成，`--mid/--limit/--id`）、`blocklist:sync`、`doctor`、`upgrade:run`、`hotwords:pick`。计划任务走 `api.php/timming`，不属于命令行工具，详见 [07-定时任务与运维手册.md](.../说明文档/07-定时任务与运维手册.md)。
 
 用 PHP 内置服务器调试：`php -S 127.0.0.1:8080 router.php`（根 `router.php` 承担静态路由与内部文件拦截）。
 
@@ -104,9 +109,9 @@ php bin/think front:bundle --check    # 只校验是否与源文件一致，不�
 | `template/` | 前台模板（当前仅 `default`，PC 与移动端同用） |
 | `static/` | 站点静态资源（`static_new/` 已并入） |
 | `extend/` | 第三方 SDK / 类库 |
-| `app/data/` | 程序自用的数据目录：安装锁、备份、升级包落地、后台助手知识卡片、插件开发文档 |
-| `说明文档/` | 11 份使用者手册 + `伪静态规则/` + `火车头模块/`，从 [00-文档导航.md](.../说明文档/00-文档导航.md) 进 |
-| `vendor/` | Composer 依赖（**保持官方原样，本仓不打任何兼容补丁**） |
+| `app/data/` | 程序自用的数据目录：安装锁、备份、升级包存放、后台助手知识卡片、插件开发文档 |
+| `说明文档/` | 11 份文档（00 导航 + 01–10 手册）+ `伪静态规则/` + `火车头模块/`，从 [00-文档导航.md](.../说明文档/00-文档导航.md) 进 |
+| `vendor/` | Composer 依赖；除 `vendor/bin/think` 控制台入口外保持官方原样，本仓不打兼容补丁 |
 | `runtime/` | 运行缓存与日志 |
 
 ---
@@ -120,7 +125,7 @@ php bin/think front:bundle --check    # 只校验是否与源文件一致，不�
 | 01 | [安装与升级手册.md](.../说明文档/01-安装与升级手册.md) | 环境、安装器逐步、种子数据、升级与数据脚本、装完自检 |
 | 02 | [站点配置参考.md](.../说明文档/02-站点配置参考.md) | 配置三层结构，每个站点配置项「键 → 作用 → 后台入口 → 生效方式」 |
 | 03 | [后台操作手册.md](.../说明文档/03-后台操作手册.md) | 进后台的门、16 组菜单地图、内容编辑共性、播放地址格式、破坏性动作清单 |
-| 04 | [前台模板与静态化手册.md](.../说明文档/04-前台模板与静态化手册.md) | 三条出路径、模板选择链、`mac_url()`、路由与伪静态、静态生成 |
+| 04 | [前台模板与静态化手册.md](.../说明文档/04-前台模板与静态化手册.md) | 三条输出路径、模板选择链、`mac_url()`、路由与伪静态、静态生成 |
 | 05 | [模板标签手册.md](.../说明文档/05-模板标签手册.md) | 标签引擎、20 个标签、`$maccms` 全局变量、属性怎么查才算准 |
 | 06 | [接口与采集手册.md](.../说明文档/06-接口与采集手册.md) | `api.php` 五种鉴权、接口清单、对外供数据、站外入库 |
 | 07 | [定时任务与运维手册.md](.../说明文档/07-定时任务与运维手册.md) | 计划任务端点与调度判定、任务清单、crontab、缓存与日志、排障 |
@@ -128,9 +133,9 @@ php bin/think front:bundle --check    # 只校验是否与源文件一致，不�
 | 09 | [安全与权限手册.md](.../说明文档/09-安全与权限手册.md) | 请求面、后台登录、权限模型、两套 CSRF 令牌、哈希闸门、下载拦截（一份名单 → 五处派生） |
 | 10 | [插件与扩展手册.md](.../说明文档/10-插件与扩展手册.md) | 四种扩展形态、插件包与 `info.ini`、6 个钩子插槽、云市场、七类驱动 |
 
-> 上表是随仓库发布的全部十一份。另有一份 `90-变更记录.md`（已核实缺陷台账 + 逐轮改造归档 + v10 → v12 迁移清单）是维护者本机的开发记录，不入库，因此不会出现在你的克隆里。
+> 上表 01–10 加上本页顶部的 [`00-文档导航`](.../说明文档/00-文档导航.md)，共十一份。另有一份 `90-变更记录.md`（已核实缺陷清单 + 逐轮改造归档 + v10 → v12 迁移清单）是维护者本机的开发记录，不入库，因此不会出现在你的克隆里。
 >
-> 文档里的每一句都带 `文件:行`，可以直接对着代码核。行号会漂，所以同时写了函数名/键名。
+> 关键结论都标了 `文件:行`，可以对照代码核对。行号会变，所以同时写了函数名或键名。
 > 后台「网站参数 → 说明文档」也能打开这一批文件，但那一页是 `<pre>` 原样输出，**Markdown 会显示成源码**；要阅读体验请在 IDE 或 Git 平台里看。
 
 ---
@@ -152,11 +157,11 @@ php bin/think front:bundle --check    # 只校验是否与源文件一致，不�
 
 ---
 
-*本文档为 maccms12（ThinkPHP 8）仓库门面说明。原 maccms10 站点与数据库未做任何改动。*
+*README 介绍的是 maccms12（ThinkPHP 8）。原 maccms10 的站点和数据库没有改动。*
 
 ---
 
-## 九、关于苹果CMS（多语言项目简介）
+## 九、附：苹果CMS 项目简介（原有多语言文案）
 
 苹果CMS程序是一套采用PHP+MYSQL环境下运行的完善而强大的快速建站系统。经过近多年的开发经验和技术积累，苹果CMS程序已逐步走向成熟，在易用性和功能上已经成为同行中的佼佼者。程序体积小->优化程序代码，运行速度快->高效的缓存处理，只要普通的虚拟主机就可以完美搭建起来，建站成本非常低。仿MVC模板分离，内置标签，自定义函数标签接口，强大的自定义采集功能，只要你会HTML就可以轻松做出个性化的网站。 程序易用性和功能上一直以来都积极采纳广大站长提出的各种好的建议，迅速响应各种紧急问题，我们的服务理念贯穿其中，保证每一位站长每一个环节都可以从容应对。v12 采用 ThinkPHP 8 内核进行开发，扩展了模板处理引擎，将后台程序与html模板简单的分离出来，让设计人员与程序人员最大限度的发挥自己的优势而互不干扰，大大加快了项目有序、快速的完成。即使您是第一次接触，也会在最短的时间内熟练掌握它的使用方法。后台管理模块，一目了然，操作简单，绝对不会让您眼花缭乱。
 
