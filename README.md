@@ -24,12 +24,14 @@ README 主要讲三件事：**跑起来要什么、目录长什么样、文档�
 
 | 项目 | 要求 / 本机验证值 | 依据 |
 | --- | --- | --- |
+| 平台 | Windows、Linux/Unix；macOS 同属 Unix 系，未单独验证 | 代码按 `DIRECTORY_SEPARATOR` 区分 Windows 与 Unix，见 [app/common.php:3808-3821](.../app/common.php#L3808)；本机在 Windows 验证 |
 | PHP | **≥ 8.0.2**（本机 8.3.8） | [composer.json:15](.../composer.json#L15) |
 | 框架 | ThinkPHP 8.1.4 + think-orm 3.0.34 + think-view 1.0.14 + think-multi-app 1.1.1 | [composer.json:16-19](.../composer.json#L16) |
 | 数据库 | MySQL 5.7 / 8.0+（本机 5.7.38），表前缀 `mac_`，编码 `utf8mb4` | [config/database.php](.../config/database.php) |
 | Web 服务器 | Nginx / Apache / IIS / PHP 内置服务器均可 | 伪静态规则四套样例见 [说明文档/伪静态规则/](.../说明文档/伪静态规则) |
 | 常用扩展 | PDO、pdo_mysql、GD、curl、openssl | — |
 | 插件相关 | 本地上传 / 云安装 / 卸载备份需要 **zip 扩展（`ZipArchive`）**；常驻 WebSocket 插件（socialws）需要 `workerman/workerman`，靠 `composer require` 另装 | [composer.json:25-26](.../composer.json#L25)、[10-插件与扩展手册.md §5.3/§8](.../说明文档/10-插件与扩展手册.md) |
+
 
 ---
 
