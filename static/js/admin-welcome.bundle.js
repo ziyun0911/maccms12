@@ -1,6 +1,6 @@
 /*
  * admin-welcome.bundle.js — 后台脚本合包（派生产物，请勿手改）
- * 构建：php think front:bundle
+ * 构建：php bin/think front:bundle
  * 分区顺序不可调整：vendor 必须排在它的项目封装之前，
  * 与合并前「模板 <script> 依次加载」的执行顺序保持一致。
  * 源文件仍在 static/js/ 下，改脚本改源文件再重建。

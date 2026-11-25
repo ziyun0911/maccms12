@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>{:mac_front_string('string_xitonts','系统提示...')}</title>
+    <link rel="stylesheet" href="{$maccms.path}static/css/home.css">
+    <script src="{$maccms.path}static/js/jquery.js"></script>
+    {include file="public/jsvar"}
+    <script src="{$maccms.path}static/js/home.js"></script>
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-detail_pwd.css" />
+    <style>
+        .mac_verify_box .item{margin-bottom:12px;}
+        .mac_verify_box input[type="text"]{width:160px;height:34px;padding:0 8px;border:1px solid #ddd;border-radius:4px;vertical-align:middle;}
+        .mac_verify_box .mac_verify_img{height:34px;vertical-align:middle;cursor:pointer;border:1px solid #ddd;border-radius:4px;margin-left:8px;}
+    </style>
+</head>
+<body>
+<div class="mac_msg_jump">
+    <div class="msg_jump_tit">{:mac_front_string('string_xitonts','系统提示...')}</div>
+    <div class="title">{:mac_front_string('verify_tip','为了确认您不是机器人，请完成下方安全验证')}</div>
+    <div class="text mac_verify_box">
+        <form id="form_verify" name="form_verify" action="" style="margin:0;width:400px;text-align:center;" method="post" onsubmit="return false;">
+            <input type="hidden" name="type" value="{$type|default='show'}">
+            <div class="item">
+                <input type="text" name="verify" autocomplete="off" maxlength="6" placeholder="{:mac_front_string('verify_code_here','请输入验证码')}"/>
+                <img class="mac_verify_img" src="{$maccms.path}index.php/verify/index.html" title="{:mac_front_string('verify_refresh','看不清楚？换一张')}" onclick="this.src='{$maccms.path}index.php/verify/index.html?r='+Math.random();">
+            </div>
+            <div class="item">
+                <a class="submit_btn" href="javascript:;" onclick="MAC.VerifySubmit(this)">{:mac_front_string('string_submit','确认')}</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+MAC.VerifySubmit = function (o) {
+    var $form = $(o).parents('form');
+    var code = $.trim($form.find('input[name="verify"]').val());
+    if (!code) {
+        MAC.Pop.Msg(300, 50, '{:mac_front_string('verify_code_empty','请输入验证码')}', 2000);
+        return;
+    }
+    $.ajax({
+        url: '{$maccms.path}index.php/ajax/verify_check.html',
+        type: 'post',
+        dataType: 'json',
+        data: {type: $form.find('input[name="type"]').val(), verify: code},
+        success: function (r) {
+            if (r.code == 1) {
+                location.reload();
+            } else {
+                MAC.Pop.Msg(300, 50, r.msg, 2000);
+                $form.find('input[name="verify"]').val('');
+                $form.find('img.mac_verify_img').attr('src', '{$maccms.path}index.php/verify/index.html?r=' + Math.random());
+            }
+        },
+        error: function () {
+            MAC.Pop.Msg(300, 50, '{:mac_front_string('verify_err','验证失败，请重试')}', 2000);
+        }
+    });
+};
+</script>
+</body>
+</html>

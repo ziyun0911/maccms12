@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{:mac_html_lang()}"><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{:mac_front_string('title_user_unbind','解除绑定')} - {:mac_front_string('string_user_center','个人中心')} - {$maccms.site_name}</title>
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	{include file="user/include" /}
+	<link rel="stylesheet" href="{$maccms.path_tpl}asset/css/user-info.css" />
+	<link rel="stylesheet" href="{$maccms.path_tpl}asset/css/user-bind.css" />
+</head>
+<body class="user-info-page-wrap user-bind-page-wrap">
+{include file="public/head" /}
+
+<div class="member-wrap member-wrap-bg">
+<div id="member" class="fn-clear">
+	<div id="left">
+        <div class="m-nav">
+			<a href="javascript:MAC.GoBack()" class="btn-left"><i class="iconfont ico-right">&#xe625;</i></a>
+			<a href="{$maccms.path}" class="btn-right"><i class="iconfont ico-right">&#xe634;</i></a>
+			<span class="mb-title" data-lang="user_grzx">个人中心</span>
+	    </div>
+        {include file="user/left_nav" /}
+	</div>
+	<div id="right">
+	    <div class="m-nav">
+			<a href="javascript:MAC.GoBack()" class="btn-left"><i class="iconfont ico-right">&#xe625;</i></a>
+			<span class="mb-title">
+				<span data-lang="user_unbind">解绑</span>
+				{if condition="$ac eq 'phone'"}<span data-lang="user_phone">手机</span>{else/}<span data-lang="user_email">邮箱</span>{/if}
+			</span>
+	    </div>
+	    <div class="co-right co-right-bg">
+		<h2 class="bind-page-title-pc">
+			<span data-lang="user_unbind">解绑</span>
+			{if condition="$ac eq 'phone'"}<span data-lang="user_phone">手机</span>{else/}<span data-lang="user_email">邮箱</span>{/if}
+		</h2>
+		<div id="macUserUnbindRoot" class="bind-page-card"
+			data-url-unbind="{:url('user/unbind')}"
+			data-url-info="{:url('user/info')}"
+			data-ac="{$ac}">
+			<p class="bind-page-desc"><span data-lang="user_unbind_intro">解绑后该账号将不再与本站关联，可稍后重新绑定。请先验证当前密码。</span></p>
+			<div class="bind-row">
+				<span class="xiang">{if condition="$ac eq 'phone'"}<span data-lang="user_phone">手机</span>{else/}<span data-lang="user_email">邮箱</span>{/if}</span>
+				<div class="bind-row-main">
+					{if condition="$ac eq 'phone'"}
+					<input type="text" class="member-input wt-input" readonly="readonly" aria-readonly="true" value="{$obj.user_phone}">
+					{else/}
+					<input type="text" class="member-input wt-input" readonly="readonly" aria-readonly="true" value="{$obj.user_email}">
+					{/if}
+				</div>
+			</div>
+			{if condition="$unbind_bound"}
+			<form id="unbindFm" name="unbindFm" method="post" action="">
+				<input type="hidden" name="ac" value="{$ac}">
+				<div class="bind-row">
+					<span class="xiang" data-lang="user_current_pwd">当前密码</span>
+					<div class="bind-row-main">
+						<input type="password" name="user_pwd" class="member-input" autocomplete="current-password" data-placeholder="user_place_current_pwd" placeholder="请输入当前密码" value="">
+					</div>
+				</div>
+				<div class="bind-submit-wrap">
+					<input type="button" id="btn_unbind_submit" class="search-button" data-lang="user_unbind_confirm" value="确认解绑">
+				</div>
+			</form>
+			{else/}
+			<p class="bind-tip"><span data-lang="user_unbind_empty">当前账号尚未绑定该账号，无需解绑。</span></p>
+			{/if}
+			<div class="bind-submit-wrap">
+				<a href="{:url('user/info')}" class="bind-back-btn" data-lang="user_bind_go_info">返回我的资料</a>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+</div>
+<script>
+(function(){
+	var $root = $('#macUserUnbindRoot');
+	if(!$root.length){ return; }
+	var macAlert = function(msg){ if(window.MAC && MAC.alert){ MAC.alert(msg); } else { alert(msg); } };
+	var urlUnbind = $root.attr('data-url-unbind') || '';
+	var urlInfo = $root.attr('data-url-info') || '';
+	$('#btn_unbind_submit').on('click', function(){
+		var pwd = $.trim($('input[name="user_pwd"]').val());
+		if(!pwd){
+			macAlert('请输入当前密码');
+			return;
+		}
+		if(!confirm('确认解除该账号绑定？')){ return; }
+		var btn = $(this);
+		btn.prop('disabled', true);
+		$.ajax({
+			url: urlUnbind,
+			type: 'post',
+			dataType: 'json',
+			data: { ac: $root.attr('data-ac'), user_pwd: pwd },
+			success: function(r){
+				macAlert(r.msg || '');
+				if(r.code == 1 && urlInfo){
+					location.href = urlInfo;
+				}
+			},
+			complete: function(){
+				btn.prop('disabled', false);
+			}
+		});
+	});
+})();
+</script>
+{include file="public/foot" /}
+</body>
+</html>

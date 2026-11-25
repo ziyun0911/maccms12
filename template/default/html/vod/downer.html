@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<title>{$obj.vod_name}下载_{$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.vod_name},下载,{$maccms.site_keywords}" />
+<meta name="description" content="{$obj.vod_name}下载地址 - {$maccms.site_name}" />
+{include file="public/include"}
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-type.css" />
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play.css" />
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-down.css" />
+</head>
+<body>
+{include file="public/head"}
+<div class="container">
+    <div class="pannel clearfix" style="padding:16px;">
+        <div class="pannel_head clearfix" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <h1 class="title" style="margin:0;">{$obj.vod_name}<span data-lang="string_down"> 下载</span></h1>
+            <a href="{:mac_url_vod_detail($obj)}" class="text_muted" data-lang="string_return_detail">返回影片详情</a>
+        </div>
+        {if condition="$popedom.code gt 1"}
+        {include file="widget/popedom_upgrade_gate"}
+        {/if}
+        {if condition="!empty($obj['vod_down_list'])"}
+        <div id="downlist" class="downlist">
+            {maccms:foreach name="obj.vod_down_list" id="vo" key="key" by="sort"}
+            <div class="down_group">
+                <h2 class="down_group_title">{$vo.player_info.show}</h2>
+                <ul class="down_url_list">
+                    {maccms:foreach name="vo.urls" id="vo2" key="key2"}
+                    <li class="down_url_item">
+                        {if condition="$vo2.locked eq 1"}
+                        <span class="down_url_name locked">{$vo2.name}</span>
+                        <a class="down_url_btn buy" href="javascript:;" onclick="MAC.User.BuyPopedom(this)" data-id="{$obj.vod_id}" data-sid="{$vo.sid}" data-nid="{$vo2.nid}" data-mid="1" data-type="5" data-lang="string_buy">购买后查看</a>
+                        {else/}
+                        <span class="down_url_name">{$vo2.name}</span>
+                        <input class="down_url_input" type="text" readonly value="{$vo2.url}" onclick="this.select();" />
+                        <a class="down_url_btn copy" href="{$vo2.url}" target="_blank" data-lang="string_down_now">立即下载</a>
+                        {/if}
+                    </li>
+                    {/maccms:foreach}
+                </ul>
+            </div>
+            {/maccms:foreach}
+        </div>
+        {else/}
+        <div class="pannel" style="padding:24px;text-align:center;" data-lang="string_down_empty">暂无下载地址</div>
+        {/if}
+    </div>
+</div>
+{include file="public/foot"}
+</body>
+</html>

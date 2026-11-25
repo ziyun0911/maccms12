@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{:mac_html_lang()}"><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{:mac_front_string('title_user_portrait','修改头像')} - {:mac_front_string('string_user_center','个人中心')} - {$maccms.site_name}</title>
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	{include file="user/include" /}
+	<link rel="stylesheet" href="{$maccms.path_tpl}asset/css/user-info.css" />
+	<link rel="stylesheet" href="{$maccms.path_tpl}asset/css/user-bind.css" />
+</head>
+<body class="user-info-page-wrap user-bind-page-wrap">
+{include file="public/head" /}
+
+<div class="member-wrap member-wrap-bg">
+<div id="member" class="fn-clear">
+	<div id="left">
+        <div class="m-nav">
+			<a href="javascript:MAC.GoBack()" class="btn-left"><i class="iconfont ico-right">&#xe625;</i></a>
+			<a href="{$maccms.path}" class="btn-right"><i class="iconfont ico-right">&#xe634;</i></a>
+			<span class="mb-title" data-lang="user_grzx">个人中心</span>
+	    </div>
+        {include file="user/left_nav" /}
+	</div>
+	<div id="right">
+	    <div class="m-nav">
+			<a href="javascript:MAC.GoBack()" class="btn-left"><i class="iconfont ico-right">&#xe625;</i></a>
+			<span class="mb-title"><span data-lang="user_portrait">头像</span></span>
+	    </div>
+	    <div class="co-right co-right-bg">
+		<h2 class="bind-page-title-pc"><span data-lang="user_portrait">头像</span></h2>
+		<div id="macUserPortraitRoot" class="bind-page-card"
+			data-url-portrait="{:url('user/portrait')}">
+			<div class="bind-row">
+				<span class="xiang" data-lang="user_portrait_now">当前头像</span>
+				<div class="bind-row-main">
+					<img id="macPortraitPreview" class="face" src="{:mac_get_user_portrait()}" alt="{:mac_front_string('user_portrait','头像')}" style="width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;" />
+				</div>
+			</div>
+			<p class="bind-page-desc"><span data-lang="user_portrait_intro">支持 JPG、PNG 格式图片，建议使用正方形图片，上传后立即生效。</span></p>
+			{if condition="$GLOBALS['config']['user']['portrait_status'] eq 1"}
+			<form id="portraitFm" method="post" enctype="multipart/form-data" action="{:url('user/portrait')}">
+				<div class="bind-row">
+					<span class="xiang" data-lang="user_portrait_file">选择图片</span>
+					<div class="bind-row-main">
+						<input type="file" id="macPortraitFile" name="file" accept="image/*" class="member-input mac-portrait-file-input" />
+					</div>
+				</div>
+				<div class="bind-submit-wrap">
+					<input type="button" id="btn_portrait_submit" class="search-button" data-lang="user_portrait_upload" value="上传头像" />
+				</div>
+			</form>
+			{else/}
+			<p class="bind-tip"><span data-lang="user_portrait_closed">当前站点已关闭头像上传功能。</span></p>
+			{/if}
+			<div class="bind-submit-wrap">
+				<a href="{:url('user/info')}" class="bind-back-btn" data-lang="user_bind_go_info">返回我的资料</a>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+</div>
+<script>
+(function(){
+	var $root = $('#macUserPortraitRoot');
+	if(!$root.length){ return; }
+	var macAlert = function(msg){ if(window.MAC && MAC.alert){ MAC.alert(msg); } else { alert(msg); } };
+	var url = $root.attr('data-url-portrait') || '';
+	$('#btn_portrait_submit').on('click', function(){
+		var input = document.getElementById('macPortraitFile');
+		if(!input || !input.files || !input.files.length){
+			macAlert('请先选择需要上传的图片');
+			return;
+		}
+		var fd = new FormData();
+		fd.append('file', input.files[0]);
+		var btn = $(this);
+		btn.prop('disabled', true);
+		$.ajax({
+			url: url,
+			type: 'post',
+			data: fd,
+			processData: false,
+			contentType: false,
+			dataType: 'json',
+			success: function(r){
+				macAlert(r.msg || '');
+				if(r.code == 1 && r.file){
+					$('#macPortraitPreview').attr('src', r.file);
+					input.value = '';
+				}
+			},
+			complete: function(){
+				btn.prop('disabled', false);
+			}
+		});
+	});
+})();
+</script>
+{include file="public/foot" /}
+</body>
+</html>

@@ -1,6 +1,6 @@
 /*
  * admin.bundle.css — 后台样式合包（派生产物，请勿手改）
- * 构建：php think front:bundle
+ * 构建：php bin/think front:bundle
  * 分区顺序不可调整：后出现的分区覆盖前面的同名规则，
  * 与合并前「后台各页 <link> 依次加载」的顺序保持一致。
  * 源文件仍在 static/css/ 下，改样式改源文件再重建。

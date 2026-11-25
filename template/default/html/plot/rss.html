@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+<title>{$obj.vod_name}分集剧情</title>
+<link>{$maccms.http_type}{$maccms.site_url}{:mac_url_plot_detail($obj)}</link>
+<description><![CDATA["{$obj.vod_blurb|str_replace='$$$','',###|mac_substring=200}"]]></description>
+<language>zh-cn</language>
+<generator>{$maccms.http_type}{$maccms.site_url}</generator>
+<webmaster>{$maccms.site_email}</webmaster>
+{maccms:foreach name="obj.vod_plot_list" key="i"}
+<item>
+<title>{$obj.vod_name|htmlspecialchars} - {$vo.name|htmlspecialchars}</title>
+<link>{$maccms.http_type}{$maccms.site_url}{:mac_url_plot_detail($obj, ['page'=>$i])}</link>
+<guid>{$maccms.http_type}{$maccms.site_url}{:mac_url_plot_detail($obj, ['page'=>$i])}</guid>
+<description><![CDATA["{$vo.detail|mac_substring=200}"]]></description>
+<pubDate>{$obj.vod_time|date='Y-m-d H:i:s'}</pubDate>
+<category>{$obj.type.type_name}</category>
+<author>{$maccms.site_name}</author>
+<comments>{$maccms.site_name}</comments>
+</item>
+{/maccms:foreach}
+</channel>
+</rss>

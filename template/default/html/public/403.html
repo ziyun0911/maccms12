@@ -7,8 +7,9 @@
     <div class="fail-page">
         <div class="fail-info">
             <div class="fail-bg f403"></div>
-            <p class="fail-tip" data-lang='string_ndym'>真的很抱歉，我们弄丢了页面.....</p>
+            <p class="fail-tip">抱歉，你没有访问该页面的权限。</p>
             <a class="back-home" href="{$maccms.path}" data-title="string_fhsy" data-lang="string_fhsy" title="返回首页" >返回首页</a>
+            <a class="back-home" href="javascript:history.back();" style="margin-left:12px;" data-lang="string_fhsyy" title="返回上一页" >返回上一页</a>
             {if condition="isset($content_lang_items) && count($content_lang_items) > 1"}
             <div class="fail-lang-wrap" style="margin-top:12px;">
                 {:mac_lang_flag_sprite()}

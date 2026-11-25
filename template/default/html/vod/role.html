@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<title>{$obj.vod_name}角色_{$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.vod_name},角色,演员表,{$maccms.site_keywords}" />
+<meta name="description" content="{$obj.vod_name}角色与演员表 - {$maccms.site_name}" />
+{include file="public/include"}
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-type.css" />
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play.css" />
+</head>
+<body>
+{include file="public/head"}
+<div class="container">
+    <div class="pannel clearfix" style="padding:16px;">
+        <div class="pannel_head clearfix" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <h1 class="title" style="margin:0;">{$obj.vod_name}<span data-lang="string_role"> 角色</span></h1>
+            <a href="{:mac_url_vod_detail($obj)}" class="text_muted" data-lang="string_return_detail">返回影片详情</a>
+        </div>
+        {if condition="!empty($obj['role'])"}
+        <ul class="role_list clearfix" style="list-style:none;padding:0;margin:16px 0 0;display:flex;flex-wrap:wrap;gap:16px;">
+            {volist name="obj.role" id="vo"}
+            <li style="width:140px;">
+                <a href="{:mac_url_role_detail($vo)}" title="{$vo.role_name} - {$vo.role_actor}">
+                    <span class="role_thumb" style="display:block;width:140px;height:186px;border-radius:6px;overflow:hidden;background:var(--tpl-bg-muted,#f3f3f3);">
+                        <img src="{:mac_url_img($vo.role_pic)}" alt="{$vo.role_name}" width="140" height="186" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
+                    </span>
+                    <p style="margin:6px 0 0;font-size:14px;">{$vo.role_name}</p>
+                    <p class="text_muted" style="margin:2px 0 0;font-size:12px;">{$vo.role_actor} <span data-lang="string_decorate">饰</span></p>
+                </a>
+            </li>
+            {/volist}
+        </ul>
+        {else/}
+        <div class="pannel" style="padding:24px;text-align:center;" data-lang="string_role_empty">暂无角色信息</div>
+        {/if}
+    </div>
+</div>
+{include file="public/foot"}
+</body>
+</html>

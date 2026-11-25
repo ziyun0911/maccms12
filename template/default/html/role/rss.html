@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+<title>{$obj.role_name} - {$maccms.site_name}</title>
+<link>{$maccms.http_type}{$maccms.site_url}{:mac_url_role_detail($obj)}</link>
+<description><![CDATA["{$obj.role_content|str_replace='$$$','',###|mac_substring=200}"]]></description>
+<language>zh-cn</language>
+<generator>{$maccms.http_type}{$maccms.site_url}</generator>
+<webmaster>{$maccms.site_email}</webmaster>
+<item>
+<title>{$obj.role_name|htmlspecialchars}</title>
+<link>{$maccms.http_type}{$maccms.site_url}{:mac_url_role_detail($obj)}</link>
+<guid>{$maccms.http_type}{$maccms.site_url}{:mac_url_role_detail($obj)}</guid>
+<description><![CDATA["{$obj.role_content|str_replace='$$$','',###|mac_substring=200}"]]></description>
+<pubDate>{$obj.role_time|date='Y-m-d H:i:s'}</pubDate>
+<category>角色</category>
+<author>{$obj.role_actor|htmlspecialchars}</author>
+<comments>{$maccms.site_name}</comments>
+</item>
+</channel>
+</rss>

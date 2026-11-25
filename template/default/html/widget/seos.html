@@ -64,7 +64,10 @@ $__seo_t = isset($__seo_tpl_all[$__seo_lang]) ? $__seo_tpl_all[$__seo_lang] : $_
 $__seo_p = isset($param['page']) ? (int) $param['page'] : 0;
 $__seo_page = $__seo_p > 1 ? ' - ' . sprintf($__seo['page'], $__seo_p) : '';
 {/php}
-{if $maccms.aid==1}
+{if condition="!empty($page_error_title)"}
+<title>{$page_error_title} - {$maccms.site_name}</title>
+<meta name="robots" content="noindex,follow" />
+{elseif $maccms.aid==1}
 <title>{$tplconfig['theme']['seos']['index_name']|mac_default=$maccms.site_name}</title>
 <meta name="keywords" content="{$tplconfig['theme']['seos']['index_key']|mac_default=$maccms.site_keywords}" />
 <meta name="description" content="{$tplconfig['theme']['seos']['index_des']|mac_default=$maccms.site_description}" />

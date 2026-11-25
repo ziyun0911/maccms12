@@ -1,1 +1,2 @@
-MacPlayer.Html = '<iframe border="0" src="'+MacPlayer.PlayUrl+'" height="'+MacPlayer.Height+'" width="100%" marginWidth="0" \ frameSpacing="0"\ marginHeight="0"\ frameBorder="0"\ scrolling="no"\ vspale="0"\ id="Player" allowfullscreen="true" ><\/iframe>';MacPlayer.Show();
+MacPlayer.Html = '<iframe border="0" src="' + maccms.path + '/static/player/dplayer.php?from=hhyun&url=' + encodeURIComponent(MacPlayer.PlayUrl) + '" width="100%" height="100%" marginWidth="0" frameSpacing="0" marginHeight="0" frameBorder="0" scrolling="no" vspale="0" noResize allowfullscreen="true" allow="fullscreen"></iframe>';
+MacPlayer.Show();
