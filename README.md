@@ -53,11 +53,12 @@ Nginx 需配 PATHINFO 伪静态（`try_files $uri $uri/ /index.php?s=$uri&$args;
 
 ## 三、快速开始
 
-```bash
+
 # 1) 获取源码；已经克隆过的，进入目录执行 git pull 更新即可
+```bash
 git clone https://github.com/ziyun0911/maccms12.git
 cd maccms12
-
+```
 # 2) 建一个空库（utf8mb4），把站点根目录指向本目录
 # 3) 浏览器访问 install.php，按向导填数据库与站点信息（会写 config/database.php 与 app/extra/maccms.php）
 # 4) 导入种子数据（安装向导里点「导入数据」即可，等价于手工执行）
