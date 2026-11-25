@@ -21,7 +21,26 @@
 <body id="rankpage">
     {include file="public/th" /}
     {include file="public/head" /}
-    <script type="application/json" id="js-label-rank-types-json">{:json_encode(isset($label_rank_types) ? $label_rank_types : [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)}</script>
+    {php}
+    // 排行榜分类：取 id 1-10 范围内的影视分类（type_mid=1，即 vod；文章/艺人不在内），并按会员组分类权限过滤
+    $__rank_types = [];
+    $__rank_type_cache = (new \app\common\model\Type())->getCache('type_list');
+    if (is_array($__rank_type_cache)) {
+        foreach ($__rank_type_cache as $__t) {
+            if (!is_array($__t)) { continue; }
+            $__tid = (int) ($__t['type_id'] ?? 0);
+            if ($__tid < 1 || $__tid > 10) { continue; }
+            if ((int) ($__t['type_pid'] ?? 0) !== 0) { continue; }
+            if ((int) ($__t['type_mid'] ?? 0) !== 1) { continue; }
+            if (isset($__t['type_status']) && (int) $__t['type_status'] !== 1) { continue; }
+            if (function_exists('mac_type_nav_visible') && !mac_type_nav_visible($__tid)) { continue; }
+            $__rank_types[$__tid] = ['type_id' => $__tid, 'type_name' => (string) ($__t['type_name'] ?? '')];
+        }
+    }
+    ksort($__rank_types);
+    $__rank_types = array_values($__rank_types);
+    {/php}
+    <script type="application/json" id="js-label-rank-types-json">{:json_encode($__rank_types, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)}</script>
     <script type="application/json" id="js-label-rank-config-json">{:json_encode(isset($label_rank_config) ? $label_rank_config : ['vod_num' => 6, 'rank_title_suffix' => ''], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)}</script>
     <template id="js-label-rank-notempty-tpl">{include file="public/notempty"}</template>
     <div class="show-mobile">
@@ -125,7 +144,7 @@
     {include file="public/foot"}
     <script src="{$maccms.path_tpl}asset/js/mac-catalog-media.js"></script>
     <script src="{$maccms.path}template/default/asset/js/mac-home-card-render.js?v=202604161"></script>
-    <script src="{$maccms.path_tpl}asset/js/label-rank.js?v=20261023"></script>
+    <script src="{$maccms.path_tpl}asset/js/label-rank.js?v=20261118c"></script>
 </body>
 
 </html>

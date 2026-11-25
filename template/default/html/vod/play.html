@@ -3,12 +3,20 @@
 <head>
     {include file="public/include"}
     {php}$play_float_enabled = !isset($tplconfig['theme']['play']['float']) || (string)$tplconfig['theme']['play']['float'] !== '0';{/php}
+    {php}
+    // 进度记忆/弹幕/全屏等能力按“实际播放器实现”判定：只有桥接脚本加载 dplayer.php 或 videojs.html 时才启用。
+    // 原实现比较 player_info.from eq 'dplayer'，而本站线路名是 hhm3u8/lzm3u8/wsym3u8 等，功能长期未启用。
+    $__plFrom = (string)(isset($obj['vod_play_list'][$param['sid']]['player_info']['from']) ? $obj['vod_play_list'][$param['sid']]['player_info']['from'] : '');
+    $__plBridge = './static/player/' . preg_replace('/[^A-Za-z0-9_]/', '', $__plFrom) . '.js';
+    $__plBridgeSrc = is_file($__plBridge) ? (string)@file_get_contents($__plBridge) : '';
+    $__plDpLike = (strpos($__plBridgeSrc, 'dplayer.php') !== false || strpos($__plBridgeSrc, 'videojs.html') !== false);
+    {/php}
     {if condition="$play_float_enabled && ($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1"}
     <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play-float.css?v=202610254" />
     {/if}
     <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-type.css?v=202607101" />
     <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play.css?v=202607102" />
-    {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && ($obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'dplayer' || $obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'videojs')"}
+    {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && $__plDpLike"}
     <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play-social.css?v=202604271" />
     <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play-fullscreen.css?v=202607304" />
     <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play-progress.css?v=202606246" />
@@ -83,7 +91,7 @@
                             {php}$__ffr = ($__ffr > 0 && $__ffr <= 200) ? $__ffr : 56.25;{/php}
                             <script type="application/json" id="vod-play-float-config">{"ratio":{$__ffr}}</script>
                             {/if}
-                            <script type="application/json" id="vod-play-failover-config">{"enabled":true,"apiBase":"{:rtrim($maccms.path,'/').'/api.php'}","vodId":{$obj.vod_id},"sid":{$param.sid},"nid":{$param.nid},"canplayTimeoutMs":15000,"playFrom":"{$obj['vod_play_list'][$param['sid']]['player_info']['from']}"}</script>
+                            <script type="application/json" id="vod-play-failover-config">{"enabled":true,"apiBase":"{:rtrim($maccms.path,'/').'/api.php'}","vodId":{$obj.vod_id},"sid":{$param.sid},"nid":{$param.nid},"canplayTimeoutMs":25000,"playFrom":"{$obj['vod_play_list'][$param['sid']]['player_info']['from']}"}</script>
                             <script>
                             (function (w) {
                               w.__macPlayerScriptFail = null;
@@ -143,7 +151,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && ($obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'dplayer' || $obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'videojs')"}
+                            {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && $__plDpLike"}
                             <div class="play-but-social" id="macPlaySocialToolbar">
                                 {php}$play_chatroom_enabled = !isset($tplconfig['theme']['play']['chatroom']) || (string)$tplconfig['theme']['play']['chatroom'] !== '0';{/php}
                                 {if condition="$play_chatroom_enabled"}
@@ -173,7 +181,7 @@
                             </div>
                             {/if}
                             </div>
-                            {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && ($obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'dplayer' || $obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'videojs')"}
+                            {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && $__plDpLike"}
                             <script type="application/json" id="vod-play-social-config">{"enabled":true,"chatEnabled":{if condition="$play_chatroom_enabled"}true{else/}false{/if},"apiBase":"{:rtrim($maccms.path,'/').'/api.php'}","vodId":{$obj.vod_id},"sid":{$param.sid},"nid":{$param.nid},"playerFrom":"{$obj['vod_play_list'][$param['sid']]['player_info']['from']}","userId":{if condition="isset($user.user_id)"}{$user.user_id}{else/}0{/if},"loginUrl":"{:url('user/login')}","needLoginHint":"{:lang('chatroom/login_required')}"}</script>
                             <script type="application/json" id="vod-play-progress-config">{"enabled":true,"apiBase":"{:rtrim($maccms.path,'/').'/api.php'}","vodId":{$obj.vod_id},"sid":{$param.sid},"nid":{$param.nid},"userId":{if condition="isset($user.user_id)"}{$user.user_id}{else/}0{/if}}</script>
                             <div class="mac-play-chat-panel" id="macPlayChatPanel">
@@ -486,13 +494,13 @@
         </div>
         {include file="widget/recharge_modal" /}
         {include file="public/foot"}
-        {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && ($obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'dplayer' || $obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'videojs')"}
+        {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && $__plDpLike"}
         <script defer src="{$maccms.path_tpl}asset/js/vod-play-social.js?v=202604261830"></script>
         <script defer src="{$maccms.path_tpl}asset/js/vod-play-progress.js?v=202606246"></script>
         <script defer src="{$maccms.path_tpl}asset/js/vod-play-fullscreen.js?v=202607303"></script>
         {/if}
         {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1"}
-        <script defer src="{$maccms.path_tpl}asset/js/vod-play-failover.js?v=202607183"></script>
+        <script defer src="{$maccms.path_tpl}asset/js/vod-play-failover.js?v=2026111217"></script>
         {/if}
         {if condition="$play_float_enabled && ($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1"}
         <script defer src="{$maccms.path_tpl}asset/js/vod-play-float.js?v=202610255"></script>

@@ -149,6 +149,9 @@ if (is_array($typeListCache)) {
             if (isset($typeInfo['type_status']) && (int) $typeInfo['type_status'] !== 1) {
                 continue;
             }
+            if (!mac_type_nav_visible((int) ($typeInfo['type_id'] ?? 0))) {
+                continue;
+            }
             $rankTypeList[] = $typeInfo;
         }
         usort($rankTypeList, function ($a, $b) {
@@ -159,7 +162,7 @@ if (is_array($typeListCache)) {
         $ids = array_filter(array_map('intval', explode(',', $rankTypeIdsRaw)));
         foreach ($ids as $rid) {
             $info = $typeModel->getCacheInfo($rid);
-            if (!empty($info) && (int) ($info['type_mid'] ?? 0) === 1) {
+            if (!empty($info) && (int) ($info['type_mid'] ?? 0) === 1 && mac_type_nav_visible($rid)) {
                 $rankTypeList[] = $info;
             }
         }

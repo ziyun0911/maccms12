@@ -62,14 +62,61 @@ $param = mac_param_url();
 					<li {if condition="urldecode($param['area']) eq ''"} class="hl filter-area" {/if}>
 						<button type="button" class="mac-cat-filter-item" data-mac-f="area" data-v="" data-lang="string_show_all"></button>
 					</li>
-					{maccms:foreach name=":explode(',','中国内地,中国港台,韩国,日本,新加坡,美国,英国,法国,德国,印度,俄罗斯,其他')" id="vo3" key="key3"}
-					<li {if condition="urldecode($param['area']) eq $vo3"} class="hl filter-area" {/if}>
-						<button type="button" class="mac-cat-filter-item actor_lang_zh" data-mac-f="area" data-v="{:htmlspecialchars((string)$vo3, ENT_QUOTES, 'UTF-8')}">{$vo3}</button>
+					{php}
+					// 地区筛选项与 vod 统一口径，取自 actor_extend_area 配置；库内未归口项归「其它」
+					
+					$mac_area_labels = [
+						'大陆' => 'Mainland China', '内地' => 'Mainland China', '港台' => 'Hong Kong & Taiwan', '香港' => 'Hong Kong',
+						'澳门' => 'Macau', '台湾' => 'Taiwan', '日韩' => 'Japan & Korea', '日本' => 'Japan',
+						'韩国' => 'Korea', '欧美' => 'Europe & America', '美国' => 'USA', '英国' => 'UK',
+						'加拿大' => 'Canada', '法国' => 'France', '德国' => 'Germany', '意大利' => 'Italy',
+						'西班牙' => 'Spain', '葡萄牙' => 'Portugal', '荷兰' => 'Netherlands',
+						'比利时' => 'Belgium', '瑞士' => 'Switzerland', '奥地利' => 'Austria',
+						'瑞典' => 'Sweden', '挪威' => 'Norway', '丹麦' => 'Denmark', '芬兰' => 'Finland',
+						'冰岛' => 'Iceland', '爱尔兰' => 'Ireland', '波兰' => 'Poland', '捷克' => 'Czechia',
+						'匈牙利' => 'Hungary', '希腊' => 'Greece', '克罗地亚' => 'Croatia',
+						'塞尔维亚' => 'Serbia', '罗马尼亚' => 'Romania', '保加利亚' => 'Bulgaria',
+						'俄罗斯' => 'Russia', '乌克兰' => 'Ukraine', '爱沙尼亚' => 'Estonia',
+						'拉脱维亚' => 'Latvia', '立陶宛' => 'Lithuania', '斯洛伐克' => 'Slovakia',
+						'斯洛文尼亚' => 'Slovenia', '澳大利亚' => 'Australia', '新西兰' => 'New Zealand',
+						'墨西哥' => 'Mexico', '巴西' => 'Brazil', '阿根廷' => 'Argentina',
+						'智利' => 'Chile', '哥伦比亚' => 'Colombia', '秘鲁' => 'Peru',
+						'委内瑞拉' => 'Venezuela', '古巴' => 'Cuba', '南非' => 'South Africa',
+						'埃及' => 'Egypt', '以色列' => 'Israel', '土耳其' => 'Turkey',
+						'泰国' => 'Thailand', '印度' => 'India', '新加坡' => 'Singapore',
+						'越南' => 'Vietnam', '菲律宾' => 'Philippines', '马来西亚' => 'Malaysia',
+						'印度尼西亚' => 'Indonesia', '缅甸' => 'Myanmar', '柬埔寨' => 'Cambodia',
+						'黎巴嫩' => 'Lebanon', '伊朗' => 'Iran', '伊拉克' => 'Iraq', '约旦' => 'Jordan',
+						'沙特阿拉伯' => 'Saudi Arabia', '阿联酋' => 'UAE', '其它' => 'Others',
+					];
+					$mac_area_order = ['大陆', '香港', '台湾', '美国', '韩国', '日本', '泰国', '新加坡', '马来西亚', '印度', '英国', '法国', '加拿大', '西班牙', '俄罗斯', '其它'];
+					// 地区筛选项与 vod 同一套枚举（actor_extend_area 配置），不再从库 distinct 杂值生成；
+					// 库内未归口到标准枚举的艺人已统一归为「其它」。
+					$mac_area_config = trim((string)($GLOBALS['config']['app']['actor_extend_area'] ?? ''));
+					if ($mac_area_config !== '') {
+						$mac_area_order = explode(',', $mac_area_config);
+					}
+					$mac_actor_area_filters = [];
+					foreach ($mac_area_order as $mac_v) {
+						$mac_v = trim($mac_v);
+						if ($mac_v === '') {
+							continue;
+						}
+						$mac_actor_area_filters[] = [
+							'zh' => $mac_v,
+							'en' => isset($mac_area_labels[$mac_v]) ? $mac_area_labels[$mac_v] : $mac_v,
+							'value' => $mac_v,
+						];
+					}
+					{/php}
+					{maccms:foreach name="mac_actor_area_filters" id="vo3" key="key3"}
+					<li {if condition="urldecode($param['area']) eq $vo3['value']"} class="hl filter-area" {/if}>
+						<button type="button" class="mac-cat-filter-item actor_lang_zh" data-mac-f="area" data-v="{:htmlspecialchars((string)$vo3['value'], ENT_QUOTES, 'UTF-8')}">{$vo3.zh}</button>
 					</li>
 					{/maccms:foreach}
-					{maccms:foreach name=":explode(',','Mainland China,China Hong Kong and Taiwan,Korea,Japan,Singapore,USA,UK,France,Germany,India,Russia,others')" id="vo3" key="key3"}
-					<li {if condition="urldecode($param['area']) eq $vo3"} class="hl filter-area" {/if}>
-						<button type="button" class="mac-cat-filter-item actor_lang_en" data-mac-f="area" data-v="{:htmlspecialchars((string)$vo3, ENT_QUOTES, 'UTF-8')}">{$vo3}</button>
+					{maccms:foreach name="mac_actor_area_filters" id="vo4" key="key4"}
+					<li {if condition="urldecode($param['area']) eq $vo4['value']"} class="hl filter-area" {/if}>
+						<button type="button" class="mac-cat-filter-item actor_lang_en" data-mac-f="area" data-v="{:htmlspecialchars((string)$vo4['value'], ENT_QUOTES, 'UTF-8')}">{$vo4.en}</button>
 					</li>
 					{/maccms:foreach}
 				</ul>

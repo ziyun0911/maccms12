@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+    {include file="public/include"}
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/fallback-pages.css?v=202611091" />
+</head>
+<body>
+    {include file="public/th" /}
+    {include file="public/head"}
+    <div class="container fb-page">
+        <header class="fb-hero">
+            <h1 class="fb-title">文章搜索</h1>
+            <p class="fb-sub">输入关键字，查找站内资讯文章。</p>
+        </header>
+        <form class="fb-search" method="get" action="{:mac_url('art/search')}" autocomplete="off">
+            <input type="text" name="wd" value="{$param.wd}" placeholder="请输入关键字" />
+            <button type="submit">搜索</button>
+        </form>
+        <section class="fb-section">
+            <div class="fb-section__head">
+                <h2 class="fb-section__title">与“{$param.wd}”相关的文章</h2>
+            </div>
+            <ul class="fb-grid">
+                {maccms:art num="24" wd="'.(string)($param['wd'] ?? '').'" order="desc" by="time" id="vo"}
+                <li class="fb-card">
+                    <a class="fb-card__poster" href="{:mac_url_art_detail($vo)}" title="{$vo.art_name}">
+                        <img src="{:mac_url_img($vo.art_pic)}" alt="{$vo.art_name}" loading="lazy">
+                    </a>
+                    <p class="fb-card__title"><a href="{:mac_url_art_detail($vo)}" title="{$vo.art_name}">{$vo.art_name}</a></p>
+                </li>
+                {/maccms:art}
+            </ul>
+        </section>
+    </div>
+    {include file="public/foot"}
+</body>
+</html>

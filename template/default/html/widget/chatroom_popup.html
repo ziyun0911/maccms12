@@ -1,0 +1,25 @@
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/chatroom-popup.css?v=202611192100" />
+<div id="macChatPopup" class="mac-chat-pop" aria-hidden="true"
+     data-api="{$maccms.path}api.php"
+     data-login="{$maccms.path}index.php/user/login.html"
+     data-page="{$maccms.path}index.php/chatroom.html"
+     data-uid="{$user.user_id|intval}">
+    <div class="mac-chat-pop__win" role="dialog" aria-label="聊天室">
+        <div class="mac-chat-pop__head" data-chat-drag>
+            <span class="mac-chat-pop__title">聊天室</span>
+            <span class="mac-chat-pop__room" data-chat-room-name></span>
+            <button type="button" class="mac-chat-pop__close" data-chat-close aria-label="关闭聊天室">×</button>
+        </div>
+        <div class="mac-chat-pop__body">
+            <div class="mac-chat-pop__rooms" data-chat-rooms hidden></div>
+            <div class="mac-chat-pop__msgs" data-chat-msgs></div>
+        </div>
+        <div class="mac-chat-pop__foot">
+            <input type="text" class="mac-chat-pop__input" data-chat-input maxlength="500" autocomplete="off" placeholder="说点什么，文明聊天…" hidden />
+            <button type="button" class="mac-chat-pop__send" data-chat-send hidden>发送</button>
+            <a class="mac-chat-pop__login" data-chat-login href="{$maccms.path}index.php/user/login.html" hidden>登录后参与聊天</a>
+            <div class="mac-chat-pop__err" data-chat-err></div>
+        </div>
+    </div>
+    <script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/chatroom-popup.js?v=202611192110"></script>
+</div>

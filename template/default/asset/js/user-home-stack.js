@@ -1349,6 +1349,8 @@
                 $(document).off('mouseleave.macUserZ', '.mac_user_pc_anchor');
                 $(document).off('click.macUserPanelClose');
                 $('body').off('click.macUserPanel');
+                $(document).off('click.macUserPanelClosePc');
+                $('body').off('click.macUserPanelPc', '.mac_user');
                 $('.mac_user_pc_anchor').each(function () {
                     $(this).children().unwrap();
                 });
@@ -1460,6 +1462,9 @@
                         function positionMobileUserPanel(anchorEl) {
                             var $panel = $('.mac_user_box');
                             if (!$panel.length || !anchorEl) return;
+                            if (typeof MAC.closeHeadDropdowns === 'function') {
+                                MAC.closeHeadDropdowns('user');
+                            }
                             var anchor = anchorEl.jquery ? anchorEl[0] : anchorEl;
                             $panel.removeClass('panel-ready').addClass('show');
                             $panel.css({ top: '', left: '', right: '' });
@@ -1541,20 +1546,47 @@
                     MAC.User.Login();
                 });
 
-                $(document).off('mouseenter.macUserZ', '.mac_user_pc_anchor').on('mouseenter.macUserZ', '.mac_user_pc_anchor', function () {
-                    var $box = $(this).find('.mac_user_box.dropbox').first();
-                    if ($box.length && typeof MAC.bumpMacUserPanelZ === 'function') {
-                        MAC.bumpMacUserPanelZ($box[0]);
-                    }
-                });
-                $(document).off('mouseleave.macUserZ', '.mac_user_pc_anchor').on('mouseleave.macUserZ', '.mac_user_pc_anchor', function () {
-                    var $box = $(this).find('.mac_user_box.dropbox').first();
-                    if ($box.length && typeof MAC.clearMacUserPanelZ === 'function') {
-                        MAC.clearMacUserPanelZ($box[0]);
-                    }
-                });
+                // PC 已登录会员：点击切换下拉，交互与顶部「更多」一致（点开 / 再点关闭 / 点外部关闭）
+                if (!isMobile) {
+                    var closePcUserPanel = function ($panel) {
+                        if (!$panel || !$panel.length) return;
+                        $panel.removeClass('show panel-ready');
+                        if (typeof MAC.clearMacUserPanelZ === 'function') {
+                            MAC.clearMacUserPanelZ($panel[0]);
+                        }
+                    };
+                    var openPcUserPanel = function ($panel) {
+                        if (!$panel || !$panel.length) return;
+                        if (typeof MAC.closeHeadDropdowns === 'function') {
+                            MAC.closeHeadDropdowns('user');
+                        }
+                        $panel.removeClass('panel-ready').addClass('show');
+                        if (typeof MAC.bumpMacUserPanelZ === 'function') {
+                            MAC.bumpMacUserPanelZ($panel[0]);
+                        }
+                        requestAnimationFrame(function () {
+                            requestAnimationFrame(function () { $panel.addClass('panel-ready'); });
+                        });
+                    };
+                    $('body').off('click.macUserPanelPc', '.mac_user').on('click.macUserPanelPc', '.mac_user', function (e) {
+                        if (MAC.User.IsLogin != 1) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var $panel = $('.head_user .mac_user_box.dropbox').first();
+                        if (!$panel.length) return;
+                        if ($panel.hasClass('show')) { closePcUserPanel($panel); } else { openPcUserPanel($panel); }
+                    });
+                    $(document).off('click.macUserPanelClosePc').on('click.macUserPanelClosePc', function (e) {
+                        var $panel = $('.head_user .mac_user_box.dropbox').first();
+                        if (!$panel.length || !$panel.hasClass('show')) return;
+                        if ($(e.target).closest('.user_list_box, .mac_user, .mac_user_pc_anchor').length === 0) {
+                            closePcUserPanel($panel);
+                        }
+                    });
+                }
 
                 var needHeadAuthSync = $('.mac_user').length > 0 || $('.mac_head_plays').length > 0;
+
                 if (!needHeadAuthSync) {
                     /* 无顶栏会员入口时仍可能已登录（Cookie 存在）；勿强行 IsLogin=0，否则访客定时弹窗等会误触发 MAC.User.Login */
                     try {
@@ -1655,6 +1687,7 @@
                                 var _acc = $.trim($('.mac_login_form [name="user_name"]').val() || '');
                                 var _pwd = $.trim($('.mac_login_form [name="user_pwd"]').val() || '');
                                 MAC.Pop.Remove();
+
                                 var mob = MAC.User._lastInitIsMobile;
                                 MAC.User.fetchAuthMe(function (info) {
                                     if (!info || Number(info.is_login) !== 1) {
@@ -1946,6 +1979,40 @@
             try {
                 panelEl.style.removeProperty('z-index');
             } catch (e) {}
+        },
+        /** 头部下拉互斥：打开某一个时主动关闭其余下拉（会员 / 语言 / 更多 / 通知），except 为保留项 */
+        'closeHeadDropdowns': function (except) {
+            try {
+                if (except !== 'user') {
+                    $('.mac_user_box').each(function () {
+                        var $p = $(this);
+                        $p.removeClass('show panel-ready');
+                        if (typeof MAC.clearMacUserPanelZ === 'function') {
+                            MAC.clearMacUserPanelZ(this);
+                        }
+                    });
+                }
+                if (except !== 'lang') {
+                    $('.lang-wrap-body').each(function () {
+                        if (typeof MAC.clearMacUserPanelZ === 'function') {
+                            MAC.clearMacUserPanelZ(this);
+                        }
+                    }).remove();
+                    $(document).off('click.macLangBody');
+                }
+                if (except !== 'more') {
+                    $('#topNavOverlay.top_nav_overlay').removeClass('show');
+                }
+                if (except !== 'notify') {
+                    $('[data-mac-notify-bell]').each(function () {
+                        this.classList.remove('is-open');
+                        var dd = this.querySelector('.mac-notify-bell__dropdown');
+                        if (dd) dd.hidden = true;
+                        var btn = this.querySelector('.mac-notify-bell__btn');
+                        if (btn) btn.setAttribute('aria-expanded', 'false');
+                    });
+                }
+            } catch (eClose) {}
         },
         'Pop': {
             '_cache': {},

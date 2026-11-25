@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+    {include file="public/include"}
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/fallback-pages.css?v=202611152" />
+</head>
+<body>
+    {include file="public/th" /}
+    {include file="public/head"}
+    <div class="container fb-page">
+        <header class="fb-hero">
+            <h1 class="fb-title">明星搜索</h1>
+            <p class="fb-sub">输入关键字，查找站内明星资料。</p>
+        </header>
+        <form class="fb-search" method="get" action="{:mac_url('actor/search')}" autocomplete="off">
+            <input type="text" name="wd" value="{$param.wd}" placeholder="请输入关键字" />
+            <button type="submit">搜索</button>
+        </form>
+        <section class="fb-section">
+            <div class="fb-section__head">
+                <h2 class="fb-section__title">与“{$param.wd}”相关的明星</h2>
+            </div>
+            <ul class="fb-grid">
+                {maccms:actor num="24" wd="'.(string)($param['wd'] ?? '').'" order="desc" by="time" id="vo"}
+                <li class="fb-card">
+                    <a class="fb-card__poster" href="{:mac_url_actor_detail($vo)}" title="{$vo.actor_name}">
+                        {if condition="$vo.actor_pic eq ''"}<span class="fb-card__ph">{$vo.actor_name|mb_substr=0,1}</span>{else/}<img src="{:mac_url_img($vo.actor_pic)}" alt="{$vo.actor_name}" loading="lazy" onerror="this.style.display='none';var p=this.parentNode;if(p&&!p.querySelector('.fb-card__ph')){var s=document.createElement('span');s.className='fb-card__ph';s.textContent=this.alt;p.appendChild(s)}">{/if}
+                    </a>
+                    <p class="fb-card__title"><a href="{:mac_url_actor_detail($vo)}" title="{$vo.actor_name}">{$vo.actor_name}</a></p>
+                </li>
+                {/maccms:actor}
+            </ul>
+        </section>
+    </div>
+    {include file="public/foot"}
+</body>
+</html>

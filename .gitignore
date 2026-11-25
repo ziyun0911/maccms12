@@ -62,3 +62,38 @@ app/install/sql/initdata -*.sql
 # 规则锚定到 说明文档/ 这一层、按 90- 前缀匹配：仓库里 90-*.md 只有这一个文件，实测不误伤其他手册；中文目录名避不开，已用 git check-ignore -v 验证命中。
 # .gitignore 是无扩展名文件，受本机 core.autocrlf=true 影响，磁盘副本存 CRLF，提交时由 git 归一成 LF。
 /说明文档/90-*.md
+
+# 本地产物与调试目录（整目录不入库，2026-11-24 追加）：
+#   outputs/      临时产出与报告
+#   _tmp/         Edge 调试 profile、mock 脚本、临时截图
+#   _db_backup/   合并/清洗前的备份（含真实站点数据）
+#   .workbuddy/   本地记忆文件
+#   upload/       采集与上传附件（与上方 /upload/* 同义，单列一条便于检索）
+/outputs/
+/_tmp/
+/_db_backup/
+/.workbuddy/
+/upload/
+
+# template/ 口径（2026-11-24 裁定）：除备份文件外全部入库；
+# 下方 ! 规则把全站 *.png 的忽略在 template/ 内放开（2026-11-03 那条仍对其余目录生效）
+!/template/**
+/template/**/*.bak*
+
+# 全域备份文件不入库（2026-11-24 追加）：覆盖 app/extra/maccms.php.bak-* 等含凭据的副本，
+# 与上方 /template/**/*.bak* 口径一致；仓库内原本没有已入库的 .bak，无需 git rm --cached
+*.bak*
+
+# DPlayer 版本快照不入库（2026-11-24 追加）：正式文件 static/player/dplayer/DPlayer.min.js|css 照常入库
+/static/player/dplayer/bak-*/
+
+# 直播频道台标不入库（2026-11-24 裁定）：整目录排除；必须排在上方 !/template/** 之后才生效
+/template/default/images/live/
+
+# 主题设计器状态与草稿产物不入库（2026-11-25 裁定）：只隔离 Git，不搬路径
+#   app/data/theme_design/ 是设计器 draft/published/history 的持久状态
+#   template 下 draft/newtmp 是预览/临时产物，受 !/template/** 反向放行影响，必须在末尾再排除
+/app/data/theme_design/
+/template/**/*.draft.*
+/template/**/*.newtmp
+/template/**/*.tmp

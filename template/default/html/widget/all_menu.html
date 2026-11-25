@@ -17,18 +17,22 @@
         </a>
       </li>
 
-      {if condition="!empty($tplconfig['theme']['allmenu']) && is_array($tplconfig['theme']['allmenu'])"}
-      {volist name="tplconfig.theme.allmenu" id="item" key="key"}
-      {maccms:type ids="'.(isset($item['id']) ? $item['id'] : '').'" num="1" id="vo"}
+      {if condition="!empty($tplconfig['theme']['nav']['id'])"}
+      {php}
+      // 图标沿用原 allmenu 配置的语义映射（1 电影 2 电视剧 3 综艺 4 动漫），其余按 type_id 取 navN.png
+      $__navIcons = [1 => 'nav1.png', 2 => 'nav2.png', 3 => 'nav4.png', 4 => 'nav3.png', 5 => 'nav5.png', 6 => 'nav6.png', 7 => 'nav7.png', 8 => 'nav8.png', 9 => 'nav9.png', 10 => 'nav10.png'];
+      {/php}
+      {maccms:type ids="'.($tplconfig['theme']['nav']['id'] ?? '').'" num="30" order="asc" by="sort" id="vo" key="key"}
+      {php}
+      $__navIcon = isset($__navIcons[(int)$vo['type_id']]) ? $__navIcons[(int)$vo['type_id']] : (((int)$vo['type_id']) > 10 ? 'nav10.png' : 'nav' . ((int)$vo['type_id']) . '.png');
+      {/php}
       {if condition="mac_type_nav_visible($vo.type_id)"}
       <li class="all-menu-item all-menu-item--branch{if condition="($vo.type_id eq $GLOBALS['type_id'] || $vo.type_id eq $GLOBALS['type_pid'])"} active{/if}">
-        <a class="all-menu-row" href="{:mac_url_type($vo)}" title="{if condition="$content_lang neq $content_lang_default"}{$vo.type_name}{else/}{$item.name}{/if}">
+        <a class="all-menu-row" href="{if condition="$vo.type_mid eq 12"}{:mac_url('manga/index')}{elseif condition="$vo.type_mid eq 2"}{:mac_url('art/index')}{else/}{:mac_url_type($vo)}{/if}" title="{$vo.type_name}">
           <span class="all-menu-ico">
-            {if condition="$item.icon"}
-            <img class="size-46" src="{:mac_url_img($item.icon)}" alt="{$item.name}">
-            {/if}
+            <img class="size-46" src="{$maccms.path}template/default/images/nav/{$__navIcon}" alt="{$vo.type_name}">
           </span>
-          <span class="all-menu-label">{if condition="$content_lang neq $content_lang_default"}{$vo.type_name}{else/}{$item.name}{/if}</span>
+          <span class="all-menu-label">{$vo.type_name}</span>
         </a>
         <div class="all-menu-sub" role="group" data-aria-label="string_child_categories" aria-label="子分类">
           {maccms:type parent="'.$vo['type_id'].'" mid="'.$vo['type_mid'].'" num="100" order="asc" by="sort" id="subvo"}
@@ -40,7 +44,6 @@
       </li>
       {/if}
       {/maccms:type}
-      {/volist}
       {else /}
       {maccms:type ids="parent" order="asc" by="sort" key="key" id="vo"}
       {if condition="mac_type_nav_visible($vo.type_id)"}

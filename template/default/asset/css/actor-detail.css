@@ -1,1 +1,32 @@
 .actor-detail-csr-body .tabs #tab1:checked~.content>section:first-of-type,.actor-detail-csr-body .tabs #tab2:checked~.content>section:nth-of-type(2),.actor-detail-csr-body .tabs #tab3:checked~.content>section:nth-of-type(3){display:block}.actor-detail-csr-body .tabs #tab1:checked~ul.title_nav>li:first-child label,.actor-detail-csr-body .tabs #tab2:checked~ul.title_nav>li:nth-child(2) label,.actor-detail-csr-body .tabs #tab3:checked~ul.title_nav>li:nth-child(3) label{color:var(--tpl-accent);font-weight:600}@media (min-width:820px){.container{margin-top:20px}}.hot_banner.actor_ber{background:var(--tpl-bg-base)!important;color:var(--tpl-text)!important;padding-top:1rem}.hot_banner.actor_ber .actor_detail .title{color:var(--tpl-text-strong)!important}.hot_banner.actor_ber .actor_detail li{color:var(--tpl-text-muted)!important}.hot_banner.actor_ber .actor_detail li a{color:var(--tpl-text)!important}@media (max-width:820px){.actor-detail-csr-body{padding-top:var(--site-head-mobile-body-pad-single)!important}.m-nav{background:transparent}.m-nav .mb-title,.m-nav a,.m-nav.nav_top .mb-title,.m-nav.nav_top a{color:var(--tpl-text)}}
+/* 代表作品：逗号分隔 + 关联 VOD 单片的链接样式 */
+.actor-detail-csr-body .actor_text li.all .actor-works-link{color:var(--tpl-accent);text-decoration:none;border-bottom:1px dotted transparent;transition:border-color .2s ease}
+.actor-detail-csr-body .actor_text li.all .actor-works-link:hover{border-bottom-color:var(--tpl-accent)}
+.actor-detail-csr-body .actor_text li.all .actor-works-link.is-search{color:var(--tpl-text-muted)}
+.actor-detail-csr-body .actor_text li.all .actor-works-sep{color:var(--tpl-text-muted);margin:0 .3em 0 .1em}
+/* 相关作品/参演角色封面：确保 AJAX 注入后背景图按封面比例铺满 */
+.actor-detail-csr-body .vodlist_thumb.lazyload,.actor-detail-csr-body .ranklist_thumb.lazyload{background-repeat:no-repeat;background-position:center;background-size:cover}
+
+/* ===== 演员简介统一排版（A 方案 / 2026-11-13，按反馈改为与上方同字号） =====
+   字号与行高一律继承容器（与上方「个人资料」表格同为 12px / 24px），
+   只保留结构层次：字段名加粗带冒号、段落小标题加粗、正文段落首行缩进 2em、
+   并列代表作补顿号。前批资料卡片与后批百科片段都适用。
+   所有选择器一律以 #js-actor-rich-content 开头：
+   不会影响容器外 .js-actor-profile-fields 里同样用 .sTit 的个人资料表格。 */
+#js-actor-rich-content .conList,
+#js-actor-rich-content .ulDetailIntro,
+#js-actor-rich-content .dlTxtList{font-size:inherit;line-height:inherit;color:inherit}
+#js-actor-rich-content .ulDetailIntro{margin:0 0 .9em;padding:0;list-style:none}
+#js-actor-rich-content .ulDetailIntro li{display:block;list-style:none;margin:0;padding:0;font-size:inherit;line-height:inherit}
+#js-actor-rich-content .ulDetailIntro li p{margin:0;font-size:inherit;line-height:inherit}
+#js-actor-rich-content .ulDetailIntro .sTit{font-weight:600}
+#js-actor-rich-content .ulDetailIntro .sTit::after{content:"："}
+#js-actor-rich-content .ulDetailIntro em+em::before{content:"、"}
+#js-actor-rich-content .dlTxtList{margin:1em 0 0}
+#js-actor-rich-content .dlTxtList dt{margin:.8em 0 .35em}
+#js-actor-rich-content .dlTxtList .sMark{display:inline-block;font-size:inherit;font-weight:700;line-height:inherit}
+#js-actor-rich-content .dlTxtList .iLine{display:none}
+#js-actor-rich-content .dlTxtList dd{margin:0}
+#js-actor-rich-content .dlTxtList .txtList{font-size:inherit;line-height:inherit}
+/* 后批百科片段自带行内 font-size:16px/18px，一并压回继承字号，避免两批又不一致 */
+#js-actor-rich-content [style*="font-size"]{font-size:inherit!important}

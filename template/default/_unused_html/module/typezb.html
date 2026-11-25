@@ -39,7 +39,7 @@
             {php}$type_poster_class = (mac_tpl_vod_type_cover(isset($vo['type_id']) ? (int) $vo['type_id'] : 0) === 'h') ? 'mac-poster--h' : 'mac-poster--v';{/php}
             <div class="pannel clearfix">
                 <div class="pannel_head clearfix">
-                    <a class="text_muted pull_right" href="{:mac_url_type($vo,[],'show')}">更多<i class="iconfont more_i">&#xe623;</i></a>
+                    <a class="text_muted pull_right mac-more-link" href="{:mac_url_type($vo,[],'show')}">更多<i class="iconfont more_i">&#xe623;</i></a>
                     <h2 class="title">{$vo.type_name}</h2>
                 </div>
                 

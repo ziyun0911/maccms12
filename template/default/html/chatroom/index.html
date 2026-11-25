@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+    {include file="public/include"}
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/chatroom-index.css?v=202611192000" />
+</head>
+
+<body class="chatroom-page">
+    {include file="public/head"}
+    <div class="member-wrap chatroom-wrap">
+        <div class="container">
+            <div class="chatroom-panel" id="chatPanel">
+                <div class="chatroom-head">
+                    <div class="chatroom-title">
+                        <h1>聊天室</h1>
+                        {if condition="$chat_vod_id gt 0"}
+                        <span class="chatroom-tag">{if condition="$chat_vod_name neq ''"}房间 · {$chat_vod_name}{else /}影片房间{/if}</span>
+                        {else /}
+                        <span class="chatroom-tag">全站大厅</span>
+                        {/if}
+                    </div>
+                    {if condition="$chat_vod_id gt 0"}
+                    <a class="chatroom-back" href="{$chat_vod_url}">返回影片<i class="iconfont">&#xe625;</i></a>
+                    {/if}
+                </div>
+
+                {if condition="$chat_vod_id gt 0 && $chat_vod_name neq ''"}
+                <div class="chatroom-sub">
+                    正在聊 <a href="{$chat_vod_url}">{$chat_vod_name}</a>
+                </div>
+                {/if}
+
+                <div class="chatroom-list" id="chatList">
+                    {if condition="empty($chat_rows)"}
+                    <div class="chatroom-empty">还没有人发言，来抢第一条。</div>
+                    {/if}
+                    {volist name="chat_rows" id="vo"}
+                    <div class="chat-msg{if condition="$vo.user_id eq $user.user_id && $user.user_id gt 0"} is-self{/if}">
+                        <span class="chat-avatar" aria-hidden="true">{$vo.user_initial}</span>
+                        <div class="chat-main">
+                            <div class="chat-meta">
+                                <span class="chat-name">{$vo.user_name_text}</span>
+                                <time class="chat-time">{$vo.chat_time_text}</time>
+                                {if condition="$vo.user_id neq $user.user_id"}
+                                <button type="button" class="chat-report" data-chat-id="{$vo.chat_id}">举报</button>
+                                {/if}
+                            </div>
+                            <div class="chat-bubble">{$vo.chat_content_text}</div>
+                        </div>
+                    </div>
+                    {/volist}
+                </div>
+
+                {if condition="$chat_vod_id gt 0"}
+                <div class="chatroom-foot">
+                    {if condition="$user.user_id gt 0"}
+                    <input type="text" id="chatInput" class="chat-input" maxlength="500" autocomplete="off" placeholder="说点什么，文明聊天…" />
+                    <button type="button" id="chatSend" class="chat-send">发送</button>
+                    {else /}
+                    <a class="chat-login" id="chatLogin" href="{$chat_login_url}">登录后参与聊天</a>
+                    {/if}
+                    <div class="chat-err" id="chatErr"></div>
+                </div>
+                {else /}
+                <div class="chatroom-foot chatroom-foot--hint">选择一个影片房间即可发言，全站消息在这里汇总展示。</div>
+                {/if}
+
+                {if condition="$chat_vod_id eq 0 && !empty($chat_rooms)"}
+                <div class="chatroom-rooms">
+                    <h2>热门聊天室</h2>
+                    <ul>
+                        {volist name="chat_rooms" id="r"}
+                        <li>
+                            <a href="{$chat_page_url}?vod_id={$r.vod_id}">
+                                <span class="room-name">{$r.vod_name_text}</span>
+                                <span class="room-count">{$r.cnt} 条</span>
+                            </a>
+                        </li>
+                        {/volist}
+                    </ul>
+                </div>
+                {/if}
+            </div>
+        </div>
+    </div>
+    {include file="public/foot"}
+
+    <script type="text/javascript">
+    (function () {
+        var base = "{$maccms.path}".replace(/\/+$/, '');
+        var api = base + '/api.php';
+        var loginUrl = "{$chat_login_url}";
+        var vodId = {$chat_vod_id|intval};
+        var uid = {$user.user_id|intval};
+        var lastId = {$chat_last_id|intval};
+        var listEl = document.getElementById('chatList');
+        var errEl = document.getElementById('chatErr');
+        var input = document.getElementById('chatInput');
+        var sendBtn = document.getElementById('chatSend');
+        var loginEl = document.getElementById('chatLogin');
+        var seen = {};
+        var timer = null;
+
+        if (!listEl) {
+            return;
+        }
+
+        function raiseLoginLayer() {
+            var n = 0;
+            var iv = window.setInterval(function () {
+                var pop = document.querySelector('.mac_pop');
+                var bg = document.querySelector('.mac_pop_bg');
+                if (pop && pop.style) {
+                    pop.style.setProperty('z-index', '100130', 'important');
+                }
+                if (bg && bg.style) {
+                    bg.style.setProperty('z-index', '100125', 'important');
+                }
+                if (++n > 20) {
+                    window.clearInterval(iv);
+                }
+            }, 100);
+        }
+
+        function openLogin() {
+            try {
+                if (window.MAC && MAC.User && typeof MAC.User.Login === 'function') {
+                    MAC.User.Login();
+                    raiseLoginLayer();
+                    return;
+                }
+            } catch (e) {}
+            var back = window.location.pathname + window.location.search;
+            var joiner = loginUrl.indexOf('?') >= 0 ? '&' : '?';
+            window.location.href = loginUrl + joiner + 'redirect=' + encodeURIComponent(back);
+        }
+
+        function bindSend() {
+            if (sendBtn && !sendBtn.getAttribute('data-bound')) {
+                sendBtn.setAttribute('data-bound', '1');
+                sendBtn.addEventListener('click', send);
+            }
+            if (input && !input.getAttribute('data-bound')) {
+                input.setAttribute('data-bound', '1');
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        send();
+                    }
+                });
+            }
+        }
+
+        function enableInput() {
+            if (uid <= 0 || input) {
+                return;
+            }
+            var foot = document.querySelector('.chatroom-foot');
+            if (!foot || !errEl) {
+                return;
+            }
+            if (loginEl && loginEl.parentNode) {
+                loginEl.parentNode.removeChild(loginEl);
+            }
+            input = document.createElement('input');
+            input.type = 'text';
+            input.id = 'chatInput';
+            input.className = 'chat-input';
+            input.maxLength = 500;
+            input.autocomplete = 'off';
+            input.placeholder = '说点什么，文明聊天…';
+
+            sendBtn = document.createElement('button');
+            sendBtn.type = 'button';
+            sendBtn.id = 'chatSend';
+            sendBtn.className = 'chat-send';
+            sendBtn.textContent = '发送';
+
+            foot.insertBefore(input, errEl);
+            foot.insertBefore(sendBtn, errEl);
+            bindSend();
+            try { input.focus(); } catch (e) {}
+        }
+
+        function scrollBottom() {
+            listEl.scrollTop = listEl.scrollHeight;
+        }
+
+        function appendRows(rows) {
+            if (!rows || !rows.length) {
+                return;
+            }
+            var empty = listEl.querySelector('.chatroom-empty');
+            if (empty) {
+                empty.parentNode.removeChild(empty);
+            }
+            for (var i = 0; i < rows.length; i++) {
+                var m = rows[i] || {};
+                var id = parseInt(m.chat_id, 10) || 0;
+                if (id && seen[id]) {
+                    continue;
+                }
+                if (id) {
+                    seen[id] = 1;
+                }
+                var item = document.createElement('div');
+                item.className = 'chat-msg' + ((uid > 0 && parseInt(m.user_id, 10) === uid) ? ' is-self' : '');
+
+                var avatar = document.createElement('span');
+                avatar.className = 'chat-avatar';
+                avatar.setAttribute('aria-hidden', 'true');
+                var name = String(m.user_name || '游客');
+                avatar.textContent = name.charAt(0) || '游';
+
+                var main = document.createElement('div');
+                main.className = 'chat-main';
+
+                var meta = document.createElement('div');
+                meta.className = 'chat-meta';
+                var nm = document.createElement('span');
+                nm.className = 'chat-name';
+                nm.textContent = name;
+                var tm = document.createElement('time');
+                tm.className = 'chat-time';
+                tm.textContent = String(m.chat_time_text || '');
+                meta.appendChild(nm);
+                meta.appendChild(tm);
+                if (parseInt(m.user_id, 10) !== uid) {
+                    var rp = document.createElement('button');
+                    rp.type = 'button';
+                    rp.className = 'chat-report';
+                    rp.setAttribute('data-chat-id', String(id));
+                    rp.textContent = '举报';
+                    meta.appendChild(rp);
+                }
+
+                var bubble = document.createElement('div');
+                bubble.className = 'chat-bubble';
+                bubble.textContent = String(m.chat_content || '');
+
+                main.appendChild(meta);
+                main.appendChild(bubble);
+                item.appendChild(avatar);
+                item.appendChild(main);
+                listEl.appendChild(item);
+
+                if (id > lastId) {
+                    lastId = id;
+                }
+            }
+            scrollBottom();
+        }
+
+        function poll() {
+            if (vodId <= 0) {
+                return;
+            }
+            fetch(api + '/chatroom/get_list?vod_id=' + vodId + '&after_id=' + lastId + '&limit=50', {
+                credentials: 'same-origin'
+            }).then(function (r) {
+                return r.json();
+            }).then(function (res) {
+                if (res && res.code === 1 && res.info && res.info.rows) {
+                    appendRows(res.info.rows);
+                }
+            }).catch(function () {});
+        }
+
+        function report(chatId, btn) {
+            if (!chatId) {
+                return;
+            }
+            if (!uid) {
+                openLogin();
+                return;
+            }
+            if (btn && btn.getAttribute('data-done') === '1') {
+                return;
+            }
+            if (!window.confirm('确定举报这条消息？')) {
+                return;
+            }
+            fetch(api + '/chatroom/report', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                body: 'chat_id=' + encodeURIComponent(chatId)
+            }).then(function (r) {
+                return r.json();
+            }).then(function (res) {
+                if (res && res.code === 1) {
+                    if (btn) {
+                        btn.setAttribute('data-done', '1');
+                        btn.textContent = '已举报';
+                        btn.disabled = true;
+                    }
+                    return;
+                }
+                if (res && (res.code === 1010 || res.code === '1010')) {
+                    openLogin();
+                    return;
+                }
+                if (btn) {
+                    btn.textContent = (res && res.msg) ? res.msg : '举报失败';
+                }
+            }).catch(function () {
+                if (btn) {
+                    btn.textContent = '举报失败';
+                }
+            });
+        }
+
+        function send() {
+            if (!input) {
+                return;
+            }
+            var text = String(input.value || '').trim();
+            if (!text) {
+                return;
+            }
+            if (!uid) {
+                openLogin();
+                return;
+            }
+            if (errEl) {
+                errEl.textContent = '';
+            }
+            if (sendBtn) {
+                sendBtn.disabled = true;
+            }
+            fetch(api + '/chatroom/send', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                body: 'vod_id=' + encodeURIComponent(vodId) + '&content=' + encodeURIComponent(text)
+            }).then(function (r) {
+                return r.json();
+            }).then(function (res) {
+                if (res && res.code === 1) {
+                    input.value = '';
+                    poll();
+                    return;
+                }
+                if (res && (res.code === 1010 || res.code === '1010')) {
+                    openLogin();
+                    return;
+                }
+                if (errEl) {
+                    errEl.textContent = (res && res.msg) ? res.msg : '发送失败，请稍后再试';
+                }
+            }).catch(function () {
+                if (errEl) {
+                    errEl.textContent = '网络异常，请稍后再试';
+                }
+            }).finally(function () {
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                }
+            });
+        }
+
+        bindSend();
+
+        if (loginEl) {
+            loginEl.addEventListener('click', function (e) {
+                e.preventDefault();
+                openLogin();
+            });
+        }
+
+        // 站内弹窗登录成功后原地启用输入框，不跳会员中心
+        document.addEventListener('mac:auth-me-ready', function (e) {
+            var info = e.detail || null;
+            var logged = info && Number(info.is_login) === 1;
+            var nextUid = logged ? (parseInt(info.user_id, 10) || 0) : 0;
+            if (nextUid === uid) {
+                return;
+            }
+            uid = nextUid;
+            if (uid > 0) {
+                enableInput();
+            }
+        });
+
+        listEl.addEventListener('click', function (e) {
+            var t = e.target && e.target.closest ? e.target.closest('.chat-report') : null;
+            if (!t) {
+                return;
+            }
+            report(t.getAttribute('data-chat-id'), t);
+        });
+
+        scrollBottom();
+
+        if (vodId > 0) {
+            timer = window.setInterval(function () {
+                if (document.visibilityState !== 'hidden') {
+                    poll();
+                }
+            }, 5000);
+        }
+    })();
+    </script>
+</body>
+</html>

@@ -15,10 +15,23 @@
         .home-unified .home-skeleton-line{height:12px;margin-top:8px}
         .home-unified .home-skeleton-line.w220{width:220px}.home-unified .home-skeleton-line.w200{width:200px}.home-unified .home-skeleton-line.w180{width:180px}.home-unified .home-skeleton-line.w160{width:160px}.home-unified .home-skeleton-line.w140{width:140px}.home-unified .home-skeleton-line.w90{width:90%}.home-unified .home-skeleton-line.w70{width:70%}
 </style>
-    <link rel="stylesheet" type="text/css" href="{$maccms.path}template/default/asset/css/index.css?v=202604169">
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/continue-watch-rail.css">
+    <link rel="stylesheet" type="text/css" href="{$maccms.path}template/default/asset/css/index.css?v=202611192400">
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/continue-watch-rail.css?v=2026111804">
     {include file="module/vod_tagwall_link_css" /}
     <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/home-topic-tangram-preview.css">
+    <style id="home-fixed-cols">
+        /* 艺人 / 资讯 / 公告：固定 5 列栅格，PC 与手机同列数，卡片数=行数×5 */
+        .home-unified .home-fixed-5.img-list{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px;white-space:normal!important;flex:initial!important;flex-wrap:nowrap!important}
+        .home-unified .home-fixed-5.img-list>.topiclist_item,.home-unified .home-fixed-5.img-list>.vodlist_item{display:block!important;float:none!important;width:auto!important;max-width:100%!important;margin:0!important;padding:0!important;box-sizing:border-box!important}
+        .home-unified .home-fixed-5.img-list>.home-csr-empty{grid-column:1/-1!important;width:auto!important}
+        /* 最新艺人（12 张）/ 最新资讯（6 张）在 PC 用 6 列，正好整行；手机仍走上面的 5 列 */
+        @media screen and (min-width:821px){
+            .home-unified .home-fixed-6.img-list{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+        }
+        @media screen and (max-width:820px){
+            .home-unified .home-fixed-5.img-list{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px}
+        }
+    </style>
     <script src="{$maccms.path}template/default/asset/js/jquery-adaptive.js?v=202604161"></script>
 </head>
 <body class="home-index-body" data-header-scroll-threshold="12">
@@ -53,13 +66,13 @@
                     <div id="con_latest_1" class="latest-item wei-latest {$index_hotvod_default_poster_class}">
                         <div class="silder-cnt">
                             <ul class="img-list">
-                                {maccms:vod num="6" level="1,2,3,4,5,6,7,8,9" order="desc" by="hits_month"}
+                                {maccms:vod num="10" order="desc" by="score"}
                                 {notempty name="vo"}{include file="widget/vod_box"}{else}{include file="public/notempty"}{/notempty}
                                 {/maccms:vod}
                             </ul>
                         </div>
                         <ul class="txt-list">
-                            {maccms:vod num="12" type="1" start="6" level="1,2,3,4,5,6,7,8,9" order="desc" by="hits_month"}
+                            {maccms:vod num="12" type="1" start="10" order="desc" by="score"}
                             <li><span>{$vo.vod_time|date='m-d'}.</span><a {if condition="$mac_vod_playlink eq 1"}href="{:mac_url_vod_play($vo,['sid'=>$vo.sid,'nid'=>1])}"{else/}href="{:mac_url_vod_detail($vo)}"{/if} title="{$vo.vod_name}">{$vo.vod_name}</a>/ {$vo.vod_remarks}</li>
                             {/maccms:vod}
                         </ul>
@@ -101,6 +114,82 @@
             {/if}
 
             {include file="module/index_hom_type" /}
+            {php}/* 首页补齐分类 5-10：1-4 行仍由 module/index_hom_type 渲染，此处只做追加；9 资讯由下方 art 块承载、10 公告在其后输出，保证按 type_id 升序排列 */{/php}
+            {php}
+            /* 卡片数直接指定：最新艺人 12 张、最新资讯 6 张（栏数见 head 中 #home-fixed-cols，5 列栅格） */
+            $__indexActorMax  = 12;
+            $__indexArtMax    = 6;
+            $__indexArt10Rows = 1; $__indexArt10Cols = 5; $__indexArt10Max = $__indexArt10Rows * $__indexArt10Cols;
+            {/php}
+            {maccms:type ids="5,6,7,8" order="asc" by="id" id="xType" key="xTypeKey"}
+            {if condition="$xType['type_mid'] eq 1"}
+            <div class="box latest-tab-box js-home-lazy-section" id="js-home-type-block-{$xType.type_id}" data-section="home-type-b-{$xType.type_id}" data-type-id="{$xType.type_id}" data-num="12" data-start="0">
+                <div class="title home-unified-section-head hu-section-head">
+                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/home/home-icon{$xType.type_id}.png">
+                    <img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/home/home-icon{$xType.type_id}-black.png">
+                    <h2><span data-lang="string_zuixin">{$index_latest_prefix}</span><span>{$xType.type_name}</span></h2>
+                    <a class="pc_more" href="{:mac_url_type($xType)}" title="{$xType.type_name}"><span data-lang="string_type_more2">更多</span> <i class="iconfont more_i">&#xe623;</i></a>
+                </div>
+                <div class="latest-item cbox_list">
+                    <ul class="img-list dis vodlist home-unified-vlist hu-vlist"></ul>
+                </div>
+                <div class="home-refresh-wrap">
+                    <button type="button" class="home-refresh-btn" data-target="#js-home-type-block-{$xType.type_id}">
+                        <i class="iconfont" aria-hidden="true">&#xe62a;</i><span data-lang="content_guess_refresh">换一换</span>
+                    </button>
+                </div>
+            </div>
+            {elseif condition="$xType['type_mid'] eq 8" /}
+            <div class="box mingxing">
+                <div class="title home-unified-section-head hu-section-head">
+                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/home/home-icon{$xType.type_id}.png">
+                    <img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/home/home-icon{$xType.type_id}-black.png">
+                    <h2><span data-lang="string_zuixin">{$index_latest_prefix}</span><span>{$xType.type_name}</span></h2>
+                    <a class="pc_more" href="{:mac_url_type($xType)}" title="{$xType.type_name}"><span data-lang="string_type_more2">更多</span><i class="iconfont more_i">&#xe623;</i></a>
+                </div>
+                <div class="latest-item">
+                    <ul class="img-list dis home-fixed-5 home-fixed-6">
+                        {maccms:actor num="30" type="'.$xType['type_id'].'" order="desc" by="time" id="xActor" key="xActorKey"}
+                        {if condition="$xActorKey elt $__indexActorMax"}
+                        <li class="topiclist_item num_{$xActorKey}">
+                            <a class="topiclist_thumb lazyload" href="{:mac_url_actor_detail($xActor)}" title="{$xActor.actor_name}" data-original="{:mac_url_img($xActor.actor_pic)}"></a>
+                            <a href="{:mac_url_actor_detail($xActor)}" title="{$xActor.actor_name}"><p>{$xActor.actor_name}</p></a>
+                        </li>
+                        {/if}
+                        {/maccms:actor}
+                        {if condition="$__TAG_COUNT__ lt 1"}
+                        <li class="home-csr-empty vodlist_item">{include file="public/notempty" /}</li>
+                        {/if}
+                    </ul>
+                </div>
+            </div>
+            {elseif condition="$xType['type_mid'] eq 2" /}
+            <div class="box latest-tab-box">
+                <div class="title home-unified-section-head hu-section-head">
+                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/home/home-icon{$xType.type_id}.png">
+                    <img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/home/home-icon{$xType.type_id}-black.png">
+                    <h2><span data-lang="string_zuixin">{$index_latest_prefix}</span><span>{$xType.type_name}</span></h2>
+                    <a class="pc_more" href="{:mac_url_type($xType)}" title="{$xType.type_name}"><span data-lang="string_type_more2">更多</span> <i class="iconfont more_i">&#xe623;</i></a>
+                </div>
+                <div class="latest-item cbox_list">
+                    <ul class="img-list dis vodlist home-unified-vlist hu-vlist home-fixed-5">
+                        {maccms:art num="20" type="'.$xType['type_id'].'" order="desc" by="time" id="xArt" key="xArtKey"}
+                        {if condition="$xArtKey elt $__indexArtMax"}
+                        <li class="vodlist_item num_{$xArtKey} zixun">
+                            <a class="vodlist_thumb zixun_img lazyload" href="{:mac_url_art_detail($xArt)}" title="{$xArt.art_name}" data-original="{:mac_url_img($xArt.art_pic)}"></a>
+                            <h5 class="show-pc"><a href="{:mac_url_art_detail($xArt)}" title="{$xArt.art_name}">{$xArt.art_name}</a></h5>
+                            <div class="vodlist_titbox show-mobile"><p class="vodlist_title"><a href="{:mac_url_art_detail($xArt)}">{$xArt.art_name}</a></p></div>
+                        </li>
+                        {/if}
+                        {/maccms:art}
+                        {if condition="$__TAG_COUNT__ lt 1"}
+                        <li class="home-csr-empty vodlist_item">{include file="public/notempty" /}</li>
+                        {/if}
+                    </ul>
+                </div>
+            </div>
+            {/if}
+            {/maccms:type}
 
             {if condition="$index_manga_hbtn eq 1"}
             <div class="box latest-tab-box {$index_manga_poster_class}">
@@ -141,11 +230,11 @@
                     <a class="pc_more" href="{:mac_url('art/index')}"><span data-lang="string_type_more2">更多</span> <i class="iconfont more_i">&#xe623;</i></a>
                 </div>
                 <div class="latest-item cbox_list">
-                    <ul class="img-list dis vodlist home-unified-vlist hu-vlist js-home-lazy-section"
+                    <ul class="img-list dis vodlist home-unified-vlist hu-vlist home-fixed-5 home-fixed-6 js-home-lazy-section"
                         id="js-home-art-list"
                         data-section="home-art"
                         data-api-action="art/get_latest"
-                        data-num="{$index_art_hnum|default='6'}"
+                        data-num="{$__indexArtMax|default='5'}"
                         data-type-id="{$index_art_home.type_id|default='0'}"
                         data-start="0">
                         <li class="home-skeleton-card"><div class="thumb"></div><div class="home-skeleton-line w90"></div><div class="home-skeleton-line w70"></div></li>
@@ -164,6 +253,36 @@
             </div>
             {/if}
 
+            {php}/* 10 公告：紧跟 9 资讯（上方 art 块）之后输出，保持分类按 type_id 升序 */{/php}
+            {maccms:type ids="10" order="asc" by="id" id="xType10" key="xType10Key"}
+            {if condition="$xType10['type_mid'] eq 2"}
+            <div class="box latest-tab-box">
+                <div class="title home-unified-section-head hu-section-head">
+                    <img class="laset_new_img hl_icon_light" src="{$maccms.path}template/default/images/home/home-icon{$xType10.type_id}.png">
+                    <img class="laset_new_img hl_icon_black" src="{$maccms.path}template/default/images/home/home-icon{$xType10.type_id}-black.png">
+                    <h2><span data-lang="string_zuixin">{$index_latest_prefix}</span><span>{$xType10.type_name}</span></h2>
+                    <a class="pc_more" href="{:mac_url_type($xType10)}" title="{$xType10.type_name}"><span data-lang="string_type_more2">更多</span> <i class="iconfont more_i">&#xe623;</i></a>
+                </div>
+                <div class="latest-item cbox_list">
+                    <ul class="img-list dis vodlist home-unified-vlist hu-vlist home-fixed-5">
+                        {maccms:art num="20" type="'.$xType10['type_id'].'" order="desc" by="time" id="xArt10" key="xArt10Key"}
+                        {if condition="$xArt10Key elt $__indexArt10Max"}
+                        <li class="vodlist_item num_{$xArt10Key} zixun">
+                            <a class="vodlist_thumb zixun_img lazyload" href="{:mac_url_art_detail($xArt10)}" title="{$xArt10.art_name}" data-original="{:mac_url_img($xArt10.art_pic)}"></a>
+                            <h5 class="show-pc"><a href="{:mac_url_art_detail($xArt10)}" title="{$xArt10.art_name}">{$xArt10.art_name}</a></h5>
+                            <div class="vodlist_titbox show-mobile"><p class="vodlist_title"><a href="{:mac_url_art_detail($xArt10)}">{$xArt10.art_name}</a></p></div>
+                        </li>
+                        {/if}
+                        {/maccms:art}
+                        {if condition="$__TAG_COUNT__ lt 1"}
+                        <li class="home-csr-empty vodlist_item">{include file="public/notempty" /}</li>
+                        {/if}
+                    </ul>
+                </div>
+            </div>
+            {/if}
+            {/maccms:type}
+
             {include file="ads/ads_all"}
 
             {if condition="!empty($tplconfig['theme']['actor']['hbtn']) && $tplconfig['theme']['actor']['hbtn'] eq 1"}
@@ -178,9 +297,14 @@
                         id="js-home-actor-list"
                         data-section="home-actor"
                         data-api-action="actor/get_recommend"
+                        data-by="hits"
                         data-ids="{$index_actor_ids|default=''}"
                         data-num="8"
                         data-start="0">
+                        <li class="home-skeleton-card"><div class="thumb"></div><div class="home-skeleton-line w90"></div></li>
+                        <li class="home-skeleton-card"><div class="thumb"></div><div class="home-skeleton-line w90"></div></li>
+                        <li class="home-skeleton-card"><div class="thumb"></div><div class="home-skeleton-line w90"></div></li>
+                        <li class="home-skeleton-card"><div class="thumb"></div><div class="home-skeleton-line w90"></div></li>
                         <li class="home-skeleton-card"><div class="thumb"></div><div class="home-skeleton-line w90"></div></li>
                         <li class="home-skeleton-card"><div class="thumb"></div><div class="home-skeleton-line w90"></div></li>
                         <li class="home-skeleton-card"><div class="thumb"></div><div class="home-skeleton-line w90"></div></li>
@@ -239,6 +363,7 @@
                     id="js-home-rank-lazy-root"
                     data-section="home-rank"
                     data-api-action="vod/get_rank"
+                    data-num="3"
                     data-start="0">
                     <div class="img-list dis show-pc"
                         id="js-home-rank-pc-list">
@@ -274,12 +399,12 @@
 <script type="application/json" id="js-home-rank-types-json">{php}echo json_encode($index_rank_types, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);{/php}</script>
 <script type="application/json" id="js-home-art-home-json">{php}echo json_encode($index_art_home, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);{/php}</script>
 <script type="application/json" id="js-home-banner-ads-json">{php}echo json_encode((isset($bannerSwiperRows) && is_array($bannerSwiperRows)) ? array_values($bannerSwiperRows) : [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);{/php}</script>
-<div id="js-home-api-config" data-api-base="{$maccms.path}api.php" data-vod-playlink="{:(isset($mac_vod_playlink) && (int)$mac_vod_playlink === 1) ? '1' : '0'}"></div>
+<div id="js-home-api-config" data-api-base="{$maccms.path}api.php" data-vod-playlink="{$mac_vod_playlink|default='0'}"></div>
 <div id="js-home-notempty-tpl" class="fn-hide" aria-hidden="true">{include file="public/notempty"}</div>
 <script src="{$maccms.path_tpl}asset/js/mac-catalog-media.js"></script>
 <script src="{$maccms.path}template/default/asset/js/mac-home-card-render.js?v=202604161"></script>
-<script src="{$maccms.path}template/default/asset/js/index-home-parts.js?v=2026102301"></script>
-<script src="{$maccms.path_tpl}asset/js/index-continue-watch.js"></script>
+<script src="{$maccms.path}template/default/asset/js/index-home-parts.js?v=20261119b"></script>
+<script src="{$maccms.path_tpl}asset/js/index-continue-watch.js?v=2026111720"></script>
 {include file="module/continue_watch_rail" /}
 {include file="module/vod_tagwall_script_js" /}
 {include file="public/foot"}

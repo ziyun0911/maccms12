@@ -2,7 +2,7 @@
 <html lang="{:mac_html_lang()}">
 <head>
     {include file="public/include"}
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/live-play.css?v=202607305" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/live-play.css?v=2026111215" />
     <link rel="stylesheet" type="text/css" href="{$maccms.path}static/player/dplayer/DPlayer.min.css" />
 </head>
 <body id="livePlayPage" class="live-play-body">
@@ -14,10 +14,7 @@
             <section class="live-play__main" data-aria-label="string_live_player" aria-label="直播播放器">
                 <div class="live-play__player-wrap embed-responsive embed-responsive-16by9">
                     <div id="live_dplayer_cnt" class="live-play__dplayer embed-responsive-item"></div>
-                    <div class="live-play__player-fail mac-hide" role="alert">
-                        <p data-lang="live/load_fail_refresh">如加载失败请刷新</p>
-                        <button type="button" class="live-play__btn live-play__btn--primary js-live-refresh" data-lang="string_play_sx">刷新</button>
-                    </div>
+                    <!-- 失败提示条由 live-play.js 动态插入：轻量贴底，不遮挡画面；不使用旧的全屏遮罩 -->
                 </div>
             </section>
             <aside class="live-play__sidebar" data-aria-label="string_live_channel_lines" aria-label="选台与线路">
@@ -25,7 +22,8 @@
                     <h1 class="live-play__title"></h1>
                     <div class="live-play__lines-bar">
                         <span class="live-play__lines-label" data-lang="live/play_lines">播放线路</span>
-                        <button type="button" class="live-play__refresh-hint js-live-refresh">
+                        <!-- 线路栏手动刷新入口：点击重载当前线路，并重置自动切线路的重试次数 -->
+                        <button type="button" class="live-play__refresh-hint js-live-refresh" title="刷新当前线路" aria-label="刷新当前线路">
                             <img class="live-play__refresh-hint-icon" src="{$maccms.path_tpl}asset/img/live-tis-ic@2x.png" alt="" width="14" height="14" decoding="async" />
                             <span class="live-play__refresh-hint-text" data-lang="live/refresh_hint">如加载失败请刷新</span>
                         </button>
@@ -44,7 +42,7 @@
         <script type="text/javascript" src="{$maccms.path}static/player/dplayer/dash.all.min.js"></script>
         <script type="text/javascript" src="{$maccms.path}static/player/dplayer/webtorrent.min.js"></script>
         <script type="text/javascript" src="{$maccms.path}static/player/dplayer/DPlayer.min.js"></script>
-        <script type="text/javascript" src="{$maccms.path_tpl}asset/js/live-play.js?v=202604169"></script>
+        <script type="text/javascript" src="{$maccms.path_tpl}asset/js/live-play.js?v=2026111501"></script>
     </div>
     {include file="public/foot"}
 </body>

@@ -134,15 +134,18 @@ $seo_search_desc = $__seo_attr(mac_substring(mac_filter_html(sprintf($__seo['sea
     $__detail_kw = $__seo_is_default ? ($__dk !== '' ? $__dk : '详细') : $__seo_detail_name;
     $__detail_other_kw = $__seo_is_default ? ($__dk !== '' ? $__dk : '视频详情-其他') : $__seo_detail_other_name;
     $__detail_txt = $__seo_is_default ? (!empty($tplconfig['theme']['seos']['detail_des']) ? (string) $tplconfig['theme']['seos']['detail_des'] : '') : '';
+    $__crew_parts = array_filter([trim((string)($obj['vod_actor'] ?? '')), trim((string)($obj['vod_director'] ?? ''))], function ($v) { return $v !== ''; });
+    $__crew_kw = implode(',', $__crew_parts);
+    $__crew_seg = $__crew_kw !== '' ? ',' . $__crew_kw : '';
     {/php}
     {if condition="($obj['type_id']==2) OR ($obj['type_id_1']==2) OR ($obj['type_id']==3) OR ($obj['type_id_1']==3) OR ($obj['type_id']==4) OR ($obj['type_id_1']==4)"}
     <title>{$__detail_title} - {$maccms.site_name}</title>
-    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__detail_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__detail_kw}{$__crew_seg},{$maccms.site_name}" />
     <meta name="description" content="{:$__seo_attr(mac_substring((string) ($__detail_txt . (isset($obj['vod_name']) ? $obj['vod_name'] : '') . $__seo['synopsis'] . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
     {else}
     
     <title>{$__detail_other_title} - {$maccms.site_name}</title>
-    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__detail_other_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__detail_other_kw}{$__crew_seg},{$maccms.site_name}" />
     <meta name="description" content="{:$__seo_attr(mac_substring((string) ($__detail_txt . (isset($obj['vod_name']) ? $obj['vod_name'] : '') . $__seo['synopsis'] . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
     {/if}
 {/notempty}
@@ -168,12 +171,12 @@ $seo_search_desc = $__seo_attr(mac_substring(mac_filter_html(sprintf($__seo['sea
     {/php}
     {if condition="($obj['type_id']==2) OR ($obj['type_id_1']==2) OR ($obj['type_id']==3) OR ($obj['type_id_1']==3) OR ($obj['type_id']==4) OR ($obj['type_id_1']==4)"}
     <title>{$__play_ep_title} - {$maccms.site_name}</title>
-    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__play_ep_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__play_ep_kw}{$__crew_seg},{$maccms.site_name}" />
     <meta name="description" content="{:$__seo_attr(mac_substring((string) ($__play_ep_des . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
     {else}
     
     <title>{$__play_title} - {$maccms.site_name}</title>
-    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__play_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+    <meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__play_kw}{$__crew_seg},{$maccms.site_name}" />
     <meta name="description" content="{:$__seo_attr(mac_substring((string) ($__play_des . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
     {/if}
 {elseif $maccms.aid==16}
@@ -188,7 +191,7 @@ $__down_des = $__seo_is_default ? (!empty($tplconfig['theme']['seos']['down_des'
 $__down_kw = $__seo_is_default ? (!empty($tplconfig['theme']['seos']['down_key']) ? (string) $tplconfig['theme']['seos']['down_key'] : '视频下载') : $__seo_down_name;
 {/php}
 <title>{$__down_title} - {$maccms.site_name}</title>
-<meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__down_kw},{$obj.vod_actor},{$obj.vod_director},{$maccms.site_name}" />
+<meta name="keywords" content="{$obj.vod_name|mac_filter_html},{$obj.type.type_name|mac_filter_html},{$obj.type_1.type_name|mac_filter_html},{$__down_kw}{$__crew_seg},{$maccms.site_name}" />
 <meta name="description" content="{:$__seo_attr(mac_substring((string) ($__down_des . (isset($obj['vod_blurb']) ? $obj['vod_blurb'] : '')), 150))}" />
 {elseif $maccms.aid==20}
 <title>{$__seo.article} - {$maccms.site_name}</title>

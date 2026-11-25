@@ -10,16 +10,23 @@
         <div class="fo_t show-pc">
             <p >
                 {php}$_foot_sep = '';{/php}
-                {maccms:type ids="parent" order="asc" by="sort"}
+                {maccms:type ids="1,2,3,4,5,6,7,8,9,10" order="asc" by="sort"}
                     {if condition="mac_type_nav_visible($vo.type_id)"}{php}echo $_foot_sep; $_foot_sep = ' - ';{/php}<a class="color" href="{:mac_url_type($vo)}" title="{$vo.type_name}">{$vo.type_name}</a>{/if}
                 {/maccms:type}
                 {php}echo $_foot_sep;{/php}<a class="color" data-lang="string_zuijingx" data-title="string_zuijingx" href="{:mac_url('map/index')}" title="最近更新">
                     最近更新
                 </a> -
+                <a class="color" href="{$maccms.path}admin.php" title="后台管理" target="_blank">后台管理</a> -
                 <a class="color" data-lang="string_foot_fk1" data-title="string_foot_fk1" href="{:mac_url('gbook/index')}" title="反馈留言">反馈留言</a>
             </p>
             
-            <p>&copy;&nbsp;{:date('Y')}&nbsp;{$maccms.site_url}&nbsp;&nbsp;{:mac_front_string('string_foot_email','E-Mail:')}&nbsp;{$maccms.site_email}</p>
+            {php}
+            $__foot_site = trim((string) ($maccms['site_url'] ?? ''));
+            if ($__foot_site !== '' && !preg_match('~^(https?:)?//~i', $__foot_site)) {
+                $__foot_site = '//' . $__foot_site;
+            }
+            {/php}
+            <p>&copy;&nbsp;{:date('Y')}&nbsp;<a class="color" href="{$__foot_site}" title="{$maccms.site_name}">{$maccms.site_name}</a>&nbsp;&nbsp;{:mac_front_string('string_foot_email','E-Mail:')}&nbsp;{$maccms.site_email}</p>
             
         </div> 
     </div>
@@ -56,3 +63,4 @@ if(typeof window.waitForMAC === 'undefined'){
 }
 </script>
 {include file="ads/ads_double"}
+{include file="widget/chatroom_popup" /}

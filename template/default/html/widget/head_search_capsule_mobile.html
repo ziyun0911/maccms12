@@ -1,5 +1,5 @@
                         <div class="head_search_row head_search_row_capsule">
-                            <form name="searchMobile" method="get" onsubmit="return qrsearch(this);">
+                            <form name="searchMobile" method="get" onsubmit="return MacSearchTypeSubmit(this);" data-url-vod="{:mac_url('vod/search')}" data-url-art="{:mac_url('art/search')}" data-url-actor="{:mac_url('actor/search')}" data-url-live="{:mac_url('live/search')}">
                                 <div class="head_search_capsule">
                                     <span class="head_search_capsule_hot" aria-hidden="true"><img src="{$maccms.path_tpl}images/layout/hot.svg" alt=""></span>
                                     <div class="head_search_capsule_field">
@@ -21,3 +21,4 @@
                                 <ul class="hot_keys"></ul>
                             </div>
                         </div>
+                        {include file="widget/head_search_hot_autocollect" /}

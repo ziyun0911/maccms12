@@ -2,18 +2,18 @@
 <html lang="{:mac_html_lang()}">
 <head>
     {include file="public/include"}
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/live-show.css?v=202608025" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/live-show.css?v=202611192500" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/paging.css?v=202611101" />
 </head>
 <body id="liveShowPage" class="live-show-body">
     {include file="public/th" /}
     {include file="public/head" /}
-    <div id="live_show_page" class="live-show" data-page-size="48" data-live-cover-default="{$mac_live_cover_default|default='v'}" data-play-url-pattern="{:mac_url('live/play',['id'=>'__ID__'])}">
+    <div id="live_show_page" class="live-show" data-page-size="100" data-live-cover-default="{$mac_live_cover_default|default='v'}" data-play-url-pattern="{:mac_url('live/play',['id'=>'__ID__'])}">
         <main class="live-show__main">
             <div class="member-wrap">
                 <div class="container">
                     {include file="ads/ads_all"}
                     <header class="live-show__head">
-                        <h1 class="live-show__title" data-lang="live/show_title">直播</h1>
                         <div class="live-show__tabs" role="tablist" data-aria-label="string_live_category" aria-label="直播分类"></div>
                     </header>
                     <div class="live-show__panel" data-state="loading">
@@ -31,12 +31,16 @@
                                 <p class="nodata-txt" data-lang="live/empty">暂无直播频道</p>
                             </div>
                         </div>
+                        <div class="live-show__bingdou live-show__is-hidden" id="liveBingdouPanel" role="region" aria-label="冰豆直播">
+                            <div class="live-show__bingdou-frame" id="liveBingdouFrame"></div>
+                        </div>
                         <ul class="live-show__grid live-show__is-hidden" role="list"></ul>
+                        <div class="live-show__pager live-show__is-hidden" role="navigation" aria-label="分页"></div>
                     </div>
                 </div>
             </div>
         </main>
-        <script type="text/javascript" src="{$maccms.path_tpl}asset/js/live-show.js?v=202608025"></script>
+        <script type="text/javascript" src="{$maccms.path_tpl}asset/js/live-show.js?v=202611192501"></script>
     </div>
     {include file="public/foot"}
 </body>

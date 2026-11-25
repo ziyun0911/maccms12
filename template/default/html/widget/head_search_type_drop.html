@@ -1,0 +1,107 @@
+<style id="macSearchTypeDropCss">
+.mac_search_type{align-items:center;display:flex;flex:0 0 auto;position:relative;z-index:40}
+.mac_search_type_btn{align-items:center;background:none;border:0;color:#ff6a00;cursor:pointer;display:flex;font-size:14px;font-weight:600;gap:3px;line-height:1;padding:6px 2px;white-space:nowrap}
+.mac_search_type_btn:hover,.mac_search_type_btn:focus{color:#ff8a33;outline:none}
+.mac_search_type_caret{font-size:10px;transition:transform .18s ease}
+.mac_search_type.is-open .mac_search_type_caret{transform:rotate(180deg)}
+.mac_search_type_sep{background:var(--tpl-border-soft,#d8d8d8);flex:0 0 auto;height:16px;margin:0 7px 0 4px;width:1px}
+.mac_search_type_menu{background:#2b2d31;border:1px solid #3b3e44;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.35);display:none;left:-10px;list-style:none;margin:0;min-width:88px;padding:5px 0;position:absolute;top:calc(100% + 10px);z-index:999}
+.mac_search_type.is-open .mac_search_type_menu{display:block}
+.mac_search_type_menu li{color:#e6e6e6;cursor:pointer;font-size:14px;line-height:1.2;padding:9px 18px;white-space:nowrap}
+.mac_search_type_menu li:hover{background:#3a3d43}
+.mac_search_type_menu li.is-active{color:#ff6a00}
+@media (max-width:820px){.mac_search_type_btn{font-size:13px;padding:6px 1px}.mac_search_type_sep{margin:0 5px 0 3px}.mac_search_type_menu{left:-6px;min-width:76px}.mac_search_type_menu li{padding:8px 14px}}
+</style>
+{php}
+$macStUri = $_SERVER['REQUEST_URI'] ?? '';
+$macStType = preg_match('/live\/search|s=\/live\/search/', $macStUri) ? 'live' : (preg_match('/artsearch|\/art\/search|s=\/art\/search/', $macStUri) ? 'art' : (preg_match('/actor\/search|s=\/actor\/search/', $macStUri) ? 'actor' : 'vod'));
+$macStLabel = ['vod' => '视频', 'art' => '文章', 'actor' => '明星', 'live' => '直播'][$macStType];
+{/php}
+<div class="mac_search_type" id="macSearchTypeDrop" data-type="{$macStType}">
+    <button type="button" class="mac_search_type_btn" aria-haspopup="listbox" aria-expanded="false">
+        <span class="mac_search_type_label">{$macStLabel}</span><span class="mac_search_type_caret" aria-hidden="true">&#9652;</span>
+    </button>
+    <span class="mac_search_type_sep" aria-hidden="true"></span>
+    <ul class="mac_search_type_menu" role="listbox">
+        <li {if condition="$macStType eq 'vod'"}class="is-active" {/if}data-type="vod" role="option">视频</li>
+        <li {if condition="$macStType eq 'art'"}class="is-active" {/if}data-type="art" role="option">文章</li>
+        <li {if condition="$macStType eq 'actor'"}class="is-active" {/if}data-type="actor" role="option">明星</li>
+        <li {if condition="$macStType eq 'live'"}class="is-active" {/if}data-type="live" role="option">直播</li>
+    </ul>
+</div>
+<script>
+(function () {
+    if (window.__macSearchTypeReady) { return; }
+    window.__macSearchTypeReady = true;
+    var LABEL = { vod: '视频', art: '文章', actor: '明星', live: '直播' };
+    function roots() { return Array.prototype.slice.call(document.querySelectorAll('.mac_search_type')); }
+    function apply(root, type) {
+        root.setAttribute('data-type', type);
+        var lab = root.querySelector('.mac_search_type_label');
+        if (lab) { lab.textContent = LABEL[type] || '视频'; }
+        root.querySelectorAll('.mac_search_type_menu li').forEach(function (li) {
+            li.classList.toggle('is-active', li.getAttribute('data-type') === type);
+        });
+        root.classList.remove('is-open');
+        var btn = root.querySelector('.mac_search_type_btn');
+        if (btn) { btn.setAttribute('aria-expanded', 'false'); }
+    }
+    function detect() {
+        var p = location.pathname + location.search;
+        if (/live\/search|s=\/live\/search/.test(p)) { return 'live'; }
+        if (/artsearch|\/art\/search|s=\/art\/search/.test(p)) { return 'art'; }
+        if (/actor\/search|s=\/actor\/search/.test(p)) { return 'actor'; }
+        return 'vod';
+    }
+    window.MacSearchTypeSubmit = function (form) {
+        var root = form ? form.querySelector('.mac_search_type') : null;
+        var type = root ? (root.getAttribute('data-type') || 'vod') : 'vod';
+        if (type === 'vod' || typeof qrsearch === 'undefined') {
+            return typeof qrsearch === 'function' ? qrsearch(form) : true;
+        }
+        var input = form.querySelector('input[name=wd]');
+        var wd = String(input && input.value ? input.value : '').trim();
+        if (!wd) { if (input) { input.value = ''; input.focus(); } return false; }
+        var base = form.getAttribute('data-url-' + type) || '';
+        if (!base) { return typeof qrsearch === 'function' ? qrsearch(form) : true; }
+        document.location = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'wd=' + encodeURIComponent(wd);
+        return false;
+    };
+    document.addEventListener('click', function (e) {
+        var t = e.target;
+        if (!t || !t.closest) { return; }
+        var btn = t.closest('.mac_search_type_btn');
+        var all = roots();
+        if (btn) {
+            var r = btn.closest('.mac_search_type');
+            var open = !r.classList.contains('is-open');
+            all.forEach(function (x) { x.classList.remove('is-open'); });
+            r.classList.toggle('is-open', open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            return;
+        }
+        var item = t.closest('.mac_search_type_menu li');
+        if (item) {
+            var r2 = item.closest('.mac_search_type');
+            apply(r2, item.getAttribute('data-type'));
+            return;
+        }
+        if (!t.closest('.mac_search_type')) {
+            all.forEach(function (x) { x.classList.remove('is-open'); });
+        }
+    });
+    function init() {
+        var t = detect();
+        roots().forEach(function (r) { apply(r, r.getAttribute('data-init-type') || t); });
+        var pc = document.getElementById('macSearchTypeDrop');
+        var mobileForm = document.querySelector('form[name=searchMobile]');
+        if (pc && mobileForm && !mobileForm.querySelector('.mac_search_type')) {
+            var clone = pc.cloneNode(true);
+            clone.removeAttribute('id');
+            var cap = mobileForm.querySelector('.head_search_capsule');
+            if (cap) { cap.insertBefore(clone, cap.firstChild); apply(clone, t); }
+        }
+    }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+</script>

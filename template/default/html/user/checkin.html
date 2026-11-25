@@ -6,6 +6,7 @@
 <meta name="description" content="{$maccms.site_description}"/>
 {include file="user/include" /}
 <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/user-checkin.css">
+<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/user-checkin-calendar.css?v=2026111019">
 </head>
 <body class="mac-checkin-wrap user-checkin-page">
 {include file="public/th" /}
@@ -54,30 +55,35 @@
 					</div>
 				</div>
 
-				<div class="uc-checkin-card uc-checkin-card--main">
-					<section class="uc-streak" data-mac-checkin-section-aria="user_checkin_streak_section">
-						<p class="uc-streak__line">
-							<span class="uc-streak__ico" aria-hidden="true">
-								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false"><path d="M7.5 3v2M16.5 3v2M4 9.5h16M6 5h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
-							</span>
-							<span class="uc-streak__line-text">
-								<span data-lang="user_checkin_streak_before">已连续签到</span>
-								<strong class="uc-streak__num" id="mac-checkin-serial">0</strong>
-								<span data-lang="user_checkin_streak_after">天</span>
-							</span>
-						</p>
-						<p class="uc-streak__hint" id="mac-checkin-next-hint"></p>
+			<!-- 日历区标题：外置于卡片上方，与下方「签到规则」标题同款式、同左缘对齐 -->
+			<h2 class="uc-rules__title uc-calendar__outer-title" id="uc-calendar-title" data-lang="user_checkin_calendar_title">签到日历</h2>
+
+			<!-- 顶部横排：签到日历(左,大) + 里程碑奖励(右,压缩) -->
+			<div class="uc-top-row">
+				<section class="uc-calendar" id="mac-checkin-calendar" aria-labelledby="uc-calendar-title">
+					<div class="uc-calendar__bar">
+						<button type="button" class="uc-calendar__nav" id="mac-checkin-cal-prev" aria-label="上个月">&#8249;</button>
+						<span class="uc-calendar__month" id="mac-checkin-cal-month"></span>
+							<button type="button" class="uc-calendar__nav" id="mac-checkin-cal-next" aria-label="下个月">&#8250;</button>
+						</div>
+						<div class="uc-calendar__week" aria-hidden="true">
+							<span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+						</div>
+						<div class="uc-calendar__grid" id="mac-checkin-cal-grid"></div>
+						<p class="uc-calendar__summary" id="mac-checkin-cal-summary"></p>
 					</section>
 
-					<section class="uc-milestones" data-mac-checkin-section-aria="user_checkin_milestones_section">
+					<section class="uc-milestones uc-milestones--side" data-mac-checkin-section-aria="user_checkin_milestones_section">
 						<p class="uc-milestones__guest-msg" id="mac-checkin-milestones-guest" data-lang="user_checkin_milestones_login" hidden>登录后查看签到里程碑</p>
 						<div class="uc-milestones__grid" id="mac-checkin-milestones-root" hidden></div>
 					</section>
+				</div>
 
+				<div class="uc-checkin-card uc-checkin-card--main">
 					<div class="uc-cta-wrap" id="mac-checkin-cta-wrap"></div>
 				</div>
 
-				<section class="uc-rules" aria-labelledby="uc-rules-h">
+				<section class="uc-rules" aria-labelledby="uc-rules-h" data-site-name="{$maccms.site_name}">
 					<h2 class="uc-rules__title" id="uc-rules-h" data-lang="user_checkin_rules_title">签到规则</h2>
 					<ol class="uc-rules__list" id="mac-checkin-rules-list"></ol>
 				</section>
@@ -91,6 +97,7 @@
 </div>
 
 {include file="public/foot" /}
-<script type="text/javascript" src="{$maccms.path_tpl}asset/js/user-checkin.js"></script>
+<script type="text/javascript" src="{$maccms.path_tpl}asset/js/user-checkin.js?v=2026111704"></script>
+<script type="text/javascript" src="{$maccms.path_tpl}asset/js/user-checkin-calendar.js?v=2026111703"></script>
 </body>
 </html>

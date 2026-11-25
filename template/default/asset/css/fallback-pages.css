@@ -112,6 +112,16 @@
     top: 0;
     width: 100%;
 }
+.fb-card__poster .fb-card__ph {
+    color: var(--tpl-text-muted);
+    font-size: 28px;
+    font-weight: 700;
+    left: 50%;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
 .fb-card__title {
     color: var(--tpl-text);
     font-size: 14px;

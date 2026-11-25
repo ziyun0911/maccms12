@@ -55,7 +55,7 @@
             <div class="pannel clearfix">
                 <div class="pannel_head clearfix">
                     <h2 class="title">{$vo1.type_name}</h2>
-                    <a class="text_muted pull_left" href="{:mac_url_type($vo1,[],'show')}"><span data-lang="string_type_more2">更多</span><i class="iconfont more_i">&#xe623;</i></a>
+                    <a class="text_muted pull_left mac-more-link" href="{:mac_url_type($vo1,[],'show')}"><span data-lang="string_type_more2">更多</span><i class="iconfont more_i">&#xe623;</i></a>
                     <span class="hidden_xs pull_left">
 						{maccms:vod num="3" type="'.$vo1['type_id'].'" order="desc" by="hits" id="vo2" key="key2"}
                         <span class="split_line"></span>

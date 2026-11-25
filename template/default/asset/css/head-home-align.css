@@ -1,0 +1,267 @@
+/* 头部对齐（前台 head 模块）：顶部栏目左边对齐下方内容区、右边贴齐内容区右缘、搜索框自动延展
+ * 背景：原 head.css 把 PC 头部做成全宽 1440（logo 距左 30px），
+ *       下方栏目 / 卡片区是 1200px 居中；搜索框被写死 width:min(480px,42vw)。
+ * 演进：
+ *   v1 头部 1200 居中 + 搜索框 flex 延展；
+ *   v2 logo 用 transform 单独移回视口左上角 x=30；
+ *   v3 本版：logo 改为绝对定位（不占 grid），导航成为第一列从内容区左缘开始，
+ *      与下方标签左缘对齐；右侧图标继续贴内容区右缘。
+ *   v4 去首页限定：选择器由 body.home-index-body 改为 #topnav，使该对齐同时作用于
+ *      首页与各分类页（vod/art/actor 的 index/type/show 等使用同一 public/head 的页面）。
+ *      各分类页的 public/head 在 .container 之外（全宽），套用后 .head_a 自行 1200 居中，
+ *      从而与下方 1200 内容区左右对齐；首页头部本就位于 1200 容器内，行为不变。
+ * 仅在 PC（min-width:820px）生效，移动端保持原样。
+ */
+@media screen and (min-width: 820px) {
+
+    /* 0. 原 .header 有 min-width:34rem(1360px)，窄于 1360 时会把头部整体推偏 */
+    #topnav .head_box.show-pc .header {
+        min-width: 0;
+        width: 100%;
+    }
+
+    /* 1. 头部内容区与首页下方内容区同宽（1200px 居中），左右边缘对齐。
+     *    logo 已绝对定位不参与 grid，因此这里只剩两列：导航 / 工具区。 */
+    #topnav .head_box.show-pc .head_a {
+        position: relative;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 0;
+        padding-right: 0;
+        /* 显式三列：logo 占位格(0宽) / 导航(最多 32%) / 工具区(吃掉剩余)。
+         * 显式指定 grid-column 是为了避免绝对定位的 logo 把导航挤到第二格产生 20px 偏移；
+         * column-gap 归零，间距改由工具区 padding 控制，坐标完全可控。 */
+        column-gap: 0;
+        grid-template-columns: 0 minmax(0, 32%) minmax(0, 1fr);
+    }
+
+    /* 2. 导航固定在第 2 列（起点 = 内容区左缘）；+6px 与下方首个标签（热门推荐）文字对齐 */
+    #topnav .head_box.show-pc .head_a .head_menu_a {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: start;
+        box-sizing: border-box;
+        width: auto;
+        max-width: 100%;
+        min-width: 0;
+        padding-left: 6px;
+    }
+    #topnav .head_box.show-pc .head_a .head_menu_a .top_nav_wrap {
+        width: auto;
+        max-width: 100%;
+        min-width: 0;
+        justify-content: flex-start;
+    }
+
+    /* 3. 工具区固定在第 3 列并拉伸：搜索框自动延展，右侧图标贴到内容区右缘 */
+    #topnav .head_box.show-pc .head_a .head_a_tools {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: stretch;
+        box-sizing: border-box;
+        padding-left: 20px;     /* 取代原 column-gap，保持导航与搜索框的间距 */
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+    }
+    #topnav .head_box.show-pc .head_a .head_search.head_search_capsule_host {
+        flex: 1 1 auto;
+        width: auto;            /* 覆盖原 width:min(480px,42vw) 固定宽度 */
+        min-width: 220px;
+    }
+    #topnav .show-pc .head_search_capsule_host form,
+    #topnav .show-pc .head_search_capsule_host .head_search_capsule {
+        width: 100%;
+    }
+
+    /* 4. logo 抽离布局：绝对定位悬浮到视口左上角 x=30，宽高按「内容区左边距」等比收缩，
+     *    保证右缘不会压住左移后的导航文字（内部是自适应 SVG，不会变形）。 */
+    #topnav .head_box.show-pc .head_a .head_logo {
+        grid-column: 1;
+        grid-row: 1;
+        position: absolute;
+        left: 0;
+        top: 6px;
+        margin: 0;
+        overflow: hidden;
+        transform-origin: left center;
+        z-index: 1;
+    }
+    /* logo 内部各层原本写死 142x50，容器收窄会被裁掉半截；
+     * 这里让整条链跟随容器百分比，SVG 带 viewBox 会自动等比缩放，不变形不截断 */
+    #topnav .head_box.show-pc .head_a .head_logo .mac-logo,
+    #topnav .head_box.show-pc .head_a .head_logo .logo,
+    #topnav .head_box.show-pc .head_a .head_logo .mac-logo-lottie,
+    #topnav .head_box.show-pc .head_a .head_logo .mac-logo-lottie svg {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* >=1200px：内容区左边距 = (100vw - 1200px)/2，logo 可用宽度 = 左边距 - 30px(logo起点) - 8px(间距) */
+@media screen and (min-width: 1200px) {
+    #topnav .head_box.show-pc .head_a .head_logo {
+        --logo-w: max(0px, min(130px, calc((100vw - 1200px) / 2 - 38px)));
+        width: var(--logo-w);
+        height: calc(var(--logo-w) * 0.3846);   /* 原 logo 130x50，等比例 */
+        transform: translateX(calc(30px - (100vw - 1200px) / 2));
+    }
+}
+
+/* 820~1199px：内容区本身就贴视口左边，导航从 x=0 开始，logo 没有可用空间，隐藏避免重叠 */
+@media screen and (min-width: 820px) and (max-width: 1199px) {
+    #topnav .head_box.show-pc .head_a {
+        grid-template-columns: 0 minmax(0, 26%) minmax(0, 1fr);
+    }
+    #topnav .head_box.show-pc .head_a .head_logo {
+        display: none;
+    }
+    #topnav .head_box.show-pc .head_a .head_search.head_search_capsule_host {
+        min-width: 170px;
+    }
+}
+
+/* 820~991px：原站 public-head-early.css 会隐藏 .hidden_mi 导航，
+ * 第二列直接收成 0，避免搜索框左侧留下 26% 的空列（须放在上一段之后才能覆盖） */
+@media screen and (min-width: 820px) and (max-width: 991px) {
+    #topnav .head_box.show-pc .head_a {
+        grid-template-columns: 0 0 minmax(0, 1fr);
+    }
+}
+
+/* v5 2026-11-17：首页「搜索框 ~ 会员入口」整段右缘贴齐视口最右边缘（红线位置）。
+ * 背景：原 v1~v4 把 .head_a 限制在 1200px 居中，工具区虽 stretch 但整体被容器右缘
+ *       (视口右 - (100vw-1200)/2) 截住，会员入口停在中间，距视口右缘约 200px。
+ * 目标：首页头部放大为视口全宽，导航/搜索起点保持内容区左缘，工具区右缘直达视口右缘。
+ * 非首页不动，移动端（<820px）不动。 */
+@media screen and (min-width: 820px) {
+    body.home-index-body #topnav .head_box.show-pc .head_a {
+        max-width: none;
+        width: 100%;
+    }
+    /* 工具区右缘贴视口右缘：清掉 .head_a 与工具区自身的右内边距，避免头像被顶离红线。 */
+    body.home-index-body #topnav .head_box.show-pc .head_a,
+    body.home-index-body #topnav .head_box.show-pc .head_a .head_a_tools {
+        padding-right: 0;
+    }
+}
+@media screen and (min-width: 1200px) {
+    /* 大屏：左 padding 用 calc 抵消居中偏移，导航/搜索起点仍在 1200 内容区左缘 */
+    body.home-index-body #topnav .head_box.show-pc .head_a {
+        padding-left: calc((100vw - 1200px) / 2);
+    }
+    /* v8-c 2026-11-17：v8-b 的 -25px 左移 + 下方钳制，修复"首页"被裁掉的问题。
+     * 背景：v8-b 把 transform 放在 ul.top_nav 上（修复了 v8-a 导致"更多"菜单飞出屏幕的 bug）。
+     * 但实测导航文字左缘 = M - 7px（M = (100vw-1200px)/2 为内容区左边距），
+     * 当视口 ≤ 约1234px（M < 17px）时文字左缘 < 10px，1200px 时左缘 = -7px，
+     * "首页"的"首"字飞出视口左缘被裁掉（用户表现为"首页"只显示"顶"）。
+     * 钳制：translateX 不小于 17px - M，保证文字左缘 ≥ 10px；M ≥ 17px（≥1234px）时仍取 -25px，
+     * 保持与下方卡片左缘对齐的效果不变。 */
+    body.home-index-body #topnav .head_box.show-pc .head_a .head_menu_a .top_nav_wrap .top_nav {
+        transform: translateX(max(-25px, calc(17px - (100vw - 1200px) / 2)));
+    }
+    /* v11 2026-11-17：v9 的 20px 改为 40px —— logo 右缘距导航起点 40px。
+     * 记边距 M=(100vw-1200px)/2。实测：logo 静态左缘 = M；对齐后导航文字左缘 = M - 7px（卡片左缘）。
+     * 目标 logo 右缘 = 导航起点 - 40 = M - 47，即 M + transform + logoW = M - 47
+     *   ⇒ transform = -47px - logoW。
+     * 窄屏 M 小于 47+logoW 时 logo 会出屏，故同步收窄 logo 并兜底左缘 ≥10px：
+     *   logoW = min(130px, M - 57px)，transform = max(10px - M, -47px - logoW)。
+     * 结果：宽屏 logo 右缘精确距导航文字 40px；窄屏 logo 贴左 10px 且仍留 40px 空隙；
+     * 空间不足（M<57，约 <1314px）时 logo 宽收缩为 0 自动隐藏，避免压住导航。 */
+    body.home-index-body #topnav .head_box.show-pc .head_a .head_logo {
+        --logo-w: max(0px, min(130px, calc((100vw - 1200px) / 2 - 57px)));
+        transform: translateX(max(calc(10px - (100vw - 1200px) / 2), calc(-47px - var(--logo-w))));
+        width: var(--logo-w);
+        height: calc(var(--logo-w) * 0.3846);
+    }
+}
+
+/* v10 2026-11-17：首页会员入口（最右侧头像）离视口内容右缘 10px。
+ * v5 把 .head_a / .head_a_tools 的 padding-right 清零实现贴边（实测头像右缘=clientWidth，边距0）。
+ * 这里只给 .head_a 加回 10px 右内边距，工具区仍贴 head_a 内容盒右缘，
+ * 效果：会员头像右缘 = clientWidth - 10px。
+ * 必须放在 min-width:820px 内且位于 v5 规则之后，才能覆盖 v5 的 padding-right:0；
+ * 移动端（<820px）与非首页不受影响。 */
+@media screen and (min-width: 820px) {
+    body.home-index-body #topnav .head_box.show-pc .head_a {
+        padding-right: 10px;
+    }
+}
+
+/* v9 2026-11-17：修复宽屏下导航首字被裁（"首页"只剩"页"）。
+ * 背景：v8-c 的负位移加在 ul.top_nav 上，而 .top_nav_wrap.nav_overflow 是 overflow:hidden，
+ * 负位移把导航左端移出了 wrapper 的裁剪区，1851px 实测"首"字被切掉。
+ * 修正：位移改用负 margin 加在 wrapper 上——裁剪区跟着 wrapper 一起左移，首字不再被裁；
+ * 同时 margin 不会像 transform 那样把 wrapper 变成 fixed 元素的包含块，
+ * 否则 .top_nav_wrap 内 #topNavOverlay（导航"更多"浮层）会失效并被 overflow:hidden 裁掉。 */
+@media screen and (min-width: 1200px) {
+    body.home-index-body #topnav .head_box.show-pc .head_a .head_menu_a .top_nav_wrap {
+        margin-left: max(-25px, calc(17px - (100vw - 1200px) / 2));
+        transform: none;
+    }
+
+    body.home-index-body #topnav .head_box.show-pc .head_a .head_menu_a .top_nav_wrap .top_nav {
+        transform: none;
+    }
+
+}
+/* v10 2026-11-17：修复首页导航末项被"更多"按钮压掉半个字（截图里"艺人"只露"艺"）。
+ * 背景：module-head.js 的溢出计算里，l = #topNavMoreBtn.outerWidth(true)，但执行时按钮
+ * 还是 display:none，outerWidth 返回 0，于是兜底成 28px；而按钮实际占 36px + 8px 间距 = 44px，
+ * 少预留 16px，恰好让最后一项"卡"在按钮下面而不是被收进"更多"。
+ * 这里给 ul.top_nav 补 16px 尾部内边距，让 scrollWidth 与真实占位一致，溢出的项就会正常进"更多"。
+ * 只作用于首页 PC 头部，不影响其它页面。 */
+@media screen and (min-width: 821px) {
+    body.home-index-body #topnav .head_box.show-pc .head_a .head_menu_a .top_nav {
+        padding-right: 24px;
+    }
+
+}
+/* v14 2026-11-19：首页"更多"浮层里的"全部影片"按钮样式同步到全站导航分类。
+ * 背景：v11 曾把按钮改为按文字自身行高排版，但选择器限定 body.home-index-body，
+ * 其他分类页仍继承 head 导航的 line-height:60px，按钮被撑到 86px，与首页不一致。
+ * 现在去掉首页限定，所有分类页的"更多"浮层与首页保持同一按钮高度。 */
+@media screen and (min-width: 821px) {
+    #topNavOverlay .top_nav_overlay_btn_all {
+        line-height: 1.3;
+        margin: .2rem .5rem 0;
+        padding: .4rem .3rem;
+    }
+
+}
+/* v12 2026-11-17：首页搜索栏随窗口自适应（有上限），不再无限拉伸。
+ * 背景：v5 为了"工具区右缘贴边"把 .head_search 改成 flex:1 1 auto + width:auto，
+ * 丢掉了模板原有的 width:min(480px,42vw) 上限，1851px 实测搜索框被拉到 750px，2200px 到 869px。
+ * 这里恢复自适应宽度：窗口窄时按 42vw 收缩，宽时封顶 480px；margin-right:auto 把右侧用户区
+ * 顶回工具区最右缘，避免搜索框收窄后图标不再贴边。只作用于首页 PC 头部。 */
+@media screen and (min-width: 821px) {
+    body.home-index-body #topnav .head_box.show-pc .head_a .head_search.head_search_capsule_host {
+        flex: 0 1 auto;
+        width: min(480px, 42vw);
+        min-width: 220px;
+        margin-right: auto;
+    }
+
+}
+/* v13 2026-11-17：搜索栏改为"右端锚定、左侧伸缩"。
+ * 需求：搜索框右侧紧贴用户区（右缘固定），左缘随窗口大小伸缩；窗口缩小时不得覆盖 head 导航。
+ * 做法：flex:1 1 auto 吃掉工具区剩余宽度 -> 右端自然停在 .head_user 左侧 gap 处，
+ * 宽度随视口变化；min-width:220px 保底收缩；工具区 padding-left:20px 保证左缘与导航列（≥1024
+ * 才显示）之间恒有 20px 间隔。仅作用于首页 PC 头部。 */
+@media screen and (min-width: 821px) {
+    body.home-index-body #topnav .head_box.show-pc .head_a .head_search.head_search_capsule_host {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 220px;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    body.home-index-body #topnav .head_box.show-pc .head_a .head_a_tools {
+        padding-left: 20px;
+    }
+}

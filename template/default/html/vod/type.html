@@ -11,7 +11,7 @@
 	{include file="public/th" /}
     {php}$type_poster_class = (mac_tpl_vod_type_cover(isset($obj['type_id']) ? (int) $obj['type_id'] : 0) === 'h') ? 'mac-poster--h' : 'mac-poster--v';
     $mac_show_reset_tid = (isset($obj['type_pid']) && (int)$obj['type_pid'] > 0) ? (int)$obj['type_pid'] : (int)($obj['type_id'] ?? 0);{/php}
-    <div id="show_page" class="mac-catalog-show mac-catalog-show--filter-collapsed" data-list-mode="ajax" data-mid="1" data-type-id="{$obj.type_id}" data-page-size="24" data-mac-reset-type-id="{$mac_show_reset_tid}">
+    <div id="show_page" class="mac-catalog-show mac-catalog-show--filter-collapsed" data-list-mode="ajax" data-mid="1" data-type-id="{$obj.type_id}" data-page-size="24" data-mac-reset-type-id="{$mac_show_reset_tid}" data-page-base="{:mac_url_type($obj,[],'type')}">
         <div class="member-wrap ">
             <div class="container ">
                 {include file="ads/ads_all"}
@@ -33,7 +33,8 @@
         </div>
         <script type="text/javascript" src="{$maccms.path_tpl}asset/js/mac-catalog-media.js"></script>
         <script type="text/javascript" src="{$maccms.path}template/default/asset/js/mac-home-card-render.js?v=202604161"></script>
-        <script type="text/javascript" src="{$maccms.path_tpl}asset/js/type-show.js?v=202610232030"></script>
+        <script type="text/javascript" src="{$maccms.path_tpl}asset/js/catalog-page-url.js?v=202611152"></script>
+        <script type="text/javascript" src="{$maccms.path_tpl}asset/js/type-show.js?v=202611141"></script>
         {include file="module/vod_tagwall_script_js" /}
         {include file="public/foot"}
     </div>

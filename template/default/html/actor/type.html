@@ -2,7 +2,7 @@
 <html lang="{:mac_html_lang()}">
 <head>
 	{include file="public/include"}
-	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/actor-index.css?v=202611052" />
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/actor-index.css?v=202611152" />
 	<link rel="stylesheet" href="{$maccms.path}template/default/asset/css/hlactor.css?v=202607301" type="text/css" />
 </head>
 
@@ -23,7 +23,7 @@
 			<div class="pannel layout-box">
 				<div class="pannel_head clearfix">
                     <span class="text_muted pull_right">
-						<a href="{:mac_url_type($obj,[],'show')}">更多<i class="iconfont more_i">&#xe623;</i></a>
+						<a class="mac-more-link" href="{:mac_url_type($obj,[],'show')}">更多<i class="iconfont more_i">&#xe623;</i></a>
                     </span>
                     <h2 class="title">荧屏巨星</h2>	
                 </div>
@@ -32,9 +32,12 @@
 					<ul class="box-star-list">
 						{maccms:actor num="8" order="desc" by="hits"}
 						<li class="col-md-1 col-sm-2 col-xs-4{if condition="$key == 1"} active{/if}">
-							<a class="star-pic loading img-circle" style="padding-top: 100%; background-image: url({$vo.actor_pic|mac_url_img});"
-							    href="javascript:;">
-								<span>{$vo.actor_name}</span>
+							<a class="star-pic loading img-circle lazyload" style="padding-top: 100%;"
+							    href="javascript:;"
+							    data-original="{$vo.actor_pic|mac_url_img}"
+							    data-mac-letter="{$vo.actor_name|mb_substr=0,1}">
+							    {if condition="$vo.actor_pic eq ''"}<span class="mac-catalog-show__ph-letter">{$vo.actor_name|mb_substr=0,1}</span>{/if}
+							    <span>{$vo.actor_name}</span>
 							</a>
 						</li>{/maccms:actor}
 					</ul>
@@ -101,12 +104,12 @@
 			<div class="pannel">
 				<div class="pannel_head">
 					<span class="text_muted pull_right">
-						<a href="{:mac_url_type($blk['type'],[],'type')}">更多<i class="iconfont more_i">&#xe623;</i></a>
+						<a class="mac-more-link" href="{if condition="$blk['scope_area'] neq ''"}{:mac_url('actor/show',['area'=>$blk['scope_area']])}{else /}{:mac_url_type($blk['type'],[],'type')}{/if}">更多<i class="iconfont more_i">&#xe623;</i></a>
 					</span>
 					<h2 class="title">{$blk.type.type_name}</h2>
 				</div>
 				<ul class="vodlist vodlist_wi">
-					{maccms:actor type="'.$blk['scope_type'].'" area="'.$blk['scope_area'].'" num="16" paging="no" order="desc" by="hits"}
+					{maccms:actor type="'.$blk['scope_type'].'" area="'.$blk['scope_area'].'" num="10" paging="no" order="desc" by="hits"}
 					{include file="actor/vod_actor"}
 					{/maccms:actor}
 				</ul>

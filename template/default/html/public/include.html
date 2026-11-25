@@ -25,7 +25,7 @@
 	display: flex !important;
 }
 </style>
-<script defer type="text/javascript" src="{$maccms.path}template/default/asset/js/public-home-stack.js?v=202611051"></script>
+<script defer type="text/javascript" src="{$maccms.path}template/default/asset/js/public-home-stack.js?v=2026112216"></script>
 <script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/user-upgrade-submit.js?v=2026102304"></script>
 <script defer type="text/javascript" src="{$maccms.path}template/default/asset/js/auth-reg-success.js"></script>
 <script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/auth-invite-collapsible.js"></script>
@@ -51,7 +51,7 @@
 <link rel="shortcut icon" href="{:mac_url_img(!empty($tplconfig['theme']['logo']['icon']) ? $tplconfig['theme']['logo']['icon'] : substr($maccms['path_tpl'], strlen($maccms['path'])).'asset/img/favicon.ico')}" type="image/x-icon" />
 <script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/pwa-register.js?v=202604162"></script>
 <script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/push-subscribe.js?v=202607141"></script>
-<script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/notify-bell.js?v=202607141"></script>
+<script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/notify-bell.js?v=2026112208"></script>
 <script defer type="text/javascript" src="{$maccms.path_tpl}asset/js/user-profile-card.js?v=202607281"></script>
 
 <script type="text/javascript" src="{$maccms.path}template/default/asset/js/jquery.cookie.js"></script>
@@ -62,6 +62,7 @@
 {$tplconfig.theme.head.text}
 {/if}
 <link href="{$maccms.path}template/default/asset/css/auth-ui.css?{:mac_tpl_asset_ver('css/auth-ui.css')}" rel="stylesheet" type="text/css" />
+<link href="{$maccms.path_tpl}asset/css/more-sync.css?{:mac_tpl_asset_ver('css/more-sync.css')}" rel="stylesheet" type="text/css" />
 {if condition="isset($tplconfig['theme']['badge']['cover_sub_btn']) && $tplconfig['theme']['badge']['cover_sub_btn'] eq '0'"}
 <style>
 html.mac-cover-sub-off .vodlist_item > .vodlist_titbox > .vodlist_sub,

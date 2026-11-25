@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="{:mac_html_lang()}">
+<head>
+    {include file="public/include"}
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/live-show.css?v=2026111122" />
+    <style>
+        .live-search{margin:24px 0 40px}
+        .live-search__head{margin:18px 0 14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+        .live-search__title{font-size:22px;font-weight:700;color:#222}
+        .live-search__title .kw{color:#ff6a00}
+        .live-search__count{color:#888;font-size:14px}
+        .live-search__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;list-style:none;padding:0;margin:0}
+        .live-search__card{display:block;text-decoration:none;background:#fff;border:1px solid #eee;border-radius:10px;overflow:hidden;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+        .live-search__card:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.12);border-color:#ff6a00}
+        .live-search__logo{display:flex;align-items:center;justify-content:center;height:120px;background:#f5f6f8;overflow:hidden}
+        .live-search__logo img{width:100%;height:100%;object-fit:contain}
+        .live-search__ph{font-size:34px;font-weight:700;color:#fff;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1f8a6d,#40cc92)}
+        .live-search__name{padding:10px 10px 12px;font-size:14px;color:#333;line-height:1.4;text-align:center;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .live-search__empty{text-align:center;color:#888;padding:60px 0;font-size:16px}
+    </style>
+</head>
+<body>
+    {include file="public/th" /}
+    {include file="public/head" /}
+    <div class="live-search">
+        <div class="container">
+            {include file="ads/ads_all"}
+            <div class="live-search__head">
+                <h1 class="live-search__title">{if condition="$wd neq ''"}<span data-lang="string_search_ssd">搜索到与</span> “<span class="kw">{$wd}</span>” <span data-lang="string_search_xgd">相关的直播</span>{else/}<span data-lang="string_search_ssd">直播搜索</span>{/if}</h1>
+                {if condition="$wd neq ''"}<span class="live-search__count">共 {$total} 个频道</span>{/if}
+            </div>
+
+            {if condition="$wd eq ''"}
+                <div class="live-search__empty" data-lang="string_input_keyword">请输入关键词搜索直播频道</div>
+            {elseif condition="$total eq 0"}
+                <div class="live-search__empty" data-lang="string_no_data">未找到相关直播频道</div>
+            {else/}
+                <ul class="live-search__grid">
+                    {volist name="list" id="vo"}
+                    <li class="live-search__item">
+                        <a class="live-search__card" href="{$vo.live_url}" title="{$vo.live_name}">
+                            <span class="live-search__logo">
+                                {if condition="$vo.live_pic neq ''"}
+                                <img src="{$vo.live_pic}" alt="{$vo.live_name}" loading="lazy" decoding="async">
+                                {else/}
+                                <span class="live-search__ph">{$vo.live_name|mb_substr=0,1}</span>
+                                {/if}
+                            </span>
+                            <span class="live-search__name">{$vo.live_name}</span>
+                        </a>
+                    </li>
+                    {/volist}
+                </ul>
+            {/if}
+        </div>
+    </div>
+    {include file="public/foot"}
+</body>
+</html>

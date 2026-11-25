@@ -1223,6 +1223,90 @@
             'guestAuthInfo': function () {
                 return { is_login: 0, user_id: 0, user_name: '', nick_name: '', group_id: 0, group_name: '', points: 0, user_portrait: '', vip_expire_time: 0 };
             },
+            /**
+             * 登录/登出成功后服务端整页重算：分类、广告、会员组权益均为 SSR，
+             * 只更新头部无法清掉旧身份的页面主体；重载后按新 Cookie 身份重新渲染。
+             * 所有引用本脚本的页面共用该行为。
+             */
+            'refreshAuthState': function (target) {
+                if (MAC.User._authRefreshLock) return;
+                MAC.User._authRefreshLock = 1;
+                var url = target != null ? String(target).trim() : '';
+                if (url) {
+                    window.location.assign(url);
+                    return;
+                }
+                window.location.reload();
+            },
+            'queueAuthFlash': function (message) {
+                try {
+                    window.sessionStorage.setItem('mac_auth_flash', String(message || ''));
+                } catch (e) { }
+            },
+            'consumeAuthFlash': function () {
+                var msg = '';
+                try {
+                    msg = window.sessionStorage.getItem('mac_auth_flash') || '';
+                    window.sessionStorage.removeItem('mac_auth_flash');
+                } catch (e) {
+                    return;
+                }
+                if (!msg) return;
+                MAC.User.showAuthFlash(msg);
+            },
+            /**
+             * 重载完成后显示“登录成功/退出成功”遮挡；任意操作或 3 秒后自动退出。
+             * 样式沿用站内现有的 mac_pop_sheet 成功提示（背景遮罩 + 成功图标 + 文案）。
+             */
+            'showAuthFlash': function (message) {
+                var old = document.querySelector('.mac-auth-flash');
+                if (old && old.parentNode) old.parentNode.removeChild(old);
+                MAC.User._authFlashSeq = (MAC.User._authFlashSeq || 0) + 1;
+                var seq = MAC.User._authFlashSeq;
+                var base = typeof MAC.Pop._tplAssetBase === 'function' ? MAC.Pop._tplAssetBase() : '';
+                var imgSrc = (base ? base + '/' : '') + 'images/layout/status-success@2x.png';
+                var $ov = $(''
+                    + '<div class="mac_pop_sheet_overlay mac_pop_sheet_overlay--status mac_pop_sheet_overlay--toast mac-auth-flash" role="presentation">'
+                    + '  <div class="mac_pop_sheet_backdrop" aria-hidden="true"></div>'
+                    + '  <div class="mac_pop_sheet_dialog mac_pop_sheet_dialog--status mac_pop_sheet_dialog--success mac_pop_sheet_dialog--status-toast" role="status" aria-live="polite">'
+                    + '    <div class="mac_pop_sheet_status_icon_wrap"><img class="mac_pop_sheet_status_icon" src="' + imgSrc.replace(/"/g, '&quot;') + '" width="72" height="72" alt="" decoding="async" /></div>'
+                    + '    <p class="mac_pop_sheet_status_msg"></p>'
+                    + '  </div>'
+                    + '</div>');
+                $('body').append($ov);
+                if (typeof MAC.Pop._macPopSheetZ === 'function') {
+                    MAC.Pop._macPopSheetZ($ov);
+                }
+                $ov.find('.mac_pop_sheet_status_msg').text(String(message));
+
+                var el = $ov.get(0);
+                var done = false;
+                var timer = 0;
+                var events = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
+                var unbind = function () {
+                    events.forEach(function (name) {
+                        window.removeEventListener(name, close);
+                    });
+                };
+                var close = function () {
+                    if (done) return;
+                    if (seq !== MAC.User._authFlashSeq || !el.parentNode) {
+                        done = true;
+                        if (timer) window.clearTimeout(timer);
+                        unbind();
+                        return;
+                    }
+                    done = true;
+                    if (timer) window.clearTimeout(timer);
+                    unbind();
+                    $ov.addClass('mac_pop_sheet_overlay--out');
+                    window.setTimeout(function () { $ov.remove(); }, 280);
+                };
+                events.forEach(function (name) {
+                    window.addEventListener(name, close, { passive: true });
+                });
+                timer = window.setTimeout(close, 3000);
+            },
             '_authMeUrl': function () {
                 if (typeof maccms === 'undefined') return null;
                 var base = (maccms.path || '/').replace(/\/+$/, '');
@@ -1349,6 +1433,8 @@
                 $(document).off('mouseleave.macUserZ', '.mac_user_pc_anchor');
                 $(document).off('click.macUserPanelClose');
                 $('body').off('click.macUserPanel');
+                $(document).off('click.macUserPanelClosePc');
+                $('body').off('click.macUserPanelPc', '.mac_user');
                 $('.mac_user_pc_anchor').each(function () {
                     $(this).children().unwrap();
                 });
@@ -1460,6 +1546,9 @@
                         function positionMobileUserPanel(anchorEl) {
                             var $panel = $('.mac_user_box');
                             if (!$panel.length || !anchorEl) return;
+                            if (typeof MAC.closeHeadDropdowns === 'function') {
+                                MAC.closeHeadDropdowns('user');
+                            }
                             var anchor = anchorEl.jquery ? anchorEl[0] : anchorEl;
                             $panel.removeClass('panel-ready').addClass('show');
                             $panel.css({ top: '', left: '', right: '' });
@@ -1541,18 +1630,44 @@
                     MAC.User.Login();
                 });
 
-                $(document).off('mouseenter.macUserZ', '.mac_user_pc_anchor').on('mouseenter.macUserZ', '.mac_user_pc_anchor', function () {
-                    var $box = $(this).find('.mac_user_box.dropbox').first();
-                    if ($box.length && typeof MAC.bumpMacUserPanelZ === 'function') {
-                        MAC.bumpMacUserPanelZ($box[0]);
-                    }
-                });
-                $(document).off('mouseleave.macUserZ', '.mac_user_pc_anchor').on('mouseleave.macUserZ', '.mac_user_pc_anchor', function () {
-                    var $box = $(this).find('.mac_user_box.dropbox').first();
-                    if ($box.length && typeof MAC.clearMacUserPanelZ === 'function') {
-                        MAC.clearMacUserPanelZ($box[0]);
-                    }
-                });
+                // PC 已登录会员：点击切换下拉，交互与顶部「更多」一致（点开 / 再点关闭 / 点外部关闭）
+                if (!isMobile) {
+                    var closePcUserPanel = function ($panel) {
+                        if (!$panel || !$panel.length) return;
+                        $panel.removeClass('show panel-ready');
+                        if (typeof MAC.clearMacUserPanelZ === 'function') {
+                            MAC.clearMacUserPanelZ($panel[0]);
+                        }
+                    };
+                    var openPcUserPanel = function ($panel) {
+                        if (!$panel || !$panel.length) return;
+                        if (typeof MAC.closeHeadDropdowns === 'function') {
+                            MAC.closeHeadDropdowns('user');
+                        }
+                        $panel.removeClass('panel-ready').addClass('show');
+                        if (typeof MAC.bumpMacUserPanelZ === 'function') {
+                            MAC.bumpMacUserPanelZ($panel[0]);
+                        }
+                        requestAnimationFrame(function () {
+                            requestAnimationFrame(function () { $panel.addClass('panel-ready'); });
+                        });
+                    };
+                    $('body').off('click.macUserPanelPc', '.mac_user').on('click.macUserPanelPc', '.mac_user', function (e) {
+                        if (MAC.User.IsLogin != 1) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var $panel = $('.head_user .mac_user_box.dropbox').first();
+                        if (!$panel.length) return;
+                        if ($panel.hasClass('show')) { closePcUserPanel($panel); } else { openPcUserPanel($panel); }
+                    });
+                    $(document).off('click.macUserPanelClosePc').on('click.macUserPanelClosePc', function (e) {
+                        var $panel = $('.head_user .mac_user_box.dropbox').first();
+                        if (!$panel.length || !$panel.hasClass('show')) return;
+                        if ($(e.target).closest('.user_list_box, .mac_user, .mac_user_pc_anchor').length === 0) {
+                            closePcUserPanel($panel);
+                        }
+                    });
+                }
 
                 var needHeadAuthSync = $('.mac_user').length > 0 || $('.mac_head_plays').length > 0;
                 if (!needHeadAuthSync) {
@@ -1647,7 +1762,7 @@
                         var _pathBase = (maccms.path || '/').replace(/\/+$/, '');
                         var _loginOrRegUrl = (_pathBase ? _pathBase + '/' : '/') + 'api.php/user/login_or_register';
                         MAC.Ajax(_loginOrRegUrl, 'post', 'json', $('.mac_login_form').serialize(), function (r) {
-                            if (r.msg != '') {
+                            if (r.msg != '' && r.code != 1) {
                                 MAC.alert(r.msg);
                             }
                             if (r.code == 1) {
@@ -1655,41 +1770,30 @@
                                 var _acc = $.trim($('.mac_login_form [name="user_name"]').val() || '');
                                 var _pwd = $.trim($('.mac_login_form [name="user_pwd"]').val() || '');
                                 MAC.Pop.Remove();
-                                var mob = MAC.User._lastInitIsMobile;
-                                MAC.User.fetchAuthMe(function (info) {
-                                    if (!info || Number(info.is_login) !== 1) {
-                                        MAC.User._postLoginRedirect = '';
-                                        MAC.User.hydrateFromCookiesAndRender(mob);
-                                        return;
-                                    }
-                                    MAC.User.applyAuthMeInfo(info);
-                                    MAC.User.emitAuthMe(info);
-                                    MAC.User.renderLoggedInChrome(mob);
-                                    if (_isNewRegister && _acc && _pwd) {
-                                        MAC.User._postLoginRedirect = '';
-                                        if (typeof MAC.showRegSuccess === 'function') {
-                                            MAC.showRegSuccess({
-                                                account: _acc,
-                                                password: _pwd,
-                                                bindUrl: (_pathBase ? _pathBase : '') + '/index.php/user/bind'
-                                            });
-                                        } else {
-                                            MAC.alert(macI18n('string_reg_success_save', '注册成功，请保存账号与密码'));
-                                        }
-                                    }
-                                    // 播放/阅读等页的会员门为 SSR，无刷新登录后须整页重载才能重新计算权限与播放器
-                                    if (typeof document !== 'undefined' && document.querySelector('.popedom-upgrade-gate')) {
-                                        MAC.User._postLoginRedirect = '';
-                                        window.location.reload();
-                                        return;
-                                    }
-                                    var _redir = MAC.User._postLoginRedirect;
+
+                                var _authRedir = MAC.User._postLoginRedirect;
+                                if (_isNewRegister && _acc && _pwd) {
                                     MAC.User._postLoginRedirect = '';
-                                    if (_redir) {
-                                        window.location.assign(_redir);
+                                    if (typeof MAC.showRegSuccess === 'function') {
+                                        MAC.showRegSuccess({
+                                            account: _acc,
+                                            password: _pwd,
+                                            bindUrl: (_pathBase ? _pathBase : '') + '/index.php/user/bind',
+                                            afterClose: function () { MAC.User.refreshAuthState(_authRedir); }
+                                        });
                                         return;
                                     }
-                                });
+                                    MAC.alert(macI18n('string_reg_success_save', '注册成功，请保存账号与密码'));
+                                    window.setTimeout(function () { MAC.User.refreshAuthState(_authRedir); }, 1200);
+                                    return;
+                                }
+
+                                MAC.User._postLoginRedirect = '';
+                                if (!_authRedir) {
+                                    MAC.User.queueAuthFlash(r.msg || '登录成功');
+                                }
+                                MAC.User.refreshAuthState(_authRedir);
+                                return;
                             }
                         });
                     });
@@ -1697,13 +1801,13 @@
             },
             'Logout': function () {
                 MAC.Ajax(maccms.base_url + '/index.php/user/logout', 'post', 'json', '', function (r) {
-                    MAC.Pop.Msg(100, 20, r.msg, 1000);
                     if (r.code == 1) {
                         MAC.User.clearUserCookies();
-                        MAC.User.applyAuthMeInfo(MAC.User.guestAuthInfo());
-                        MAC.User.emitAuthMe(MAC.User.guestAuthInfo());
-                        MAC.User.teardownLoggedInChrome();
+                        MAC.User.queueAuthFlash(r.msg || '退出成功');
+                        MAC.User.refreshAuthState();
+                        return;
                     }
+                    MAC.Pop.Msg(100, 20, r.msg, 1000);
                 });
             },
             'PopedomCallBack': function (trysee, h) {
@@ -1946,6 +2050,40 @@
             try {
                 panelEl.style.removeProperty('z-index');
             } catch (e) {}
+        },
+        /** 头部下拉互斥：打开某一个时主动关闭其余下拉（会员 / 语言 / 更多 / 通知），except 为保留项 */
+        'closeHeadDropdowns': function (except) {
+            try {
+                if (except !== 'user') {
+                    $('.mac_user_box').each(function () {
+                        var $p = $(this);
+                        $p.removeClass('show panel-ready');
+                        if (typeof MAC.clearMacUserPanelZ === 'function') {
+                            MAC.clearMacUserPanelZ(this);
+                        }
+                    });
+                }
+                if (except !== 'lang') {
+                    $('.lang-wrap-body').each(function () {
+                        if (typeof MAC.clearMacUserPanelZ === 'function') {
+                            MAC.clearMacUserPanelZ(this);
+                        }
+                    }).remove();
+                    $(document).off('click.macLangBody');
+                }
+                if (except !== 'more') {
+                    $('#topNavOverlay.top_nav_overlay').removeClass('show');
+                }
+                if (except !== 'notify') {
+                    $('[data-mac-notify-bell]').each(function () {
+                        this.classList.remove('is-open');
+                        var dd = this.querySelector('.mac-notify-bell__dropdown');
+                        if (dd) dd.hidden = true;
+                        var btn = this.querySelector('.mac-notify-bell__btn');
+                        if (btn) btn.setAttribute('aria-expanded', 'false');
+                    });
+                }
+            } catch (eClose) {}
         },
         'Pop': {
             '_cache': {},
@@ -2617,6 +2755,7 @@
         //分页跳转初始化
         MAC.PageGo.Init();
         //用户部分初始化
+        MAC.User.consumeAuthFlash();
         MAC.User.Init();
         //未登录访客定时登录弹层（依赖 MAC.User 登录态）
         MAC.GuestLoginTimer.Init();

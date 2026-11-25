@@ -1,0 +1,157 @@
+/* ===== 签到日历（新增：位于签到按钮与签到规则之间） ===== */
+/* 复用签到页既有设计令牌，并给出兜底色，未定义变量时也能正常显示 */
+/* v2：紧凑版 —— 扁格子、收紧内边距/间距/字号，减少竖向占用 */
+.uc-calendar{
+  background:var(--checkin-card-bg,#fff);
+  border-radius:12px;
+  box-shadow:var(--checkin-card-shadow,0 2px 14px rgba(0,0,0,.06));
+  margin:10px 0 0;
+  padding:10px 10px;
+}
+.uc-calendar__bar{
+  align-items:center;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin:0 0 8px;
+}
+.uc-calendar__title{
+  color:var(--tpl-text-strong,#222);
+  flex:0 0 auto;
+  font-size:14px;
+  font-weight:700;
+  margin:0;
+}
+.uc-calendar__month{
+  color:var(--tpl-text-muted,#999);
+  flex:0 0 auto;
+  font-size:12px;
+  font-weight:600;
+  margin-left:6px;
+}
+.uc-calendar__nav{
+  appearance:none;
+  background:var(--tpl-bg-muted,#f4f6f8);
+  border:1px solid var(--tpl-border,#eee);
+  border-radius:8px;
+  color:var(--tpl-text-strong,#333);
+  cursor:pointer;
+  font-size:15px;
+  height:26px;
+  line-height:1;
+  transition:background .15s ease,transform .12s ease;
+  width:26px;
+}
+.uc-calendar__nav:hover{background:#eafdf6}
+.uc-calendar__nav:active{transform:scale(.94)}
+.uc-calendar__week{
+  display:grid;
+  gap:3px;
+  grid-template-columns:repeat(7,1fr);
+  margin:0 0 3px;
+}
+.uc-calendar__week span{
+  color:var(--tpl-text-muted,#999);
+  font-size:11px;
+  font-weight:600;
+  text-align:center;
+}
+.uc-calendar__grid{
+  display:grid;
+  gap:3px;
+  grid-template-columns:repeat(7,1fr);
+}
+.uc-cal-cell{
+  align-items:center;
+  /* 去掉 1/1 正方形比例，改用扁格，整体更紧凑 */
+  border-radius:7px;
+  color:var(--tpl-text-strong,#333);
+  display:flex;
+  font-size:12px;
+  height:30px;
+  justify-content:center;
+  position:relative;
+}
+.uc-cal-cell--blank{background:transparent}
+.uc-cal-cell--future{color:#c9d2d0}
+.uc-cal-cell--today{
+  box-shadow:inset 0 0 0 2px var(--tpl-accent,#00c896);
+  color:var(--tpl-accent,#00c896);
+  font-weight:700;
+}
+.uc-cal-cell--signed{
+  background:linear-gradient(135deg,#1ad598,#3ee0af);
+  color:#fff;
+  font-weight:700;
+}
+.uc-cal-cell--signed .uc-cal-ico{
+  font-size:9px;
+  line-height:1;
+  margin-left:1px;
+}
+.uc-calendar__summary{
+  color:var(--tpl-text-muted,#999);
+  font-size:12px;
+  margin:8px 0 0;
+  text-align:center;
+}
+.uc-calendar__summary b{
+  color:var(--tpl-accent,#00c896);
+  font-weight:700;
+}
+/* 移动端：进一步收紧 */
+@media screen and (max-width:820px){
+  .uc-calendar{padding:9px 8px}
+  .uc-calendar__grid,.uc-calendar__week{gap:2px}
+  .uc-cal-cell{font-size:11px;height:27px;border-radius:6px}
+}
+
+/* 日历区标题外置：复用 uc-rules__title 的字体样式，这里只补间距与左缘对齐（rules 容器左右 padding 为 2px) */
+.uc-calendar__outer-title{
+  margin:14px 0 10px;
+  padding:0 2px;
+}
+
+/* ===== 顶部横排：签到日历(左,大) + 里程碑奖励(右,压缩) ===== */
+.uc-top-row{
+  align-items:stretch;
+  display:flex;
+  gap:12px;
+  margin:0 0 12px;
+}
+.uc-top-row > .uc-calendar{
+  flex:1 1 auto;
+  margin:0;            /* 取消原 10px 上边距，由 row 统一控制 */
+  min-width:0;         /* 允许网格随容器收缩 */
+}
+/* 里程碑压缩后放在日历右侧，自身作为一张窄卡片 */
+.uc-milestones--side{
+  background:var(--checkin-card-bg,#fff);
+  border:1px solid var(--checkin-card-border,#e8ecf0);
+  border-radius:12px;
+  box-shadow:var(--checkin-card-shadow,0 2px 14px rgba(0,0,0,.06));
+  display:flex;
+  flex:0 0 300px;
+  flex-direction:column;
+  min-width:0;
+  padding:10px;
+}
+.uc-milestones--side .uc-milestones__guest-msg{margin:0 0 8px;font-size:12px;text-align:left}
+/* 连续 2 列从左到右排列：band 只是 JS 按每3个包的分组壳，display:contents 让 .uc-mile 直接参与外层 grid，
+   避免「每3个一组」造成的行内空缺（如 3,10 / 20,空 / 35,55 / 85,空） */
+.uc-milestones--side .uc-milestones__grid{align-content:start;display:grid;flex:1;gap:6px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.uc-milestones--side .uc-milestones__band{display:contents}
+.uc-milestones--side .uc-mile{padding:8px 4px 7px;gap:2px;border-radius:8px}
+.uc-milestones--side .uc-mile__points{font-size:12px}
+.uc-milestones--side .uc-mile__caption{font-size:11px;line-height:15px}
+.uc-milestones--side .uc-mile__coin,
+.uc-milestones--side .uc-mile__media--check .uc-mile__check{height:20px;width:20px}
+.uc-milestones--side .uc-mile__actions{margin-top:2px}
+.uc-milestones--side .uc-mile__claim{min-height:24px;font-size:11px;padding:4px 6px;border-radius:6px}
+/* 移动端：纵向堆叠，日历在上、里程碑在下（恢复 band 分组 3 列原样式） */
+@media screen and (max-width:820px){
+  .uc-top-row{flex-direction:column}
+  .uc-milestones--side{flex:0 0 auto;width:100%}
+  .uc-milestones--side .uc-milestones__grid{display:flex;flex-direction:column}
+  .uc-milestones--side .uc-milestones__band{display:grid;gap:8px;grid-template-columns:repeat(3,minmax(0,1fr))}
+}

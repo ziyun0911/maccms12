@@ -107,6 +107,23 @@
 			return (base ? base + '/' : '/') + 'api.php/user/login_or_register';
 		})();
 
+		function afterAuthUrl() {
+			try {
+				var sp = new URLSearchParams(window.location.search);
+				var r = (sp.get('redirect') || '').trim();
+				if (r) {
+					if (r.charAt(0) === '/' && r.charAt(1) !== '/' && r.charAt(1) !== '\\') {
+						return r;
+					}
+					var u = new URL(r, window.location.origin);
+					if (u.origin === window.location.origin) {
+						return u.pathname + u.search + u.hash;
+					}
+				}
+			} catch (e) {}
+			return "{:url('user/index')}";
+		}
+
 		(function syncInviteFromUrl(){
 			try {
 				var sp = new URLSearchParams(window.location.search);
