@@ -17,6 +17,14 @@ abstract class Controller
         $this->request = request();
         $parts = explode('\\', static::class);
         $this->addon = isset($parts[1]) ? strtolower($parts[1]) : '';
+
+        $csrfResponse = \app\common\middleware\AdminCsrf::enforce(
+            $this->request,
+            strtolower($this->addon . '/' . (string)$this->request->action())
+        );
+        if ($csrfResponse !== null) {
+            throw new \think\exception\HttpResponseException($csrfResponse);
+        }
     }
 
     public function _initialize()

@@ -33,8 +33,15 @@ class Index extends Base
 
     public function logout()
     {
+        if (!$this->request->isPost()) {
+            return $this->error(lang('illegal_request'));
+        }
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
+        if (!$validate->check($this->request->post())) {
+            return $this->error($validate->getError());
+        }
         $res = (new \app\common\model\Admin())->logout();
-        return $this->redirect('index/login');
+        return $this->success($res['msg'], (string)url('index/login'));
     }
 
     public function index()
@@ -215,6 +222,13 @@ class Index extends Base
 
     public function clear()
     {
+        if (!$this->request->isPost()) {
+            return $this->error(lang('illegal_request'));
+        }
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
+        if (!$validate->check($this->request->post())) {
+            return $this->error($validate->getError());
+        }
         $res = $this->_cache_clear();
         if (!$res) {
             return $this->error(lang('admin/index/clear_err'));
@@ -225,6 +239,13 @@ class Index extends Base
 
     public function iframe()
     {
+        if (!$this->request->isPost()) {
+            return $this->error(lang('illegal_request'));
+        }
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
+        if (!$validate->check($this->request->post())) {
+            return $this->error($validate->getError());
+        }
         $val = input('post.val', 0);
         if ($val != 0 && $val != 1) {
             return $this->error(lang('admin/index/clear_ok'));
@@ -239,6 +260,13 @@ class Index extends Base
 
     public function unlocked()
     {
+        if (!$this->request->isPost()) {
+            return $this->error(lang('illegal_request'));
+        }
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
+        if (!$validate->check($this->request->post())) {
+            return $this->error($validate->getError());
+        }
         $param = input();
         $password = $param['password'];
 

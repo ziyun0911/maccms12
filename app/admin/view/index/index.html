@@ -15,7 +15,7 @@
             <a href="__ROOT__/" class="admin-mobile-action" target="_blank" title="{:lang('admin/index/index/menu_index')}" aria-label="{:lang('admin/index/index/menu_index')}">
                 <i class="layui-icon layui-icon-home"></i>
             </a>
-            <a href="{:url('index/clear')}" class="admin-mobile-action j-ajax" refresh="yes" title="{:lang('admin/index/index/menu_cache_clear')}" aria-label="{:lang('admin/index/index/menu_cache_clear')}">
+            <a href="javascript:;" data-url="{:url('index/clear')}" class="admin-mobile-action j-ajax-post" refresh="yes" title="{:lang('admin/index/index/menu_cache_clear')}" aria-label="{:lang('admin/index/index/menu_cache_clear')}">
                 <i class="layui-icon layui-icon-delete"></i>
             </a>
         </div>
@@ -59,9 +59,9 @@
                     <svg class="admin-tool-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><g fill="currentColor"><rect x="2" y="9" width="3" height="3" rx="1.5"/><rect x="8" y="9" width="3" height="3" rx="1.5"/><rect x="14" y="9" width="3" height="3" rx="1.5"/></g></svg>
                 </button>
                 <div class="admin-dropdown__menu">
-                    <a href="{:url('index/clear')}" class="j-ajax" refresh="yes">{:lang('admin/index/index/menu_cache_clear')}</a>
+                    <a href="javascript:;" data-url="{:url('index/clear')}" class="j-ajax-post" refresh="yes">{:lang('admin/index/index/menu_cache_clear')}</a>
                     <a href="javascript:void(0);" id="lockScreen" data-pwd-tip="{:lang('admin/index/index/lock_pwd_tip')}" data-unlock="{:lang('unlock')}" data-fail-tip="{:lang('admin/index/index/lock_fail')}">{:lang('admin/index/index/menu_lock')}</a>
-                    <a href="{:url('index/logout')}">{:lang('admin/index/index/menu_logout')}</a>
+                    <a href="javascript:;" class="j-logout" data-url="{:url('index/logout')}">{:lang('admin/index/index/menu_logout')}</a>
                 </div>
             </div>
             <a href="__ROOT__/" class="admin-tool-btn" target="_blank" title="{:lang('admin/index/index/menu_index')}">

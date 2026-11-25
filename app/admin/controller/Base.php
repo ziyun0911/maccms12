@@ -18,6 +18,14 @@ class Base extends All
     {
         parent::__construct();
 
+        $csrfResponse = \app\common\middleware\AdminCsrf::enforce(
+            $this->request,
+            strtolower((string)$this->_cl . '/' . (string)$this->_ac)
+        );
+        if ($csrfResponse !== null) {
+            throw new \think\exception\HttpResponseException($csrfResponse);
+        }
+
         if ($this->_cl === 'Base') {
             throw new \think\exception\HttpResponseException($this->error(lang('illegal_request')));
         }
@@ -58,6 +66,15 @@ class Base extends All
 
         if ($c === 'upload' && ($a === 'ueditor_ai' || $a === 'ueditorai')) {
             return true;
+        }
+
+        // 主题 AI 的「测试连接」复用设置页权限：能进设置页就能测试，无需单独授权节点
+        if ($c === 'system' && $a === 'testthemeai') {
+            if ((string)$this->_admin['admin_id'] === '1') {
+                return true;
+            }
+            $authStr = ',' . strtolower((string)$this->_admin['admin_auth']) . ',';
+            return strpos($authStr, ',system/configthemeai,') !== false;
         }
 
         if ($c === 'assistant' && in_array($a, ['chat', 'ping'], true)) {

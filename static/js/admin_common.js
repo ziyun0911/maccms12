@@ -467,6 +467,53 @@ layui.define(['element', 'form'], function (exports) {
         return false;
     });
 
+    $(document).on('click', '.j-ajax-post', function () {
+        var that = $(this),
+            href = !that.attr('data-url') ? that.attr('href') : that.attr('data-url'),
+            refresh = !that.attr('refresh') ? 'yes' : that.attr('refresh');
+        if (!href) {
+            layer.msg(macLang('js_set_data_href', '请设置data-url参数'));
+            return false;
+        }
+
+        var submit = function () {
+            layer.msg(macLang('wait_submit', '数据提交中...'), { time: 500000 });
+            $.post(href, {}, function (res) {
+                layer.msg(res.msg, {}, function () {
+                    if (refresh == 'yes') {
+                        if (typeof (res.url) != 'undefined' && res.url != null && res.url != '') {
+                            location.href = res.url;
+                        } else {
+                            location.reload();
+                        }
+                    }
+                });
+            }, 'json');
+        };
+
+        if (!that.attr('confirm')) {
+            submit();
+        } else {
+            layer.confirm(that.attr('confirm'), { title: false, closeBtn: 0 }, function (index) {
+                layer.close(index);
+                submit();
+            });
+        }
+        return false;
+    });
+
+    $(document).on('click', '.j-logout', function () {
+        var url = $(this).attr('data-url') || (ADMIN_PATH + '/index/logout');
+        $.post(url, {}, function (res) {
+            if (res && res.code == 1) {
+                location.href = res.url || (ADMIN_PATH + '/index/login');
+            } else {
+                layer.msg(res && res.msg ? res.msg : macLang('js_request_fail', '请求失败'));
+            }
+        }, 'json');
+        return false;
+    });
+
     
     $('.j-auto-checked').blur(function () {
         var that = $(this);

@@ -275,7 +275,7 @@ class Index extends Controller
 | `assign()` / `success()` / `error()` | `:73` / `:79` / `:84` | `success`/`error` 返回 `json(['code'=>1|0,'msg','data','url'])` |
 | `$noNeedLogin` / `$noNeedRight` | `:12-13` | **核心完全不读**，只是插件自己的习惯命名 |
 
-> **调度器不做任何管理员校验。** `Dispatcher::run()` 只查 `state`，不查登录、不查权限、不查 CSRF。后台型插件必须自己在 `_initialize()` 里校验 CMS 会话，参考 [`aicontent/controller/Admin.php`:18-29](.../addons/aicontent/controller/Admin.php#L18)（`session('admin_auth') !== '1' || empty(session('admin_info'))` 判登录，POST 用 `hash_equals` 比对会话内的 `_csrf_token`）。子管理员权限同理不会自动继承，插件页要自己收敛。
+> **调度器不查管理员登录/权限。** `Dispatcher::run()` 只查 `state`；后台 CSRF 由 `app\common\addon\Controller` 构造时按 `security_csrf_admin` 统一前置校验（可在 `security_csrf_admin_exempt` 豁免插件路由）。登录与权限仍须插件自己在 `_initialize()` 校验，参考 [`aicontent/controller/Admin.php`:18-29](.../addons/aicontent/controller/Admin.php#L18)（`session('admin_auth') !== '1' || empty(session('admin_info'))` 判登录，POST 用 `hash_equals` 比对会话内的 `_csrf_token`）。子管理员权限同理不会自动继承，插件页要自己收敛。
 
 视图里可以引用后台模块的模板：`{extend name="admin@..." /}` / `{include file="admin@..." /}` 会被 [`resolveCrossModule()`:47-58](.../app/common/addon/Controller.php#L47) 换算成相对路径——仅当模板正文里检测到这种 `模块@路径` 写法时才走这条分支（`:37`）。
 
@@ -323,7 +323,7 @@ class Index extends Controller
 3. 有表写 `install.sql`：`__PREFIX__`、无注释、无 `DELIMITER`、DDL 全部 `IF NOT EXISTS`；`uninstall()` 里自己 DROP。
 4. 钩子只实现 §5.2 表里存在的插槽名；需要新插槽先把它合进主库并登记。
 5. 静态资源 / 语言包各自在 `appInit()`（或 `install()` / `enable()`）里自己部署 / 加载；`uninstall()` 里自己清。
-6. 后台型控制器在 `_initialize()` 校验 `session('admin_auth')`，POST 校验 CSRF——调度器不会替你把关。
+6. 后台型控制器在 `_initialize()` 校验 `session('admin_auth')`，POST 校验 CSRF；全局 `AdminCsrf` 只在 `security_csrf_admin='1'` 时兜底前置拦截，插件自己的登录/权限/令牌仍不可省。
 7. 本地跑一遍：装（zip 或手工放目录）→ 启用 → 触发钩子页面 → 停用 → 卸载 → 查表是否清干净；再换**自定义表前缀**跑一遍 SQL。
 8. 语法按 PHP 8：`admin.php:6` 要求站点跑 PHP ≥ 8.0.2，插件不需要迁就 v10 的「7.0 语法」约定（那只对官方 v10 市场包有意义）。
 9. 不要往 `template/`、`static/`、`app/` 里塞插件文件；后台 UI 改动只碰 `app/admin/view/`，插件自己的 view 在 `addons/{name}/view/`。
