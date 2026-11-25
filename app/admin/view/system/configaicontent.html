@@ -1,4 +1,9 @@
 {include file="../../../app/admin/view/public/head" /}
+<style>
+    .ai-common-summary { border: 1px solid #e6e6e6; border-radius: 4px; background: #fafafa; padding: 10px 14px; line-height: 1.9; font-size: 13px; color: #333; }
+    .ai-common-summary .aac-k { display: inline-block; width: 88px; color: #777; }
+    .ai-common-summary .aac-v { word-break: break-all; }
+</style>
 
 <div class="page-container p10">
     <form class="layui-form layui-form-pane" action="">
@@ -12,46 +17,18 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/ai_inherit_search')}：</label>
+            <label class="layui-form-label">服务商信息（同步自主题 AI）：</label>
             <div class="layui-input-block">
-                <input type="checkbox" name="ai_content[use_ai_search_credentials]" value="1" lay-skin="switch" {if condition="$config['ai_content']['use_ai_search_credentials'] eq '1'"}checked{/if}>
-                <div style="float: none;" class="layui-form-mid layui-word-aux">{:lang('admin/system/ai_inherit_search_tip')}</div>
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/ai_provider')}：</label>
-            <div class="layui-input-block">
-                <select name="ai_content[provider]">
-                    <option value="openai" {if condition="$config['ai_content']['provider'] eq 'openai'"}selected{/if}>OpenAI</option>
-                    <option value="claude" {if condition="$config['ai_content']['provider'] eq 'claude'"}selected{/if}>Claude</option>
-                    <option value="gemini" {if condition="$config['ai_content']['provider'] eq 'gemini'"}selected{/if}>Gemini</option>
-                    <option value="deepseek" {if condition="$config['ai_content']['provider'] eq 'deepseek'"}selected{/if}>DeepSeek</option>
-                    <option value="qwen" {if condition="$config['ai_content']['provider'] eq 'qwen'"}selected{/if}>Qwen</option>
-                    <option value="glm" {if condition="$config['ai_content']['provider'] eq 'glm'"}selected{/if}>GLM</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/ai_model')}：</label>
-            <div class="layui-input-block">
-                <input type="text" name="ai_content[model]" value="{$config.ai_content.model}" class="layui-input">
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/ai_api_base')}：</label>
-            <div class="layui-input-block">
-                <input type="text" name="ai_content[api_base]" value="{$config.ai_content.api_base}" class="layui-input">
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/ai_api_key')}：</label>
-            <div class="layui-input-block">
-                <input type="password" name="ai_content[api_key]" value="" autocomplete="new-password"
-                       placeholder="{:lang('admin/system/ai_key_placeholder')}" class="layui-input">
+                <div class="ai-common-summary">
+                    <div><span class="aac-k">服务商</span><span class="aac-v">{$ai_common_provider|default='openai'}</span></div>
+                    <div><span class="aac-k">API 地址</span><span class="aac-v">{$ai_common_api_base|default='(未配置)'}</span></div>
+                    <div><span class="aac-k">模型</span><span class="aac-v">{$ai_common_model|default='(未配置)'}</span></div>
+                    <div><span class="aac-k">接口密钥</span><span class="aac-v">{if condition="$ai_common_key_saved eq 1"}已配置（****{$ai_common_key_tail}）{/if}{if condition="$ai_common_key_saved neq 1"}未配置{/if}</span></div>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    AI 标注的接口地址、密钥、模型和服务商已与「主题 AI 设置」同步，本页不再单独保存，也不再复用 AI 搜索凭据。在主题 AI 设置里更换服务商并保存后会自动跟随。
+                    <a href="{:url('system/configthemeai')}" target="_blank" style="color:#1e9fff;">前往主题 AI 设置 →</a>
+                </div>
             </div>
         </div>
 

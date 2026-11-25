@@ -14,6 +14,27 @@
     .layui-form-pane .layui-input-block {
         margin-left: 220px;
     }
+
+    /* 服务商信息只读摘要：连接参数同步自主题 AI 设置 */
+    .ai-search-summary {
+        border: 1px solid #e6e6e6;
+        border-radius: 4px;
+        background: #fafafa;
+        padding: 10px 14px;
+        line-height: 1.9;
+        font-size: 13px;
+        color: #333;
+    }
+
+    .ai-search-summary .aas-k {
+        display: inline-block;
+        width: 88px;
+        color: #777;
+    }
+
+    .ai-search-summary .aas-v {
+        word-break: break-all;
+    }
 </style>
 
 <div class="page-container">
@@ -33,16 +54,18 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaisearch/provider')}：</label>
+            <label class="layui-form-label">服务商信息（同步自主题 AI）：</label>
             <div class="layui-input-block">
-                <input type="text" name="ai_search[provider]" value="{$config['ai_search']['provider']|default='openai'}" class="layui-input" placeholder="openai">
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaisearch/model')}：</label>
-            <div class="layui-input-block">
-                <input type="text" name="ai_search[model]" value="{$config['ai_search']['model']|default='gpt-4o-mini'}" class="layui-input">
+                <div class="ai-search-summary">
+                    <div><span class="aas-k">服务商</span><span class="aas-v">{$theme_ai_provider|default='openai'}</span></div>
+                    <div><span class="aas-k">API 地址</span><span class="aas-v">{$theme_ai_api_base|default='(未配置)'}</span></div>
+                    <div><span class="aas-k">模型</span><span class="aas-v">{$theme_ai_model|default='(未配置)'}</span></div>
+                    <div><span class="aas-k">接口密钥</span><span class="aas-v">{if condition="$theme_ai_key_saved eq 1"}已配置（****{$theme_ai_key_tail}）{/if}{if condition="$theme_ai_key_saved neq 1"}未配置{/if}</span></div>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    AI 搜索的接口地址、密钥、模型和服务商已与「主题 AI 设置」同步，本页不再单独保存。在主题 AI 设置里更换服务商并保存后，AI 搜索会自动跟随。
+                    <a href="{:url('system/configthemeai')}" target="_blank" style="color:#1e9fff;">前往主题 AI 设置 →</a>
+                </div>
             </div>
         </div>
 
@@ -59,23 +82,6 @@
                 </select>
             </div>
             <div class="layui-form-mid layui-word-aux">{:lang('admin/system/configaisearch/response_language_tip')}</div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaisearch/api_base')}：</label>
-            <div class="layui-input-block">
-                <input type="text" name="ai_search[api_base]" value="{$config['ai_search']['api_base']|default=''}" class="layui-input" placeholder="https://api.openai.com/v1">
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaisearch/api_key')}：</label>
-            <div class="layui-input-block">
-                <input type="password" name="ai_search[api_key]" value="" autocomplete="new-password" class="layui-input" placeholder="{:lang('admin/system/configaisearch/api_key_tip')}">
-                {if condition="$ai_search_key_saved eq 1"}
-                <div class="layui-form-mid layui-word-aux">{:lang('admin/system/configaisearch/api_key_saved_tip')} (****{$ai_search_key_tail})</div>
-                {/if}
-            </div>
         </div>
 
         <div class="layui-form-item">

@@ -1,7 +1,7 @@
 <?php
 
 // >>> maccms:blocklist:lists >>>
-$internalDirs = ['说明文档', 'runtime', 'vendor', 'config', 'app', 'extend'];
+$internalDirs = ['说明文档', 'runtime', 'vendor', 'config', 'app', 'extend', 'bin'];
 $internalFiles = ['composer.json', 'composer.lock', 'think', '.user.ini', 'router.php'];
 $deniedExt = ['md', 'sql', 'log', 'lock', 'wpm', 'sh', 'ps1', 'py'];
 $deniedBackupExt = ['bak', 'old', 'orig'];

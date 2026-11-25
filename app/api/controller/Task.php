@@ -79,9 +79,10 @@ class Task extends Base
         }
 
         $sign_info = (new \app\common\model\SignLog())->getSignInfo($user_id);
-        $serial_days = $sign_info['serial_days'];
+        // 里程碑按累计签到次数判定（原为连续天数 serial_days）
+        $total_signs = $sign_info['total_signs'];
 
-        $res = (new \app\common\model\SignMilestone())->claimMilestone($user_id, $milestone_id, $serial_days);
+        $res = (new \app\common\model\SignMilestone())->claimMilestone($user_id, $milestone_id, $total_signs);
         return json($res);
     }
 

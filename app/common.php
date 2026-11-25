@@ -894,6 +894,28 @@ function mac_curl_get($url,$heads=array(),$cookie='',$verify_ssl=true)
     return $response;
 }
 
+/**
+ * 文本编码兜底：若非合法 UTF-8，尝试按常见中文老编码（GBK/GB2312/BIG5）转换为 UTF-8。
+ * 仅用于接口文本（JSON/XML），不可用于图片等二进制内容。
+ *
+ * @param string $str 原始文本
+ * @return string 合法 UTF-8 文本；无法识别时原样返回
+ */
+function mac_text_to_utf8($str)
+{
+    if (!is_string($str) || $str === '') {
+        return $str;
+    }
+    if (mb_check_encoding($str, 'UTF-8')) {
+        return $str;
+    }
+    $converted = mb_convert_encoding($str, 'UTF-8', 'GBK,GB2312,BIG5');
+    if (mb_check_encoding($converted, 'UTF-8')) {
+        return $converted;
+    }
+    return $str;
+}
+
 function mac_substring($str, $lenth, $start=0)
 {
     $str = mac_scalar_string($str);
@@ -1998,6 +2020,21 @@ function mac_tpl_fetch($model,$tpl,$def='')
     return $model . '/' . ( empty($tpl) ? $def  : str_replace('.html','',$tpl) );
 }
 
+function mac_tpl_fetch_ajax($model, $ajax, $def)
+{
+    // 预留 ajax 端点：有对应模板则用，没有则回退到常规页面模板，避免开关打开后落到 404
+    $model = strtolower(trim((string) $model));
+    if ($model === '' || !preg_match('/^[a-z0-9_]+$/', $model)) {
+        return mac_tpl_fetch($model, $ajax, $def);
+    }
+    $ajax = str_replace('.html', '', (string) $ajax);
+    if (!preg_match('/^[a-z0-9_]+$/', $ajax)) {
+        return mac_tpl_fetch($model, '', $def);
+    }
+    $name = $model . '/' . $ajax;
+    return mac_tpl_exists($name) ? $name : mac_tpl_fetch($model, '', $def);
+}
+
 function mac_get_order($order,$param)
 {
     if(!empty($param['order'])) {
@@ -2031,7 +2068,11 @@ function mac_url_img($url)
         }
     }
     elseif(!empty($GLOBALS['config']['upload']['img_key']) && preg_match('/'.$GLOBALS['config']['upload']['img_key'].'/',$url)){
-        $url = $GLOBALS['config']['upload']['img_api'] . '' . $url;
+        // 原图地址必须整体 urlencode 后再拼到代理接口后面：
+        // 百度/搜狐等图源地址常自带 ?w=500&h=750 之类的查询串，若不编码，其中的 & 会被
+        // 当成 img.php 自身的参数（&h=、&w= 正是它的兜底图尺寸参数），代理收到的 url 被截断，
+        // 上游返回 400，页面就退化成占位图。
+        $url = $GLOBALS['config']['upload']['img_api'] . '' . rawurlencode($url);
     }
     $url = mac_filter_xss($url);
     $url = str_replace('&quot;&gt;', '', $url);
@@ -2085,13 +2126,17 @@ function mac_url_content_img($content)
     }
     $content = str_replace('mac:',$protocol.':',$content);
     if(!empty($GLOBALS['config']['upload']['img_key'])){
-        $rule = mac_buildregx("<img[^>]*src\s*=\s*['" . chr(34) . "]?([\w/\-\:.]*)['" . chr(34) . "]?[^>]*>", "is");
+        $qt = chr(34);
+        // 地址段必须允许 ? & = % 等字符，否则带查询串的图源会被截断；
+        $rule = mac_buildregx("<img[^>]*src\s*=\s*['" . $qt . "]?([^'" . $qt . "\s>]+)['" . $qt . "]?[^>]*>", "is");
         preg_match_all($rule, $content, $matches);
         if(is_array($matches[1])){
             foreach ($matches[1] as $f => $matchfieldstr) {
                 $img_src = trim(preg_replace("/[ \r\n\t\f]{1,}/", " ", $matchfieldstr));
                 if(preg_match('/'.$GLOBALS['config']['upload']['img_key'].'/',$img_src)){
-                    $content = str_replace($img_src,$GLOBALS['config']['upload']['img_api'] . '' . $img_src,$content);
+                    // HTML 实体先还原成 &，再整体 urlencode 拼到代理接口后，避免 & 被当成 img.php 自身参数
+                    $plain = str_replace('&amp;', '&', $img_src);
+                    $content = str_replace($matchfieldstr, $GLOBALS['config']['upload']['img_api'] . rawurlencode($plain), $content);
                 }
             }
         }
@@ -2155,6 +2200,18 @@ function mac_url($model,$param=[],$info=[])
     foreach($param as $k=>$v){
         if(empty($v)){
             unset($param[$k]);
+        }
+    }
+
+    // search/show 靠后可选段（level/order/state/tag/year）转 query 拼接，避开尾部连续空段在 pathinfo 路由下匹配失败(404)的边界
+    $route_extra = [];
+    if (strpos($model, '/search') !== false || strpos($model, '/show') !== false) {
+        $query_only = ['level', 'order', 'state', 'tag', 'year'];
+        foreach ($query_only as $qk) {
+            if (isset($param[$qk]) && $param[$qk] !== '') {
+                $route_extra[$qk] = $param[$qk];
+                unset($param[$qk]);
+            }
         }
     }
 
@@ -2231,9 +2288,21 @@ function mac_url($model,$param=[],$info=[])
                 $url = url($model,$param);
             }
             break;
+        case 'actor/show':
+            // 艺人筛选页统一地址：/actor/show/ ，筛选项走 query。
+            // 注意不能把 type_id 当 id 拼进路径（那会生成 /actorshow//id/8 之类的坏地址）。
+            unset($param['id']);
+            $base = rtrim(MAC_PATH, '/') . '/actor/show/';
+            $qs = [];
+            foreach (['area', 'sex', 'blood', 'starsign', 'letter', 'page'] as $k) {
+                if (isset($param[$k]) && $param[$k] !== '' && $param[$k] !== 0) {
+                    $qs[$k] = $param[$k];
+                }
+            }
+            $url = $base . (!empty($qs) ? ('?' . http_build_query($qs)) : '');
+            break;
         case 'vod/show':
         case 'art/show':
-        case 'actor/show':
         case 'website/show':
             switch($config['rewrite']['type_id'])
             {
@@ -2936,6 +3005,13 @@ function mac_url($model,$param=[],$info=[])
         $url = preg_replace('/[?&]page=$/', '', $url);
     }
 
+    if (!empty($route_extra)) {
+        $route_extra = array_filter($route_extra, function ($v) { return $v !== ''; });
+        if (!empty($route_extra)) {
+            $url .= (strpos($url, '?') === false ? '?' : '&') . http_build_query($route_extra);
+        }
+    }
+
     return $url;
 }
 function mac_url_page($url,$num)
@@ -2953,16 +3029,27 @@ function mac_url_create($str,$type='actor',$flag='vod',$ac='search',$sp='&nbsp;'
     $res = [];
     $base_finder = array(' / ', '/', '|', ',', '，', ',,');
     $str = str_replace($base_finder, ',', $str);
+    $str = preg_replace('/,+/', ',', $str);
     $str = trim($str, ',');
     $arr = [];
     foreach (explode(',', $str) as $tag) {
+        $tag = trim($tag);
+        if ($tag === '') {
+            continue;
+        }
         if (preg_match("/[\x{2E80}-\x{9FFF}]+/u", $tag) && str_contains($tag, ' ')) {
             foreach (explode(' ', $tag) as $tag_exp) {
-                $arr[] = $tag_exp;
+                $tag_exp = trim($tag_exp);
+                if ($tag_exp !== '') {
+                    $arr[] = $tag_exp;
+                }
             }
         } else {
             $arr[] = $tag;
         }
+    }
+    if (empty($arr)) {
+        return '未知';
     }
     foreach ($arr as $k => $v) {
         $res[$k] = '<a href="'.mac_url($flag.'/'.$ac,[$type=>$v]).'" target="_blank">'.$v.'</a>'.$sp;
@@ -3348,6 +3435,123 @@ function mac_get_popedom_filter($group_type_list, $type_list = [])
     $group_keys = get_array_unique_id_list($group_keys);
     $cha_keys = array_diff($type_keys, $group_keys);
     return implode(',', $cha_keys);
+}
+
+function mac_popedom_excluded_type_ids()
+{
+    if (!defined('ENTRANCE') || !in_array(ENTRANCE, ['index', 'api'], true)) {
+        return [];
+    }
+    if (empty($GLOBALS['config']['app']['popedom_filter'])) {
+        return [];
+    }
+    $group_type = $GLOBALS['user']['group']['group_type'] ?? '';
+    if ((string)$group_type === '') {
+        $group_list = (new \app\common\model\Group())->getCache('group_list');
+        $group_type = $group_list[1]['group_type'] ?? '';
+    }
+    $type_ids = mac_get_popedom_filter($group_type);
+    if ((string)$type_ids === '') {
+        return [];
+    }
+    $ids = array_map('intval', explode(',', $type_ids));
+    $ids = array_values(array_unique(array_filter($ids, static function ($v) {
+        return $v > 0;
+    })));
+    return $ids;
+}
+
+function mac_popedom_where(array $where)
+{
+    $excl = mac_popedom_excluded_type_ids();
+    if (empty($excl)) {
+        return $where;
+    }
+    $where[] = ['type_id', 'not in', $excl];
+    $where[] = ['type_id_1', 'not in', $excl];
+    return $where;
+}
+
+function mac_popedom_cache_suffix()
+{
+    $excl = mac_popedom_excluded_type_ids();
+    if (empty($excl)) {
+        return '';
+    }
+    return '_p' . implode(',', $excl);
+}
+
+function mac_search_hot_filter($raw)
+{
+    $raw = trim((string) $raw);
+    if ($raw === '') {
+        return '';
+    }
+    if (empty(mac_popedom_excluded_type_ids())) {
+        return $raw;
+    }
+    $words = preg_split('/[,，\s]+/u', $raw, -1, PREG_SPLIT_NO_EMPTY);
+    $visible = mac_search_hot_visible_words($words);
+    return implode(',', $visible);
+}
+
+function mac_search_hot_visible_words(array $words)
+{
+    $words = array_values(array_unique(array_filter(array_map('trim', $words), static function ($v) {
+        return $v !== '';
+    })));
+    if (empty($words)) {
+        return [];
+    }
+    $excl = mac_popedom_excluded_type_ids();
+    if (empty($excl)) {
+        return $words;
+    }
+
+    $flag = $GLOBALS['config']['app']['cache_flag'] ?? 'maccms';
+    $key = $flag . '_searchhot_' . md5(implode(',', $excl) . '|' . implode(',', $words));
+    $cached = \think\facade\Cache::get($key);
+    if (is_array($cached)) {
+        return $cached;
+    }
+
+    $rows = \think\facade\Db::name('vod')
+        ->field('vod_name,type_id,type_id_1')
+        ->where('vod_status', 1)
+        ->where(function ($q) use ($words) {
+            foreach ($words as $w) {
+                $esc = str_replace(['%', '_'], ['\%', '\_'], $w);
+                $q->whereOr('vod_name', 'like', '%' . $esc . '%');
+            }
+        })
+        ->select()
+        ->toArray();
+
+    $matched = [];
+    $visible = [];
+    foreach ($rows as $r) {
+        $name = (string) $r['vod_name'];
+        $rowVisible = !in_array((int) $r['type_id'], $excl, true) && !in_array((int) $r['type_id_1'], $excl, true);
+        foreach ($words as $w) {
+            if (strpos($name, $w) !== false) {
+                $matched[$w] = true;
+                if ($rowVisible) {
+                    $visible[$w] = true;
+                }
+            }
+        }
+    }
+
+    $out = [];
+    foreach ($words as $w) {
+        if (!empty($matched[$w]) && empty($visible[$w])) {
+            continue;
+        }
+        $out[] = $w;
+    }
+    $ttl = max(60, (int) ($GLOBALS['config']['app']['cache_time'] ?? 300));
+    \think\facade\Cache::set($key, $out, $ttl);
+    return $out;
 }
 
 function mac_get_popedom_type_visible($popedom = 1)
@@ -3854,8 +4058,8 @@ function mac_tpl_text($text)
         '地方频道' => ['zh-tw' => '地方頻道', 'en-us' => 'Local Channels', 'ja-jp' => '地方チャンネル', 'ko-kr' => '지역 채널', 'ru-ru' => 'Местные каналы'],
         '港澳台' => ['zh-tw' => '港澳台', 'en-us' => 'HK · Macau · Taiwan', 'ja-jp' => '港澳台', 'ko-kr' => '홍콩·마카오·대만', 'ru-ru' => 'Гонконг, Макао, Тайвань'],
         '游客' => ['zh-tw' => '遊客', 'en-us' => 'Guest', 'ja-jp' => 'ゲスト', 'ko-kr' => '게스트', 'ru-ru' => 'Гость'],
-        '默认会员' => ['zh-tw' => '預設會員', 'en-us' => 'Regular Member', 'ja-jp' => '一般会員', 'ko-kr' => '일반 회원', 'ru-ru' => 'Стандартный участник'],
-        'VIP会员' => ['zh-tw' => 'VIP會員', 'en-us' => 'VIP Member', 'ja-jp' => 'VIP会員', 'ko-kr' => 'VIP 회원', 'ru-ru' => 'VIP-участник'],
+        '白银会员' => ['zh-tw' => '白銀會員', 'en-us' => 'Silver Member', 'ja-jp' => 'シルバー会員', 'ko-kr' => '실버 회원', 'ru-ru' => 'Серебряный участник'],
+        '黄金会员' => ['zh-tw' => '黃金會員', 'en-us' => 'Gold Member', 'ja-jp' => 'ゴールド会員', 'ko-kr' => '골드 회원', 'ru-ru' => 'Золотой участник'],
         '免费短剧电影电视剧、小说漫画 - 最新全集在线观看' => [
             'zh-tw' => '免費短劇電影電視劇、小說漫畫 - 最新全集線上看',
             'en-us' => 'Free Short Dramas, Movies & TV Series, Novels and Manga - Watch Online',
@@ -4252,4 +4456,102 @@ function mac_tpl_asset_ver($path)
     }
     $ver = config('version');
     return isset($ver['code']) ? (string) $ver['code'] : 'v10';
+}
+
+if (!function_exists('mac_safe_letter')) {
+    /**
+     * 取安全的单字母首字母（A-Z）；非字母返回空串。
+     * 避免多字节中文/全角符号/孤立字节写入 char(1) 字段触发 1366。
+     *
+     * @param string $en   英文/拼音串（可能被源站污染为中文）
+     * @param string $name 标题（en 不可用时兜底走拼音首字母）
+     */
+    function mac_safe_letter(string $en, string $name = ''): string
+    {
+        $src = trim($en) !== '' ? $en : $name;
+        $ch  = mb_substr($src, 0, 1, 'UTF-8');
+        if (preg_match('/^[A-Za-z]/u', $ch)) {
+            return strtoupper($ch);
+        }
+        if ($name !== '') {
+            $py  = \app\common\util\Pinyin::get($name);
+            $ch2 = mb_substr($py, 0, 1, 'UTF-8');
+            return preg_match('/^[A-Za-z]/u', $ch2) ? strtoupper($ch2) : '';
+        }
+        return '';
+    }
+}
+
+if (!function_exists('mac_normalize_birthday')) {
+    /**
+     * 演员生日归一化：把历史遗留写法统一成 YYYY-MM-DD（固定 10 字符）。
+     *
+     * 根因：mac_actor.actor_birthday 是 varchar(10)，而「1980年11月16日」共 11 个字符，
+     * 入库会被 MySQL 截断成「1980年11月16」，数据永久损坏（全库曾有 662 条）。
+     * 所有写入口都必须先经过本函数，写入值恒为 10 字符，就不会再触发截断。
+     *
+     * 支持：1980-01-02 / 1980-1-2 / 1980年1月2日 / 1980年1月2（截断残留）
+     *       1980.1.2 / 1980/1/2 / 1980,1,2 / 1980年1月2号 / 90年12月25日
+     * 拒绝：仅年月、仅年份、仅月日（缺年）、农历、占位符、非法日期、越界年份
+     *
+     * @param mixed $value 原始值
+     * @return string YYYY-MM-DD；无法解析时返回空串「无有效生日」
+     */
+    function mac_normalize_birthday($value): string
+    {
+        $v = trim((string)$value);
+        if ($v === '') {
+            return '';
+        }
+        // 采集站偶尔把「出生日期:」标签一起带过来，先去掉
+        $v = preg_replace('/^(出生日期|生日|生于|出生于)\s*[:：]?\s*/u', '', $v);
+        // 中文日期尾部常跟引用上标，如「1987年10月16日53」；只删「日/号」后的数字，避免误伤合法日期
+        $v = preg_replace('/(日|号)\s*\d{1,3}$/u', '$1', $v);
+        // 统一分隔符：年/月 -> . ，日/号 -> 删除，全角符号归一
+        $v = str_replace(['年', '月', '日', '号', '．', '／', '—', '–'], ['.', '.', '', '', '.', '/', '-', '-'], $v);
+        $v = preg_replace('/\s+/u', '', $v);
+        if ($v === '') {
+            return '';
+        }
+
+        $y = $mo = $d = 0;
+        if (preg_match('/^((?:18|19|20)\d{2})[-.\/,年](\d{1,2})[-.\/,月](\d{1,2})(?:日|号)?$/u', $v, $m)) {
+            $y = (int)$m[1]; $mo = (int)$m[2]; $d = (int)$m[3];
+        } elseif (preg_match('/^(\d{2})[-.\/,年](\d{1,2})[-.\/,月](\d{1,2})(?:日|号)?$/u', $v, $m)) {
+            // 两位年：31-99 视为 19xx，00-30 视为 20xx
+            $yy = (int)$m[1];
+            $y = $yy > 30 ? 1900 + $yy : 2000 + $yy;
+            $mo = (int)$m[2]; $d = (int)$m[3];
+        } else {
+            return '';
+        }
+
+        $maxYear = (int)date('Y');
+        if ($y < 1850 || $y > $maxYear || !checkdate($mo, $d, $y)) {
+            return '';
+        }
+        return sprintf('%04d-%02d-%02d', $y, $mo, $d);
+    }
+}
+
+if (!function_exists('mac_check_birthday')) {
+    /**
+     * 严格校验：库内/接口里只允许合法的 YYYY-MM-DD，空串表示「未填写」。
+     * 用于写入后的回归体检与对外接口约束，不做自动转换。
+     */
+    function mac_check_birthday($value): bool
+    {
+        $v = trim((string)$value);
+        if ($v === '') {
+            return true;
+        }
+        if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $v, $m)) {
+            return false;
+        }
+        $y = (int)$m[1];
+        if ($y < 1850 || $y > (int)date('Y')) {
+            return false;
+        }
+        return checkdate((int)$m[2], (int)$m[3], $y);
+    }
 }

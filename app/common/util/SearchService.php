@@ -51,10 +51,14 @@ class SearchService
     {
         $limit = max(1, min(50, (int)$limit));
         $days = max(1, min(365, (int)$days));
-        $cacheKey = 'search:hot:' . $limit . ':' . $days;
-        $cached = Cache::get($cacheKey);
-        if (is_array($cached)) {
-            return $cached;
+        $cacheKey = 'search:hot:' . $limit . ':' . $days . mac_popedom_cache_suffix();
+        $collect = (string)self::cfg('search_hot_collect', 'refresh');
+        $ttl = $collect === 'refresh' ? 0 : max(60, intval(self::cfg('search_hot_cache_sec', 600)));
+        if ($ttl > 0) {
+            $cached = Cache::get($cacheKey);
+            if (is_array($cached)) {
+                return $cached;
+            }
         }
         $list = [];
         if (self::isQueryLogEnabled()) {
@@ -80,8 +84,15 @@ class SearchService
                 $list = [];
             }
         }
-        $ttl = max(60, intval(self::cfg('search_hot_cache_sec', 600)));
-        Cache::set($cacheKey, $list, (int)$ttl);
+        if ($list !== []) {
+            $visible = mac_search_hot_visible_words(array_column($list, 'word'));
+            $list = array_values(array_filter($list, static function ($r) use ($visible) {
+                return in_array($r['word'], $visible, true);
+            }));
+        }
+        if ($ttl > 0) {
+            Cache::set($cacheKey, $list, (int)$ttl);
+        }
         return $list;
     }
 

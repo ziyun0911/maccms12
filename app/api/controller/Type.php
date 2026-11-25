@@ -35,6 +35,15 @@ class Type extends Base
             $where['type_id'] = (int)$param['type_id'];
         }
 
+        $popedom_excl = mac_popedom_excluded_type_ids();
+        if (!empty($popedom_excl)) {
+            if (!empty($where['type_id'])) {
+                $where[] = ['type_id', 'not in', $popedom_excl];
+            } else {
+                $where['type_id'] = ['not in', $popedom_excl];
+            }
+        }
+
         $total = (new \app\common\model\Type())->getCountByCond($where);
         $list = [];
         if ($total > 0) {
@@ -45,6 +54,11 @@ class Type extends Base
                 $child_total = Db::name('type')->where(['type_pid' => $item['type_id']])->count();
                 if ($child_total > 0) {
                     $child = Db::name('type')->where(['type_pid' => $item['type_id']])->select();
+                    if (!empty($popedom_excl)) {
+                        $child = array_values(array_filter($child->toArray(), static function ($row) use ($popedom_excl) {
+                            return !in_array((int)$row['type_id'], $popedom_excl, true);
+                        }));
+                    }
                     $list[$index]['child'] = $child;
                 }
             }

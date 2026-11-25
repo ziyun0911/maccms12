@@ -11,6 +11,7 @@ class Art extends Base {
     use RecycleBinTrait;
 
     protected $name = 'art';
+    protected $popedomScoped = true;
 
     protected function getRecycleTimeField(): string
     {
@@ -61,6 +62,16 @@ class Art extends Base {
         if(!empty($where['_string'])){
             $where2 = $where['_string'];
             unset($where['_string']);
+        }
+
+        $popedom_excl = mac_popedom_excluded_type_ids();
+        if(!empty($popedom_excl)){
+            if(!empty($where['type_id'])){
+                $where[] = ['type_id', 'not in', $popedom_excl];
+            }
+            else{
+                $where['type_id'] = ['not in', $popedom_excl];
+            }
         }
 
         $limit_str = ($limit * ($page-1) + $start) .",".$limit;
@@ -360,17 +371,6 @@ class Art extends Base {
         if(!empty($class)) {
             $where['art_class'] = ['like',mac_like_arr($class),'OR'];
         }
-        if(defined('ENTRANCE') && ENTRANCE == 'index' && $GLOBALS['config']['app']['popedom_filter'] ==1){
-            $type_ids = mac_get_popedom_filter($GLOBALS['user']['group']['group_type']);
-            if(!empty($type_ids)){
-                if(!empty($where['type_id'])){
-                    $where['type_id'] = [ $where['type_id'],['not in', explode(',',$type_ids)] ];
-                }
-                else{
-                    $where['type_id'] = ['not in', explode(',',$type_ids)];
-                }
-            }
-        }
         $use_rnd_order = ($by == 'rnd');
         if (!$use_rnd_order) {
             if (!in_array($by, ['id', 'time', 'time_add', 'score', 'hits', 'hits_day', 'hits_week', 'hits_month', 'up', 'down', 'level', 'rnd'])) {
@@ -409,7 +409,7 @@ class Art extends Base {
             $where_cache['order'] = 'rnd';
         }
         $order_cache_key = ($meili !== null) ? 'meilisearch_relevance' : (is_array($order) ? 'sql_rand' : $order);
-        $cach_name = $GLOBALS['config']['app']['cache_flag']. '_' .md5('art_listcache_'.http_build_query($where_cache).'_'.$order_cache_key.'_'.$page.'_'.$num.'_'.$start.'_'.$pageurl);
+        $cach_name = $GLOBALS['config']['app']['cache_flag']. '_' .md5('art_listcache_'.http_build_query($where_cache).'_'.$order_cache_key.'_'.$page.'_'.$num.'_'.$start.'_'.$pageurl . mac_popedom_cache_suffix());
         $res = $use_rnd_order ? null : Cache::get($cach_name);
         if(empty($cachetime)){
             $cachetime = $GLOBALS['config']['app']['cache_time'];
@@ -503,7 +503,7 @@ class Art extends Base {
             $data['art_en'] = Pinyin::get($data['art_name']);
         }
         if(empty($data['art_letter'])){
-            $data['art_letter'] = strtoupper(substr($data['art_en'],0,1));
+            $data['art_letter'] = mac_safe_letter($data['art_en'], $data['art_name']);
         }
         if(!empty($data['art_pic_screenshot'])){
             $data['art_pic_screenshot'] = str_replace( array(chr(10),chr(13)), array('','#'),$data['art_pic_screenshot']);

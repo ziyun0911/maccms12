@@ -47,7 +47,8 @@ trait PublicApi
     protected function format_sql_string($str)
     {
         $str = preg_replace('/\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|WHERE|FROM|JOIN|INTO|VALUES|SET|AND|OR|NOT|EXISTS|HAVING|GROUP BY|ORDER BY|LIMIT|OFFSET)\b/i', '', $str);
-        $str = preg_replace('/[^\p{L}\p{N}\s\-\.]/u', '', $str);
+        // 保留 ·・—–… 等常见于剧名/人名中的标点，避免“莱昂纳多·迪卡普里奥”等被截断后搜不到
+        $str = preg_replace('/[^\p{L}\p{N}\s\-\.\x{00B7}\x{30FB}\x{2014}\x{2013}\x{2026}]/u', '', $str);
         $str = trim(preg_replace('/\s+/', ' ', $str));
         return $str;
     }

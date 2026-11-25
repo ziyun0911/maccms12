@@ -35,7 +35,7 @@
 3. 修改后：  
    - 模板编译缓存在 `runtime/temp/`，一般会自动重编译；行为异常时点后台 **顶栏右侧「⋯」→ 清理缓存**（`index/clear`）。**没有独立的「缓存」菜单**，清理缓存只是这一个入口 + 一种计划任务类型。  
    - 若开了静态生成，去 **生成 → 生成首页 / 生成地图** 重出（**生成** 分组只有 `make/opt`、`make/index`、`make/map` 三类页）。  
-   - 浏览器 **强制刷新 (Ctrl+F5)** 避免旧 JS/CSS；改过 `static/` 下打包资源时要跑 `php think front:bundle` 重建 `admin.bundle.css` 等合包。  
+   - 浏览器 **强制刷新 (Ctrl+F5)** 避免旧 JS/CSS；改过 `static/` 下打包资源时要跑 `php bin/think front:bundle` 重建 `admin.bundle.css` 等合包。  
 4. 标签语法见站内 **网站参数 → 说明文档**（`doc/index`）与 **模版 → 标签向导**（`template/wizard`）。
 
 ---

@@ -37,7 +37,7 @@ class BlocklistSync extends Command
 
         if ($bad > 0) {
             $output->writeln('<error>' . $bad . ($check
-                ? " 个文件的拦截区块与单一来源不一致，跑 php think blocklist:sync 重写"
+                ? " 个文件的拦截区块与单一来源不一致，跑 php bin/think blocklist:sync 重写"
                 : " 个文件的拦截区块没写回，检查围栏标记是否成对") . '</error>');
             return 1;
         }

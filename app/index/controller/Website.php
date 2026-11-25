@@ -33,7 +33,7 @@ class Website extends Base
         $this->check_ajax();
         $this->check_show(1);
         $info = $this->label_type();
-        return $this->label_fetch('website/ajax_show');
+        return $this->label_fetch(mac_tpl_fetch_ajax('website','ajax_show','show'));
     }
 
     public function search()
@@ -52,7 +52,7 @@ class Website extends Base
         $this->check_search($param,1);
         SearchService::logFromParam(11, $param);
         $this->label_search($param);
-        return $this->label_fetch('website/ajax_search');
+        return $this->label_fetch(mac_tpl_fetch_ajax('website','ajax_search','search'));
     }
 
     public function detail()
@@ -65,7 +65,7 @@ class Website extends Base
     {
         $this->check_ajax();
         $info = $this->label_website_detail();
-        return $this->label_fetch('website/ajax_detail');
+        return $this->label_fetch(mac_tpl_fetch_ajax('website','ajax_detail','detail'));
     }
 
     public function rss()

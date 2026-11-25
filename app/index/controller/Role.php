@@ -28,7 +28,7 @@ class Role extends Base
         $this->check_ajax();
         $this->check_show(1);
         $this->label_role();
-        return $this->label_fetch('role/ajax_show');
+        return $this->label_fetch(mac_tpl_fetch_ajax('role','ajax_show','show'));
     }
 
     public function search()
@@ -47,7 +47,7 @@ class Role extends Base
         $this->check_search($param,1);
         SearchService::logFromParam(9, $param);
         $this->label_search($param);
-        return $this->label_fetch('role/ajax_search');
+        return $this->label_fetch(mac_tpl_fetch_ajax('role','ajax_search','search'));
     }
 
     public function detail()
@@ -60,7 +60,7 @@ class Role extends Base
     {
         $this->check_ajax();
         $info = $this->label_role_detail();
-        return $this->label_fetch('role/ajax_detail');
+        return $this->label_fetch(mac_tpl_fetch_ajax('role','ajax_detail','detail'));
     }
 
     public function rss()

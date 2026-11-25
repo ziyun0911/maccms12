@@ -90,7 +90,12 @@ class SignMilestone extends Base {
             ->select();
     }
 
-    public function getMilestonesWithStatus($user_id, $serial_days)
+    /**
+     * 获取里程碑及领取状态
+     * @param int $user_id 用户ID
+     * @param int $total_signs 累计签到次数（原为连续天数，现改为累计）
+     */
+    public function getMilestonesWithStatus($user_id, $total_signs)
     {
         $milestones = $this->getActiveMilestones();
 
@@ -104,7 +109,7 @@ class SignMilestone extends Base {
         foreach ($milestones as $m) {
             if (isset($claimed_map[$m['milestone_id']])) {
                 $m['status'] = 2;
-            } elseif ($serial_days >= $m['milestone_days']) {
+            } elseif ($total_signs >= $m['milestone_days']) {
                 $m['status'] = 1;
             } else {
                 $m['status'] = 0;
@@ -124,7 +129,13 @@ class SignMilestone extends Base {
         ];
     }
 
-    public function claimMilestone($user_id, $milestone_id, $serial_days)
+    /**
+     * 领取里程碑奖励
+     * @param int $user_id 用户ID
+     * @param int $milestone_id 里程碑ID
+     * @param int $total_signs 累计签到次数（原为连续天数，现改为累计）
+     */
+    public function claimMilestone($user_id, $milestone_id, $total_signs)
     {
         $milestone = Db::name('SignMilestone')
             ->where(['milestone_id' => $milestone_id, 'milestone_status' => 1])
@@ -134,7 +145,7 @@ class SignMilestone extends Base {
             return ['code' => 1001, 'msg' => lang('milestone/not_found')];
         }
 
-        if ($serial_days < $milestone['milestone_days']) {
+        if ($total_signs < $milestone['milestone_days']) {
             return ['code' => 1002, 'msg' => lang('milestone/not_reached')];
         }
 

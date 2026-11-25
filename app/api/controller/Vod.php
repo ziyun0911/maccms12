@@ -132,6 +132,10 @@ class Vod extends Base
         if (empty($res)) {
             return json(['code' => 1001, 'msg' => '数据不存在']);
         }
+        $popedom = $this->check_user_popedom((int)$res['type_id'], 1);
+        if ($popedom['code'] > 1) {
+            return json(['code' => (int)$popedom['code'], 'msg' => (string)$popedom['msg']]);
+        }
 
         $res['vod_pic'] = mac_url_img($res['vod_pic']);
         $res['vod_pic_thumb'] = mac_url_img($res['vod_pic_thumb'] ?? '');
@@ -320,6 +324,7 @@ class Vod extends Base
         $where = [];
         $where['vod_status'] = ['eq', 1];
         $where['vod_level'] = ['in', $level];
+        $where = mac_popedom_where($where);
 
         $list = Db::name('vod')
             ->field('vod_id,vod_name,vod_sub,vod_pic,vod_pic_slide,vod_actor,vod_director,vod_score,vod_content,vod_blurb,vod_remarks,vod_year,vod_area,vod_class,vod_lang,vod_version,vod_state,vod_points_play,type_id,type_id_1')
@@ -397,6 +402,7 @@ class Vod extends Base
         if (!empty($level)) {
             $where['vod_level'] = ['in', $level];
         }
+        $where = mac_popedom_where($where);
 
         $list = Db::name('vod')
             ->field('vod_id,vod_name,vod_sub,vod_pic,vod_actor,vod_director,vod_score,vod_remarks,vod_year,vod_area,vod_class,vod_lang,vod_version,vod_state,vod_blurb,vod_time,vod_hits_month,type_id,type_id_1')
@@ -435,6 +441,10 @@ class Vod extends Base
         $start = isset($param['start']) ? max(0, (int)$param['start']) : 0;
 
         $typeIds = mac_vod_type_filter_ids_for_list($typeId);
+        $popedom_excl = mac_popedom_excluded_type_ids();
+        if (!empty($popedom_excl)) {
+            $typeIds = array_values(array_diff($typeIds, $popedom_excl));
+        }
         if (empty($typeIds)) {
             return json([
                 'code' => 1,
@@ -447,7 +457,7 @@ class Vod extends Base
         $cacheTime = (int)($GLOBALS['config']['app']['cache_time'] ?? 0);
         $idsForKey = $typeIds;
         sort($idsForKey, SORT_NUMERIC);
-        $cacheKey = $cacheFlag . '_api_vod_latest_by_type_' . md5($typeId . '_' . $num . '_' . $start . '_' . implode(',', $idsForKey) . '_' . date('Y-m-d'));
+        $cacheKey = $cacheFlag . '_api_vod_latest_by_type_' . md5($typeId . '_' . $num . '_' . $start . '_' . implode(',', $idsForKey) . '_' . date('Y-m-d')) . mac_popedom_cache_suffix();
         if (!empty($GLOBALS['config']['app']['cache_core']) && $cacheTime > 0) {
             $cached = Cache::get($cacheKey);
             if (is_array($cached) && isset($cached['code'])) {
@@ -457,10 +467,15 @@ class Vod extends Base
 
         $fields = 'vod_id,vod_name,vod_sub,vod_pic,vod_actor,vod_score,vod_remarks,vod_year,vod_area,vod_class,vod_lang,vod_version,vod_state,vod_blurb,vod_time,vod_isend,vod_points_play,type_id,type_id_1';
 
+        $where = [];
+        $where['vod_status'] = ['eq', 1];
+        $where['type_id'] = ['in', $typeIds];
+        // 纳入后台会员组数据权限：按当前访客所属会员组隐藏无权分类的影片
+        $where = mac_popedom_where($where);
+
         $list = Db::name('vod')
             ->field($fields)
-            ->where('vod_status', 1)
-            ->where('type_id', 'in', $typeIds)
+            ->where($where)
             ->order('vod_time', 'desc')
             ->limit($start, $num)
             ->select();
@@ -473,11 +488,15 @@ class Vod extends Base
         unset($v);
         mac_append_type_is_vip_exclusive_for_rows($list);
 
+        $todayWhere = [];
+        $todayWhere['vod_status'] = ['eq', 1];
+        $todayWhere['type_id'] = ['in', $typeIds];
+        $todayWhere = mac_popedom_where($todayWhere);
+
         $dayStart = (int)strtotime('today');
         $dayEnd = (int)strtotime('tomorrow');
         $todayNewCount = (int)Db::name('vod')
-            ->where('vod_status', 1)
-            ->where('type_id', 'in', $typeIds)
+            ->where($todayWhere)
             ->where(function ($query) use ($dayStart, $dayEnd) {
                 $query->where(function ($q) use ($dayStart, $dayEnd) {
                     $q->where('vod_time_add', '>=', $dayStart)->where('vod_time_add', '<', $dayEnd);
@@ -511,7 +530,7 @@ class Vod extends Base
         $start = isset($param['start']) ? max(0, (int)$param['start']) : 0;
         $by = isset($param['by']) ? trim($param['by']) : 'hits_month';
 
-        $allowBy = ['hits', 'hits_day', 'hits_week', 'hits_month', 'score', 'time'];
+        $allowBy = ['hits', 'hits_day', 'hits_week', 'hits_month', 'score', 'time', 'douban', 'hot', 'hot_week', 'hot_month'];
         if (!in_array($by, $allowBy)) {
             $by = 'hits_month';
         }
@@ -519,17 +538,62 @@ class Vod extends Base
         $where = [];
         $where['vod_status'] = ['eq', 1];
         if ($typeId > 0) {
+            // 会员组权限过滤：当前用户组看不到的分类，排行接口也不返回任何条目
+            if (function_exists('mac_type_nav_visible') && !mac_type_nav_visible($typeId)) {
+                return json([
+                    'code' => 1,
+                    'msg'  => 'ok',
+                    'info' => [
+                        'type_id' => $typeId,
+                        'by'      => $by,
+                        'num'     => 0,
+                        'start'   => $start,
+                        'total'   => 0,
+                        'rows'    => [],
+                    ],
+                ]);
+            }
             $where['type_id|type_id_1'] = ['eq', $typeId];
         }
+        $where = mac_popedom_where($where);
 
-        $list = Db::name('vod')
-            ->field('vod_id,vod_name,vod_pic,vod_score,vod_remarks,vod_hits,vod_hits_day,vod_hits_week,vod_hits_month,vod_year,vod_area,vod_class,vod_lang,vod_version,vod_state,vod_isend,vod_points_play,type_id,type_id_1')
+        $query = Db::name('vod')
+            ->field('vod_id,vod_name,vod_pic,vod_score,vod_douban_score,vod_remarks,vod_hits,vod_hits_day,vod_hits_week,vod_hits_month,vod_year,vod_area,vod_class,vod_lang,vod_version,vod_state,vod_isend,vod_points_play,type_id,type_id_1')
             ->where($where)
-            ->order('vod_' . $by . ' desc')
-            ->limit($start, $num)
-            ->select();
+            ->limit($start, $num);
+
+        if ($by === 'douban') {
+            // 豆瓣优先榜：有豆瓣分的整段在前，无豆瓣分的用站内评分兜底排在后面。
+            // 豆瓣分 > 10 的脏数据（如 87.3 实为 8.7）按 /10 归一，避免冲到第一。
+            $query->orderRaw(
+                '(CASE WHEN vod_douban_score > 0 THEN 1 ELSE 0 END) DESC,'
+                . ' (CASE WHEN vod_douban_score > 10 THEN vod_douban_score / 10 WHEN vod_douban_score > 0 THEN vod_douban_score ELSE vod_score END) DESC,'
+                . ' vod_score DESC, vod_hits DESC'
+            );
+        } elseif (in_array($by, ['hot', 'hot_week', 'hot_month'], true)) {
+            // 热度加权榜：对应周期的点击量 + 豆瓣分*10。
+            // 豆瓣分 > 10 的脏数据（如 87.3 实为 8.7）按 /10 归一；无豆瓣分按 0 计。
+            $hitCol = $by === 'hot_week' ? 'vod_hits_week' : ($by === 'hot_month' ? 'vod_hits_month' : 'vod_hits');
+            $query->orderRaw(
+                '((' . $hitCol . ') + (CASE WHEN vod_douban_score > 10 THEN vod_douban_score / 10 WHEN vod_douban_score > 0 THEN vod_douban_score ELSE 0 END) * 10) DESC,'
+                . ' vod_id DESC'
+            );
+        } else {
+            // 主排序按对应点击量降序；同分时用 vod_id 降序兜底，保证每次调用名次稳定
+            $query->order('vod_' . $by . ' desc, vod_id desc');
+        }
+
+        $list = $query->select();
+        if ($list instanceof \think\Collection) {
+            $list = $list->toArray();
+        }
 
         foreach ($list as $k => &$v) {
+            $douban = isset($v['vod_douban_score']) ? (float) $v['vod_douban_score'] : 0;
+            if ($douban > 10) {
+                $douban = round($douban / 10, 1);
+            }
+            $v['rank_score'] = $douban > 0 ? $douban : (isset($v['vod_score']) ? $v['vod_score'] : '');
             $v['vod_pic'] = mac_url_img($v['vod_pic']);
             $v['rank'] = $k + 1;
             $v['vod_link'] = mac_url_vod_detail($v);
@@ -673,6 +737,10 @@ class Vod extends Base
         $res = (new \app\common\model\Vod())->infoData($where);
         if ($res['code'] > 1) return json($res);
         $info = $res['info'];
+        $popedom = $this->check_user_popedom((int)($info['type_id'] ?? 0), 1);
+        if ($popedom['code'] > 1) {
+            return json(['code' => (int)$popedom['code'], 'msg' => (string)$popedom['msg']]);
+        }
         $playList = mac_play_list(
             $info['vod_play_from'] ?? '', $info['vod_play_url'] ?? '',
             $info['vod_play_server'] ?? '', $info['vod_play_note'] ?? '', 'play'
@@ -707,6 +775,10 @@ class Vod extends Base
         $res = (new \app\common\model\Vod())->infoData($where);
         if ($res['code'] > 1) return json($res);
         $info = $res['info'];
+        $popedom = $this->check_user_popedom((int)($info['type_id'] ?? 0), 1);
+        if ($popedom['code'] > 1) {
+            return json(['code' => (int)$popedom['code'], 'msg' => (string)$popedom['msg']]);
+        }
         $downList = mac_play_list(
             $info['vod_down_from'] ?? '', $info['vod_down_url'] ?? '',
             $info['vod_down_server'] ?? '', $info['vod_down_note'] ?? '', 'down'

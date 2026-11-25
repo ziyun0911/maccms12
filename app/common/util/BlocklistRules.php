@@ -3,7 +3,7 @@ namespace app\common\util;
 
 class BlocklistRules
 {
-    public const DIRS = ['说明文档', 'runtime', 'vendor', 'config', 'app', 'extend'];
+    public const DIRS = ['说明文档', 'runtime', 'vendor', 'config', 'app', 'extend', 'bin'];
     public const EXTENSIONS = ['md', 'sql', 'log', 'lock', 'wpm', 'sh', 'ps1', 'py'];
     public const BACKUP_SUFFIXES = ['bak', 'old', 'orig'];
     public const ROOT_FILES = ['composer.json', 'composer.lock', 'think', '.user.ini', 'router.php'];

@@ -74,6 +74,32 @@ class Collect extends Base {
         return ['code'=>1,'msg'=>lang('del_ok')];
     }
 
+    /**
+     * 单条采集写库容错：捕获异常与失败结果，返回状态/摘要/原始返回值，
+     * 避免单条数据报错中断整批采集循环。
+     *
+     * @param callable $fn    实际 insert/update 闭包
+     * @param string   $name  条目名（回显与日志用）
+     * @return array{ok:bool, msg:string, result:mixed}
+     */
+    private function safeCollectSave(callable $fn, string $name): array
+    {
+        try {
+            $result = $fn();
+            if ($result === false || $result === null) {
+                return ['ok' => false, 'msg' => 'save failed', 'result' => null];
+            }
+            return ['ok' => true, 'msg' => '', 'result' => $result];
+        } catch (\Throwable $e) {
+            $msg = $e->getMessage();
+            if (mb_strlen($msg) > 120) {
+                $msg = mb_substr($msg, 0, 120) . '…';
+            }
+            \think\facade\Log::error('[collect] save failed: ' . $name . ' | ' . $msg);
+            return ['ok' => false, 'msg' => $msg, 'result' => null];
+        }
+    }
+
     private $_cacheClearedFlag = false;
 
     private function collectCacheClear()
@@ -209,6 +235,7 @@ class Collect extends Base {
         if(empty($html)){
             return ['code'=>1001, 'msg'=>lang('model/collect/get_html_err') . ', url: ' . $url];
         }
+        $html = mac_text_to_utf8($html);
         $html = mac_filter_tags($html);
         $xml = @simplexml_load_string($html);
         if(empty($xml)){
@@ -353,6 +380,7 @@ class Collect extends Base {
         if(empty($html)){
             return ['code'=>1001, 'msg'=>lang('model/collect/get_html_err') . ', url: ' . $url];
         }
+        $html = mac_text_to_utf8($html);
         $html = mac_filter_tags($html);
         $json = json_decode($html,true);
         if(!$json){
@@ -606,11 +634,11 @@ class Collect extends Base {
                 }
 
                 $v['type_id_1'] = intval($type_list[$v['type_id']]['type_pid']);
-                if(empty($v['vod_en'])){
+                if(empty($v['vod_en']) || !preg_match('/^[\x20-\x7E]+$/u', $v['vod_en'])){
                     $v['vod_en'] = Pinyin::get($v['vod_name']);
                 }
                 if(empty($v['vod_letter'])){
-                    $v['vod_letter'] = strtoupper(substr($v['vod_en'],0,1));
+                    $v['vod_letter'] = mac_safe_letter($v['vod_en'], $v['vod_name']);
                 }
                 if (empty($v['vod_time_add']) || strlen($v['vod_time_add']) != 10) {
                     $v['vod_time_add'] = time();
@@ -880,14 +908,17 @@ class Collect extends Base {
                         $v['vod_pic'] = (string)$tmp['pic'];
                         $msg = $tmp['msg'];
                         $v = VodValidate::formatDataBeforeDb($v);
-                        $vod_id = (new \app\common\model\Vod())->insert($v, false, true);
-                        if ($vod_id > 0) {
+                        $save = $this->safeCollectSave(function () use ($v) {
+                            return (new \app\common\model\Vod())->insert($v, false, true);
+                        }, (string)($v['vod_name'] ?? ''));
+                        $vod_id = $save['result'];
+                        if ($save['ok'] && $vod_id > 0) {
                             $vod_search_enabled && $vod_search->checkAndUpdateTopResults(['vod_id' => $vod_id] + $v, true);
                             $color = 'green';
                             $des = lang('model/collect/add_ok');
                         } else {
                             $color = 'red';
-                            $des = 'vod insert failed';
+                            $des = 'vod insert failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : '');
                         }
                     }
                 } else {
@@ -1125,9 +1156,12 @@ class Collect extends Base {
                             $where = [];
                             $where['vod_id'] = $info['vod_id'];
                             $update = VodValidate::formatDataBeforeDb($update);
-                            $res = (new \app\common\model\Vod())->where($where)->update($update);
-                            $color = 'green';
-                            if ($res === false) {
+                            $save = $this->safeCollectSave(function () use ($update, $where) {
+                                return (new \app\common\model\Vod())->where($where)->update($update);
+                            }, (string)($v['vod_name'] ?? ''));
+                            $color = $save['ok'] ? 'green' : 'red';
+                            if (!$save['ok']) {
+                                $des = 'vod update failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : '');
                             }
                         }
                         else{
@@ -1154,7 +1188,12 @@ class Collect extends Base {
                 $param['page'] = intval($data['page']['page']) + 1;
                 $res = $this->vod($param);
                 if($res['code']>1){
-                    return $this->error($res['msg']);
+                    $msg = isset($res['msg']) ? $res['msg'] : '';
+                    mac_echo('<font color="red">'.$msg.'</font>');
+                    if(ENTRANCE=='api'){
+                        throw new \RuntimeException($msg);
+                    }
+                    return ['code'=>intval($res['code']), 'msg'=>$msg];
                 }
                 $this->vod_data($param,$res );
             }
@@ -1229,6 +1268,7 @@ class Collect extends Base {
         if(empty($html)){
             return ['code'=>1001, 'msg'=>lang('model/collect/get_html_err') . ', url: ' . $url];
         }
+        $html = mac_text_to_utf8($html);
         $html = mac_filter_tags($html);
         $json = json_decode($html,true);
         if(!$json){
@@ -1303,6 +1343,7 @@ class Collect extends Base {
         if(empty($html)){
             return ['code'=>1001, 'msg'=>lang('model/collect/get_html_err') . ', url: ' . $url];
         }
+        $html = mac_text_to_utf8($html);
         $html = mac_filter_tags($html);
         $json = json_decode($html,true);
         if(!$json){
@@ -1387,7 +1428,7 @@ class Collect extends Base {
                 $v['art_name'] = trim($v['art_name']);
                 $v['type_id_1'] = intval($type_list[$v['type_id']]['type_pid']);
                 $v['art_en'] = Pinyin::get($v['art_name']);
-                $v['art_letter'] = strtoupper(substr($v['art_en'],0,1));
+                $v['art_letter'] = mac_safe_letter($v['art_en'], $v['art_name']);
                 $v['art_time_add'] = time();
                 $v['art_time'] = time();
                 $v['art_status'] = intval($config['status']);
@@ -1470,11 +1511,11 @@ class Collect extends Base {
                     $v['art_pic'] = (string)$tmp['pic'];
 
                     $msg = $tmp['msg'];
-                    $res = (new \app\common\model\Art())->insert($v);
-                    if($res===false){
-                    }
-                    $color ='green';
-                    $des= lang('model/collect/add_ok');
+                    $save = $this->safeCollectSave(function () use ($v) {
+                        return (new \app\common\model\Art())->insert($v);
+                    }, (string)($v['art_name'] ?? ''));
+                    $color = $save['ok'] ? 'green' : 'red';
+                    $des = $save['ok'] ? lang('model/collect/add_ok') : ('art insert failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : ''));
                 }
                 else {
                     if(empty($config['uprule'])){
@@ -1525,9 +1566,12 @@ class Collect extends Base {
                                 $update['art_time'] = time();
                                 $where = [];
                                 $where['art_id'] = $info['art_id'];
-                                $res = (new \app\common\model\Art())->where($where)->update($update);
-                                $color = 'green';
-                                if($res===false){
+                                $save = $this->safeCollectSave(function () use ($update, $where) {
+                                    return (new \app\common\model\Art())->where($where)->update($update);
+                                }, (string)($v['art_name'] ?? ''));
+                                $color = $save['ok'] ? 'green' : 'red';
+                                if (!$save['ok']) {
+                                    $des = 'art update failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : '');
                                 }
                             }
                             else{
@@ -1552,7 +1596,12 @@ class Collect extends Base {
                 $param['page'] = intval($data['page']['page']) + 1;
                 $res = $this->art($param);
                 if($res['code']>1){
-                    return $this->error($res['msg']);
+                    $msg = isset($res['msg']) ? $res['msg'] : '';
+                    mac_echo('<font color="red">'.$msg.'</font>');
+                    if(ENTRANCE=='api'){
+                        throw new \RuntimeException($msg);
+                    }
+                    return ['code'=>intval($res['code']), 'msg'=>$msg];
                 }
                 $this->art_data($param,$res );
             }
@@ -1626,6 +1675,7 @@ class Collect extends Base {
         if(empty($html)){
             return ['code'=>1001, 'msg'=>lang('model/collect/get_html_err') . ', url: ' . $url];
         }
+        $html = mac_text_to_utf8($html);
         $html = mac_filter_tags($html);
         $json = json_decode($html,true);
         if(!$json){
@@ -1707,10 +1757,13 @@ class Collect extends Base {
                         $v[$k2] = mac_strip_tags($v2);
                     }
                 }
+                // 采集层格式校验：资源站常给「1987年10月16日」，直接入库会被 varchar(10) 截断成
+                // 「1987年10月16」。统一归一化为 YYYY-MM-DD；无法解析的脏值置空，不写入字段。
+                $v['actor_birthday'] = mac_normalize_birthday($v['actor_birthday'] ?? '');
                 $v['actor_name'] = trim($v['actor_name']);
                 $v['type_id_1'] = intval($type_list[$v['type_id']]['type_pid']);
                 $v['actor_en'] = Pinyin::get($v['actor_name']);
-                $v['actor_letter'] = strtoupper(substr($v['actor_en'],0,1));
+                $v['actor_letter'] = mac_safe_letter($v['actor_en'], $v['actor_name']);
                 $v['actor_time_add'] = time();
                 $v['actor_time'] = time();
                 $v['actor_status'] = intval($config['status']);
@@ -1774,11 +1827,11 @@ class Collect extends Base {
                     $tmp = $this->syncImages($config_sync_pic, $v['actor_pic'],'actor');
                     $v['actor_pic'] = $tmp['pic'];
                     $msg = $tmp['msg'];
-                    $res = (new \app\common\model\Actor())->insert($v);
-                    if($res===false){
-                    }
-                    $color ='green';
-                    $des= lang('model/collect/add_ok');
+                    $save = $this->safeCollectSave(function () use ($v) {
+                        return (new \app\common\model\Actor())->insert($v);
+                    }, (string)($v['actor_name'] ?? ''));
+                    $color = $save['ok'] ? 'green' : 'red';
+                    $des = $save['ok'] ? lang('model/collect/add_ok') : ('actor insert failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : ''));
                 } else {
                     if(empty($config['uprule'])){
                         $des = lang('model/collect/uprule_empty');
@@ -1814,9 +1867,12 @@ class Collect extends Base {
                                 $update['actor_time'] = time();
                                 $where = [];
                                 $where['actor_id'] = $info['actor_id'];
-                                $res = (new \app\common\model\Actor())->where($where)->update($update);
-                                $color = 'green';
-                                if($res===false){
+                                $save = $this->safeCollectSave(function () use ($update, $where) {
+                                    return (new \app\common\model\Actor())->where($where)->update($update);
+                                }, (string)($v['actor_name'] ?? ''));
+                                $color = $save['ok'] ? 'green' : 'red';
+                                if (!$save['ok']) {
+                                    $des = 'actor update failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : '');
                                 }
                             }
                             else{
@@ -1841,7 +1897,12 @@ class Collect extends Base {
                 $param['page'] = intval($data['page']['page']) + 1;
                 $res = $this->actor($param);
                 if($res['code']>1){
-                    return $this->error($res['msg']);
+                    $msg = isset($res['msg']) ? $res['msg'] : '';
+                    mac_echo('<font color="red">'.$msg.'</font>');
+                    if(ENTRANCE=='api'){
+                        throw new \RuntimeException($msg);
+                    }
+                    return ['code'=>intval($res['code']), 'msg'=>$msg];
                 }
                 $this->actor_data($param,$res );
             }
@@ -1915,6 +1976,7 @@ class Collect extends Base {
         if(empty($html)){
             return ['code'=>1001, 'msg'=>lang('model/collect/get_html_err') . ', url: ' . $url];
         }
+        $html = mac_text_to_utf8($html);
         $html = mac_filter_tags($html);
         $json = json_decode($html,true);
         if(!$json){
@@ -1974,7 +2036,7 @@ class Collect extends Base {
                 }
 
                 $v['role_en'] = Pinyin::get($v['role_name']);
-                $v['role_letter'] = strtoupper(substr($v['role_en'],0,1));
+                $v['role_letter'] = mac_safe_letter($v['role_en'], $v['role_name']);
                 $v['role_time_add'] = time();
                 $v['role_time'] = time();
                 $v['role_status'] = intval($config['status']);
@@ -2089,11 +2151,11 @@ class Collect extends Base {
                         $tmp = $this->syncImages($config_sync_pic,  $v['role_pic'], 'role');
                         $v['role_pic'] = $tmp['pic'];
                         $msg = $tmp['msg'];
-                        $res = (new \app\common\model\Role())->insert($v);
-                        if ($res === false) {
-                        }
-                        $color = 'green';
-                        $des = lang('model/collect/add_ok');
+                        $save = $this->safeCollectSave(function () use ($v) {
+                            return (new \app\common\model\Role())->insert($v);
+                        }, (string)($v['role_name'] ?? ''));
+                        $color = $save['ok'] ? 'green' : 'red';
+                        $des = $save['ok'] ? lang('model/collect/add_ok') : ('role insert failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : ''));
                     } else {
                         if(empty($config['uprule'])){
                             $des = lang('model/collect/uprule_empty');
@@ -2123,9 +2185,12 @@ class Collect extends Base {
                                     $update['role_time'] = time();
                                     $where = [];
                                     $where['role_id'] = $info['role_id'];
-                                    $res = (new \app\common\model\Role())->where($where)->update($update);
-                                    $color = 'green';
-                                    if ($res === false) {
+                                    $save = $this->safeCollectSave(function () use ($update, $where) {
+                                        return (new \app\common\model\Role())->where($where)->update($update);
+                                    }, (string)($v['role_name'] ?? ''));
+                                    $color = $save['ok'] ? 'green' : 'red';
+                                    if (!$save['ok']) {
+                                        $des = 'role update failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : '');
                                     }
                                 }
                                 else{
@@ -2151,7 +2216,12 @@ class Collect extends Base {
                 $param['page'] = intval($data['page']['page']) + 1;
                 $res = $this->role($param);
                 if($res['code']>1){
-                    return $this->error($res['msg']);
+                    $msg = isset($res['msg']) ? $res['msg'] : '';
+                    mac_echo('<font color="red">'.$msg.'</font>');
+                    if(ENTRANCE=='api'){
+                        throw new \RuntimeException($msg);
+                    }
+                    return ['code'=>intval($res['code']), 'msg'=>$msg];
                 }
                 $this->role_data($param,$res );
             }
@@ -2225,6 +2295,7 @@ class Collect extends Base {
         if(empty($html)){
             return ['code'=>1001, 'msg'=>lang('model/collect/get_html_err') . ', url: ' . $url];
         }
+        $html = mac_text_to_utf8($html);
         $html = mac_filter_tags($html);
         $json = json_decode($html,true);
         if(!$json){
@@ -2309,7 +2380,7 @@ class Collect extends Base {
                 $v['website_name'] = trim($v['website_name']);
                 $v['type_id_1'] = intval($type_list[$v['type_id']]['type_pid']);
                 $v['website_en'] = Pinyin::get($v['website_name']);
-                $v['website_letter'] = strtoupper(substr($v['website_en'],0,1));
+                $v['website_letter'] = mac_safe_letter($v['website_en'], $v['website_name']);
                 $v['website_time_add'] = time();
                 $v['website_time'] = time();
                 $v['website_status'] = intval($config['status']);
@@ -2374,11 +2445,11 @@ class Collect extends Base {
                     $tmp = $this->syncImages($config_sync_pic, $v['website_pic'],'website');
                     $v['website_pic'] = $tmp['pic'];
                     $msg = $tmp['msg'];
-                    $res = (new \app\common\model\Website())->insert($v);
-                    if($res===false){
-                    }
-                    $color ='green';
-                    $des= lang('model/collect/add_ok');
+                    $save = $this->safeCollectSave(function () use ($v) {
+                        return (new \app\common\model\Website())->insert($v);
+                    }, (string)($v['website_name'] ?? ''));
+                    $color = $save['ok'] ? 'green' : 'red';
+                    $des = $save['ok'] ? lang('model/collect/add_ok') : ('website insert failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : ''));
                 } else {
                     if(empty($config['uprule'])){
                         $des = lang('model/collect/uprule_empty');
@@ -2414,9 +2485,12 @@ class Collect extends Base {
                                 $update['website_time'] = time();
                                 $where = [];
                                 $where['website_id'] = $info['website_id'];
-                                $res = (new \app\common\model\Website())->where($where)->update($update);
-                                $color = 'green';
-                                if($res===false){
+                                $save = $this->safeCollectSave(function () use ($update, $where) {
+                                    return (new \app\common\model\Website())->where($where)->update($update);
+                                }, (string)($v['website_name'] ?? ''));
+                                $color = $save['ok'] ? 'green' : 'red';
+                                if (!$save['ok']) {
+                                    $des = 'website update failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : '');
                                 }
                             }
                             else{
@@ -2439,9 +2513,14 @@ class Collect extends Base {
             Cache::delete($key);
             if ($data['page']['page'] < $data['page']['pagecount']) {
                 $param['page'] = intval($data['page']['page']) + 1;
-                $res = $this->actor($param);
+                $res = $this->website($param);
                 if($res['code']>1){
-                    return $this->error($res['msg']);
+                    $msg = isset($res['msg']) ? $res['msg'] : '';
+                    mac_echo('<font color="red">'.$msg.'</font>');
+                    if(ENTRANCE=='api'){
+                        throw new \RuntimeException($msg);
+                    }
+                    return ['code'=>intval($res['code']), 'msg'=>$msg];
                 }
                 $this->website_data($param,$res );
             }
@@ -2515,6 +2594,7 @@ class Collect extends Base {
         if(empty($html)){
             return ['code'=>1001, 'msg'=>lang('model/collect/get_html_err') . ', url: ' . $url];
         }
+        $html = mac_text_to_utf8($html);
         $html = mac_filter_tags($html);
         $json = json_decode($html,true);
         if(!$json){
@@ -2655,11 +2735,11 @@ class Collect extends Base {
                     }
                     if (!$info) {
                         $msg = isset($tmp['msg']) ? $tmp['msg'] : '';
-                        $res = (new \app\common\model\Comment())->insert($v);
-                        if ($res === false) {
-                        }
-                        $color = 'green';
-                        $des = lang('model/collect/add_ok');
+                        $save = $this->safeCollectSave(function () use ($v) {
+                            return (new \app\common\model\Comment())->insert($v);
+                        }, (string)($v['comment_content'] ?? ''));
+                        $color = $save['ok'] ? 'green' : 'red';
+                        $des = $save['ok'] ? lang('model/collect/add_ok') : ('comment insert failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : ''));
                     } else {
                         if(empty($config['uprule'])){
                             $des = lang('model/collect/uprule_empty');
@@ -2677,9 +2757,12 @@ class Collect extends Base {
                                     $update['comment_time'] = time();
                                     $where = [];
                                     $where['comment_id'] = $info['comment_id'];
-                                    $res = (new \app\common\model\Comment())->where($where)->update($update);
-                                    $color = 'green';
-                                    if ($res === false) {
+                                    $save = $this->safeCollectSave(function () use ($update, $where) {
+                                        return (new \app\common\model\Comment())->where($where)->update($update);
+                                    }, (string)($v['comment_content'] ?? ''));
+                                    $color = $save['ok'] ? 'green' : 'red';
+                                    if (!$save['ok']) {
+                                        $des = 'comment update failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : '');
                                     }
                                 }
                                 else{
@@ -2705,7 +2788,12 @@ class Collect extends Base {
                 $param['page'] = intval($data['page']['page']) + 1;
                 $res = $this->comment_json($param);
                 if($res['code']>1){
-                    return $this->error($res['msg']);
+                    $msg = isset($res['msg']) ? $res['msg'] : '';
+                    mac_echo('<font color="red">'.$msg.'</font>');
+                    if(ENTRANCE=='api'){
+                        throw new \RuntimeException($msg);
+                    }
+                    return ['code'=>intval($res['code']), 'msg'=>$msg];
                 }
                 $this->comment_data($param,$res );
             }
@@ -2791,6 +2879,7 @@ class Collect extends Base {
         if(empty($html)){
             return ['code'=>1001, 'msg'=>lang('model/collect/get_html_err') . ', url: ' . $url];
         }
+        $html = mac_text_to_utf8($html);
         $html = mac_filter_tags($html);
         $xml = @simplexml_load_string($html);
         if(empty($xml)){
@@ -2935,7 +3024,7 @@ class Collect extends Base {
 
                 $v['type_id_1'] = intval($type_list[$v['type_id']]['type_pid']);
                 $v['manga_en'] = Pinyin::get($v['manga_name']);
-                $v['manga_letter'] = strtoupper(substr($v['manga_en'],0,1));
+                $v['manga_letter'] = mac_safe_letter($v['manga_en'], $v['manga_name']);
                 $v['manga_time_add'] = time();
                 $v['manga_time'] = time();
                 $v['manga_status'] = intval($config['status']);
@@ -2955,11 +3044,11 @@ class Collect extends Base {
                     $v['manga_chapter_from'] = $v['manga_play_from'];
                     $v['manga_chapter_url'] = $v['manga_play_url'];
                     
-                    $res = (new \app\common\model\Manga())->insert($v);
-                    if($res===false){
-                    }
-                    $color ='green';
-                    $des= lang('model/collect/add_ok');
+                    $save = $this->safeCollectSave(function () use ($v) {
+                        return (new \app\common\model\Manga())->insert($v);
+                    }, (string)($v['manga_name'] ?? ''));
+                    $color = $save['ok'] ? 'green' : 'red';
+                    $des = $save['ok'] ? lang('model/collect/add_ok') : ('manga insert failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : ''));
                 }
                 else{
                     if(empty($config['uprule'])){
@@ -3002,8 +3091,13 @@ class Collect extends Base {
                             $update['manga_time'] = time();
                             $where = [];
                             $where['manga_id'] = $info['manga_id'];
-                            $res = (new \app\common\model\Manga())->where($where)->update($update);
-                            $color = 'green';
+                            $save = $this->safeCollectSave(function () use ($update, $where) {
+                                return (new \app\common\model\Manga())->where($where)->update($update);
+                            }, (string)($v['manga_name'] ?? ''));
+                            $color = $save['ok'] ? 'green' : 'red';
+                            if (!$save['ok']) {
+                                $des = 'manga update failed' . ($save['msg'] !== '' ? '：' . $save['msg'] : '');
+                            }
                         }
                         else{
                             $des = lang('model/collect/not_need_update');
@@ -3026,7 +3120,12 @@ class Collect extends Base {
                 $param['page'] = intval($data['page']['page']) + 1;
                 $res = $this->manga($param);
                 if($res['code']>1){
-                    return $this->error($res['msg']);
+                    $msg = isset($res['msg']) ? $res['msg'] : '';
+                    mac_echo('<font color="red">'.$msg.'</font>');
+                    if(ENTRANCE=='api'){
+                        throw new \RuntimeException($msg);
+                    }
+                    return ['code'=>intval($res['code']), 'msg'=>$msg];
                 }
                 $this->manga_data($param,$res );
             }

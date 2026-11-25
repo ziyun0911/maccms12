@@ -29,7 +29,7 @@
 - 把 **业务逻辑** 写进模板导致难维护——建议保持 **展示层**。  
 - **相对路径** 与 `install_dir` 不一致导致 **CSS 404**。  
 - **JS 引用 HTTP** 在 HTTPS 站被拦。  
-- 前台静态资源是打包产物：改 `static/**` 源文件后要 `php think front:bundle` 重建，见「模板修复与试用」章节及说明文档 06。
+- 前台静态资源是打包产物：改 `static/**` 源文件后要 `php bin/think front:bundle` 重建，见「模板修复与试用」章节及说明文档 06。
 
 ---
 
@@ -50,4 +50,4 @@
 
 ## English summary
 
-The **Templates** bar has six visible entries: template manager, ad slots, tag wizard, theme config, theme designer and template marketplace. Two traps matter most. First, opening a file goes to the **hidden `template/info` node** (delete is `template/del`), so granting only "template manager" leaves non-super admins with *permission denied*; grant all three. Second, saving through the web editor runs the content through a blacklist (`php`, `file`, `config`, `input`, `{$`, `{:`, `{/`, …) and rejects the file if anything would be stripped — which is **11 of the 12 bundled templates**, since ThinkPHP tags are exactly `{$var}` / `{:func()}` / `{include file=…}`. So edit via **FTP/local editor**, and reserve the online editor for plain HTML fragments. Only `html/htm/js/xml` are editable (not `.css`), paths must stay under `./template`, and after changes wipe the cache (`index/clear`, compiled templates live in `runtime/temp`) plus rebuild static bundles with `php think front:bundle`.
+The **Templates** bar has six visible entries: template manager, ad slots, tag wizard, theme config, theme designer and template marketplace. Two traps matter most. First, opening a file goes to the **hidden `template/info` node** (delete is `template/del`), so granting only "template manager" leaves non-super admins with *permission denied*; grant all three. Second, saving through the web editor runs the content through a blacklist (`php`, `file`, `config`, `input`, `{$`, `{:`, `{/`, …) and rejects the file if anything would be stripped — which is **11 of the 12 bundled templates**, since ThinkPHP tags are exactly `{$var}` / `{:func()}` / `{include file=…}`. So edit via **FTP/local editor**, and reserve the online editor for plain HTML fragments. Only `html/htm/js/xml` are editable (not `.css`), paths must stay under `./template`, and after changes wipe the cache (`index/clear`, compiled templates live in `runtime/temp`) plus rebuild static bundles with `php bin/think front:bundle`.

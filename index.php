@@ -36,10 +36,6 @@ if (!is_file(APP_PATH . 'data/install/install.lock')) {
     exit;
 }
 
-if (!empty($_SERVER['PATH_INFO']) && !mb_check_encoding($_SERVER['PATH_INFO'], 'utf-8')) {
-    $_SERVER['PATH_INFO'] = mb_convert_encoding($_SERVER['PATH_INFO'], 'UTF-8', 'GBK');
-}
-
 require __DIR__ . '/vendor/autoload.php';
 
 $app = new App();

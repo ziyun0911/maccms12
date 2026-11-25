@@ -174,9 +174,9 @@ class Doctor extends Command
             ['runtime', 'fail', '日志、缓存、模板编译'],
             ['upload', 'fail', '附件与图片'],
             ['config', 'warn', '仅安装与改库配置时需要写'],
-            ['static/css', 'warn', 'php think front:bundle 写后台样式包'],
-            ['static/js', 'warn', 'php think front:bundle 写后台脚本包'],
-            ['template/default/asset/css', 'warn', 'php think front:bundle 写前台样式包'],
+            ['static/css', 'warn', 'php bin/think front:bundle 写后台样式包'],
+            ['static/js', 'warn', 'php bin/think front:bundle 写后台脚本包'],
+            ['template/default/asset/css', 'warn', 'php bin/think front:bundle 写前台样式包'],
         ];
 
         $rows = [];
@@ -304,7 +304,7 @@ class Doctor extends Command
         $rows = [];
         $hasTable = \app\common\util\Upgrades::exists();
         $rows[] = $this->row('ok', 'db_version 记录表', $hasTable ? '已在库' : '未建',
-            $hasTable ? '' : '第一次 php think upgrade:run 时自动建');
+            $hasTable ? '' : '第一次 php bin/think upgrade:run 时自动建');
 
         $pending = 0;
         $abnormal = 0;
@@ -312,7 +312,7 @@ class Doctor extends Command
             switch ($f['status']) {
                 case 'pending':
                     $pending++;
-                    $rows[] = $this->row('warn', $f['name'], '待执行', $f['stmt'] . ' 条语句；跑 php think upgrade:run');
+                    $rows[] = $this->row('warn', $f['name'], '待执行', $f['stmt'] . ' 条语句；跑 php bin/think upgrade:run');
                     break;
                 case 'modified':
                     $abnormal++;
@@ -386,7 +386,7 @@ class Doctor extends Command
             }
             $rows[] = $row['ok']
                 ? $this->row('ok', $row['bundle'], $this->humanSize($row['size']), count($row['parts']) . ' 分区')
-                : $this->row('fail', $row['bundle'], $row['exists'] ? '与源文件不一致' : '未生成', '跑 php think front:bundle');
+                : $this->row('fail', $row['bundle'], $row['exists'] ? '与源文件不一致' : '未生成', '跑 php bin/think front:bundle');
         }
 
         foreach (BlocklistRules::check(false) as $entry) {
@@ -398,7 +398,7 @@ class Doctor extends Command
             }
             $rows[] = $entry['status'] === 'ok'
                 ? $this->row('ok', $entry['path'], '拦截区块一致')
-                : $this->row('fail', $entry['path'], $entry['status'], implode(', ', $bad) . '；跑 php think blocklist:sync');
+                : $this->row('fail', $entry['path'], $entry['status'], implode(', ', $bad) . '；跑 php bin/think blocklist:sync');
         }
 
         return $rows;

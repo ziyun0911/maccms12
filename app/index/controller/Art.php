@@ -33,7 +33,7 @@ class Art extends Base
         $this->check_ajax();
         $this->check_show(1);
         $info = $this->label_type();
-        return $this->label_fetch('art/ajax_show');
+        return $this->label_fetch(mac_tpl_fetch_ajax('art','ajax_show','show'));
     }
 
     public function search()
@@ -52,7 +52,7 @@ class Art extends Base
         $this->check_search($param,1);
         SearchService::logFromParam(2, $param);
         $this->label_search($param);
-        return $this->label_fetch('art/ajax_search');
+        return $this->label_fetch(mac_tpl_fetch_ajax('art','ajax_search','search'));
     }
 
     public function detail()
@@ -73,7 +73,7 @@ class Art extends Base
     {
         $this->check_ajax();
         $info = $this->label_art_detail();
-        return $this->label_fetch('art/ajax_detail');
+        return $this->label_fetch(mac_tpl_fetch_ajax('art','ajax_detail','detail'));
     }
 
     public function rss()

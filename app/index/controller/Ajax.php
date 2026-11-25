@@ -183,15 +183,21 @@ class Ajax extends Base
         if ($GLOBALS['config']['app']['search'] != '1') {
             return json(['code' => 999, 'msg' => lang('suggest_close')]);
         }
+        $collect = isset($GLOBALS['config']['app']['search_hot_collect']) ? (string)$GLOBALS['config']['app']['search_hot_collect'] : 'refresh';
+        if ($collect === 'off') {
+            return json(['code' => 1, 'data' => ['hot' => [], 'config_hot' => []]]);
+        }
         $limit = isset($this->_param['limit']) ? intval($this->_param['limit']) : 15;
         $days = isset($this->_param['days']) ? intval($this->_param['days']) : 30;
         $limit = max(1, min(50, $limit));
         $days = max(1, min(365, $days));
-        $cacheSec = max(15, intval(isset($GLOBALS['config']['app']['search_hot_cache_sec']) ? $GLOBALS['config']['app']['search_hot_cache_sec'] : 60));
-        $cacheKey = 'search:hot:v1:' . md5($limit . '|' . $days . '|' . (string)($GLOBALS['config']['app']['search_hot'] ?? ''));
-        $cached = Cache::get($cacheKey);
-        if (is_array($cached)) {
-            return json($cached);
+        $cacheSec = $collect === 'refresh' ? 0 : max(15, intval(isset($GLOBALS['config']['app']['search_hot_cache_sec']) ? $GLOBALS['config']['app']['search_hot_cache_sec'] : 60));
+        $cacheKey = 'search:hot:v1:' . md5($limit . '|' . $days . '|' . (string)($GLOBALS['config']['app']['search_hot'] ?? '')) . mac_popedom_cache_suffix();
+        if ($cacheSec > 0) {
+            $cached = Cache::get($cacheKey);
+            if (is_array($cached)) {
+                return json($cached);
+            }
         }
         $hot = SearchService::hotWords($limit, $days);
         $raw = isset($GLOBALS['config']['app']['search_hot']) ? (string)$GLOBALS['config']['app']['search_hot'] : '';
@@ -204,7 +210,9 @@ class Ajax extends Base
             }
         }
         $payload = ['code' => 1, 'data' => ['hot' => $hot, 'config_hot' => $configHot]];
-        Cache::set($cacheKey, $payload, (int)$cacheSec);
+        if ($cacheSec > 0) {
+            Cache::set($cacheKey, $payload, (int)$cacheSec);
+        }
         return json($payload);
     }
 
@@ -725,8 +733,8 @@ class Ajax extends Base
         $where['type_id|type_id_1'] = ['in', $ids];
 
         $model = (new \app\common\model\Vod());
-        $imgRes = $model->listData($where, 'vod_hits_month desc', 1, 6, 0, '*', 1, 1);
-        $txtRes = $model->listData($where, 'vod_hits_month desc', 1, 12, 6, '*', 1, 1);
+        $imgRes = $model->listData($where, 'vod_score desc,vod_hits_month desc', 1, 10, 0, '*', 1, 1);
+        $txtRes = $model->listData($where, 'vod_score desc,vod_hits_month desc', 1, 12, 10, '*', 1, 1);
 
         $imgList = [];
         $userId = intval($GLOBALS['user']['user_id'] ?? 0);
@@ -902,11 +910,11 @@ class Ajax extends Base
     {
         $param = input();
         if(!in_array($param['type'],['search','show','ai_chat'])){
-            return ['code' => 1001, 'msg' => lang('param_err')];
+            return json(['code' => 1001, 'msg' => lang('param_err')]);
         }
 
-        if (!captcha_check((string)($param['verify'] ?? ''))){
-            return ['code' => 1002, 'msg' => lang('verify_err')];
+        if (!captcha_check((string)($param['verify'] ?? ''))) {
+            return json(['code' => 1002, 'msg' => lang('verify_err')]);
         }
         session($param['type'].'_verify','1');
         if ($param['type'] === 'ai_chat') {
@@ -915,7 +923,7 @@ class Ajax extends Base
                 \app\common\util\AiChatRateLimit::resetSession($sid);
             }
         }
-        return json(['code'=>1,'msg'=>lang('ok')]);
+        return json(['code' => 1, 'msg' => lang('ok')]);
     }
 
     public function ai_chat()

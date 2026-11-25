@@ -33,7 +33,7 @@ class Plot extends Base
         $this->check_search($param,1);
         SearchService::logFromParam(1, $param);
         $this->label_search($param);
-        return $this->label_fetch('plot/ajax_search');
+        return $this->label_fetch(mac_tpl_fetch_ajax('plot','ajax_search','search'));
     }
 
     public function detail()
@@ -46,7 +46,7 @@ class Plot extends Base
     {
         $this->check_ajax();
         $info = $this->label_vod_detail();
-        return $this->label_fetch('plot/ajax_detail');
+        return $this->label_fetch(mac_tpl_fetch_ajax('plot','ajax_detail','detail'));
     }
 
     public function rss()

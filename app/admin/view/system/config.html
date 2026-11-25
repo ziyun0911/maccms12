@@ -896,6 +896,18 @@
                     </div>
 
                     <div class="layui-form-item">
+                        <label class="layui-form-label">热词采集方式：</label>
+                        <div class="layui-input-inline">
+                            <select name="app[search_hot_collect]" form="form_config_main" style="width:190px;">
+                                <option value="refresh" {if condition="($config['app']['search_hot_collect'] ?? 'refresh') eq 'refresh'"}selected{/if}>每次刷新自动采集</option>
+                                <option value="cache" {if condition="($config['app']['search_hot_collect'] ?? 'refresh') eq 'cache'"}selected{/if}>定时缓存</option>
+                                <option value="off" {if condition="($config['app']['search_hot_collect'] ?? 'refresh') eq 'off'"}selected{/if}>关闭自动采集</option>
+                            </select>
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">每次刷新：页面加载即重新统计搜索日志、不使用缓存；定时缓存：按 search_hot_cache_sec 缓存；关闭：只显示手工填写的热词</div>
+                    </div>
+
+                    <div class="layui-form-item">
                         <label class="layui-form-label">{:lang('admin/system/config/art_extend_class')}：</label>
                         <div class="layui-input-block">
                             <input type="text" name="app[art_extend_class]" placeholder=""

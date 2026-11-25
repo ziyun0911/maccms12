@@ -39,22 +39,25 @@
 独立页面 **`system/configaisearch`**（菜单名 **「AI 搜索设置」**，show=1；注意它和 `AI SEO 设置`、`AI 视频封面设置` 不同，后两个只是「网站参数」里的页签）。所有字段落在 `maccms.php` 的 **`ai_search`** 顶级键。
 
 1. **启用**：`ai_search[enabled]`。  
-2. **模型与接口**：`provider`（服务商）、`model`、`response_language`（响应语言：自动/中/英/日/韩/俄）、`api_base`、`api_key`（**留空即不替换已保存的 Key**）、`timeout`、`max_terms`（扩展词数量）、`min_query_len`（最小查询长度）。  
-3. **站内召回模块**：`ai_search[module][…]`，可勾 **vod / art / manga / topic / actor / role / plot / website** 八个（[configaisearch.html:96-108](.../app/admin/view/system/configaisearch.html#L96-L108)）。命中站内数据优先返回，缺失时回退普通对话。  
-4. **外部资源链接**：`external_enabled`、`external_max_links`、`external_domains`，以及 `external_sources` 整块 —— 内含总开关 `enabled` / `use_live` / `use_cache` / `cache_ttl` / `merge_limit` / `sync_interval`，和 **tmdb、douban、imdb** 三个源各自的 `enabled`、`api_key`、`base_url`、`language`、`region` 等。  
-5. **语义重排**：`semantic_enabled` + `embedding_model` + `semantic_weight` + `semantic_candidates`；需要一个可用的 **Embeddings** 接口。  
-6. **频率与预算**：`rate_limit_enabled`、`rate_limit_window`、`rate_limit_max`、`max_question_chars`、`require_login`、`anon_captcha_after`、`daily_budget`、`llm_call_cap`、`circuit_fail_threshold`、`circuit_hold_seconds`（熔断）、`debug_log`。建议至少开启限流，防止接口被刷。
+2. **接口信息统一同步自「主题 AI 设置」**：`provider`（服务商）、`model`、`api_base`、`api_key` 不在本页填写，由 `maccms.theme_ai` 同步写入，运行时也实时读取 `theme_ai`（`AiServiceConfig::search()`）；本页只显示脱敏摘要（密钥仅尾号）与跳转链接。在主题 AI 设置里保存后自动同步，更换服务商无需在本页重复配置。  
+3. **响应语言与调用参数**：`response_language`（响应语言：自动/中/英/日/韩/俄）、`timeout`、`max_terms`（扩展词数量）、`min_query_len`（最小查询长度）。  
+4. **站内召回模块**：`ai_search[module][…]`，可勾 **vod / art / manga / topic / actor / role / plot / website** 八个。命中站内数据优先返回，缺失时回退普通对话。  
+5. **外部资源链接**：`external_enabled`、`external_max_links`、`external_domains`，以及 `external_sources` 整块 —— 内含总开关 `enabled` / `use_live` / `use_cache` / `cache_ttl` / `merge_limit` / `sync_interval`，和 **tmdb、douban、imdb** 三个源各自的 `enabled`、`api_key`、`base_url`、`language`、`region` 等。  
+6. **语义重排**：`semantic_enabled` + `embedding_model` + `semantic_weight` + `semantic_candidates`；需要一个可用的 **Embeddings** 接口。  
+7. **频率与预算**：`rate_limit_enabled`、`rate_limit_window`、`rate_limit_max`、`max_question_chars`、`require_login`、`anon_captcha_after`、`daily_budget`、`llm_call_cap`、`circuit_fail_threshold`、`circuit_hold_seconds`（熔断）、`debug_log`。建议至少开启限流，防止接口被刷。  
+8. **全站 AI 连接信息已统一归口「主题 AI 设置」**：除本页的 `ai_search` 和后台助手外，**AI SEO 设置**（`ai_seo`，含后台 UEditor AI 工具栏）、**AI 标注设置**（`ai_content`）、**AI 视频封面设置**（`ai_cover`）的 `provider` / `model` / `api_base` / `api_key` 同样唯一取自 `maccms.theme_ai`。文本类由 `AiServiceConfig::seo()` / `content()` 实时覆盖，图像类由 `AiServiceConfig::cover()` 取 `theme_ai.image_api_base` / `image_api_key` / `image_model`（留空时回退文本凭据），接口格式固定 OpenAI Images。三个页面只读展示脱敏摘要（密钥仅尾号）+ 跳转链接，保存接口忽略伪造的接口字段；主题 AI 保存时由 `AiServiceConfig::syncAll()` 一次写回四段。各模块自己的启用开关与业务参数（超时、尺寸、画质、限流、批量等）仍由本页控制，不与 `theme_ai.enabled` 联动。
 
 ---
 
 ## 4) 后台助手（浮动「?」按钮）
 
-1. 进入 **网站参数 → 后台助手设置**（`system/configassistant`，独立页面，与 **「AI 搜索设置」** 是两条菜单；菜单名取 `menu/configassistant`，页内标题写「后台助手配置」）。字段落在 `maccms.php` 的 **`admin_assistant`** 键 —— 该键 **出厂不存在**，第一次保存本页才会创建（[System.php:2004-2006](.../app/admin/controller/System.php#L2004-L2006)）。  
-2. **`enabled`** 启用；**`use_ai_search_credentials`** 打开后复用「AI 搜索设置」里的 `api_key` / `api_base`，关掉才需要在本页单独填 `provider`（通常 openai）、`model`、`api_base`、`api_key`、`max_tokens`、`timeout`。  
-3. **`access_scope`**：`all` = 所有已登录管理员（默认），`super` = 仅 `admin_id=1`；`assistant/chat|ping` 的鉴权就按这一项判定。  
-4. **`retrieve_chunks`**（每次带的知识条数，默认 8，上限 12）、**`rate_per_minute`**（速率限制）。  
-5. **知识库文件路径**：**`app/data/admin_assistant/*.md`**，可按站点业务增删改；改完无需清缓存，助手直接读文件。  
-6. **`include_env_snapshot`**（可选）：仅包含搜索开关、语言、缓存类型、站点名、模板目录等非敏感项，便于解释当前环境。  
+1. 进入 **网站参数 → 后台助手设置**（`system/configassistant`，独立页面，与 **「AI 搜索设置」** 是两条菜单；菜单名取 `menu/configassistant`，页内标题写「后台助手配置」）。字段落在 `maccms.php` 的 **`admin_assistant`** 键 —— 该键 **出厂不存在**，第一次保存本页才会创建。  
+2. **连接信息统一跟随「主题 AI 设置」**：`provider`、`model`、`api_base`、`api_key` **不在本页填写、也不写入 `admin_assistant`**，而是实时读取 `maccms.theme_ai`。本页只显示脱敏摘要（密钥仅显示尾号）与跳转链接。更换主题 AI 服务商后助手自动跟随，包括切换到 `claude`（Anthropic `/v1/messages` 格式），无需在本页重复配置。  
+3. 本页只保存助手的行为参数：**`enabled`**（启用）、**`access_scope`**、**`timeout`**、**`max_tokens`**、**`include_env_snapshot`**、**`rate_per_minute`**、**`retrieve_chunks`**。  
+4. **`access_scope`**：`all` = 所有已登录管理员（默认），`super` = 仅 `admin_id=1`；`assistant/chat|ping` 的鉴权就按这一项判定。  
+5. **`retrieve_chunks`**（每次带的知识条数，默认 8，上限 12）、**`rate_per_minute`**（速率限制）。  
+6. **知识库文件路径**：**`app/data/admin_assistant/*.md`**，可按站点业务增删改；改完无需清缓存，助手直接读文件。  
+7. **`include_env_snapshot`**（可选）：仅包含搜索开关、语言、缓存类型、站点名、模板目录等非敏感项，便于解释当前环境。  
 
 助手 **不会** 自动修改数据库或配置；仅作说明与步骤引导。
 
@@ -62,4 +65,4 @@
 
 ## English summary
 
-Frontend search: **System config → Website parameters → “Performance” tab** (`app[search]`, `search_verify`, `search_len`, `search_timespan`, `search_vod_rule[]`, `search_art_rule[]`); the hot-word list `app[search_hot]` sits on the next **“Reserved parameters”** tab. Optional video LIKE cache (`app[vod_search_optimise][]`) stores results in `mac_vod_search`, cleared by the top-bar cache wipe. `mac_search_query_log` has **no UI switch** — edit `app/extra/maccms.php` by hand. Suggest queries go to `api.php/{module}/suggest`. **Meilisearch** is configured at **Website parameters → Meilisearch settings** (`meilisearch/index`), **super-admin only**, and needs one full re-index after enabling; filtered searches still fall back to MySQL LIKE. **AI search** is its own page (**Website parameters → AI search settings**, `system/configaisearch`) covering provider/model, per-module recall, TMDB/Douban/IMDB external sources, embedding rerank and rate/budget guards. **Admin assistant** lives at **Website parameters → Admin assistant settings** (`system/configassistant`) and answers from markdown in `app/data/admin_assistant/`.
+Frontend search: **System config → Website parameters → “Performance” tab** (`app[search]`, `search_verify`, `search_len`, `search_timespan`, `search_vod_rule[]`, `search_art_rule[]`); the hot-word list `app[search_hot]` sits on the next **“Reserved parameters”** tab. Optional video LIKE cache (`app[vod_search_optimise][]`) stores results in `mac_vod_search`, cleared by the top-bar cache wipe. `mac_search_query_log` has **no UI switch** — edit `app/extra/maccms.php` by hand. Suggest queries go to `api.php/{module}/suggest`. **Meilisearch** is configured at **Website parameters → Meilisearch settings** (`meilisearch/index`), **super-admin only**, and needs one full re-index after enabling; filtered searches still fall back to MySQL LIKE. **AI search** is its own page (**Website parameters → AI search settings**, `system/configaisearch`) covering response language, per-module recall, TMDB/Douban/IMDB external sources, embedding rerank and rate/budget guards; its provider/model/API base/key are synced from **Theme AI settings** (`maccms.theme_ai`), shown read-only, and follow provider changes automatically. **Admin assistant** lives at **Website parameters → Admin assistant settings** (`system/configassistant`) and answers from markdown in `app/data/admin_assistant/`. All AI modules (AI search, AI SEO + UEditor AI toolbar, AI annotation and AI video covers) now share one credential source: **Theme AI settings** (`maccms.theme_ai`). Their settings pages show read-only masked summaries, ignore forged connection fields on save, and follow provider changes automatically via `AiServiceConfig`; only per-module business parameters stay local.

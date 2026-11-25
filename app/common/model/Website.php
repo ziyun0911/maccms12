@@ -9,6 +9,7 @@ use app\common\util\MeilisearchSync;
 
 class Website extends Base {
     protected $name = 'website';
+    protected $popedomScoped = true;
 
     protected $createTime = '';
     protected $updateTime = '';
@@ -504,7 +505,7 @@ class Website extends Base {
             $data['website_en'] = Pinyin::get($data['website_name']);
         }
         if(empty($data['website_letter'])){
-            $data['website_letter'] = strtoupper(substr($data['website_en'],0,1));
+            $data['website_letter'] = mac_safe_letter($data['website_en'], $data['website_name']);
         }
         if(!empty($data['website_pic_screenshot'])){
             $data['website_pic_screenshot'] = str_replace( array(chr(10),chr(13)), array('','#'),$data['website_pic_screenshot']);

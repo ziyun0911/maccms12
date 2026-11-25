@@ -78,7 +78,7 @@ return array (
     ),
     'vod' => 
     array (
-      'hnum' => '6',
+      'hnum' => '12',
     ),
     'hotvod' => 
     array (
@@ -168,7 +168,7 @@ return array (
     'actor' => 
     array (
       'hbtn' => '1',
-      'id' => '1,2,3,4',
+      'id' => '',
       'htitle' => '荧幕热星',
     ),
     'rank' => 
@@ -180,7 +180,7 @@ return array (
       'btn' => '1',
       'title' => '排行榜',
       'num' => '6',
-      'id' => '1,2,3,4',
+      'id' => '1,2,3,4,5,6,7,8,9,10',
     ),
     'links' => 
     array (
@@ -192,8 +192,8 @@ return array (
     array (
       'btn' => '1',
       'ms' => 'small',
-      'style_pc' => '2',
-      'style_h5' => '2',
+      'style_pc' => '3',
+      'style_h5' => '3',
       'smbg' => '1',
       'bgstyle' => '',
     ),

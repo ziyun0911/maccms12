@@ -52,7 +52,7 @@ class FrontBundleBuild extends Command
     private const BANNER_ADMIN_CSS = <<<'TXT'
 /*
  * %s — 后台样式合包（派生产物，请勿手改）
- * 构建：php think front:bundle
+ * 构建：php bin/think front:bundle
  * 分区顺序不可调整：后出现的分区覆盖前面的同名规则，
  * 与合并前「后台各页 <link> 依次加载」的顺序保持一致。
  * 源文件仍在 static/css/ 下，改样式改源文件再重建。
@@ -145,7 +145,7 @@ TXT;
         }
 
         if ($check && $drift > 0) {
-            $output->writeln('<error>' . $drift . " 个 bundle 与源文件不一致，跑 php think front:bundle 重建</error>");
+            $output->writeln('<error>' . $drift . " 个 bundle 与源文件不一致，跑 php bin/think front:bundle 重建</error>");
             return 1;
         }
 
@@ -185,7 +185,7 @@ TXT;
         $default = $isCss ? <<<TXT
 /*
  * %s — 前台样式合包（派生产物，请勿手改）
- * 构建：php think front:bundle
+ * 构建：php bin/think front:bundle
  * 分区顺序不可调整：后出现的分区覆盖前面的同名规则，
  * 与合并前「模板 <link> 依次加载」的顺序保持一致。
  * 源文件仍在 asset/css/ 下，改样式改源文件再重建。
@@ -194,7 +194,7 @@ TXT
             : <<<TXT
 /*
  * %s — 后台脚本合包（派生产物，请勿手改）
- * 构建：php think front:bundle
+ * 构建：php bin/think front:bundle
  * 分区顺序不可调整：vendor 必须排在它的项目封装之前，
  * 与合并前「模板 <script> 依次加载」的执行顺序保持一致。
  * 源文件仍在 static/js/ 下，改脚本改源文件再重建。

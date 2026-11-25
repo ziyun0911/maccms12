@@ -10,7 +10,7 @@
 | **config/** | ThinkPHP 框架配置（`database.php`、`cache.php` 等）；`config/database.php` 是 **实际生效** 的数据库连接 |
 | **runtime/** | 缓存、日志、临时文件；应 **可写**，但 **绝不能让公网直读**（内部文件下载拦截见 `说明文档/07`） |
 | **template/{模板目录}/** | 前台模版（配合 `site.template_dir`） |
-| **static/** | 前后台静态资源（JS/CSS 合包由 `php think front:bundle` 生成） |
+| **static/** | 前后台静态资源（JS/CSS 合包由 `php bin/think front:bundle` 生成） |
 | **upload/** | 上传目录 |
 | **extend/** | 第三方扩展（如 `aws/src/Aws/aws.phar`） |
 | **vendor/** | Composer 依赖；框架在 `vendor/topthink/framework`——**没有顶层 `thinkphp/` 目录**，也不要改 vendor 里的文件 |
@@ -25,7 +25,7 @@
 ## 日志
 
 - **应用日志**按入口分目录：**`runtime/admin/log/`**、**`runtime/index/log/`**、**`runtime/api/log/`**，文件名形如 `202610/26.log`（年月目录 + 日文件）。  
-- **`runtime/log/`** 是 CLI / 未指定应用时的落点（`php think ...` 的报错在这里），另有 `runtime/log/bot/`（爬虫日志，按需生成）。  
+- **`runtime/log/`** 是 CLI / 未指定应用时的落点（`php bin/think ...` 的报错在这里），另有 `runtime/log/bot/`（爬虫日志，按需生成）。  
 - 宿主 PHP `error_log` 也要看：PHP 致命错误常在框架日志之前。  
 - **后台行为类日志**在菜单里：**用户 → 操作审计**（`adminaudit/index`）、**访问日志**（`ulog/index`）、**积分日志**（`plog/index`）。
 

@@ -47,8 +47,8 @@ class VodAiCover
         }
         $vod = $res['info'];
 
-        $config = config('maccms');
-        $ai = isset($config['ai_cover']) && is_array($config['ai_cover']) ? $config['ai_cover'] : [];
+        // 连接信息统一跟随主题 AI 的图像凭据；本段只保留启用开关、尺寸、画质等业务参数
+        $ai = \app\common\util\AiServiceConfig::cover();
         $enabled = isset($ai['enabled']) ? (string) $ai['enabled'] : '0';
         if ($enabled !== '1') {
             return ['code' => 0, 'msg' => lang('admin/ai_cover/msg_disabled')];

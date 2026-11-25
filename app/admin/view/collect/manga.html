@@ -61,8 +61,14 @@
                 $p1_str = http_build_query($p1);
             {/php}
             <a data-href="{:url('api')}?{$p1_str}&ac=cjsel" data-ajax="no" class="layui-btn layui-btn-primary j-page-btns"><i class="layui-icon">&#xe654;</i>{:lang('admin/collect/cj_select')}</a>
-            <a data-href="{:url('api')}?{$p1_str}&h=24&ac=cjday" data-checkbox="no" data-ajax="no" class="layui-btn layui-btn-primary j-page-btns"><i class="layui-icon">&#xe654;</i>{:lang('admin/collect/cj_today')}</a>
-            <a data-href="{:url('api')}?{$p1_str}&ac=cjall" data-checkbox="no" data-ajax="no" class="layui-btn layui-btn-primary j-page-btns"><i class="layui-icon">&#xe654;</i>{:lang('admin/collect/cj_all')}</a>
+            <div class="layui-input-inline" style="width:auto;vertical-align:middle;margin-left:8px;">
+                <select id="collectRange" class="layui-input" style="height:30px;line-height:30px;width:128px;padding:0 4px;">
+                    <option value="all"{if condition="empty($param['h'])"} selected{/if}>{:lang('admin/collect/cj_all')}</option>
+                    <option value="24"{if condition="!empty($param['h']) && $param['h'] eq '24'"} selected{/if}>{:lang('admin/collect/cj_today')}</option>
+                    <option value="168"{if condition="!empty($param['h']) && $param['h'] eq '168'"} selected{/if}>{:lang('admin/collect/cj_week')}</option>
+                </select>
+            </div>
+            <a href="javascript:;" id="btnCollectRange" class="layui-btn layui-btn-normal" style="margin-left:8px;"><i class="layui-icon">&#xe654;</i>开始采集</a>
         </div>
 
         <div id="pages" class="center"></div>
@@ -110,6 +116,19 @@
         $('.select_type').click(function(){
             var t = $(this).attr('data-id');
             var url = changeParam(curUrl,'t',t);
+            location.href = url.replace('%7Bpage%7D',1).replace('%7Blimit%7D','');
+        });
+
+        $('#btnCollectRange').click(function(){
+            var h = $('#collectRange').val();
+            var url;
+            if(h == 'all'){
+                url = changeParam(curUrl,'ac','cjall');
+                url = changeParam(url,'h','');
+            } else {
+                url = changeParam(curUrl,'ac','cjday');
+                url = changeParam(url,'h',h);
+            }
             location.href = url.replace('%7Bpage%7D',1).replace('%7Blimit%7D','');
         });
 

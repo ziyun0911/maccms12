@@ -8,6 +8,9 @@
             <a data-href="{:url('info')}" class="layui-btn layui-btn-primary j-iframe" data-width="800px" data-height="610px"><i class="layui-icon">&#xe654;</i>{:lang('add')}</a>
             <a data-href="{:url('del')}" class="layui-btn layui-btn-primary j-page-btns confirm"><i class="layui-icon">&#xe640;</i>{:lang('del')}</a>
             <a data-href="{:url('clearbind')}" class="layui-btn layui-btn-primary j-page-btns confirm" data-checkbox="false" data-ajax="yes"><i class="layui-icon">&#xe640;</i>{:lang('admin/collect/clear_bind')}</a>
+            <a data-href="{:url('api')}?h=24" data-checkbox="yes" data-ajax="no" class="layui-btn layui-btn-primary j-page-btns" title="对勾选的资源站采集当天数据"><i class="layui-icon">&#xe654;</i>{:lang('admin/collect/cj_day')}</a>
+            <a data-href="{:url('api')}?h=168" data-checkbox="yes" data-ajax="no" class="layui-btn layui-btn-primary j-page-btns" title="对勾选的资源站采集本周数据"><i class="layui-icon">&#xe654;</i>{:lang('admin/collect/cj_week')}</a>
+            <a data-href="{:url('api')}" data-checkbox="yes" data-ajax="no" class="layui-btn layui-btn-primary j-page-btns" title="对勾选的资源站采集全部数据"><i class="layui-icon">&#xe654;</i>{:lang('admin/collect/cj_all_full')}</a>
 
                 {if condition="$collect_break_vod neq ''"}
                 <a href="{:url('load')}?flag=vod" class="layui-btn layui-btn-danger ">【{:lang('admin/collect/enter_vod_break')}】</a>

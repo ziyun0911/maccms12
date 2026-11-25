@@ -14,6 +14,7 @@ class Vod extends Base {
     use RecycleBinTrait;
 
     protected $name = 'vod';
+    protected $popedomScoped = true;
 
     protected function getRecycleTimeField(): string
     {
@@ -57,6 +58,15 @@ class Vod extends Base {
         if(!empty($where['_string'])){
             $where2 = $where['_string'];
             unset($where['_string']);
+        }
+        $popedom_excl = mac_popedom_excluded_type_ids();
+        if(!empty($popedom_excl)){
+            if(!empty($where['type_id'])){
+                $where[] = ['type_id', 'not in', $popedom_excl];
+            }
+            else{
+                $where['type_id'] = ['not in', $popedom_excl];
+            }
         }
 
         $limit_str = ($limit * ($page-1) + $start) .",".$limit;
@@ -516,17 +526,6 @@ class Vod extends Base {
             $where['vod_plot'] = $plot;
         }
 
-        if(defined('ENTRANCE') && ENTRANCE == 'index' && $GLOBALS['config']['app']['popedom_filter'] ==1){
-            $type_ids = mac_get_popedom_filter($GLOBALS['user']['group']['group_type']);
-            if(!empty($type_ids)){
-                if(!empty($where['type_id'])){
-                    $where['type_id'] = [ $where['type_id'],['not in', explode(',',$type_ids)] ];
-                }
-                else{
-                    $where['type_id'] = ['not in', explode(',',$type_ids)];
-                }
-            }
-        }
         $use_rand = ($by == 'rnd');
         if (!$use_rand) {
             if (!in_array($by, ['id', 'time', 'time_add', 'score', 'hits', 'hits_day', 'hits_week', 'hits_month', 'up', 'down', 'level', 'rnd'])) {
@@ -597,7 +596,7 @@ class Vod extends Base {
         }
         $order_cache_key = ($meili !== null) ? 'meilisearch_relevance' : (is_array($order) ? 'sql_rand' : $order);
 
-        $cach_name = $GLOBALS['config']['app']['cache_flag']. '_' .md5('vod_listcache_'.http_build_query($where_cache).'_'.$order_cache_key.'_'.$page.'_'.$num.'_'.$start.'_'.$pageurl);
+        $cach_name = $GLOBALS['config']['app']['cache_flag']. '_' .md5('vod_listcache_'.http_build_query($where_cache).'_'.$order_cache_key.'_'.$page.'_'.$num.'_'.$start.'_'.$pageurl . mac_popedom_cache_suffix());
         $res = $use_rand ? null : Cache::get($cach_name);
         if(empty($cachetime)){
             $cachetime = $GLOBALS['config']['app']['cache_time'];
@@ -742,7 +741,7 @@ class Vod extends Base {
         }
 
         if(empty($data['vod_letter'])){
-            $data['vod_letter'] = strtoupper(substr($data['vod_en'],0,1));
+            $data['vod_letter'] = mac_safe_letter($data['vod_en'], $data['vod_name']);
         }
 
         if(!empty($data['vod_content'])) {

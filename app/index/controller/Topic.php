@@ -32,7 +32,7 @@ class Topic extends Base
         $this->check_search($param,1);
         SearchService::logFromParam(3, $param);
         $this->label_search($param);
-        return $this->label_fetch('topic/ajax_search');
+        return $this->label_fetch(mac_tpl_fetch_ajax('topic','ajax_search','search'));
     }
 
     public function detail()
@@ -45,7 +45,7 @@ class Topic extends Base
     {
         $this->check_ajax();
         $info = $this->label_topic_detail();
-        return $this->label_fetch('topic/ajax_detail');
+        return $this->label_fetch(mac_tpl_fetch_ajax('topic','ajax_detail','detail'));
     }
 
     public function rss()

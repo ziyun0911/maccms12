@@ -44,6 +44,56 @@ class Chatroom extends Base
         return json($res);
     }
 
+    public function rooms(Request $request)
+    {
+        $vod_id = (int)$request->param('vod_id');
+        $limit = max(1, min((int)$request->param('limit', 12), 30));
+
+        $rows = \think\facade\Db::name('chatroom')
+            ->field('vod_id, COUNT(*) AS cnt, MAX(chat_time) AS last_time')
+            ->where('chat_status', 1)
+            ->where('vod_id', '>', 0)
+            ->group('vod_id')
+            ->order('last_time DESC')
+            ->limit($limit)
+            ->select()->toArray();
+
+        $ids = array_map('intval', array_column($rows, 'vod_id'));
+        if ($vod_id > 0) {
+            $ids[] = $vod_id;
+        }
+        $ids = array_values(array_unique(array_filter($ids)));
+
+        $names = [];
+        if (!empty($ids)) {
+            $names = \think\facade\Db::name('vod')->whereIn('vod_id', $ids)->column('vod_name', 'vod_id');
+        }
+
+        $rooms = [];
+        foreach ($rows as $r) {
+            $id = (int)$r['vod_id'];
+            $rooms[] = [
+                'vod_id'   => $id,
+                'vod_name' => isset($names[$id]) ? $names[$id] : ('影片 #' . $id),
+                'cnt'      => (int)$r['cnt'],
+            ];
+        }
+
+        $room = null;
+        if ($vod_id > 0) {
+            $room = [
+                'vod_id'   => $vod_id,
+                'vod_name' => isset($names[$vod_id]) ? $names[$vod_id] : ('影片 #' . $vod_id),
+                'cnt'      => (int)\think\facade\Db::name('chatroom')
+                    ->where('chat_status', 1)
+                    ->where('vod_id', $vod_id)
+                    ->count(),
+            ];
+        }
+
+        return json(['code' => 1, 'msg' => 'ok', 'info' => ['rooms' => $rooms, 'room' => $room]]);
+    }
+
     public function send(Request $request)
     {
         $user = $this->_checkLoginForApi();

@@ -1,28 +1,21 @@
-# ========================================================================
-# maccms12 - 站点根目录访问控制
-#
-# 负责三件事：禁止内部文件被 HTTP 直接下载、文本响应 gzip、静态资源过期；
-# 不含伪静态规则；
-# 重写规则见 说明文档/伪静态规则/ 下对应服务器的示例文件。
-# 若你把示例 .htaccess 复制成根目录本文件来启用伪静态，请保留下面
-# 的访问控制段落（示例文件里已包含同样内容）。
-#
-# 说明：PHP 侧 require/include 读文件不走 HTTP，拦截不影响程序运行；
-#       入口 index.php / admin.php / api.php / install.php / img.php、
-#       robots.txt、crossdomain.xml、static、template、upload、addons
-#       均保持可访问。LICENSE 按开源协议继续公开。
-# ========================================================================
-
 # >>> maccms:blocklist:rewrite >>>
 # ---- 内部目录与隐藏文件（mod_rewrite）----
 <IfModule mod_rewrite.c>
     RewriteEngine On
     # 服务端专用目录：任何直接访问一律 403
-    RewriteRule ^(说明文档|runtime|vendor|config|app|extend)(/|$) - [F,L]
+    RewriteRule ^(说明文档|runtime|vendor|config|app|extend|bin)(/|$) - [F,L]
     # 隐藏文件/目录，保留 .well-known（HTTPS 证书 HTTP-01 校验要用）
     RewriteRule (^|/)\.(?!well-known) - [F,L]
 </IfModule>
 # <<< maccms:blocklist:rewrite <<<
+
+<IfModule mod_rewrite.c>
+    Options +FollowSymlinks -Multiviews
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
+</IfModule>
 
 # >>> maccms:blocklist:files >>>
 # ---- 内部后缀与根级清单文件（Apache 2.4）----
@@ -58,8 +51,6 @@
 </IfModule>
 # <<< maccms:blocklist:files-legacy <<<
 
-# ---- 文本压缩（mod_deflate，需 mod_filter）----
-# 只列文本类：png/jpg/gif/webp/woff2 本身已压缩，再压一遍只烧 CPU 不减字节。
 <IfModule mod_filter.c>
     <IfModule mod_deflate.c>
         AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
@@ -69,10 +60,6 @@
     </IfModule>
 </IfModule>
 
-# ---- 静态资源过期（优先 mod_expires，缺失时用 mod_headers 兜底）----
-# 图片与字体给 30 天；css/js 只给 1 天——前台模板资源有的带 ?v=<mtime>、有的硬编码版本号、
-# 有的完全不带参数，后台三个 .bundle.js 也都无参数，1 天既省掉重复下载，又不让升级后长期读到旧文件。
-# 动态页（入口 .php 与伪静态 .html）不设过期，维持每次回源。
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType image/jpeg "access plus 30 days"
@@ -90,6 +77,7 @@
     ExpiresByType text/javascript "access plus 1 day"
     ExpiresByType application/javascript "access plus 1 day"
 </IfModule>
+
 <IfModule !mod_expires.c>
     <IfModule mod_headers.c>
         <FilesMatch "\.(avif|bmp|gif|ico|jpe?g|png|svgz?|webp|eot|otf|ttf|woff2?)$">

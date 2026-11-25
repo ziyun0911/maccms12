@@ -14,6 +14,27 @@
     .layui-form-pane .layui-input-block {
         margin-left: 220px;
     }
+
+    /* 服务商信息只读摘要：连接参数跟随主题 AI 设置 */
+    .assistant-ai-summary {
+        border: 1px solid #e6e6e6;
+        border-radius: 4px;
+        background: #fafafa;
+        padding: 10px 14px;
+        line-height: 1.9;
+        font-size: 13px;
+        color: #333;
+    }
+
+    .assistant-ai-summary .aas-k {
+        display: inline-block;
+        width: 88px;
+        color: #777;
+    }
+
+    .assistant-ai-summary .aas-v {
+        word-break: break-all;
+    }
 </style>
 
 <div class="page-container">
@@ -42,39 +63,18 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaisearch/assistant_use_ai_key')}：</label>
+            <label class="layui-form-label">服务商信息（跟随主题 AI）：</label>
             <div class="layui-input-block">
-                <input type="radio" name="admin_assistant[use_ai_search_credentials]" value="1" title="{:lang('open')}" {if condition="$config['admin_assistant']['use_ai_search_credentials'] eq '1'"}checked{/if}>
-                <input type="radio" name="admin_assistant[use_ai_search_credentials]" value="0" title="{:lang('close')}" {if condition="$config['admin_assistant']['use_ai_search_credentials'] neq '1'"}checked{/if}>
-            </div>
-            <div class="layui-form-mid layui-word-aux">{:lang('admin/system/configaisearch/assistant_use_ai_key_tip')}</div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configassistant/provider')}：</label>
-            <div class="layui-input-inline w300">
-                <input type="text" name="admin_assistant[provider]" value="{$config['admin_assistant']['provider']|default='openai'}" class="layui-input" placeholder="openai">
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaisearch/assistant_model')}：</label>
-            <div class="layui-input-inline w300">
-                <input type="text" name="admin_assistant[model]" value="{$config['admin_assistant']['model']|default=''}" class="layui-input" placeholder="gpt-4o-mini">
-            </div>
-            <label class="layui-form-label">{:lang('admin/system/configaisearch/assistant_api_base')}：</label>
-            <div class="layui-input-inline w300">
-                <input type="text" name="admin_assistant[api_base]" value="{$config['admin_assistant']['api_base']|default=''}" class="layui-input" placeholder="https://api.openai.com/v1">
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaisearch/assistant_api_key')}：</label>
-            <div class="layui-input-block">
-                <input type="password" name="admin_assistant[api_key]" value="" autocomplete="new-password" class="layui-input" placeholder="{:lang('admin/system/configaisearch/api_key_tip')}">
-                {if condition="$admin_assistant_key_saved eq 1"}
-                <div class="layui-form-mid layui-word-aux">{:lang('admin/system/configaisearch/api_key_saved_tip')} (****{$admin_assistant_key_tail})</div>
-                {/if}
+                <div class="assistant-ai-summary">
+                    <div><span class="aas-k">服务商</span><span class="aas-v">{$theme_ai_provider|default='openai'}</span></div>
+                    <div><span class="aas-k">API 地址</span><span class="aas-v">{$theme_ai_api_base|default='(未配置)'}</span></div>
+                    <div><span class="aas-k">模型</span><span class="aas-v">{$theme_ai_model|default='(未配置)'}</span></div>
+                    <div><span class="aas-k">接口密钥</span><span class="aas-v">{if condition="$theme_ai_key_saved eq 1"}已配置（****{$theme_ai_key_tail}）{/if}{if condition="$theme_ai_key_saved neq 1"}未配置{/if}</span></div>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    后台助手不再单独保存 API 地址、密钥、模型和服务商，以上信息实时读取「主题 AI 设置」。更换服务商后助手会自动跟随，无需在本页重复填写。
+                    <a href="{:url('system/configthemeai')}" target="_blank" style="color:#1e9fff;">前往主题 AI 设置 →</a>
+                </div>
             </div>
         </div>
 

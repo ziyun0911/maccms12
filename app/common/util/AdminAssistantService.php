@@ -9,45 +9,56 @@ class AdminAssistantService
 
     public function getMergedConfig()
     {
+        // 服务商信息（provider / api_base / api_key / model）唯一来源：主题 AI 设置 theme_ai。
+        // 本配置块只保存助手自己的行为参数，更换主题 AI 服务商后助手自动跟随。
+        // 直读磁盘配置，避免框架配置缓存导致「主题 AI 刚保存、助手还用旧服务商」的窗口。
+        $cfgFile = APP_PATH . 'extra/maccms.php';
+        $disk = is_file($cfgFile) ? include $cfgFile : [];
+        if (!is_array($disk)) {
+            $disk = [];
+        }
         $cfg = config('maccms.admin_assistant');
         if (!is_array($cfg)) {
             $cfg = [];
         }
-        $ai = config('maccms.ai_search');
-        if (!is_array($ai)) {
-            $ai = [];
+        $theme = config('maccms.theme_ai');
+        if (!is_array($theme)) {
+            $theme = [];
         }
-        $defaults = [
+        if (isset($disk['admin_assistant']) && is_array($disk['admin_assistant'])) {
+            $cfg = $disk['admin_assistant'];
+        }
+        if (isset($disk['theme_ai']) && is_array($disk['theme_ai'])) {
+            $theme = $disk['theme_ai'];
+        }
+
+        // 助手独有：功能开关与调用预算，与服务商无关
+        $cfg = array_merge([
             'enabled' => '0',
-            'use_ai_search_credentials' => '1',
-            'provider' => 'openai',
-            'model' => '',
-            'api_base' => '',
-            'api_key' => '',
+            'access_scope' => 'all',
             'timeout' => '45',
             'max_tokens' => '1200',
             'include_env_snapshot' => '1',
             'rate_per_minute' => '20',
             'retrieve_chunks' => '8',
-        ];
-        $cfg = array_merge($defaults, $cfg);
-        if ((string)$cfg['use_ai_search_credentials'] === '1') {
-            if (trim((string)$cfg['api_base']) === '') {
-                $cfg['api_base'] = trim((string)(isset($ai['api_base']) ? $ai['api_base'] : ''));
-            }
-            if (trim((string)$cfg['api_key']) === '') {
-                $cfg['api_key'] = trim((string)(isset($ai['api_key']) ? $ai['api_key'] : ''));
-            }
-            if (trim((string)$cfg['model']) === '') {
-                $cfg['model'] = trim((string)(isset($ai['model']) ? $ai['model'] : 'gpt-4o-mini'));
-            }
+        ], $cfg);
+
+        $provider = strtolower(trim((string)(isset($theme['provider']) ? $theme['provider'] : 'openai')));
+        if ($provider !== 'claude' && $provider !== 'anthropic') {
+            $provider = 'openai';
         }
-        if (trim((string)$cfg['api_base']) === '') {
-            $cfg['api_base'] = 'https://api.openai.com/v1';
+        $model = trim((string)(isset($theme['model']) ? $theme['model'] : ''));
+        if ($model === '') {
+            $model = $provider === 'openai' ? 'gpt-4o-mini' : 'claude-haiku-4-5-20251001';
         }
-        if (trim((string)$cfg['model']) === '') {
-            $cfg['model'] = 'gpt-4o-mini';
-        }
+
+        // 覆盖任何历史遗留值，保证旧配置不会把请求带回旧服务商
+        $cfg['provider'] = $provider;
+        $cfg['api_base'] = rtrim(trim((string)(isset($theme['api_base']) ? $theme['api_base'] : '')), '/');
+        $cfg['api_key'] = trim((string)(isset($theme['api_key']) ? $theme['api_key'] : ''));
+        $cfg['model'] = $model;
+        $cfg['ai_source'] = 'theme_ai';
+        unset($cfg['use_ai_search_credentials']);
         return $cfg;
     }
 
@@ -89,7 +100,8 @@ class AdminAssistantService
         }
 
         $system = $this->buildSystemPrompt($kb, $envBlock);
-        $messages = [['role' => 'system', 'content' => $system]];
+        // 对话轮次与 system 分开存，便于按主题 AI 的服务商格式组装请求体
+        $turns = [];
         $tail = array_slice($history, -10);
         foreach ($tail as $row) {
             if (!is_array($row)) {
@@ -103,38 +115,82 @@ class AdminAssistantService
             if ($role !== 'user' && $role !== 'assistant') {
                 continue;
             }
-            $messages[] = ['role' => $role, 'content' => $content];
+            $turns[] = ['role' => $role, 'content' => $content];
         }
-        $messages[] = ['role' => 'user', 'content' => $question];
+        $turns[] = ['role' => 'user', 'content' => $question];
 
         $apiBase = rtrim((string)$cfg['api_base'], '/');
-        $url = $apiBase . '/chat/completions';
+        // 与「主题 AI 设置 → 测试连接」和「主题设计」共用端点解析：
+        // 地址含完整端点时不再拼接，切换 openai/claude 服务商后请求格式自动跟随
+        $endpoint = ThemeAiConnectionTester::chatEndpoint($apiBase, (string)$cfg['provider']);
+        $url = $endpoint['url'];
+        if (!$this->isSafeEndpoint($url)) {
+            return ['code' => 1006, 'msg' => '主题 AI 的 API 地址不合法：' . (string)$cfg['api_base']
+                . '（请到「主题 AI 设置」填写 http:// 或 https:// 开头的地址）'];
+        }
         $timeout = max(8, intval($cfg['timeout']));
         $maxTokens = max(256, min(4096, intval($cfg['max_tokens'])));
-        $post = [
-            'model' => (string)$cfg['model'],
-            'temperature' => 0.3,
-            'max_tokens' => $maxTokens,
-            'messages' => $messages,
-        ];
-        $headers = [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $apiKey,
-        ];
-        $body = HttpClient::curlPostWithTimeout($url, json_encode($post, JSON_UNESCAPED_UNICODE), $headers, $timeout);
-        if ($body === false || $body === '') {
-            return ['code' => 1006, 'msg' => lang('admin/assistant/err_network')];
+        if ($endpoint['format'] === 'claude') {
+            // Anthropic /v1/messages：system 是独立字段，密钥走 x-api-key
+            $post = [
+                'model' => (string)$cfg['model'],
+                'max_tokens' => $maxTokens,
+                'system' => $system,
+                'messages' => $turns,
+                'temperature' => 0.3,
+            ];
+            $headers = [
+                'Content-Type: application/json',
+                'x-api-key: ' . $apiKey,
+                'anthropic-version: 2023-06-01',
+            ];
+        } else {
+            // OpenAI 兼容 /chat/completions：system 作为第一条消息
+            $post = [
+                'model' => (string)$cfg['model'],
+                'temperature' => 0.3,
+                'max_tokens' => $maxTokens,
+                'messages' => array_merge([['role' => 'system', 'content' => $system]], $turns),
+            ];
+            $headers = [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+            ];
         }
-        $json = json_decode((string)$body, true);
+        $res = HttpClient::curlPostWithDiagnostics($url, json_encode($post, JSON_UNESCAPED_UNICODE), $headers, $timeout);
+        if ($res['errno'] !== 0 || $res['http_code'] === 0) {
+            return ['code' => 1006, 'msg' => '上游请求失败：' . self::curlReason($res) . '（地址 ' . $url . '）'];
+        }
+        $body = $res['body'];
+        if ($body === '') {
+            return ['code' => 1006, 'msg' => '上游返回空响应（HTTP ' . $res['http_code'] . '，地址 ' . $url . '）'];
+        }
+        $json = json_decode($body, true);
         if (!is_array($json)) {
+            if ($res['http_code'] < 200 || $res['http_code'] >= 300) {
+                return ['code' => 1006, 'msg' => '上游返回 HTTP ' . $res['http_code'] . '（'
+                    . self::httpHint($res['http_code']) . '）：' . self::excerpt($body, 160)];
+            }
             return ['code' => 1007, 'msg' => lang('admin/assistant/err_bad_response')];
         }
         if (isset($json['error'])) {
             $em = isset($json['error']['message']) ? (string)$json['error']['message'] : 'error';
-            return ['code' => 1008, 'msg' => mb_substr($em, 0, 500, 'UTF-8')];
+            return ['code' => 1008, 'msg' => 'HTTP ' . $res['http_code'] . '：' . mb_substr($em, 0, 500, 'UTF-8')];
+        }
+        if ($res['http_code'] < 200 || $res['http_code'] >= 300) {
+            return ['code' => 1006, 'msg' => '上游返回 HTTP ' . $res['http_code'] . '（'
+                . self::httpHint($res['http_code']) . '），响应中没有错误信息'];
         }
         $reply = '';
-        if (isset($json['choices'][0]['message']['content'])) {
+        if ($endpoint['format'] === 'claude' && isset($json['content']) && is_array($json['content'])) {
+            // Anthropic 返回 content 文本块数组
+            foreach ($json['content'] as $blk) {
+                if (is_array($blk) && isset($blk['text'])) {
+                    $reply .= (string)$blk['text'];
+                }
+            }
+            $reply = trim($reply);
+        } elseif (isset($json['choices'][0]['message']['content'])) {
             $reply = trim((string)$json['choices'][0]['message']['content']);
         }
         if ($reply === '') {
@@ -163,6 +219,59 @@ class AdminAssistantService
         }
         Cache::set($key, $n + 1, 70);
         return true;
+    }
+
+    /** API 地址白名单：仅 http(s)，禁止内嵌账号信息与控制字符 */
+    private function isSafeEndpoint($url)
+    {
+        if (!preg_match('#^https?://#i', $url) || strpos($url, '@') !== false
+            || preg_match('/[\x00-\x1F\x7F]/', $url)) {
+            return false;
+        }
+        $p = parse_url($url);
+        return is_array($p) && !empty($p['host']);
+    }
+
+    /** 把 curl 错误码翻译成可操作的原因 */
+    private static function curlReason($res)
+    {
+        $map = [
+            1 => '不支持的协议（地址缺少 http:// 或 https://）',
+            3 => 'URL 格式错误',
+            6 => 'DNS 解析失败',
+            7 => '无法建立连接（目标拒绝或端口不通）',
+            28 => '连接或读取超时',
+            35 => 'SSL/TLS 握手失败',
+            51 => 'SSL 证书校验失败',
+            60 => 'SSL 证书校验失败（本地 CA 缺失或过期）',
+        ];
+        if (isset($map[$res['errno']])) {
+            return $map[$res['errno']];
+        }
+        if ((string)$res['error'] !== '') {
+            return mb_substr((string)$res['error'], 0, 120, 'UTF-8');
+        }
+        return '未收到 HTTP 响应（curl errno ' . $res['errno'] . '）';
+    }
+
+    private static function httpHint($code)
+    {
+        $map = [
+            400 => '请求参数有误', 401 => '密钥无效', 403 => '无权限或地区限制',
+            404 => '端点或模型不存在', 405 => '请求方法不被允许', 408 => '服务端超时',
+            413 => '请求体过大', 422 => '参数校验失败', 429 => '触发限流',
+            500 => '服务端内部错误', 502 => '网关错误', 503 => '服务暂不可用', 504 => '网关超时',
+        ];
+        return isset($map[$code]) ? $map[$code] : '请查看响应内容';
+    }
+
+    private static function excerpt($text, $len)
+    {
+        $text = trim(preg_replace('/\s+/u', ' ', (string)$text));
+        if ($text === '') {
+            return '(空响应)';
+        }
+        return mb_substr($text, 0, $len, 'UTF-8') . (mb_strlen($text, 'UTF-8') > $len ? '…' : '');
     }
 
     private function looksLikeSecretPaste($text)

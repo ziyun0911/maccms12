@@ -338,9 +338,23 @@ polyfill;
         if($page404 !== '' && preg_match('/^[A-Za-z0-9_-]{1,64}$/', $page404)){
             $tpl = $page404;
         }
+        // 错误页状态码与所选模板对齐：403/500 使用对应状态，其余沿用 404
+        $status = 404;
+        $status_text = 'Not Found';
+        $error_title = '';
+        if ($tpl === '403') {
+            $status = 403;
+            $status_text = 'Forbidden';
+            $error_title = '403 无权访问';
+        } elseif ($tpl === '500') {
+            $status = 500;
+            $status_text = 'Internal Server Error';
+            $error_title = '500 服务器错误';
+        }
+        $this->assign('page_error_title', $error_title);
         $html = $this->label_fetch('public/'.$tpl);
-        header("HTTP/1.1 404 Not Found");
-        header("Status: 404 Not Found");
+        header('HTTP/1.1 ' . $status . ' ' . $status_text);
+        header('Status: ' . $status . ' ' . $status_text);
         exit($html);
     }
 
@@ -397,6 +411,24 @@ polyfill;
             cookie('csrf_token', $csrfToken, ['httponly' => false]);
         }
         $this->assign('csrf_token', $csrfToken);
+        $this->filterSearchHotByGroup();
+    }
+
+    protected function filterSearchHotByGroup()
+    {
+        $raw = (string) ($GLOBALS['config']['app']['search_hot'] ?? '');
+        if ($raw === '') {
+            return;
+        }
+        $filtered = mac_search_hot_filter($raw);
+        if ($filtered === $raw) {
+            return;
+        }
+        $GLOBALS['config']['app']['search_hot'] = $filtered;
+        if (!empty($this->maccms) && is_array($this->maccms)) {
+            $this->maccms['search_hot'] = $filtered;
+            $this->assign('maccms', $this->maccms);
+        }
     }
 
     protected function label_comment()
@@ -520,10 +552,8 @@ polyfill;
             if($popedom['code']>1){
                 $this->assign('obj',$info);
 
-                if($popedom['confirm']==1){
-                    echo $this->fetch('actor/confirm');
-                    exit;
-                }
+                // 影人详情不支持金币购买（mac_actor 无 *_points 字段，ajax_buy_popedom 也只接受 mid=1/2/12），
+                // 故此处不再调用不存在的 actor/confirm 模板，统一走错误提示页。
 
                 echo $this->error($popedom['msg'], mac_url('user/index') );
                 exit;
@@ -592,10 +622,8 @@ polyfill;
             if($popedom['code']>1){
                 $this->assign('obj',$info);
 
-                if($popedom['confirm']==1){
-                    echo $this->fetch('website/confirm');
-                    exit;
-                }
+                // 网址详情不支持金币购买（mac_website 无 *_points 字段，ajax_buy_popedom 也只接受 mid=1/2/12），
+                // 故此处不再调用不存在的 website/confirm 模板，统一走错误提示页。
 
                 echo $this->error($popedom['msg'], mac_url('user/index') );
                 exit;
@@ -815,6 +843,10 @@ polyfill;
                 $this->page_error($res['msg']);
             }
             $info = $res['info'];
+        }
+        if($view < 2 && in_array((int)($info['type_id'] ?? 0), mac_popedom_excluded_type_ids(), true)){
+            echo $this->error(lang('controller/no_popedom'), mac_url('user/index'));
+            exit;
         }
         if(empty($info['vod_tpl'])){
             $info['vod_tpl'] = $info['type']['type_tpl_detail'];

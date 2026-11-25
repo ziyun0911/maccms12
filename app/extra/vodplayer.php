@@ -104,6 +104,32 @@ return array (
     'from' => 'wjyun',
     'id' => 'wjyun',
   ),
+  'gsm3u8' => 
+  array (
+    'status' => '1',
+    'from' => 'gsm3u8',
+    'show' => 'gsm3u8播放器',
+    'des' => '在线播放',
+    'target' => '_self',
+    'ps' => '0',
+    'parse' => '',
+    'sort' => '800',
+    'tip' => '无需安装任何插件',
+    'id' => 'gsm3u8',
+  ),
+  'gsyun' => 
+  array (
+    'status' => '1',
+    'from' => 'gsyun',
+    'show' => 'gsyun播放器',
+    'des' => '在线播放',
+    'target' => '_self',
+    'ps' => '0',
+    'parse' => '',
+    'sort' => '800',
+    'tip' => '无需安装任何插件',
+    'id' => 'gsyun',
+  ),
   'hhm3u8' => 
   array (
     'status' => '1',
@@ -129,6 +155,19 @@ return array (
     'sort' => '800',
     'tip' => '无需安装任何插件',
     'id' => 'hhyun',
+  ),
+  'hnyun' => 
+  array (
+    'status' => '1',
+    'from' => 'hnyun',
+    'show' => 'hnyun播放器',
+    'des' => '在线播放',
+    'target' => '_self',
+    'ps' => '0',
+    'parse' => '',
+    'sort' => '800',
+    'tip' => '无需安装任何插件',
+    'id' => 'hnyun',
   ),
   'liangzi' => 
   array (
@@ -169,6 +208,32 @@ return array (
     'tip' => '无需安装任何插件',
     'id' => 'wsym3u8',
   ),
+  'xlm3u8' => 
+  array (
+    'status' => '1',
+    'from' => 'xlm3u8',
+    'show' => 'xlm3u8播放器',
+    'des' => '在线播放',
+    'target' => '_self',
+    'ps' => '0',
+    'parse' => '',
+    'sort' => '800',
+    'tip' => '无需安装任何插件',
+    'id' => 'xlm3u8',
+  ),
+  'xlyun' => 
+  array (
+    'status' => '1',
+    'from' => 'xlyun',
+    'show' => 'xlyun播放器',
+    'des' => '在线播放',
+    'target' => '_self',
+    'ps' => '0',
+    'parse' => '',
+    'sort' => '800',
+    'tip' => '无需安装任何插件',
+    'id' => 'xlyun',
+  ),
   'modum3u8' => 
   array (
     'id' => 'modum3u8',
@@ -177,7 +242,7 @@ return array (
     'show' => '魔都云',
     'des' => '',
     'target' => '_self',
-    'ps' => '1',
+    'ps' => '0',
     'parse' => 'https://jiexi.moduzyjx.com/?url=',
     'sort' => '8',
     'tip' => '',
@@ -214,5 +279,31 @@ return array (
         'tip' => '',
       ),
     ),
+  ),
+  '155m3u8' => 
+  array (
+    'status' => '1',
+    'from' => '155m3u8',
+    'show' => '155m3u8播放器',
+    'des' => '在线播放',
+    'target' => '_self',
+    'ps' => '0',
+    'parse' => '',
+    'sort' => '800',
+    'tip' => '无需安装任何插件',
+    'id' => '155m3u8',
+  ),
+  'aosika' => 
+  array (
+    'status' => '1',
+    'from' => 'aosika',
+    'show' => 'aosika播放器',
+    'des' => '在线播放',
+    'target' => '_self',
+    'ps' => '0',
+    'parse' => '',
+    'sort' => '800',
+    'tip' => '无需安装任何插件',
+    'id' => 'aosika',
   ),
 );

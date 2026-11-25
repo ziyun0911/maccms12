@@ -9,6 +9,7 @@ use app\common\util\MeilisearchSync;
 
 class Actor extends Base {
     protected $name = 'actor';
+    protected $popedomScoped = true;
 
     protected $createTime = '';
     protected $updateTime = '';
@@ -413,7 +414,7 @@ class Actor extends Base {
         }
 
         if(empty($data['actor_letter'])){
-            $data['actor_letter'] = strtoupper(substr($data['actor_en'],0,1));
+            $data['actor_letter'] = mac_safe_letter($data['actor_en'], $data['actor_name']);
         }
 
         if(!empty($data['actor_content'])) {
@@ -468,6 +469,17 @@ class Actor extends Base {
                 continue;
             }
             $data[$filter_field] = mac_filter_xss($data[$filter_field]);
+        }
+
+        // 生日写入校验：统一为 YYYY-MM-DD（10 字符），杜绝中文日期被 varchar(10) 截断。
+        // 中文/点/斜杠分隔、缺「日」的截断残留会自动归一化；明显非法值直接拒绝保存。
+        if (array_key_exists('actor_birthday', $data)) {
+            $rawBirthday = trim((string)$data['actor_birthday']);
+            $birthday    = mac_normalize_birthday($rawBirthday);
+            if ($rawBirthday !== '' && $birthday === '') {
+                return ['code'=>1003, 'msg'=>lang('param_err').'：生日格式须为 YYYY-MM-DD（如 1987-10-16）或留空'];
+            }
+            $data['actor_birthday'] = $birthday;
         }
 
         if(!empty($data['actor_id'])){

@@ -501,6 +501,7 @@ class Maccms extends Taglib {
         $parse = '<?php ';
         $parse .= '$__TAG__ = \'' . json_encode($tag) . '\';';
         $parse .= '$__LIST__ = (new \app\common\model\Actor())->listCacheData($__TAG__);';
+        $parse .= '$__TAG_COUNT__ = count($__LIST__[\'list\'] ?? []);';
         if(!empty($tag['paging']) && $tag['paging']=='yes'){
             $parse .= '$__PAGING__ = mac_page_param($__LIST__[\'total\'],$__LIST__[\'limit\'],$__LIST__[\'page\'],$__LIST__[\'pageurl\'],$__LIST__[\'half\']);';
         }
@@ -573,6 +574,7 @@ class Maccms extends Taglib {
         $parse = '<?php ';
         $parse .= '$__TAG__ = \'' . json_encode($tag) . '\';';
         $parse .= '$__LIST__ = (new \app\common\model\Art())->listCacheData($__TAG__);';
+        $parse .= '$__TAG_COUNT__ = count($__LIST__[\'list\'] ?? []);';
         if(!empty($tag['paging']) && $tag['paging']=='yes'){
             $parse .= '$__PAGING__ = mac_page_param($__LIST__[\'total\'],$__LIST__[\'limit\'],$__LIST__[\'page\'],$__LIST__[\'pageurl\'],$__LIST__[\'half\']);';
         }

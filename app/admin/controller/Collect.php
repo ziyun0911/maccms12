@@ -169,6 +169,12 @@ class Collect extends Base
             $param = $pp;
         }
 
+        // 批量采集入口：传 ids（资源站 collect_id 列表）且无 cjurl 时，对多个资源站按 h 时间范围依次采集
+        // 复用 collect/api 权限节点，避免新增 action 被 admin_auth 拦截
+        if (empty($param['cjurl']) && !empty($param['ids'])) {
+            return $this->batchCollect($param);
+        }
+
         $type_list = (new \app\common\model\Type())->getCache('type_list');
         $this->assign('type_list', $type_list);
 
@@ -196,6 +202,58 @@ class Collect extends Base
             return $this->manga($param);
         }
         return $this->error(lang('param_err'));
+    }
+
+    /**
+     * 批量采集：按资源站 ids 循环调用 api()，h 控制时间范围（24=当天 168=本周 空=全部）
+     * 流式输出每个资源站的采集进度，与单站采集页体验一致
+     */
+    private function batchCollect($param)
+    {
+        $ids = $param['ids'] ?? '';
+        $idsArr = is_array($ids) ? $ids : explode(',', (string)$ids);
+        $idsArr = array_values(array_filter(array_map('intval', $idsArr)));
+        if (empty($idsArr)) {
+            return $this->error(lang('param_err'));
+        }
+        $h = isset($param['h']) ? (string)$param['h'] : '';
+
+        $rows = Db::name('collect')->where('collect_id', 'in', $idsArr)->order('collect_id asc')->select();
+        if (empty($rows)) {
+            return $this->error(lang('param_err'));
+        }
+
+        @session_write_close();
+        mac_echo('<title>batch collecting..</title>');
+        mac_echo('<style type="text/css">body{font-size:12px;color:#333333;line-height:21px;}span{font-weight:bold;color:#FF0000}.site-hd{margin:8px 0 2px;padding:4px 8px;background:#f2f2f2;font-weight:bold;}.done{color:#009688;font-weight:bold;margin-top:8px;}</style>');
+
+        $total = count($rows);
+        $n = 0;
+        foreach ($rows as $vo) {
+            $n++;
+            // 每个资源站前输出站头，便于在多窗口并行采集时区分进度
+            mac_echo('<div class="site-hd">[' . $n . '/' . $total . '] ' . htmlspecialchars((string)$vo['collect_name']) . ' ' . htmlspecialchars((string)$vo['collect_url']) . '</div>');
+            // 参数与 collect/index.html 每行的单站采集链接保持一致
+            $p = [
+                'ac' => 'cj',
+                'cjflag' => md5($vo['collect_url']),
+                'cjurl' => $vo['collect_url'],
+                'h' => $h,
+                't' => '',
+                'ids' => '',
+                'wd' => '',
+                'type' => $vo['collect_type'],
+                'mid' => $vo['collect_mid'],
+                'opt' => $vo['collect_opt'],
+                'sync_pic_opt' => $vo['collect_sync_pic_opt'],
+                'filter' => $vo['collect_filter'],
+                'filter_from' => $vo['collect_filter_from'],
+                'filter_year' => $vo['collect_filter_year'],
+                'param' => base64_encode((string)$vo['collect_param']),
+            ];
+            $this->api($p);
+        }
+        mac_echo('<div class="done">批量采集完成，共 ' . $total . ' 个资源站</div>');
     }
 
     public function timing()

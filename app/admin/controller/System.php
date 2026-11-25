@@ -286,7 +286,9 @@ class System extends Base
         }
 
         $seoOn = (string)$this->systemSettingsGet($config, 'ai_seo.enabled', '0') === '1';
-        $seoReady = trim((string)$this->systemSettingsGet($config, 'ai_seo.api_key', '')) !== '';
+        // 连接信息已归口主题 AI，就绪状态按主题 AI 密钥判定
+        $aiKeyReady = trim((string)$this->systemSettingsGet($config, 'theme_ai.api_key', '')) !== '';
+        $seoReady = $aiKeyReady;
         $seoUrl = (string)url('system/config', ['tab' => 'aiseo']);
         if (!$seoOn) {
             $add(lang('menu/configaiseo'), 'off', lang('admin/safety/checkup_status_off'), $seoUrl);
@@ -297,7 +299,7 @@ class System extends Base
         }
 
         $searchOn = (string)$this->systemSettingsGet($config, 'ai_search.enabled', '0') === '1';
-        $searchReady = trim((string)$this->systemSettingsGet($config, 'ai_search.api_key', '')) !== '';
+        $searchReady = $aiKeyReady;
         $searchUrl = (string)url('system/configaisearch');
         if (!$searchOn) {
             $add(lang('menu/configaisearch'), 'off', lang('admin/safety/checkup_status_off'), $searchUrl, 'configaisearch');
@@ -609,6 +611,7 @@ class System extends Base
         $this->assign('api_jwt_secret_strong', JwtService::hasStrongSecret() ? 1 : 0);
         $config['ai_seo'] = $this->aiSeoFormConfig()['ai_seo'];
         $config['ai_cover'] = $this->aiCoverFormConfig()['ai_cover'];
+        $this->assignAiCommon();
         $this->assign('config', $config);
         $this->assign('extends', mac_extends_list('upload'));
         $this->assign('title', lang('admin/system/config/title'));
@@ -1399,24 +1402,26 @@ class System extends Base
         return $this->redirect( url('config', ['tab' => 'seo']) );
     }
 
+    /** 三个只读摘要页共用的模板变量：密钥只输出是否配置与尾号 */
+    private function assignAiCommon()
+    {
+        $summary = \app\common\util\AiServiceConfig::summary();
+        foreach ($summary as $k => $v) {
+            $this->assign('ai_common_' . $k, $v);
+        }
+    }
+
     private function aiSeoFormConfig()
     {
         $config = config('maccms');
+        // 只保留 AI SEO 自己的业务参数默认值；连接信息由统一解析类覆盖
         $defaults = [
             'enabled' => '0',
             'auto_generate' => '0',
             'template_inject' => '0',
-            'provider' => 'openai',
-            'model' => 'gpt-4o-mini',
-            'api_base' => 'https://api.openai.com/v1',
-            'api_key' => '',
             'timeout' => '20',
         ];
-        $stored = isset($config['ai_seo']) && is_array($config['ai_seo']) ? $config['ai_seo'] : [];
-        $config['ai_seo'] = array_merge($defaults, $stored);
-        $key = trim((string)$config['ai_seo']['api_key']);
-        $this->assign('ai_seo_key_saved', $key !== '' ? 1 : 0);
-        $this->assign('ai_seo_key_tail', $key !== '' ? substr($key, -6) : '');
+        $config['ai_seo'] = array_merge($defaults, \app\common\util\AiServiceConfig::seo());
         return $config;
     }
 
@@ -1425,20 +1430,12 @@ class System extends Base
         $config = config('maccms');
         $defaults = [
             'enabled' => '0',
-            'provider' => 'openai',
-            'model' => 'gpt-image-1',
-            'api_base' => 'https://api.openai.com/v1',
-            'api_key' => '',
             'timeout' => '120',
             'size' => '1024x1536',
             'quality' => 'medium',
             'prompt_suffix' => '',
         ];
-        $stored = isset($config['ai_cover']) && is_array($config['ai_cover']) ? $config['ai_cover'] : [];
-        $config['ai_cover'] = array_merge($defaults, $stored);
-        $key = trim((string)$config['ai_cover']['api_key']);
-        $this->assign('ai_cover_key_saved', $key !== '' ? 1 : 0);
-        $this->assign('ai_cover_key_tail', $key !== '' ? substr($key, -6) : '');
+        $config['ai_cover'] = array_merge($defaults, \app\common\util\AiServiceConfig::cover());
         return $config;
     }
 
@@ -1461,34 +1458,30 @@ class System extends Base
                 return trim(strip_tags((string)$v));
             };
 
+            // 本页只保存 AI SEO 的业务参数；接口信息一律忽略，统一跟随主题 AI
             $row = [
                 'enabled' => isset($ai['enabled']) && (string)$ai['enabled'] === '1' ? '1' : '0',
                 'auto_generate' => isset($ai['auto_generate']) && (string)$ai['auto_generate'] === '1' ? '1' : '0',
                 'template_inject' => isset($ai['template_inject']) && (string)$ai['template_inject'] === '1' ? '1' : '0',
-                'provider' => $sanitize(isset($ai['provider']) ? $ai['provider'] : 'openai'),
-                'model' => $sanitize(isset($ai['model']) ? $ai['model'] : 'gpt-4o-mini'),
-                'api_base' => $sanitize(isset($ai['api_base']) ? $ai['api_base'] : 'https://api.openai.com/v1'),
                 'timeout' => (string)max(5, intval(isset($ai['timeout']) ? $ai['timeout'] : 20)),
             ];
-            if ($row['api_base'] === '') {
-                $row['api_base'] = 'https://api.openai.com/v1';
-            }
 
-            $newKey = isset($ai['api_key']) ? trim((string)$ai['api_key']) : '';
-            if ($newKey !== '') {
-                $row['api_key'] = $newKey;
-            } else {
-                $cfgFile = APP_PATH . 'extra/maccms.php';
-                $latest = is_file($cfgFile) ? include $cfgFile : [];
-                if (isset($latest['ai_seo']['api_key']) && $latest['ai_seo']['api_key'] !== '') {
-                    $row['api_key'] = (string)$latest['ai_seo']['api_key'];
-                } else {
-                    $row['api_key'] = isset($config_old['ai_seo']['api_key']) ? $config_old['ai_seo']['api_key'] : '';
-                }
+            // 以磁盘最新配置为底，避免本页保存把其它模块刚同步的配置回退
+            $diskFile = APP_PATH . 'extra/maccms.php';
+            $diskAll = is_file($diskFile) ? include $diskFile : [];
+            if (!is_array($diskAll)) {
+                $diskAll = [];
             }
-
-            $config_new = $config_old;
-            $config_new['ai_seo'] = $row;
+            $config_new = $diskAll !== [] ? $diskAll : $config_old;
+            $themeRow = isset($diskAll['theme_ai']) && is_array($diskAll['theme_ai'])
+                ? $diskAll['theme_ai']
+                : (isset($config_old['theme_ai']) && is_array($config_old['theme_ai']) ? $config_old['theme_ai'] : []);
+            $config_new['ai_seo'] = array_merge(
+                isset($config_new['ai_seo']) && is_array($config_new['ai_seo']) ? $config_new['ai_seo'] : [],
+                $row
+            );
+            // 校准全站四段连接字段，保证任何一页保存后仍是单一来源
+            $config_new = \app\common\util\AiServiceConfig::syncAll($config_new, $themeRow);
 
             $res = mac_arr2file(APP_PATH . 'extra/maccms.php', $config_new);
             if ($res === false) {
@@ -1535,35 +1528,29 @@ class System extends Base
                 $q = 'medium';
             }
 
+            // 本页只保存封面业务参数；图像接口信息由主题 AI 的图像凭据归口提供
             $row = [
                 'enabled' => isset($ai['enabled']) && (string) $ai['enabled'] === '1' ? '1' : '0',
-                'provider' => 'openai',
-                'model' => $sanitize(isset($ai['model']) ? $ai['model'] : 'gpt-image-1'),
-                'api_base' => $sanitize(isset($ai['api_base']) ? $ai['api_base'] : 'https://api.openai.com/v1'),
                 'timeout' => (string) max(30, intval(isset($ai['timeout']) ? $ai['timeout'] : 120)),
                 'size' => $size,
                 'quality' => $q,
                 'prompt_suffix' => $sanitize(isset($ai['prompt_suffix']) ? $ai['prompt_suffix'] : ''),
             ];
-            if ($row['api_base'] === '') {
-                $row['api_base'] = 'https://api.openai.com/v1';
-            }
 
-            $newKey = isset($ai['api_key']) ? trim((string) $ai['api_key']) : '';
-            if ($newKey !== '') {
-                $row['api_key'] = $newKey;
-            } else {
-                $cfgFile = APP_PATH . 'extra/maccms.php';
-                $latest = is_file($cfgFile) ? include $cfgFile : [];
-                if (isset($latest['ai_cover']['api_key']) && $latest['ai_cover']['api_key'] !== '') {
-                    $row['api_key'] = (string) $latest['ai_cover']['api_key'];
-                } else {
-                    $row['api_key'] = isset($config_old['ai_cover']['api_key']) ? $config_old['ai_cover']['api_key'] : '';
-                }
+            $diskFile = APP_PATH . 'extra/maccms.php';
+            $diskAll = is_file($diskFile) ? include $diskFile : [];
+            if (!is_array($diskAll)) {
+                $diskAll = [];
             }
-
-            $config_new = $config_old;
-            $config_new['ai_cover'] = $row;
+            $config_new = $diskAll !== [] ? $diskAll : $config_old;
+            $themeRow = isset($diskAll['theme_ai']) && is_array($diskAll['theme_ai'])
+                ? $diskAll['theme_ai']
+                : (isset($config_old['theme_ai']) && is_array($config_old['theme_ai']) ? $config_old['theme_ai'] : []);
+            $config_new['ai_cover'] = array_merge(
+                isset($config_new['ai_cover']) && is_array($config_new['ai_cover']) ? $config_new['ai_cover'] : [],
+                $row
+            );
+            $config_new = \app\common\util\AiServiceConfig::syncAll($config_new, $themeRow);
 
             $res = mac_arr2file(APP_PATH . 'extra/maccms.php', $config_new);
             if ($res === false) {
@@ -1762,7 +1749,24 @@ class System extends Base
                 $row['google_books_api_key'] = $oldGb;
             }
 
+            // 服务商信息统一跟随主题 AI：忽略本页表单里残留或伪造的 4 个接口字段
+            $diskFile = APP_PATH . 'extra/maccms.php';
+            $diskAll = is_file($diskFile) ? include $diskFile : [];
+            if (!is_array($diskAll)) {
+                $diskAll = [];
+            }
+            $themeRow = isset($diskAll['theme_ai']) && is_array($diskAll['theme_ai'])
+                ? $diskAll['theme_ai']
+                : (isset($config_old['theme_ai']) && is_array($config_old['theme_ai']) ? $config_old['theme_ai'] : []);
+            $row = array_merge($row, \app\common\util\AiServiceConfig::fromTheme($themeRow));
+
             $config_new = $config_old;
+            // 用磁盘最新配置覆盖框架缓存，避免本页保存回退其它模块刚保存的归口配置
+            foreach (['theme_ai', 'admin_assistant', 'ai_content', 'ai_seo', 'ai_cover'] as $guardKey) {
+                if (isset($diskAll[$guardKey]) && is_array($diskAll[$guardKey])) {
+                    $config_new[$guardKey] = $diskAll[$guardKey];
+                }
+            }
             $config_new['ai_search'] = $row;
             $trustedProxies = isset($post['trusted_proxies']) ? trim((string)$post['trusted_proxies']) : '';
             $config_new['trusted_proxies'] = $trustedProxies;
@@ -1775,6 +1779,16 @@ class System extends Base
         }
 
         $config = config('maccms');
+        // 直读磁盘：主题 AI 刚更换服务商后，本页立即显示同步后的接口信息
+        $diskFile = APP_PATH . 'extra/maccms.php';
+        $diskAll = is_file($diskFile) ? include $diskFile : [];
+        if (is_array($diskAll)) {
+            foreach (['ai_search', 'theme_ai'] as $guardKey) {
+                if (isset($diskAll[$guardKey]) && is_array($diskAll[$guardKey])) {
+                    $config[$guardKey] = $diskAll[$guardKey];
+                }
+            }
+        }
         if (!isset($config['ai_search']) || !is_array($config['ai_search'])) {
             $config['ai_search'] = [
                 'enabled' => '0',
@@ -1960,6 +1974,16 @@ class System extends Base
         $this->assign('google_books_key_saved', $gbKey !== '' ? 1 : 0);
         $this->assign('google_books_key_tail', $gbKey !== '' ? substr($gbKey, -6) : '');
 
+        // 只读服务商摘要：取自主题 AI 同步后的值，密钥只回显尾号
+        $themeAi = isset($config['theme_ai']) && is_array($config['theme_ai']) ? $config['theme_ai'] : [];
+        $synced = \app\common\util\AiServiceConfig::fromTheme($themeAi);
+        $themeKey = $synced['api_key'];
+        $this->assign('theme_ai_provider', $synced['provider']);
+        $this->assign('theme_ai_api_base', $synced['api_base']);
+        $this->assign('theme_ai_model', $synced['model']);
+        $this->assign('theme_ai_key_saved', $themeKey !== '' ? 1 : 0);
+        $this->assign('theme_ai_key_tail', $themeKey !== '' ? substr($themeKey, -6) : '');
+
         $this->assign('config', $config);
         $this->assign('title', lang('admin/system/configaisearch/title'));
         return $this->fetch('admin@system/configaisearch');
@@ -1979,39 +2003,29 @@ class System extends Base
 
             $config_old = config('maccms');
             $as = isset($post['admin_assistant']) && is_array($post['admin_assistant']) ? $post['admin_assistant'] : [];
-            $sanitize = function ($v) {
-                return trim(strip_tags((string)$v));
-            };
+            // 服务商信息（provider / api_base / api_key / model）统一归口到 theme_ai。
+            // 本页只保存助手行为参数；即使表单被伪造带上服务商字段，也一律不写入 admin_assistant。
             $assistantRow = [
                 'enabled' => isset($as['enabled']) && (string)$as['enabled'] === '1' ? '1' : '0',
                 'access_scope' => (function () use ($as) {
                     $scope = isset($as['access_scope']) ? strtolower(trim((string)$as['access_scope'])) : 'all';
                     return in_array($scope, ['all', 'super'], true) ? $scope : 'all';
                 })(),
-                'use_ai_search_credentials' => isset($as['use_ai_search_credentials']) && (string)$as['use_ai_search_credentials'] === '1' ? '1' : '0',
-                'provider' => $sanitize(isset($as['provider']) ? $as['provider'] : 'openai'),
-                'model' => $sanitize(isset($as['model']) ? $as['model'] : ''),
-                'api_base' => $sanitize(isset($as['api_base']) ? $as['api_base'] : ''),
                 'timeout' => (string)max(8, intval(isset($as['timeout']) ? $as['timeout'] : 45)),
                 'max_tokens' => (string)max(256, min(4096, intval(isset($as['max_tokens']) ? $as['max_tokens'] : 1200))),
                 'include_env_snapshot' => isset($as['include_env_snapshot']) && (string)$as['include_env_snapshot'] === '1' ? '1' : '0',
                 'rate_per_minute' => (string)max(1, min(120, intval(isset($as['rate_per_minute']) ? $as['rate_per_minute'] : 20))),
                 'retrieve_chunks' => (string)max(1, min(12, intval(isset($as['retrieve_chunks']) ? $as['retrieve_chunks'] : 8))),
             ];
-            $newAsKey = isset($as['api_key']) ? trim((string)$as['api_key']) : '';
-            if ($newAsKey !== '') {
-                $assistantRow['api_key'] = $newAsKey;
-            } else {
-                $cfgFile = APP_PATH . 'extra/maccms.php';
-                $latest = is_file($cfgFile) ? include $cfgFile : [];
-                if (isset($latest['admin_assistant']['api_key']) && $latest['admin_assistant']['api_key'] !== '') {
-                    $assistantRow['api_key'] = (string)$latest['admin_assistant']['api_key'];
-                } else {
-                    $assistantRow['api_key'] = isset($config_old['admin_assistant']['api_key']) ? $config_old['admin_assistant']['api_key'] : '';
-                }
-            }
 
             $config_new = $config_old;
+            // 用磁盘上最新的 theme_ai 覆盖框架缓存，避免本页保存把主题 AI 刚更换的服务商信息回退
+            $cfgFile = APP_PATH . 'extra/maccms.php';
+            $latest = is_file($cfgFile) ? include $cfgFile : [];
+            if (is_array($latest) && isset($latest['theme_ai']) && is_array($latest['theme_ai'])) {
+                $config_new['theme_ai'] = $latest['theme_ai'];
+            }
+            // 整体替换，顺带清除历史版本遗留的独立凭据字段（密钥不再存放两份）
             $config_new['admin_assistant'] = $assistantRow;
             $res = mac_arr2file(APP_PATH . 'extra/maccms.php', $config_new);
             if ($res === false) {
@@ -2021,26 +2035,41 @@ class System extends Base
         }
 
         $config = config('maccms');
+        // 直读磁盘：主题 AI 设置页刚更换服务商后，本页立即显示新值
+        $cfgFile = APP_PATH . 'extra/maccms.php';
+        $latest = is_file($cfgFile) ? include $cfgFile : [];
+        if (is_array($latest)) {
+            if (isset($latest['admin_assistant']) && is_array($latest['admin_assistant'])) {
+                $config['admin_assistant'] = $latest['admin_assistant'];
+            }
+            if (isset($latest['theme_ai']) && is_array($latest['theme_ai'])) {
+                $config['theme_ai'] = $latest['theme_ai'];
+            }
+        }
         if (!isset($config['admin_assistant']) || !is_array($config['admin_assistant'])) {
             $config['admin_assistant'] = [];
         }
         $config['admin_assistant'] = array_merge([
             'enabled' => '0',
             'access_scope' => 'all',
-            'use_ai_search_credentials' => '1',
-            'provider' => 'openai',
-            'model' => '',
-            'api_base' => '',
-            'api_key' => '',
             'timeout' => '45',
             'max_tokens' => '1200',
             'include_env_snapshot' => '1',
             'rate_per_minute' => '20',
             'retrieve_chunks' => '8',
         ], $config['admin_assistant']);
-        $asKey = isset($config['admin_assistant']['api_key']) ? trim((string)$config['admin_assistant']['api_key']) : '';
-        $this->assign('admin_assistant_key_saved', $asKey !== '' ? 1 : 0);
-        $this->assign('admin_assistant_key_tail', $asKey !== '' ? substr($asKey, -6) : '');
+
+        // 只读服务商摘要，取自 theme_ai；密钥只回显尾号，明文绝不带到页面
+        $themeAi = isset($config['theme_ai']) && is_array($config['theme_ai']) ? $config['theme_ai'] : [];
+        $themeKey = trim((string)(isset($themeAi['api_key']) ? $themeAi['api_key'] : ''));
+        $this->assign('theme_ai_provider', strtolower(trim((string)(isset($themeAi['provider']) ? $themeAi['provider'] : 'openai'))));
+        $this->assign('theme_ai_api_base', trim((string)(isset($themeAi['api_base']) ? $themeAi['api_base'] : '')));
+        $this->assign('theme_ai_model', trim((string)(isset($themeAi['model']) ? $themeAi['model'] : '')));
+        $this->assign('theme_ai_key_saved', $themeKey !== '' ? 1 : 0);
+        $this->assign('theme_ai_key_tail', $themeKey !== '' ? substr($themeKey, -6) : '');
+        // 兼容旧模板变量（值同样来自 theme_ai）
+        $this->assign('admin_assistant_key_saved', $themeKey !== '' ? 1 : 0);
+        $this->assign('admin_assistant_key_tail', $themeKey !== '' ? substr($themeKey, -6) : '');
         $this->assign('config', $config);
         $this->assign('title', lang('admin/system/configassistant/title'));
         return $this->fetch('admin@system/configassistant');
@@ -2099,6 +2128,12 @@ class System extends Base
                 $imgModel = '';
             }
             $themeRow['image_model'] = $imgModel;
+            $visionModel = $sanitize(isset($ta['vision_model']) ? $ta['vision_model'] : '');
+            if (preg_match('/[<>{};]/', $visionModel)) {
+                $visionModel = '';
+            }
+            $themeRow['vision_model'] = $visionModel;
+            $themeRow['vision_max_tokens'] = (string)max(200, min(4096, intval(isset($ta['vision_max_tokens']) ? $ta['vision_max_tokens'] : 1024)));
             $newImgKey = isset($ta['image_api_key']) ? trim((string)$ta['image_api_key']) : '';
             if ($newImgKey !== '') {
                 $themeRow['image_api_key'] = $newImgKey;
@@ -2112,8 +2147,17 @@ class System extends Base
                 }
             }
 
-            $config_new = $config_old;
+            // 以磁盘最新配置为底，避免本页保存回退其它模块的配置
+            $diskFile = APP_PATH . 'extra/maccms.php';
+            $diskAll = is_file($diskFile) ? include $diskFile : [];
+            if (!is_array($diskAll)) {
+                $diskAll = [];
+            }
+            $config_new = $diskAll !== [] ? $diskAll : $config_old;
             $config_new['theme_ai'] = $themeRow;
+
+            // 保存主题 AI 时，把连接信息同步写入 AI 搜索 / AI SEO / AI 标注 / AI 视频封面四段
+            $config_new = \app\common\util\AiServiceConfig::syncAll($config_new, $themeRow);
             $res = mac_arr2file(APP_PATH . 'extra/maccms.php', $config_new);
             if ($res === false) {
                 return $this->ajaxErrorWithFreshToken(lang('save_err'));
@@ -2136,6 +2180,8 @@ class System extends Base
             'image_api_base' => '',
             'image_api_key' => '',
             'image_model' => 'gpt-image-1',
+            'vision_model' => '',
+            'vision_max_tokens' => '1024',
         ], $config['theme_ai']);
         $taKey = isset($config['theme_ai']['api_key']) ? trim((string)$config['theme_ai']['api_key']) : '';
         $this->assign('theme_ai_key_saved', $taKey !== '' ? 1 : 0);
@@ -2143,11 +2189,107 @@ class System extends Base
         $imgKey = isset($config['theme_ai']['image_api_key']) ? trim((string)$config['theme_ai']['image_api_key']) : '';
         $this->assign('theme_ai_img_key_saved', $imgKey !== '' ? 1 : 0);
         $this->assign('theme_ai_img_key_tail', $imgKey !== '' ? substr($imgKey, -6) : '');
-        $this->assign('theme_ai_models', ['claude-opus-4-8', 'claude-opus-4-7', 'claude-opus-4-6', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-fable-5']);
-        $this->assign('theme_ai_image_models', ['gpt-image-1', 'dall-e-3']);
+        $this->assign('theme_ai_models', ['claude-opus-4-8', 'claude-opus-4-7', 'claude-opus-4-6', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-fable-5', 'glm-4-flash', 'glm-4.5-air', 'glm-4.5', 'gpt-4o-mini']);
+        $this->assign('theme_ai_image_models', ['doubao-seedream-4-0-20260415', 'gpt-image-1', 'dall-e-3', 'cogview-3-flash', 'cogview-4', 'glm-image', 'doubao-seedream-4-0-250828', 'doubao-seedream-4-5-251128', 'doubao-seedream-5-0-260128']);
         $this->assign('config', $config);
         $this->assign('title', lang('menu/configthemeai'));
         return $this->fetch('admin@system/configthemeai');
+    }
+
+    /**
+     * 主题 AI 设置 - 测试连接
+     * 用当前表单值做只读探测（允许未保存），不写配置文件、不落库、不生成图片。
+     */
+    public function testthemeai()
+    {
+        $post = input('post.');
+        if (!is_array($post)) {
+            $post = [];
+        }
+        // 与保存接口一致的 CSRF 校验
+        $validate = validate('app\\common\\validate\\Token', [], false, false);
+        if (!$validate->check($post)) {
+            $err = $validate->getError();
+            $msg = is_scalar($err) ? (string)$err : lang('param_err');
+            return $this->ajaxErrorWithFreshToken($msg);
+        }
+
+        // 页面上的「测试连接」一次验证文本 + 图像两项；kind=text/image 保留给单项排查
+        $kind = strtolower(trim((string)(isset($post['kind']) ? $post['kind'] : 'all')));
+        if (!in_array($kind, ['all', 'text', 'image'], true)) {
+            $kind = 'all';
+        }
+        $form = isset($post['theme_ai']) && is_array($post['theme_ai']) ? $post['theme_ai'] : [];
+
+        // 直接读磁盘配置文件，避免框架配置缓存导致刚保存的密钥读不到
+        $cfgFile = APP_PATH . 'extra/maccms.php';
+        $latest = is_file($cfgFile) ? include $cfgFile : [];
+        $saved = isset($latest['theme_ai']) && is_array($latest['theme_ai']) ? $latest['theme_ai'] : [];
+
+        $cfg = \app\common\util\ThemeAiConnectionTester::normalize($form, $saved);
+
+        $sections = [];
+        if ($kind === 'all' || $kind === 'text') {
+            $r = \app\common\util\ThemeAiConnectionTester::testText($cfg['text'], $cfg['text_notes']);
+            $sections[] = [
+                'key' => 'text',
+                'label' => '文本生成',
+                'ok' => (bool)$r['ok'],
+                'msg' => (string)$r['msg'],
+                'details' => isset($r['details']) ? $r['details'] : [],
+                'notes' => isset($r['notes']) ? $r['notes'] : [],
+            ];
+        }
+        if ($kind === 'all' || $kind === 'image') {
+            $r = \app\common\util\ThemeAiConnectionTester::testImage($cfg['image'], $cfg['image_notes']);
+            $sections[] = [
+                'key' => 'image',
+                'label' => '图像服务',
+                'ok' => (bool)$r['ok'],
+                'msg' => (string)$r['msg'],
+                'details' => isset($r['details']) ? $r['details'] : [],
+                'notes' => isset($r['notes']) ? $r['notes'] : [],
+            ];
+        }
+
+        $pass = 0;
+        $failedLabels = [];
+        foreach ($sections as $s) {
+            if ($s['ok']) {
+                $pass++;
+            } else {
+                $failedLabels[] = $s['label'];
+            }
+        }
+        $total = count($sections);
+        $allOk = ($pass === $total);
+        if ($total === 1) {
+            // 单项调用沿用测试器原始结论，兼容已有脚本
+            $msg = (string)$sections[0]['msg'];
+        } elseif ($allOk) {
+            $msg = '连接成功，文本与图像服务均可用';
+        } elseif ($pass === 0) {
+            $msg = '连接失败，文本与图像服务均不可用';
+        } else {
+            $msg = '部分连接失败：' . implode('、', $failedLabels) . '不可用';
+        }
+
+        $res = [
+            'ok' => $allOk,
+            'partial' => ($pass > 0 && $pass < $total),
+            'kind' => $kind,
+            'passed' => $pass,
+            'total' => $total,
+            'msg' => $msg,
+            // 旧字段保留：单项结果仍可从 details/notes 直接读取
+            'details' => ($total === 1 ? $sections[0]['details'] : []),
+            'notes' => ($total === 1 ? $sections[0]['notes'] : []),
+            'sections' => $sections,
+        ];
+
+        // 返回新 token，前端刷新隐藏域，保证连续多次测试都能通过校验
+        $res['__token__'] = token('__token__');
+        return json(['code' => $allOk ? 1 : 0, 'msg' => $msg, 'data' => $res]);
     }
 
     public function configanalytics()
@@ -2215,39 +2357,30 @@ class System extends Base
                 return trim(strip_tags((string)$v));
             };
 
-            $providers = ['openai', 'claude', 'gemini', 'deepseek', 'qwen', 'glm'];
-            $provider = strtolower($sanitize(isset($ai['provider']) ? $ai['provider'] : 'openai'));
-            if (!in_array($provider, $providers, true)) {
-                $provider = 'openai';
-            }
-
+            // 本页只保存标注业务参数；接口信息统一跟随主题 AI，旧的凭据复用开关已移除
             $row = [
                 'enabled' => isset($ai['enabled']) && (string)$ai['enabled'] === '1' ? '1' : '0',
-                'use_ai_search_credentials' => isset($ai['use_ai_search_credentials']) && (string)$ai['use_ai_search_credentials'] === '1' ? '1' : '0',
-                'provider' => $provider,
-                'model' => $sanitize(isset($ai['model']) ? $ai['model'] : 'gpt-4o-mini'),
-                'api_base' => $sanitize(isset($ai['api_base']) ? $ai['api_base'] : ''),
                 'timeout' => (string)max(5, intval(isset($ai['timeout']) ? $ai['timeout'] : 30)),
                 'max_tokens' => (string)max(256, intval(isset($ai['max_tokens']) ? $ai['max_tokens'] : 800)),
                 'batch_size' => (string)max(1, min(100, intval(isset($ai['batch_size']) ? $ai['batch_size'] : 20))),
                 'auto_adopt_empty' => isset($ai['auto_adopt_empty']) && (string)$ai['auto_adopt_empty'] === '1' ? '1' : '0',
             ];
 
-            $newKey = isset($ai['api_key']) ? trim((string)$ai['api_key']) : '';
-            if ($newKey !== '') {
-                $row['api_key'] = $newKey;
-            } else {
-                $cfgFile = APP_PATH . 'extra/maccms.php';
-                $latest = is_file($cfgFile) ? include $cfgFile : [];
-                if (isset($latest['ai_content']['api_key']) && $latest['ai_content']['api_key'] !== '') {
-                    $row['api_key'] = (string)$latest['ai_content']['api_key'];
-                } else {
-                    $row['api_key'] = isset($config_old['ai_content']['api_key']) ? $config_old['ai_content']['api_key'] : '';
-                }
+            $diskFile = APP_PATH . 'extra/maccms.php';
+            $diskAll = is_file($diskFile) ? include $diskFile : [];
+            if (!is_array($diskAll)) {
+                $diskAll = [];
             }
-
-            $config_new = $config_old;
-            $config_new['ai_content'] = $row;
+            $config_new = $diskAll !== [] ? $diskAll : $config_old;
+            $themeRow = isset($diskAll['theme_ai']) && is_array($diskAll['theme_ai'])
+                ? $diskAll['theme_ai']
+                : (isset($config_old['theme_ai']) && is_array($config_old['theme_ai']) ? $config_old['theme_ai'] : []);
+            $config_new['ai_content'] = array_merge(
+                isset($config_new['ai_content']) && is_array($config_new['ai_content']) ? $config_new['ai_content'] : [],
+                $row
+            );
+            unset($config_new['ai_content']['use_ai_search_credentials']);
+            $config_new = \app\common\util\AiServiceConfig::syncAll($config_new, $themeRow);
 
             $res = mac_arr2file(APP_PATH . 'extra/maccms.php', $config_new);
             if ($res === false) {
@@ -2256,7 +2389,17 @@ class System extends Base
             return $this->success(lang('save_ok'));
         }
 
-        $this->assign('config', config('maccms'));
+        $config = config('maccms');
+        // 直读磁盘并覆盖连接字段，页面只展示归口后的只读摘要
+        $config['ai_content'] = array_merge([
+            'enabled' => '0',
+            'timeout' => '30',
+            'max_tokens' => '800',
+            'batch_size' => '20',
+            'auto_adopt_empty' => '0',
+        ], \app\common\util\AiServiceConfig::content());
+        $this->assignAiCommon();
+        $this->assign('config', $config);
         $this->assign('title', lang('admin/system/configaicontent'));
         $this->view->config(['view_path' => APP_PATH . 'admin/view/']);
         return $this->fetch('system/configaicontent');

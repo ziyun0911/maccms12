@@ -115,43 +115,69 @@ class SeoAi
 
     private static function runGenerator($payload)
     {
-        $config = config('maccms');
-        $ai = isset($config['ai_seo']) ? $config['ai_seo'] : [];
+        // 连接信息统一跟随主题 AI 设置，本段只保留启用开关与业务参数
+        $ai = \app\common\util\AiServiceConfig::seo();
         $enabled = isset($ai['enabled']) ? intval($ai['enabled']) : 0;
         $provider = !empty($ai['provider']) ? strtolower($ai['provider']) : 'fallback';
         $model = !empty($ai['model']) ? $ai['model'] : 'gpt-4o-mini';
+        $isClaude = ($provider === 'claude' || $provider === 'anthropic');
 
-        if ($enabled !== 1 || empty($ai['api_key']) || $provider !== 'openai') {
+        if ($enabled !== 1 || empty($ai['api_key']) || !in_array($provider, ['openai', 'claude', 'anthropic'], true)) {
             return self::fallbackResult($payload, $provider, $model, '');
         }
 
         $apiBase = !empty($ai['api_base']) ? rtrim($ai['api_base'], '/') : 'https://api.openai.com/v1';
-        $url = $apiBase . '/chat/completions';
+        $url = $apiBase . ($isClaude ? '/messages' : '/chat/completions');
 
         $prompt = self::buildPrompt($payload);
-        $post = [
-            'model' => $model,
-            'temperature' => 0.4,
-            'response_format' => ['type' => 'json_object'],
-            'messages' => [
-                ['role' => 'system', 'content' => 'You are an SEO assistant. Return strict JSON with keys: title,keywords,description.'],
-                ['role' => 'user', 'content' => $prompt],
-            ],
-        ];
+        $system = 'You are an SEO assistant. Return strict JSON with keys: title,keywords,description.';
+        $post = $isClaude
+            ? [
+                'model' => $model,
+                'max_tokens' => 1024,
+                'system' => $system,
+                'messages' => [['role' => 'user', 'content' => $prompt]],
+            ]
+            : [
+                'model' => $model,
+                'temperature' => 0.4,
+                'response_format' => ['type' => 'json_object'],
+                'messages' => [
+                    ['role' => 'system', 'content' => $system],
+                    ['role' => 'user', 'content' => $prompt],
+                ],
+            ];
 
-        $headers = [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . trim($ai['api_key']),
-        ];
+        $headers = ['Content-Type: application/json'];
+        if ($isClaude) {
+            // Claude 格式用 x-api-key，且不支持 response_format
+            $headers[] = 'x-api-key: ' . trim($ai['api_key']);
+            $headers[] = 'anthropic-version: 2023-06-01';
+        } else {
+            $headers[] = 'Authorization: Bearer ' . trim($ai['api_key']);
+        }
         $respBody = mac_curl_post($url, json_encode($post, JSON_UNESCAPED_UNICODE), $headers, '', false);
         if ($respBody === false || $respBody === '') {
             return self::fallbackResult($payload, $provider, $model, 'empty ai response');
         }
         $json = json_decode((string)$respBody, true);
-        if (!is_array($json) || !isset($json['choices'][0]['message']['content'])) {
+        if (!is_array($json)) {
             return self::fallbackResult($payload, $provider, $model, 'invalid ai response');
         }
-        $content = (string)$json['choices'][0]['message']['content'];
+        $content = '';
+        if ($isClaude && isset($json['content']) && is_array($json['content'])) {
+            foreach ($json['content'] as $block) {
+                if (is_array($block) && isset($block['type']) && $block['type'] === 'text' && isset($block['text'])) {
+                    $content = (string)$block['text'];
+                    break;
+                }
+            }
+        } elseif (isset($json['choices'][0]['message']['content'])) {
+            $content = (string)$json['choices'][0]['message']['content'];
+        }
+        if ($content === '') {
+            return self::fallbackResult($payload, $provider, $model, 'invalid ai response');
+        }
         $parsed = json_decode($content, true);
         if (!is_array($parsed) || empty($parsed['title'])) {
             return self::fallbackResult($payload, $provider, $model, 'invalid ai response');

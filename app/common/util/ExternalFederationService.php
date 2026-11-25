@@ -74,7 +74,8 @@ class ExternalFederationService
 
     private function getExtConfig()
     {
-        $cfg = config('maccms.ai_search');
+        // 与 AI 搜索其它读取点一致：直读磁盘最新配置（外部源业务参数不受影响）
+        $cfg = \app\common\util\AiServiceConfig::search();
         if (!is_array($cfg)) {
             $cfg = [];
         }

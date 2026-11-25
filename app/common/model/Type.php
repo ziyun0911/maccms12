@@ -178,15 +178,13 @@ class Type extends Base {
             }
         }
 
-        if(defined('ENTRANCE') && ENTRANCE == 'index' && $GLOBALS['config']['app']['popedom_filter'] ==1){
-            $type_ids = mac_get_popedom_filter($GLOBALS['user']['group']['group_type']);
-            if(!empty($type_ids)){
-                if(!empty($where['type_id'])){
-                    $where['type_id'] = [ $where['type_id'],['not in', explode(',',$type_ids)] ];
-                }
-                else{
-                    $where['type_id'] = ['not in', explode(',',$type_ids)];
-                }
+        $popedom_excl = mac_popedom_excluded_type_ids();
+        if(!empty($popedom_excl)){
+            if(!empty($where['type_id'])){
+                $where[] = ['type_id', 'not in', $popedom_excl];
+            }
+            else{
+                $where['type_id'] = ['not in', $popedom_excl];
             }
         }
 

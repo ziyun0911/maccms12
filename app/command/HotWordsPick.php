@@ -72,6 +72,19 @@ class HotWordsPick extends Command
         return 0;
     }
 
+    private function guestExcludedTypeIds(): array
+    {
+        if (!Config::get('maccms.app.popedom_filter')) {
+            return [];
+        }
+        $gt = (string) Db::name('group')->where('group_id', 1)->value('group_type');
+        $allow = array_map('intval', array_filter(explode(',', $gt), static function ($v) {
+            return $v !== '';
+        }));
+        $all = array_map('intval', Db::name('type')->column('type_id'));
+        return array_values(array_diff($all, $allow));
+    }
+
     private function words(string $csv): array
     {
         $out = [];
@@ -86,8 +99,9 @@ class HotWordsPick extends Command
 
     private function pool(int $scan, array $skip): array
     {
+        $excl = $this->guestExcludedTypeIds();
         $rows = Db::name('vod')
-            ->field('vod_name,vod_hits')
+            ->field('vod_name,vod_hits,type_id,type_id_1')
             ->where('vod_status', 1)
             ->where('vod_recycle_time', 0)
             ->order('vod_hits DESC')
@@ -97,6 +111,9 @@ class HotWordsPick extends Command
 
         $cand = [];
         foreach ($rows as $r) {
+            if ($excl !== [] && (in_array((int)$r['type_id'], $excl, true) || in_array((int)$r['type_id_1'], $excl, true))) {
+                continue;
+            }
             $name = trim((string)$r['vod_name']);
             $name = preg_replace(self::SUFFIX, '', $name);
             $len = mb_strlen($name, 'UTF-8');

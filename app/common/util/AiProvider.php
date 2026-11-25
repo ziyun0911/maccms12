@@ -5,8 +5,8 @@ class AiProvider
 {
     public static function resolveConfig()
     {
-        $cfg = config('maccms');
-        $ai = isset($cfg['ai_content']) && is_array($cfg['ai_content']) ? $cfg['ai_content'] : [];
+        // AI 标注连接信息统一跟随主题 AI 设置，不再走「复用 AI 搜索凭据」的旧开关
+        $ai = AiServiceConfig::content();
 
         $out = [
             'enabled' => (string)(isset($ai['enabled']) ? $ai['enabled'] : '0') === '1',
@@ -19,17 +19,6 @@ class AiProvider
             'batch_size' => max(1, min(100, intval(isset($ai['batch_size']) ? $ai['batch_size'] : 20))),
             'auto_adopt_empty' => (string)(isset($ai['auto_adopt_empty']) ? $ai['auto_adopt_empty'] : '0') === '1',
         ];
-
-        $inherit = (string)(isset($ai['use_ai_search_credentials']) ? $ai['use_ai_search_credentials'] : '0') === '1';
-        if ($inherit && isset($cfg['ai_search']) && is_array($cfg['ai_search'])) {
-            $src = $cfg['ai_search'];
-            if ($out['api_key'] === '' && !empty($src['api_key'])) {
-                $out['api_key'] = trim((string)$src['api_key']);
-            }
-            if ($out['api_base'] === '' && !empty($src['api_base'])) {
-                $out['api_base'] = rtrim(trim((string)$src['api_base']), '/');
-            }
-        }
 
         if ($out['api_base'] === '') {
             $out['api_base'] = self::defaultBase($out['provider']);
@@ -166,6 +155,10 @@ class AiProvider
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl ? 1 : 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
+        // 本机 php.ini 缺少 CA 文件，改用系统原生证书存储；证书校验仍保持开启
+        if ($verifySsl) {
+            HttpClient::applyNativeCa($ch);
+        }
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, min($timeout, 15));
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         curl_setopt($ch, CURLOPT_POST, 1);

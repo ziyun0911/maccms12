@@ -842,7 +842,7 @@ class ThemeDesign extends Base
         return isset($cfg['theme_ai']) && is_array($cfg['theme_ai']) ? $cfg['theme_ai'] : array();
     }
 
-    private function themeAiChat($system, $user, $images = array())
+    private function themeAiChat($system, $user, $images = array(), $modelOverride = '')
     {
         $cfg = $this->themeAiConfig();
         if ((string)(isset($cfg['enabled']) ? $cfg['enabled'] : '0') !== '1') {
@@ -860,12 +860,26 @@ class ThemeDesign extends Base
         }
         $timeout = max(10, min(300, intval(isset($cfg['timeout']) ? $cfg['timeout'] : 60)));
         $maxTokens = max(500, min(8000, intval(isset($cfg['max_tokens']) ? $cfg['max_tokens'] : 4000)));
-
         $hasImages = is_array($images) && !empty($images);
+        // 图片识别可单独指定视觉模型：纯文本模型带图请求会被网关拒绝（如 GLM-4-Flash 报 content.type 非法）
+        if ($hasImages && trim((string)$modelOverride) !== '') {
+            $model = trim((string)$modelOverride);
+        }
+        // 视觉模型对 max_tokens 上限更严（glm-4v-flash 等仅允许 1024），带图时按视觉上限收敛
+        if ($hasImages) {
+            $visionMax = intval(isset($cfg['vision_max_tokens']) ? $cfg['vision_max_tokens'] : 0);
+            if ($visionMax <= 0) {
+                $visionMax = 1024;
+            }
+            $maxTokens = min($maxTokens, max(200, min(4096, $visionMax)));
+        }
         $data = null;
         $text = '';
-        if ($provider === 'claude' || $provider === 'anthropic') {
-            $url = $base . '/messages';
+        // 与「主题 AI 设置 → 测试连接」共用端点解析：API 地址若已含完整端点路径则不再重复拼接
+        $ep = \app\common\util\ThemeAiConnectionTester::chatEndpoint($base, $provider);
+        $url = $ep['url'];
+        $useClaude = ($ep['format'] === 'claude');
+        if ($useClaude) {
             if ($hasImages) {
                 $content = array(array('type' => 'text', 'text' => $user));
                 foreach ($images as $img) {
@@ -899,7 +913,6 @@ class ThemeDesign extends Base
                 }
             }
         } else {
-            $url = $base . '/chat/completions';
             if ($hasImages) {
                 $uc = array(array('type' => 'text', 'text' => $user));
                 foreach ($images as $img) {
@@ -945,6 +958,15 @@ class ThemeDesign extends Base
                 $rate = strpos($low, 'rate limit') !== false || strpos($low, 'rate_limit') !== false
                     || strpos($low, 'too many requests') !== false || strpos($low, '429') !== false;
                 $hint = $rate ? ' ' . lang('admin/themedesign/gen_rate_limit') : '';
+                // 带图请求被拒时多半是主模型不支持图片输入，给出可操作的指引
+                if ($hasImages && !$rate) {
+                    $looksVisionIssue = strpos($low, 'content.type') !== false || strpos($low, 'content type') !== false
+                        || strpos($low, 'vision') !== false || strpos($low, 'multimodal') !== false
+                        || strpos($low, 'image') !== false;
+                    if ($looksVisionIssue) {
+                        $hint .= ' ' . lang('admin/themedesign/gen_need_vision');
+                    }
+                }
                 return array('ok' => false, 'error' => mb_substr($emsg, 0, 240) . $hint);
             }
             return array('ok' => false, 'error' => lang('admin/themedesign/gen_bad_response'));
@@ -1378,6 +1400,7 @@ class ThemeDesign extends Base
             $spec = mb_substr($spec, 0, 6000);
         }
 
+        $cfgAll = $this->themeAiConfig();
         $images = array();
         $evidence = '';
         $suggestName = '';
@@ -1417,7 +1440,12 @@ class ThemeDesign extends Base
 
         @set_time_limit(200);
         $system = $this->buildDetectPromptSystem();
-        $res = $this->themeAiChat($system, $user, $images);
+        // 截图识别优先用「视觉模型」，避免纯文本模型带图被网关拒绝
+        $visionOverride = '';
+        if ($mode === 'image') {
+            $visionOverride = trim((string)(isset($cfgAll['vision_model']) ? $cfgAll['vision_model'] : ''));
+        }
+        $res = $this->themeAiChat($system, $user, $images, $visionOverride);
         if (empty($res['ok'])) {
             return json(array('code' => 0, 'msg' => isset($res['error']) ? $res['error'] : lang('admin/themedesign/ai_detect_failed')));
         }
@@ -1815,14 +1843,27 @@ class ThemeDesign extends Base
         $model = $ic['model'];
         $timeout = $ic['timeout'];
 
+        $ml = strtolower($model);
+        $bl = strtolower($base);
+        // 火山方舟（豆包 Seedream）：默认会在右下角烧「AI生成」水印，必须显式关掉；该端点也不认 n 参数
+        $isArk = strpos($bl, 'volces.com') !== false || strpos($bl, 'ark.cn') !== false
+            || strpos($ml, 'seedream') !== false || strpos($ml, 'doubao') !== false || strpos($ml, 'seededit') !== false;
+        // Seedream 4.0/4.5 输出的是无 alpha 的 JPEG：若提示词仍要求「透明背景」，
+        // 模型会把透明画成灰白棋盘格纹理，logo 直接不可用。这类模型改要求纯白实底。
+        $alphaOk = !$isArk || strpos($ml, 'seedream-5') !== false;
         $post = array(
             'model' => $model,
-            'prompt' => $this->buildImagePrompt($kind, $message),
+            'prompt' => $this->buildImagePrompt($kind, $message, $alphaOk),
             'n' => 1,
             'size' => '1024x1024',
         );
-        $ml = strtolower($model);
-        if (strpos($ml, 'gpt-image') !== false) {
+        if ($isArk) {
+            unset($post['n']);
+            $post['watermark'] = false;
+            $post['response_format'] = 'url';
+            // Seedream 4.0/4.5 的分辨率下限是 1280x720，1024x1024 可能被判越界；直接用官方 2K 预设
+            $post['size'] = '2K';
+        } elseif (strpos($ml, 'gpt-image') !== false) {
             $post['quality'] = 'medium';
             if ($kind === 'logo') {
                 $post['background'] = 'transparent';
@@ -1844,7 +1885,13 @@ class ThemeDesign extends Base
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/gen_bad_response')));
         }
         if (!empty($json['error']['message'])) {
-            return json(array('code' => 0, 'msg' => mb_substr((string)$json['error']['message'], 0, 240)));
+            $emsg = (string)$json['error']['message'];
+            // 网关把「模型不是图像模型」笼统报成内部错误，补一句可操作提示
+            if (preg_match('/^(内部错误|internal\s*(server\s*)?error)$/i', trim($emsg)) === 1
+                && !preg_match('/cogview|dall-?e|gpt-image|glm-image|flux|stable|sd[0-9]|seedream|kolors|jimeng|imagen|image/i', $model)) {
+                $emsg .= ' ' . sprintf(lang('admin/themedesign/img_model_mismatch'), $model);
+            }
+            return json(array('code' => 0, 'msg' => mb_substr($emsg, 0, 300)));
         }
 
         $raw = null;
@@ -1860,7 +1907,16 @@ class ThemeDesign extends Base
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/img_ai_failed')));
         }
 
-        $rel = $this->saveThemeImage($raw, $kind, 'png');
+        // 按文件头判断真实格式：Seedream 4.0/4.5 固定输出 jpeg，不能一律存成 .png
+        $ext = 'png';
+        if (substr($raw, 0, 2) === "\xFF\xD8") {
+            $ext = 'jpg';
+        } elseif (substr($raw, 0, 4) === 'RIFF' && substr($raw, 8, 4) === 'WEBP') {
+            $ext = 'webp';
+        } elseif (substr($raw, 0, 6) === 'GIF87a' || substr($raw, 0, 6) === 'GIF89a') {
+            $ext = 'gif';
+        }
+        $rel = $this->saveThemeImage($raw, $kind, $ext);
         if ($rel === '') {
             return json(array('code' => 0, 'msg' => lang('admin/themedesign/img_ai_failed')));
         }
@@ -1870,35 +1926,18 @@ class ThemeDesign extends Base
 
     private function resolveImageAiConfig()
     {
-        $config = config('maccms');
-
-        $cover = isset($config['ai_cover']) && is_array($config['ai_cover']) ? $config['ai_cover'] : array();
-        if ((string)(isset($cover['enabled']) ? $cover['enabled'] : '0') === '1'
-            && trim((string)(isset($cover['api_key']) ? $cover['api_key'] : '')) !== '') {
-            $base = trim((string)(isset($cover['api_base']) ? $cover['api_base'] : ''));
-            if ($base === '') {
-                $base = 'https://api.openai.com/v1';
-            }
-            $model = trim((string)(isset($cover['model']) ? $cover['model'] : ''));
-            return array(
-                'ok' => true,
-                'key' => trim((string)$cover['api_key']),
-                'base' => rtrim($base, '/'),
-                'model' => $model !== '' ? $model : 'gpt-image-1',
-                'timeout' => max(30, min(300, intval(isset($cover['timeout']) ? $cover['timeout'] : 120))),
-            );
-        }
-
-        $ta = isset($config['theme_ai']) && is_array($config['theme_ai']) ? $config['theme_ai'] : array();
+        // 图像凭据统一归口主题 AI：地址已规范化到基础层级，不再出现完整 /chat/completions 拼绘图端点
+        $ta = \app\common\util\AiServiceConfig::theme();
         if ((string)(isset($ta['enabled']) ? $ta['enabled'] : '0') !== '1') {
             return array('ok' => false, 'error' => lang('admin/themedesign/gen_disabled'));
         }
-        $base = trim((string)(isset($ta['image_api_base']) && $ta['image_api_base'] !== '' ? $ta['image_api_base'] : (isset($ta['api_base']) ? $ta['api_base'] : '')));
-        $key = trim((string)(isset($ta['image_api_key']) && $ta['image_api_key'] !== '' ? $ta['image_api_key'] : (isset($ta['api_key']) ? $ta['api_key'] : '')));
+        $cover = \app\common\util\AiServiceConfig::cover();
+        $base = trim((string)(isset($cover['api_base']) ? $cover['api_base'] : ''));
+        $key = trim((string)(isset($cover['api_key']) ? $cover['api_key'] : ''));
         if ($base === '' || $key === '') {
             return array('ok' => false, 'error' => lang('admin/themedesign/gen_no_key'));
         }
-        $model = trim((string)(isset($ta['image_model']) ? $ta['image_model'] : ''));
+        $model = trim((string)(isset($cover['model']) ? $cover['model'] : ''));
         return array(
             'ok' => true,
             'key' => $key,
@@ -1908,7 +1947,7 @@ class ThemeDesign extends Base
         );
     }
 
-    private function buildImagePrompt($kind, $message)
+    private function buildImagePrompt($kind, $message, $alphaOk = true)
     {
         $site = isset($GLOBALS['config']['site']) ? $GLOBALS['config']['site'] : array();
         $siteName = isset($site['site_name']) ? trim(strip_tags((string)$site['site_name'])) : '';
@@ -1924,7 +1963,11 @@ class ThemeDesign extends Base
             if ($siteName !== '') {
                 $p .= ' for a site named "' . mb_substr($siteName, 0, 60) . '"';
             }
-            $p .= '. Flat vector style, simple and memorable, centered composition, transparent background, high contrast, no photorealism, no stock-photo look, no watermark, no border.';
+            if ($alphaOk) {
+                $p .= '. Flat vector style, simple and memorable, centered composition, transparent background, high contrast, no photorealism, no stock-photo look, no watermark, no border.';
+            } else {
+                $p .= '. Flat vector style, simple and memorable, centered composition on a solid pure white (#FFFFFF) background, clean uniform backdrop, absolutely no checkerboard pattern, no gray checker texture, no transparency grid, high contrast, no photorealism, no stock-photo look, no watermark, no border.';
+            }
             if ($accent !== '') {
                 $p .= ' Use ' . $accent . ' as the primary brand color.';
             }

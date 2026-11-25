@@ -73,8 +73,8 @@ class Upload extends Base
         $system = isset($in['system_prompt']) ? (string) $in['system_prompt'] : '';
         $user = isset($in['user_prompt']) ? (string) $in['user_prompt'] : '';
 
-        $config = config('maccms');
-        $ai = isset($config['ai_seo']) && is_array($config['ai_seo']) ? $config['ai_seo'] : [];
+        // UEditor AI 工具栏与 AI SEO 共用一份连接信息，统一跟随主题 AI 设置
+        $ai = \app\common\util\AiServiceConfig::seo();
         $enabled = isset($ai['enabled']) ? (string) $ai['enabled'] : '0';
         if ($enabled !== '1') {
             return json(['code' => 1, 'msg' => lang('admin/ueditor_ai/disabled'), 'data' => null]);

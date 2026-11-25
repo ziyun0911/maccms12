@@ -1169,10 +1169,17 @@ class MeilisearchListBridge
         $st = $m[2];
         $rc = $m[3];
         $present = [];
+        $excl = in_array($kind, ['vod', 'art', 'manga', 'actor', 'website'], true)
+            ? mac_popedom_excluded_type_ids()
+            : [];
         foreach (array_chunk($ids, 400) as $chunk) {
             $q = Db::name($table)->whereIn($pk, $chunk)->where($st, 1);
             if ($rc !== null && $rc !== '') {
                 $q->where($rc, 0);
+            }
+            if (!empty($excl)) {
+                $q->whereNotIn('type_id', $excl);
+                $q->whereNotIn('type_id_1', $excl);
             }
             $col = $q->column($pk);
             if (!is_array($col)) {

@@ -419,6 +419,14 @@ class User extends Base
             $res = (new \app\common\model\User())->unbind($param);
             return json($res);
         }
+        if (empty($param['ac'])) {
+            $param['ac'] = 'email';
+        }
+        $ac = $param['ac'] === 'phone' ? 'phone' : 'email';
+        $bound = ($ac === 'phone' && !empty($GLOBALS['user']['user_phone']))
+            || ($ac === 'email' && !empty($GLOBALS['user']['user_email']));
+        $this->assign('ac', $ac);
+        $this->assign('unbind_bound', $bound ? 1 : 0);
         $this->assign('param',$param);
         return $this->fetch('user/unbind');
     }
@@ -1196,6 +1204,21 @@ class User extends Base
         if (request()->isAjax()) {
             return json($res);
         }
+        if ($res['code'] > 1) {
+            return $this->error($res['msg'], mac_url('user/orders'));
+        }
+        $info = $res['info'];
+        $remark = json_decode((string)$info['order_remarks'], true);
+        $info['order_remark_text'] = '';
+        if (is_array($remark)) {
+            foreach (['group_name', 'goods_name', 'coupon_name', 'card_name'] as $key) {
+                if (!empty($remark[$key])) {
+                    $info['order_remark_text'] = $remark[$key];
+                    break;
+                }
+            }
+        }
+        $this->assign('info', $info);
         $this->assign('param',$param);
         return $this->fetch('user/order_info');
     }
@@ -1223,14 +1246,46 @@ class User extends Base
     public function comment()
     {
         $param = input();
+        $param['page']  = intval($param['page'])  < 1 ? 1  : intval($param['page']);
+        $param['limit'] = intval($param['limit']) < 1 ? 10 : intval($param['limit']);
+
+        $tag = [
+            'num'     => $param['limit'],
+            'paging'  => 'yes',
+            'order'   => 'desc',
+            'by'      => 'id',
+            'uid'     => intval($GLOBALS['user']['user_id']),
+            'pageurl' => 'user/comment',
+        ];
+        $res = (new \app\common\model\Comment())->listCacheData($tag);
+
+        $pages = mac_page_param($res['total'], $res['limit'], $res['page'], $res['pageurl'], $res['half']);
+        $this->assign('__PAGING__', $pages);
         $this->assign('param',$param);
+        $this->assign('list', $res['list']);
         return $this->fetch('user/comment');
     }
 
     public function gbook()
     {
         $param = input();
+        $param['page']  = intval($param['page'])  < 1 ? 1  : intval($param['page']);
+        $param['limit'] = intval($param['limit']) < 1 ? 10 : intval($param['limit']);
+
+        $tag = [
+            'num'     => $param['limit'],
+            'paging'  => 'yes',
+            'order'   => 'desc',
+            'by'      => 'id',
+            'uid'     => intval($GLOBALS['user']['user_id']),
+            'pageurl' => 'user/gbook',
+        ];
+        $res = (new \app\common\model\Gbook())->listCacheData($tag);
+
+        $pages = mac_page_param($res['total'], $res['limit'], $res['page'], $res['pageurl'], $res['half']);
+        $this->assign('__PAGING__', $pages);
         $this->assign('param',$param);
+        $this->assign('list', $res['list']);
         return $this->fetch('user/gbook');
     }
 

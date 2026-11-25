@@ -1,3 +1,9 @@
+<style>
+    .ai-common-summary { border: 1px solid #e6e6e6; border-radius: 4px; background: #fafafa; padding: 10px 14px; line-height: 1.9; font-size: 13px; color: #333; }
+    .ai-common-summary .aac-k { display: inline-block; width: 88px; color: #777; }
+    .ai-common-summary .aac-v { word-break: break-all; }
+</style>
+
         <blockquote class="layui-elem-quote layui-quote-nm">
             {:lang('admin/system/configaiseo/tip')}
             <div class="layui-word-aux" style="margin-top:8px;">{:lang('admin/system/configaiseo/ueditor_note')}</div>
@@ -29,33 +35,18 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaiseo/provider')}：</label>
+            <label class="layui-form-label">服务商信息（同步自主题 AI）：</label>
             <div class="layui-input-block">
-                <input type="text" name="ai_seo[provider]" value="{$config['ai_seo']['provider']|default='openai'}" class="layui-input" placeholder="openai">
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaiseo/model')}：</label>
-            <div class="layui-input-block">
-                <input type="text" name="ai_seo[model]" value="{$config['ai_seo']['model']|default='gpt-4o-mini'}" class="layui-input">
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaiseo/api_base')}：</label>
-            <div class="layui-input-block">
-                <input type="text" name="ai_seo[api_base]" value="{$config['ai_seo']['api_base']|default=''}" class="layui-input" placeholder="https://api.openai.com/v1">
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">{:lang('admin/system/configaiseo/api_key')}：</label>
-            <div class="layui-input-block">
-                <input type="password" name="ai_seo[api_key]" value="" autocomplete="new-password" class="layui-input" placeholder="{:lang('admin/system/configaiseo/api_key_tip')}">
-                {if condition="$ai_seo_key_saved eq 1"}
-                <div class="layui-form-mid layui-word-aux">{:lang('admin/system/configaiseo/api_key_saved_tip')} (****{$ai_seo_key_tail})</div>
-                {/if}
+                <div class="ai-common-summary">
+                    <div><span class="aac-k">服务商</span><span class="aac-v">{$ai_common_provider|default='openai'}</span></div>
+                    <div><span class="aac-k">API 地址</span><span class="aac-v">{$ai_common_api_base|default='(未配置)'}</span></div>
+                    <div><span class="aac-k">模型</span><span class="aac-v">{$ai_common_model|default='(未配置)'}</span></div>
+                    <div><span class="aac-k">接口密钥</span><span class="aac-v">{if condition="$ai_common_key_saved eq 1"}已配置（****{$ai_common_key_tail}）{/if}{if condition="$ai_common_key_saved neq 1"}未配置{/if}</span></div>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    AI SEO 及后台 UEditor AI 工具栏的接口地址、密钥、模型和服务商已与「主题 AI 设置」同步，本页不再单独保存。在主题 AI 设置里更换服务商并保存后会自动跟随。
+                    <a href="{:url('system/configthemeai')}" target="_blank" style="color:#1e9fff;">前往主题 AI 设置 →</a>
+                </div>
             </div>
         </div>
 

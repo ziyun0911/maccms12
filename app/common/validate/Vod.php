@@ -77,6 +77,13 @@ class Vod extends Validate
             $data[$field] = mac_filter_xss($data[$field]);
             $data[$field] = mb_substr($data[$field], 0, $length);
         }
+        // 首字母字段只保留单个 A-Z，非法字符（中文/全角符号/孤立字节）置空，避免写入 char(1) 触发 1366
+        if (isset($data['vod_letter']) && $data['vod_letter'] !== '') {
+            $letter = (string) $data['vod_letter'];
+            $data['vod_letter'] = preg_match('/^[A-Za-z]/u', $letter)
+                ? strtoupper(mb_substr($letter, 0, 1, 'UTF-8'))
+                : '';
+        }
         return $data;
     }
 }

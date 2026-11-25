@@ -200,7 +200,7 @@ class AiSearch
 
     private static function getConfig()
     {
-        $cfg = config('maccms.ai_search');
+        $cfg = AiServiceConfig::search();
         if (!is_array($cfg)) {
             $cfg = [];
         }

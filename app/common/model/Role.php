@@ -350,7 +350,7 @@ class Role extends Base {
         }
 
         if(empty($data['role_letter'])){
-            $data['role_letter'] = strtoupper(substr($data['role_en'],0,1));
+            $data['role_letter'] = mac_safe_letter($data['role_en'], $data['role_name']);
         }
 
         if(!empty($data['role_content'])) {

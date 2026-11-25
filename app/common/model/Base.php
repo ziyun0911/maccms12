@@ -13,6 +13,7 @@ class Base extends Model
     protected $tablePrefix;
     protected $primaryId;
     protected $readFromMaster;
+    protected $popedomScoped = false;
     private static $tableEnsured = [];
 
     public function __construct(array | object $data = [])
@@ -46,8 +47,17 @@ class Base extends Model
         return ['code' => $code, 'msg' => lang($langKey)];
     }
 
+    protected function mergePopedomCond($cond)
+    {
+        if ($this->popedomScoped !== true || !is_array($cond)) {
+            return $cond;
+        }
+        return mac_popedom_where($cond);
+    }
+
     public function getCountByCond($cond)
     {
+        $cond = $this->mergePopedomCond($cond);
         $query_object = $this;
         if ($this->readFromMaster === true) {
             $query_object = $query_object->master();
@@ -57,6 +67,7 @@ class Base extends Model
 
     public function getListByCond($offset, $limit, $cond, $orderby = '', $fields = "*", $transform = false)
     {
+        $cond = $this->mergePopedomCond($cond);
         $offset = max(0, (int)$offset);
         $limit = max(1, (int)$limit);
 

@@ -1,7 +1,7 @@
 <?php
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 return [
-    'app_debug'           => true,
+    'app_debug'           => false,
     'app_trace'           => false,
     'app_status'          => '',
     'app_namespace'       => '',

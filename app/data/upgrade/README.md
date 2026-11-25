@@ -4,9 +4,9 @@
 随包而来、跑完即删的 `app/data/update/database.php` 是两条路：那条路只服务「官方整包升级」这一次性动作，
 本目录服务「本仓库自己的结构变更」，执行历史记在 `mac_db_version` 里，跑过的不会重跑。
 
-    php think upgrade:run --dry-run   # 看有哪些没执行
-    php think upgrade:run             # 按文件名顺序执行
-    php think doctor                  # 「增量脚本」一节汇总待执行项
+    php bin/think upgrade:run --dry-run   # 看有哪些没执行
+    php bin/think upgrade:run             # 按文件名顺序执行
+    php bin/think doctor                  # 「增量脚本」一节汇总待执行项
 
 ## 文件规则
 
@@ -32,4 +32,4 @@
 
 `config/database.php` 没开 `fields_cache`（think-orm 默认也是 false），字段元数据每次向 MySQL 现读，
 所以改表之后不需要专门清 schema 缓存。若哪天把它打开，改表就要连带清一次运行缓存
-（`php think clear` 或后台「清空缓存」），否则新列在缓存过期前对模型不可见。
+（`php bin/think clear` 或后台「清空缓存」），否则新列在缓存过期前对模型不可见。

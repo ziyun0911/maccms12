@@ -53,8 +53,8 @@
     },
     "scripts": {
         "post-autoload-dump": [
-            "@php think service:discover",
-            "@php think vendor:publish"
+            "@php bin/think service:discover",
+            "@php bin/think vendor:publish"
         ]
     },
     "minimum-stability": "dev",

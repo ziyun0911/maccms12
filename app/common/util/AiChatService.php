@@ -44,7 +44,7 @@ class AiChatService
     private function aiCfg()
     {
         if ($this->aiCfg === null) {
-            $cfg = config('maccms.ai_search');
+            $cfg = AiServiceConfig::search();
             $this->aiCfg = is_array($cfg) ? $cfg : [];
         }
         return $this->aiCfg;
@@ -89,7 +89,7 @@ class AiChatService
         }
         $externalFederated = (new ExternalFederationService())->searchAndStore($extKeyword, $module, ['limit' => 6]);
         $aiSearchResults = $this->requestAiSearchResults($question, $module, $cards, $responseLang);
-        $aiCfg = config('maccms.ai_search');
+        $aiCfg = AiServiceConfig::search();
         if (!is_array($aiCfg)) {
             $aiCfg = [];
         }
@@ -401,7 +401,7 @@ class AiChatService
 
     private function applySemanticEmbeddingRerank($question, array $rows, $mid)
     {
-        $cfg = config('maccms.ai_search');
+        $cfg = AiServiceConfig::search();
         if (!is_array($cfg) || empty($rows)) {
             return $rows;
         }
@@ -641,7 +641,7 @@ class AiChatService
 
     private function requestOpenAiChat(array $messages, $temperature = 0.55)
     {
-        $cfg = config('maccms.ai_search');
+        $cfg = AiServiceConfig::search();
         if (!is_array($cfg)) {
             return '';
         }
@@ -901,7 +901,7 @@ class AiChatService
 
     private function requestAiSearchResults($question, $module, array $cards, $responseLang = 'zh')
     {
-        $cfg = config('maccms.ai_search');
+        $cfg = AiServiceConfig::search();
         if (!is_array($cfg)) {
             return [];
         }
@@ -1036,7 +1036,7 @@ class AiChatService
 
     private function resolveResponseLanguage($question)
     {
-        $cfg = config('maccms.ai_search');
+        $cfg = AiServiceConfig::search();
         $lang = 'auto';
         if (is_array($cfg) && isset($cfg['response_language'])) {
             $lang = strtolower(trim((string)$cfg['response_language']));

@@ -37,6 +37,9 @@ class TplConfig extends Base
                     $tplconfig['type']['hom'][$hk]['cover'] = ($cv === 'h') ? 'h' : 'v';
                 }
             }
+            if (!isset($tplconfig['type']) || !is_array($tplconfig['type'])) {
+                $tplconfig['type'] = [];
+            }
             if (!isset($tplconfig['list_cover']) || !is_array($tplconfig['list_cover'])) {
                 $tplconfig['list_cover'] = [];
             }

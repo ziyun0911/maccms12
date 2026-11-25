@@ -87,8 +87,19 @@ class Search extends Base
 
     private function resultCacheKey($endpoint, array $params)
     {
+        $params['popedom'] = implode(',', mac_popedom_excluded_type_ids());
         ksort($params);
         return 'api_search_' . $endpoint . '_' . md5(json_encode($params, JSON_UNESCAPED_UNICODE));
+    }
+
+    private function popedomMeiliFilter()
+    {
+        $excl = mac_popedom_excluded_type_ids();
+        if (empty($excl)) {
+            return '';
+        }
+        $ids = implode(',', $excl);
+        return ' AND type_id NOT IN [' . $ids . '] AND type_id_1 NOT IN [' . $ids . ']';
     }
 
     public function index(Request $request)
@@ -96,9 +107,6 @@ class Search extends Base
         $param = $request->param();
 
         $wd = trim($param['wd'] ?? '');
-        if (empty($wd)) {
-            return json(['code' => 1001, 'msg' => '参数错误: wd 不能为空']);
-        }
         if (mb_strlen($wd) > 50) {
             $wd = mb_substr($wd, 0, 50);
         }
@@ -113,12 +121,23 @@ class Search extends Base
             $module = 'all';
         }
 
+        // 兼容 vod/search 的语义化过滤参数（actor/director/area/class/year），
+        // 这些来自“主演/导演/地区/类型”等链接，旧逻辑会被贪婪路由吃掉前缀导致搜不到。
+        $filterKeys = ['actor', 'director', 'area', 'class', 'year'];
+        $filters = [];
+        foreach ($filterKeys as $fk) {
+            $fv = trim($param[$fk] ?? '');
+            if ($fv !== '') {
+                $filters[$fk] = $this->format_sql_string($fv);
+            }
+        }
+
         $limit = max(1, min(50, intval($param['limit'] ?? 10)));
         $page = max(1, intval($param['page'] ?? 1));
         $offset = ($page - 1) * $limit;
 
         $safeWd = $this->format_sql_string($wd);
-        if (empty($safeWd)) {
+        if ($safeWd === '' && $filters === []) {
             return json(['code' => 1001, 'msg' => '参数错误: 关键字无效']);
         }
 
@@ -127,6 +146,7 @@ class Search extends Base
             'module' => $module,
             'page'   => $page,
             'limit'  => $limit,
+            'filters'=> $filters,
         ]);
         $cached = Cache::get($cacheKey);
         if (is_array($cached)) {
@@ -149,7 +169,7 @@ class Search extends Base
 
         $kinds = $module === 'all' ? ['vod', 'art', 'manga'] : [$module];
         foreach ($kinds as $kind) {
-            $result[$kind] = $this->searchKindRich($kind, $safeWd, $offset, $limit);
+            $result[$kind] = $this->searchKindRich($kind, $safeWd, $offset, $limit, $filters);
         }
 
         $resp = [
@@ -162,7 +182,7 @@ class Search extends Base
         return json($resp);
     }
 
-    private function searchKindRich($kind, $wd, $offset, $limit)
+    private function searchKindRich($kind, $wd, $offset, $limit, $filters = [])
     {
         $meta = self::$kindRichMeta[$kind] ?? null;
         if (!$meta) {
@@ -171,8 +191,12 @@ class Search extends Base
 
         $meiliRows = null;
         $meiliTotal = 0;
-        if (MeilisearchService::enabled()) {
+        // 带语义化过滤时走数据库精确查询，跳过 Meilisearch（其行为无法等价表达这些字段过滤）
+        if (empty($filters) && MeilisearchService::enabled()) {
             $filter = MeilisearchService::filterPublishedKind($kind);
+            if ($filter !== '') {
+                $filter .= $this->popedomMeiliFilter();
+            }
             if ($filter !== '') {
                 $sr = MeilisearchService::search($wd, $filter, $limit, $offset);
                 if (!empty($sr['ok'])) {
@@ -205,8 +229,27 @@ class Search extends Base
 
         $where = [
             $meta['status'] => ['eq', 1],
-            $meta['like']   => ['like', '%' . $wd . '%'],
         ];
+        if ($wd !== '') {
+            $where[$meta['like']] = ['like', '%' . $wd . '%'];
+        }
+        // 语义化过滤：actor/director/area/class/year（仅 vod 表具备这些字段）
+        $extraCols = [
+            'actor'   => 'vod_actor',
+            'director'=> 'vod_director',
+            'area'    => 'vod_area',
+            'class'   => 'vod_class',
+            'year'    => 'vod_year',
+        ];
+        if (($meta['table'] ?? '') === 'vod') {
+            foreach ($filters as $fk => $fv) {
+                if (isset($extraCols[$fk])) {
+                    $safe = str_replace(['%', '_'], ['\\%', '\\_'], $fv);
+                    $where[$extraCols[$fk]] = ['like', '%' . $safe . '%'];
+                }
+            }
+        }
+        $where = mac_popedom_where($where);
         if (!empty($meta['recycle'])) {
             try {
                 $total = Db::name($meta['table'])->where($where)->where($meta['recycle'], 0)->count();

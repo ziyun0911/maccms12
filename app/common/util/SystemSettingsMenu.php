@@ -101,19 +101,17 @@ class SystemSettingsMenu
         $pushReady = trim((string)self::get($config, 'push.vapid_public', '')) !== ''
             && trim((string)self::get($config, 'push.vapid_private', '')) !== '';
 
-        $seoOn = (string)self::get($config, 'ai_seo.enabled', '0') === '1';
-        $seoReady = trim((string)self::get($config, 'ai_seo.api_key', '')) !== '';
-        $coverOn = (string)self::get($config, 'ai_cover.enabled', '0') === '1';
-        $coverReady = trim((string)self::get($config, 'ai_cover.api_key', '')) !== '';
-        $searchOn = (string)self::get($config, 'ai_search.enabled', '0') === '1';
-        $searchReady = trim((string)self::get($config, 'ai_search.api_key', '')) !== '';
+        // 全站 AI 模块的连接信息已归口到主题 AI，密钥就绪状态统一以主题 AI 为准
         $themeAiOn = (string)self::get($config, 'theme_ai.enabled', '0') === '1';
         $themeAiReady = trim((string)self::get($config, 'theme_ai.api_key', '')) !== '';
+        $seoOn = (string)self::get($config, 'ai_seo.enabled', '0') === '1';
+        $seoReady = $themeAiReady;
+        $coverOn = (string)self::get($config, 'ai_cover.enabled', '0') === '1';
+        $coverReady = $themeAiReady;
+        $searchOn = (string)self::get($config, 'ai_search.enabled', '0') === '1';
+        $searchReady = $themeAiReady;
         $contentOn = (string)self::get($config, 'ai_content.enabled', '0') === '1';
-        $contentReuse = (string)self::get($config, 'ai_content.use_ai_search_credentials', '0') === '1';
-        $contentReady = $contentReuse
-            ? $searchReady
-            : trim((string)self::get($config, 'ai_content.api_key', '')) !== '';
+        $contentReady = $themeAiReady;
         $analyticsOn = (string)self::get($config, 'analytics.server_track', '0') === '1'
             || (string)self::get($config, 'analytics.track_region', '0') === '1';
 

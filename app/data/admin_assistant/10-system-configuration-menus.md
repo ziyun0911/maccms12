@@ -34,7 +34,9 @@
 ## 3. AI SEO 与 AI 视频封面 (`menu/configaiseo`、`menu/configaicover`，都是页签)
 
 - 位于 **网站参数** 的「AI SEO 设置」「AI 视频封面设置」页签，各自有独立保存按钮与提交地址（`system/configaiseo`、`system/configaicover` 均 302 到页签）。  
-- 列表/详情批量或单行 **AI 生成 SEO**（标题/描述等），使用独立 **API Base / Key / 模型**，与会话型 AI 搜索互不共用。  
+- 列表/详情批量或单行 **AI 生成 SEO**（标题/描述等）；AI 视频封面按影片资料生成竖版海报并备份原图。  
+- **连接信息统一归口「主题 AI 设置」**：`ai_seo`（含后台 UEditor AI 工具栏）、`ai_cover` 与 `ai_search`、`ai_content` 的 `provider` / `model` / `api_base` / `api_key` 唯一取自 `maccms.theme_ai`。页面只读展示脱敏摘要 + 跳转链接，保存接口忽略伪造的接口字段；主题 AI 保存时由 `AiServiceConfig::syncAll()` 一次同步四段，运行时由 `AiServiceConfig` 实时覆盖。  
+- `ai_cover` 取 `theme_ai.image_api_base` / `image_api_key` / `image_model`（留空回退文本凭据），接口格式固定 OpenAI Images；启用开关、超时、尺寸、画质、提示词等业务参数仍在本页设置。  
 - 保存前建议小批量试跑，避免消耗过大。
 
 ---
@@ -42,6 +44,7 @@
 ## 4. AI 搜索设置 (`menu/configaisearch` → `system/configaisearch`)
 
 - 独立页面。前台 **AI 搜索/对话**、扩展词、语义向量重排、外部数据源（TMDB、豆瓣等）、速率限制。  
+- 服务商连接信息（`provider` / `model` / `api_base` / `api_key`）**统一同步自「主题 AI 设置」**（`maccms.theme_ai`），由 `AiServiceConfig::search()` 在运行时读取；本页只读展示脱敏摘要，不再单独填写。主题 AI 保存后自动同步。  
 - 搜索引擎本体接入在 **Meilisearch 设置**（`menu/meilisearch` → `meilisearch/index`），本页只管 LLM 侧。
 
 ---
@@ -56,8 +59,8 @@
 ## 6. 后台助手设置 (`menu/configassistant` → `system/configassistant`)
 
 - 浮动 **`?`** 管理端助手；知识库就是 **`app/data/admin_assistant/*.md`**，可选附带非敏感环境快照。  
-- 可与 **AI 搜索设置** 的 LLM 凭据 **复用**（本页开关），或单独填写模型 / API Base / Key。  
-- 配置块 `maccms.admin_assistant` **出厂不存在**，只有在本页点过保存才会写入 `maccms.php`。
+- 服务商连接信息（`provider` / `model` / `api_base` / `api_key`）**统一归口「主题 AI 设置」**（`maccms.theme_ai`），本页只读展示脱敏摘要、不单独保存；换服务商后助手自动跟随。  
+- 配置块 `maccms.admin_assistant` **出厂不存在**，只有在本页点过保存才会写入 `maccms.php`；其中只含助手行为参数（启用、权限范围、超时、token 预算、限流、知识条数）。
 
 ---
 
@@ -161,8 +164,8 @@
 | 左栏名称 | 控制器/动作 | 管什么 |
 |----------|-------------|--------|
 | **翻译设置** | `translate/index` | 内容多语言翻译服务凭据与开关（配置在 `app/extra/translate.php`） |
-| **AI 标注设置** | `system/configaicontent` | 自动打标/标注模型与队列参数，配合 **用户 → AI 标注队列**（`ai_annotation/index`） |
-| **主题 AI 设置** | `system/configthemeai` | 主题生成相关 AI 参数，配合 **模版 → 主题设计**（`theme_design/design`） |
+| **AI 标注设置** | `system/configaicontent` | 自动打标/标注的启用、超时、批量与采纳参数，配合 **用户 → AI 标注队列**（`ai_annotation/index`）；连接信息只读，同步自主题 AI |
+| **主题 AI 设置** | `system/configthemeai` | 主题生成相关 AI 参数，配合 **模版 → 主题设计**（`theme_design/design`）；也是全站 AI 模块连接信息的唯一来源，保存时同步 AI 搜索 / AI SEO / AI 标注 / AI 视频封面 |
 | **API 文档** | `api_doc/index` | 站内接口文档页 |
 | **说明文档** | `doc/index` | 站内阅读 `app/data/admin_assistant/` 与 `说明文档/` |
 

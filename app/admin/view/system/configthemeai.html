@@ -14,10 +14,39 @@
     .layui-form-pane .layui-input-block {
         margin-left: 220px;
     }
+
+    .theme-ai-test-result {
+        border: 1px solid #e6e6e6;
+        border-radius: 4px;
+        background: #fafafa;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .theme-ai-test-result.is-ok { border-color: #16b777; background: #f3fbf7; }
+    .theme-ai-test-result.is-fail { border-color: #ff5722; background: #fff7f4; }
+    .theme-ai-test-result.is-partial { border-color: #ffb800; background: #fffaf0; }
+    .theme-ai-test-result .tai-title { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+    .theme-ai-test-result.is-ok .tai-title { color: #0b8f5c; }
+    .theme-ai-test-result.is-fail .tai-title { color: #d84315; }
+    .theme-ai-test-result.is-partial .tai-title { color: #b78000; }
+    .theme-ai-test-result .tai-row { display: flex; gap: 8px; padding: 1px 0; }
+    .theme-ai-test-result .tai-k { flex: 0 0 92px; color: #777; }
+    .theme-ai-test-result .tai-v { flex: 1; word-break: break-all; color: #333; }
+    .theme-ai-test-result .tai-note { margin-top: 9px; padding-top: 8px; border-top: 1px dashed #ddd; color: #a46400; }
+
+    /* 一次测试返回「文本生成 / 图像服务」两段结果 */
+    .theme-ai-test-result .tai-section { border-top: 1px solid #e6e6e6; margin-top: 9px; padding-top: 9px; }
+    .theme-ai-test-result .tai-section:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+    .theme-ai-test-result .tai-section-title { font-weight: 600; margin-bottom: 5px; }
+    .theme-ai-test-result .tai-section-title.is-ok { color: #0b8f5c; }
+    .theme-ai-test-result .tai-section-title.is-fail { color: #d84315; }
 </style>
 
 <div class="page-container">
-    <form class="layui-form layui-form-pane" action="">
+    <form id="themeAiForm" class="layui-form layui-form-pane" action="">
         <input type="hidden" name="__token__" value="{:token()}" />
 
         <blockquote class="layui-elem-quote layui-quote-nm">
@@ -49,6 +78,22 @@
             <div class="layui-form-mid layui-word-aux">
                 {volist name="theme_ai_models" id="m"}<code>{$m}</code>&nbsp;{/volist}
             </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">{:lang('admin/system/configthemeai/vision_model')}：</label>
+            <div class="layui-input-inline w300">
+                <input type="text" name="theme_ai[vision_model]" value="{$config['theme_ai']['vision_model']|default=''}" class="layui-input" placeholder="glm-4v-flash">
+            </div>
+            <div class="layui-form-mid layui-word-aux">{:lang('admin/system/configthemeai/vision_model_tip')}</div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">{:lang('admin/system/configthemeai/vision_max_tokens')}：</label>
+            <div class="layui-input-inline w120">
+                <input type="number" name="theme_ai[vision_max_tokens]" value="{$config['theme_ai']['vision_max_tokens']|default='1024'}" class="layui-input" min="200" max="4096">
+            </div>
+            <div class="layui-form-mid layui-word-aux">{:lang('admin/system/configthemeai/vision_max_tokens_tip')}</div>
         </div>
 
         <div class="layui-form-item">
@@ -97,6 +142,12 @@
         </div>
 
         <div class="layui-form-item">
+            <div class="layui-input-block">
+                <div class="layui-form-mid layui-word-aux">{:lang('admin/system/configthemeai/ark_note')}</div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
             <label class="layui-form-label">{:lang('admin/system/configthemeai/image_api_base')}：</label>
             <div class="layui-input-inline w300">
                 <input type="text" name="theme_ai[image_api_base]" value="{$config['theme_ai']['image_api_base']|default=''}" class="layui-input" placeholder="https://api.openai.com/v1">
@@ -114,8 +165,19 @@
             </div>
         </div>
 
+        <div class="layui-form-item">
+            <label class="layui-form-label">连接测试：</label>
+            <div class="layui-input-block">
+                <div id="themeAiTestResult" class="theme-ai-test-result" style="display:none;"></div>
+                <div class="layui-form-mid layui-word-aux">
+                    点击「测试连接」会<b>同时检查文本与图像两项</b>，结果按两段分别展示。测试使用当前表单里填写的值，<b>无需先保存</b>，也不会写入配置。文本项会向模型发送一次极小的对话请求（约 16 tokens，产生极少量文本费用）；图像项只读取 /models 列表，<b>不会生成图片、不产生图像费用</b>。密钥留空时自动使用已保存的密钥。
+                </div>
+            </div>
+        </div>
+
         <div class="layui-form-item center">
             <div class="layui-input-block">
+                <button type="button" class="layui-btn layui-btn-normal" id="btnTestAi">测试连接</button>
                 <button type="submit" class="layui-btn" lay-submit="" lay-filter="formSubmit">{:lang('btn_save')}</button>
                 <button class="layui-btn layui-btn-warm" type="reset">{:lang('btn_reset')}</button>
             </div>
@@ -124,5 +186,115 @@
 </div>
 
 {include file="../../../app/admin/view/public/foot" /}
+<script type="text/javascript">
+    layui.use(['layer'], function () {
+        var layer = layui.layer;
+        var $form = $('#themeAiForm');
+        var $result = $('#themeAiTestResult');
+        var $btn = $('#btnTestAi');
+        var testUrl = "{:url('system/testthemeai')}";
+        var BTN_LABEL = '测试连接';
+
+        // 全部用 .text() 渲染，避免服务端返回的诊断文本被当成 HTML 执行
+        function row(k, v) {
+            return $('<div class="tai-row"></div>')
+                .append($('<div class="tai-k"></div>').text(k))
+                .append($('<div class="tai-v"></div>').text(v));
+        }
+
+        function appendRows($box, list) {
+            if (!Array.isArray(list)) { return; }
+            $.each(list, function (i, item) {
+                if (item && typeof item === 'object') {
+                    $box.append(row(item.k, item.v));
+                }
+            });
+        }
+
+        function appendNotes($box, list) {
+            if (!Array.isArray(list) || !list.length) { return; }
+            var $note = $('<div class="tai-note"></div>');
+            $.each(list, function (i, text) {
+                $note.append($('<div></div>').text('· ' + String(text)));
+            });
+            $box.append($note);
+        }
+
+        function render(res) {
+            var data = (res && res.data && typeof res.data === 'object') ? res.data : {};
+            // 后端一次返回文本 + 图像两段；无 sections 时按旧的单结果结构兜底
+            var sections = (Array.isArray(data.sections) && data.sections.length)
+                ? data.sections
+                : [{
+                    label: '',
+                    ok: data.ok === true,
+                    msg: (res && res.msg) ? res.msg : (data.ok === true ? '模型已响应' : '请查看下方诊断'),
+                    details: data.details,
+                    notes: data.notes
+                }];
+
+            var pass = 0;
+            $.each(sections, function (i, s) { if (s && s.ok === true) { pass++; } });
+            var total = sections.length;
+            var cls = (pass === total) ? 'is-ok' : (pass === 0 ? 'is-fail' : 'is-partial');
+            var title = (res && res.msg) ? String(res.msg) : (pass === total ? '连接成功' : '连接失败');
+            if (total > 1) { title += '（' + pass + '/' + total + ' 项通过）'; }
+
+            $result.empty().removeClass('is-ok is-fail is-partial').addClass(cls);
+            $result.append($('<div class="tai-title"></div>').text(title));
+
+            $.each(sections, function (i, s) {
+                s = s || {};
+                var $sec = $('<div class="tai-section"></div>');
+                if (total > 1 || s.label) {
+                    var secTitle = (s.label ? s.label + ' · ' : '') + (s.ok === true ? '成功' : '失败') + (s.msg ? '：' + s.msg : '');
+                    $sec.append($('<div class="tai-section-title"></div>')
+                        .addClass(s.ok === true ? 'is-ok' : 'is-fail')
+                        .text(secTitle));
+                }
+                appendRows($sec, s.details);
+                appendNotes($sec, s.notes);
+                $result.append($sec);
+            });
+            $result.show();
+        }
+
+        function run() {
+            $result.hide().empty().removeClass('is-ok is-fail is-partial');
+            $btn.prop('disabled', true).text('测试中...');
+            var loadIdx = layer.load(1, { shade: [0.05, '#000'] });
+            $.ajax({
+                url: testUrl,
+                type: 'POST',
+                dataType: 'json',
+                // serialize() 带上当前表单值（含未保存的新密钥）与 __token__；kind=all 一次测文本 + 图像
+                data: $form.serialize() + '&kind=all',
+                timeout: 90000,
+                success: function (res) {
+                    // 刷新 CSRF token，保证可以连续多次测试
+                    if (res && res.data && res.data.__token__) {
+                        $form.find('input[name="__token__"]').val(String(res.data.__token__));
+                    }
+                    render(res);
+                },
+                error: function (xhr, status) {
+                    render({
+                        msg: status === 'timeout' ? '测试超时' : '接口无响应或返回格式错误',
+                        data: {
+                            ok: false,
+                            notes: ['请确认后台会话仍有效（必要时重新登录），或查看浏览器 Network 面板中该请求的响应。']
+                        }
+                    });
+                },
+                complete: function () {
+                    layer.close(loadIdx);
+                    $btn.prop('disabled', false).text(BTN_LABEL);
+                }
+            });
+        }
+
+        $btn.on('click', run);
+    });
+</script>
 </body>
 </html>
