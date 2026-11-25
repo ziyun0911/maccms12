@@ -13,7 +13,7 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     # 服务端专用目录：任何直接访问一律 403
-    RewriteRule ^(说明文档|runtime|vendor|config|app|extend)(/|$) - [F,L]
+    RewriteRule ^(说明文档|runtime|vendor|config|app|extend|bin)(/|$) - [F,L]
     # 隐藏文件/目录，保留 .well-known（HTTPS 证书 HTTP-01 校验要用）
     RewriteRule (^|/)\.(?!well-known) - [F,L]
 </IfModule>

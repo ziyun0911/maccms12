@@ -60,8 +60,8 @@ Nginx 需配 PATHINFO 伪静态（`try_files $uri $uri/ /index.php?s=$uri&$args;
 #    app/install/sql/initdata.sql  —— 出厂数据
 # 4) 装完删掉/保留 install.lock（保留即锁死安装），登录后台先改密码
 # 5) 改过 static/ 或 template/default/asset/ 下的 CSS/JS 源文件后重建资源包
-php think front:bundle            # 生成六张 bundle（前台 2 张 CSS、后台 1 张 CSS、后台 3 张 JS）
-php think front:bundle --check    # 只校验是否与源文件一致，不写盘
+php bin/think front:bundle            # 生成六张 bundle（前台 2 张 CSS、后台 1 张 CSS、后台 3 张 JS）
+php bin/think front:bundle --check    # 只校验是否与源文件一致，不写盘
 ```
 
 命令行工具只有两个（[config/console.php](.../config/console.php)）：`front:bundle` 与 `seo:generate`（AI SEO 文案批量生成，`--mid/--limit/--id`）。计划任务不是命令行工具，走 `api.php/timming`，详见 [07-定时任务与运维手册.md](.../说明文档/07-定时任务与运维手册.md)。
