@@ -4,11 +4,12 @@
 <h2>基于 ThinkPHP 8 的影视内容管理系统</h2>
 <p>由 maccms10 迁移而来，模板、采集、接口和后台结构沿用原版；带 AI SEO 文案生成，支持多语言界面与多云存储。</p>
 <p>
-<a href="https://github.com/ziyun0911/maccms12/stargazers"><img src="https://img.shields.io/badge/STARS-⭐-black?logo=github&style=for-the-badge"/></a>
-<a href="https://github.com/ziyun0911/maccms12/forks"><img src="https://img.shields.io/badge/FORKS-🍴-blue?logo=git&style=for-the-badge"/></a>
-<a href="https://github.com/ziyun0911/maccms12/blob/main/LICENSE"><img src="https://img.shields.io/badge/LICENSE-Apache--2.0-green?style=for-the-badge"/></a>
+<a href="https://github.com/ziyun0911/maccms12/stargazers"><img src="https://img.shields.io/github/stars/ziyun0911/maccms12?style=for-the-badge&logo=github&label=STARS"/></a>
+<a href="https://github.com/ziyun0911/maccms12/forks"><img src="https://img.shields.io/github/forks/ziyun0911/maccms12?style=for-the-badge&logo=github&label=FORKS"/></a>
+<a href="https://github.com/ziyun0911/maccms12/blob/HEAD/LICENSE"><img src="https://img.shields.io/badge/LICENSE-Apache--2.0-green?style=for-the-badge"/></a>
 <a href="https://github.com/sponsors/ziyun0911"><img src="https://img.shields.io/badge/SPONSOR-❤️-pink?style=for-the-badge"/></a>
 </p>
+
 <p>
 <a href="#"><img src="https://img.shields.io/badge/TELEGRAM-CHANNEL-blue?logo=telegram&style=for-the-badge"/></a>
 <a href="#"><img src="https://img.shields.io/badge/TELEGRAM-GROUP-blue?logo=telegram&style=for-the-badge"/></a>
