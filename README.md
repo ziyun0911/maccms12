@@ -54,18 +54,18 @@ Nginx 需配 PATHINFO 伪静态（`try_files $uri $uri/ /index.php?s=$uri&$args;
 ## 三、快速开始
 
 
-# 1) 获取源码；已经克隆过的，进入目录执行 git pull 更新即可
+1) 获取源码；已经克隆过的，进入目录执行 git pull 更新即可
 ```bash
 git clone https://github.com/ziyun0911/maccms12.git
 cd maccms12
 ```
-# 2) 建一个空库（utf8mb4），把站点根目录指向本目录
-# 3) 浏览器访问 install.php，按向导填数据库与站点信息（会写 config/database.php 与 app/extra/maccms.php）
-# 4) 导入种子数据（安装向导里点「导入数据」即可，等价于手工执行）
-#    app/install/sql/install.sql   —— 建 80 张表
-#    app/install/sql/initdata.sql  —— 出厂数据
-# 5) 装完删掉/保留 install.lock（保留即锁死安装），登录后台先改密码
-# 6) 改过 static/ 或 template/default/asset/ 下的 CSS/JS 源文件后重建资源包
+2) 建一个空库（utf8mb4），把站点根目录指向本目录
+3) 浏览器访问 install.php，按向导填数据库与站点信息（会写 config/database.php 与 app/extra/maccms.php）
+4) 导入种子数据（安装向导里点「导入数据」即可，等价于手工执行）
+   app/install/sql/install.sql   —— 建 80 张表
+   app/install/sql/initdata.sql  —— 出厂数据
+5) 装完删掉/保留 install.lock（保留即锁死安装），登录后台先改密码
+6) 改过 static/ 或 template/default/asset/ 下的 CSS/JS 源文件后重建资源包
 php vendor/bin/think front:bundle            # 生成六张 bundle（前台 2 张 CSS、后台 1 张 CSS、后台 3 张 JS）
 php vendor/bin/think front:bundle --check    # 只校验是否与源文件一致，不写盘
 ```
